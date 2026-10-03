@@ -7,7 +7,7 @@ import { formatRupees } from '@/lib/format';
 import { useReveal } from '@/lib/useReveal';
 import { cn } from '@/lib/utils';
 import { DiscountTable } from '../components/DiscountTable';
-import { ageLine, applyHref, DAY_PASS_SLUG, planShortName, planSlug } from '../plans';
+import { applyHref, DAY_PASS_SLUG, planShortName, planSlug } from '../plans';
 
 function PlanCard({ plan, featured }: { plan: MembershipPlan; featured: boolean }) {
   const name = planShortName(plan);
@@ -16,12 +16,9 @@ function PlanCard({ plan, featured }: { plan: MembershipPlan; featured: boolean 
       aria-labelledby={`plan-${plan.id}`}
       className={cn('flex flex-col p-7 xl:p-8', featured ? 'on-dark bg-olive text-chalk' : 'border border-line bg-chalk')}
     >
-      <div className="flex items-baseline justify-between gap-3">
-        <h2 id={`plan-${plan.id}`} className="display text-4xl">
-          {name}
-        </h2>
-        <span className={cn('text-[0.68rem] font-semibold tracking-[0.14em] whitespace-nowrap uppercase', featured ? 'text-sun' : 'text-olive-mid')}>{ageLine(plan)}</span>
-      </div>
+      <h2 id={`plan-${plan.id}`} className="display text-4xl">
+        {name}
+      </h2>
       <p className={cn('mt-4 min-h-[3lh] leading-relaxed', featured ? 'text-chalk/75' : 'text-muted')}>{plan.description}</p>
       <p className="mt-6">
         <span className="display text-[2.6rem] leading-none tabular-nums">{formatRupees(plan.price)}</span>
@@ -121,7 +118,7 @@ export default function MembershipPage() {
           <DayPassCard info={info} />
         </div>
 
-        <p className="mt-8 max-w-2xl text-sm text-muted">Membership prices include GST. Junior is for players under 18. Applying starts with a free member account; you buy the plan afterwards online or at the front desk.</p>
+        <p className="mt-8 max-w-2xl text-sm text-muted">Membership prices include GST. Applying starts with a free member account; you buy the plan afterwards online or at the front desk.</p>
 
         <section aria-labelledby="discounts-title" className="mt-20 md:mt-28" data-reveal>
           <div className="grid gap-6 md:grid-cols-12">

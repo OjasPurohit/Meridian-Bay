@@ -1,7 +1,7 @@
 import type { BarOrder, BarOrderItem, BarTable, BarMenuItem, BarTab, BusinessClient, CourtBooking, Invoice, InvoiceItem, OrderStatusEvent, Payment, Product, ShopOrder, ShopOrderItem, SocialSession, SocialSessionParticipant } from '@shared/types/rows';
 import { addDays } from '@shared/lib/time';
 
-import barMenuJson from '@mock/bar-menu-items.json';
+import kitchenMenuJson from '@mock/kitchen-menu-items.json';
 import barOrderItemsJson from '@mock/bar-order-items.json';
 import barOrdersJson from '@mock/bar-orders.json';
 import barTablesJson from '@mock/bar-tables.json';
@@ -29,7 +29,8 @@ const participants = as<SocialSessionParticipant[]>(participantsJson);
 const productsRaw = as<Product[]>(productsJson);
 const shopOrdersRaw = as<ShopOrder[]>(shopOrdersJson);
 const shopItems = as<ShopOrderItem[]>(shopOrderItemsJson);
-const menuRaw = as<BarMenuItem[]>(barMenuJson);
+/** Kitchen / member ordering menu — not the public Bar & café board (see features/bar-cafe/menu.ts). */
+const menuRaw = as<BarMenuItem[]>(kitchenMenuJson);
 const barOrders = as<BarOrder[]>(barOrdersJson);
 const barItems = as<BarOrderItem[]>(barOrderItemsJson);
 const barTables = as<BarTable[]>(barTablesJson);

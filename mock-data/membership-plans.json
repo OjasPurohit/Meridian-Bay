@@ -52,7 +52,7 @@
     "id": "05000000-0000-4000-8000-000000000003",
     "membership_type": "JUNIOR",
     "name": "Junior Membership",
-    "description": "For players under 18 — discounted court rates.",
+    "description": "Discounted court rates for junior members.",
     "duration_months": 12,
     "price": "7500.00",
     "court_discount_percent": "70.00",

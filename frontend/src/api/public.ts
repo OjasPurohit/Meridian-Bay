@@ -12,7 +12,6 @@ import plansJson from '@mock/membership-plans.json';
 import sessionsJson from '@mock/social-sessions.json';
 import participantsJson from '@mock/social-session-participants.json';
 import bookingsJson from '@mock/court-bookings.json';
-import menuJson from '@mock/bar-menu-items.json';
 import productsJson from '@mock/products.json';
 
 const settings = settingsJson as unknown as ClubSetting[];
@@ -21,7 +20,6 @@ const plans = plansJson as unknown as MembershipPlan[];
 const sessions = sessionsJson as unknown as SocialSession[];
 const participants = participantsJson as unknown as SocialSessionParticipant[];
 const bookings = bookingsJson as unknown as CourtBooking[];
-const menu = menuJson as unknown as BarMenuItem[];
 const products = productsJson as unknown as Product[];
 
 const resolve = <T,>(value: T) => Promise.resolve(value);
@@ -92,8 +90,9 @@ export function listUpcomingSocialSessions(): Promise<UpcomingSocialSession[]> {
   return resolve(rows);
 }
 
+/** Public Bar & café board lives in features/bar-cafe/menu.ts. Kitchen POS uses mock-data/kitchen-menu-items.json in dashboards only. */
 export function listMenu(): Promise<BarMenuItem[]> {
-  return resolve(menu.filter((m) => m.is_available).sort((a, b) => a.sort_order - b.sort_order));
+  return resolve([]);
 }
 
 export type StockStatus = 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK';

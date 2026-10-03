@@ -1,6 +1,6 @@
 import type { MembershipPlan } from '@shared/types/rows';
 import { cn } from '@/lib/utils';
-import { ageLine, planShortName } from '../plans';
+import { planShortName } from '../plans';
 
 /** "100.00" -> "Free"; "15.00" -> "15% off". Discounts come straight from the plan rows. */
 export function discountLabel(percent: string, freeWhenFull = false) {
@@ -21,7 +21,7 @@ interface Props {
 export function DiscountTable({ plans, includeWalkIn = true, highlight, className }: Props) {
   return (
     <div className={cn('relative overflow-x-auto', className)}>
-      <table className="w-full min-w-[34rem] border-collapse text-left text-sm">
+      <table className="w-full min-w-[28rem] border-collapse text-left text-sm">
         <caption className="sr-only">Plan discounts at the courts, gear shop and bar & café</caption>
         <thead>
           <tr className="border-b border-ink/20 text-xs tracking-[0.12em] text-muted uppercase">
@@ -29,8 +29,7 @@ export function DiscountTable({ plans, includeWalkIn = true, highlight, classNam
             <th scope="col" className="py-3 pr-4 font-semibold">Courts</th>
             <th scope="col" className="py-3 pr-4 font-semibold">Gear shop</th>
             <th scope="col" className="py-3 pr-4 font-semibold">Bar &amp; café</th>
-            <th scope="col" className="py-3 pr-4 font-semibold">Plays a day</th>
-            <th scope="col" className="py-3 font-semibold">Ages</th>
+            <th scope="col" className="py-3 font-semibold">Plays a day</th>
           </tr>
         </thead>
         <tbody>
@@ -42,8 +41,7 @@ export function DiscountTable({ plans, includeWalkIn = true, highlight, classNam
               <td className="py-3 pr-4">{discountLabel(p.court_discount_percent, true)}</td>
               <td className="py-3 pr-4">{discountLabel(p.shop_discount_percent)}</td>
               <td className="py-3 pr-4">{discountLabel(p.bar_discount_percent)}</td>
-              <td className="py-3 pr-4 tabular-nums">Up to {p.max_plays_per_day}</td>
-              <td className="py-3">{ageLine(p).replace('Ages ', '')}</td>
+              <td className="py-3 tabular-nums">Up to {p.max_plays_per_day}</td>
             </tr>
           ))}
           {includeWalkIn && (
@@ -54,8 +52,7 @@ export function DiscountTable({ plans, includeWalkIn = true, highlight, classNam
               <td className="py-3 pr-4">Walk-in rate</td>
               <td className="py-3 pr-4">List price</td>
               <td className="py-3 pr-4">List price</td>
-              <td className="py-3 pr-4">—</td>
-              <td className="py-3">All</td>
+              <td className="py-3">—</td>
             </tr>
           )}
         </tbody>

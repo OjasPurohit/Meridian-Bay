@@ -11,7 +11,7 @@ import { PlaceholderArt, type ArtVariant } from '@/components/ui/PlaceholderArt'
 import { HERO_MEDIA } from '@/config/media';
 import { presetEnquiry } from '@/features/public/nav';
 import { EnquirySection } from '@/features/public/components/EnquirySection';
-import { ageLine, planShortName } from '@/features/membership/plans';
+import { planShortName } from '@/features/membership/plans';
 import { formatClockIst, formatDayIst, formatRupees, formatTimeOfDay } from '@/lib/format';
 import { useReveal } from '@/lib/useReveal';
 import { cn } from '@/lib/utils';
@@ -97,8 +97,8 @@ function Hero({ club }: { club: PublicClubInfo | null }) {
 
       <div className={cn(wrap, 'pt-32 pb-10 md:pb-14')}>
         <p className="eyebrow text-chalk/85">Tennis · Padel · Cricket · Badminton</p>
-        <h1 id="hero-title" className="display mt-5 max-w-[14ch] text-[clamp(3.1rem,9vw,8.25rem)] leading-[0.9] text-balance">
-          Long light, good courts, and a table for after.
+        <h1 id="hero-title" className="display mt-5 max-w-[22ch] text-[clamp(3.1rem,9vw,8.25rem)] leading-[0.9] text-balance">
+          The ultimate wellness destination
         </h1>
         <div className="mt-8 flex flex-col gap-8 md:mt-10 md:flex-row md:items-end md:justify-between">
           <p className="max-w-md text-lg leading-relaxed text-chalk/85">
@@ -310,7 +310,7 @@ function MembershipSection({ plans }: { plans: MembershipPlan[] }) {
             <li key={p.id} className="border-b border-line py-6 sm:pr-6" data-reveal>
               <p className="display text-3xl">{planShortName(p)}</p>
               <p className="mt-1 text-sm text-muted">
-                <span className="font-semibold text-ink tabular-nums">{formatRupees(p.price)}</span> / {p.duration_months} months · {ageLine(p)}
+                <span className="font-semibold text-ink tabular-nums">{formatRupees(p.price)}</span> / {p.duration_months} months
               </p>
             </li>
           ))}
@@ -321,7 +321,7 @@ function MembershipSection({ plans }: { plans: MembershipPlan[] }) {
         </ul>
         <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
           <ActionLink to="/membership">Compare membership</ActionLink>
-          <p className="text-sm text-muted">Prices include GST. Junior is for players under 18.</p>
+          <p className="text-sm text-muted">Prices include GST.</p>
         </div>
       </div>
     </section>

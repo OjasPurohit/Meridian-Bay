@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from 'react';
 import type { MembershipPlan } from '@shared/types/rows';
 import { listPlans } from '@/api/public';
 import { ActionLink } from '@/components/ui/button';
-import { PlaceholderArt } from '@/components/ui/PlaceholderArt';
 import { formatRupees } from '@/lib/format';
 import { useReveal } from '@/lib/useReveal';
 import { cn } from '@/lib/utils';
@@ -66,8 +65,13 @@ export default function BarCafePage() {
 
   return (
     <div ref={root} className="bg-chalk pt-18">
-      <section aria-labelledby="bar-title" className="bg-sand">
-        <div className={cn(wrap, 'grid items-end gap-10 pt-16 pb-14 md:pt-24 lg:grid-cols-12 lg:gap-10')}>
+      <section aria-labelledby="bar-title" className="relative isolate overflow-hidden bg-sand">
+        <img src="/media/bcb.jpg" alt="" className="absolute inset-0 h-full w-full object-cover" aria-hidden="true" />
+        <div
+          className="absolute inset-0 bg-[linear-gradient(105deg,rgba(246,241,232,0.94)_0%,rgba(246,241,232,0.78)_42%,rgba(30,37,32,0.35)_100%)]"
+          aria-hidden="true"
+        />
+        <div className={cn(wrap, 'relative grid items-end gap-10 pt-16 pb-14 md:pt-24 lg:grid-cols-12 lg:gap-10')}>
           <div className="lg:col-span-6">
             <p className="eyebrow text-olive-mid">Bar &amp; café</p>
             <h1 id="bar-title" className="display mt-6 text-[clamp(3rem,7vw,6rem)] leading-[0.92] text-balance">
@@ -87,7 +91,9 @@ export default function BarCafePage() {
               </p>
             )}
           </div>
-          <PlaceholderArt variant="bar" caption="Coffee at the bar & café" className="aspect-[4/3] lg:col-span-6" />
+          <figure className="relative aspect-[4/3] overflow-hidden lg:col-span-6">
+            <img src="/media/food_1.png" alt="Coffee at the bar &amp; café" className="h-full w-full object-cover" />
+          </figure>
         </div>
       </section>
 

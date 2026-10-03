@@ -9,7 +9,7 @@ import { presetEnquiry } from '@/features/public/nav';
 import { formatRupees, formatTimeOfDay } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { discountLabel } from '../components/DiscountTable';
-import { ageLine, DAY_PASS_SLUG, planShortName, planSlug } from '../plans';
+import { DAY_PASS_SLUG, planShortName, planSlug } from '../plans';
 
 function Detail({ k, v }: { k: string; v: string }) {
   return (
@@ -33,7 +33,6 @@ function PlanDetails({ plan }: { plan: MembershipPlan }) {
         <Detail k="Gear shop" v={discountLabel(plan.shop_discount_percent)} />
         <Detail k="Bar & café" v={discountLabel(plan.bar_discount_percent)} />
         <Detail k="Plays per day" v={`Up to ${plan.max_plays_per_day}`} />
-        <Detail k="Eligibility" v={ageLine(plan)} />
       </dl>
       <ul className="mt-8 space-y-2 text-[0.95rem]">
         {plan.benefits.map((b) => (

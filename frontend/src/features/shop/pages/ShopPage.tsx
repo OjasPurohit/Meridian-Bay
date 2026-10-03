@@ -103,7 +103,15 @@ function ProductCard({ p, plan }: { p: CatalogueProduct; plan: MembershipPlan | 
   return (
     <li className="group flex flex-col">
       <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-clay/60 transition-colors duration-300 group-hover:bg-clay">
-        <GearGlyph kind={glyphFor(p.category, p.name)} className="h-3/4 w-3/4 transition-transform duration-500 ease-[var(--ease-soft)] group-hover:-translate-y-1 motion-reduce:transform-none" />
+        {p.image_url ? (
+          <img
+            src={p.image_url}
+            alt=""
+            className="h-full w-full object-contain p-3 transition-transform duration-500 ease-[var(--ease-soft)] group-hover:scale-[1.02] motion-reduce:transform-none"
+          />
+        ) : (
+          <GearGlyph kind={glyphFor(p.category, p.name)} className="h-3/4 w-3/4 transition-transform duration-500 ease-[var(--ease-soft)] group-hover:-translate-y-1 motion-reduce:transform-none" />
+        )}
       </div>
       <div className="flex flex-1 flex-col pt-4">
         <p className="eyebrow text-olive-mid">{p.brand}</p>
