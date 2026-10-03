@@ -5,6 +5,7 @@ import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OPEN_LOGIN_EVENT, useAuth } from './AuthProvider';
 import { LoginForm } from './LoginForm';
+import { DemoAccess } from '@/features/demo/DemoAccess'; // DEMO (temporary)
 import { roleInfo } from './roles';
 
 /** Header "Log in" control with an anchored dropdown panel (never a full-page overlay). */
@@ -69,7 +70,7 @@ export function LoginMenu() {
         role="dialog"
         aria-label={session ? 'Your account' : 'Log in'}
         hidden={!open}
-        className="fixed inset-x-4 top-[4.75rem] z-50 max-h-[calc(100svh-5.5rem)] overflow-y-auto border border-line bg-sand p-5 text-ink shadow-[0_24px_60px_-28px_rgba(30,37,32,0.5)] sm:absolute sm:inset-x-auto sm:top-full sm:right-0 sm:mt-2 sm:w-[21rem]"
+        className="fixed inset-x-4 top-[4.75rem] z-50 max-h-[calc(100svh-5.5rem)] overflow-x-hidden overflow-y-auto border border-line bg-sand p-5 text-ink shadow-[0_24px_60px_-28px_rgba(30,37,32,0.5)] sm:absolute sm:inset-x-auto sm:top-full sm:right-0 sm:mt-2 sm:w-[21rem]"
       >
         {session ? (
           <div>
@@ -97,6 +98,7 @@ export function LoginMenu() {
           <>
             <p className="display mb-4 text-2xl">Welcome back</p>
             <LoginForm idPrefix={panelId} firstFieldRef={firstField} onDone={() => close(false)} compact />
+            <DemoAccess compact onPicked={() => close(false)} /> {/* DEMO (temporary) */}
           </>
         )}
       </div>

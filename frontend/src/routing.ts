@@ -3,8 +3,8 @@ import type { UserRole } from '@shared/constants/enums';
 
 export interface FeatureRoute {
   path: string;
-  /** Which layout wraps the page. Role layouts are added as their features land. */
-  layout: 'public';
+  /** Which layout wraps the page: the public site, or the sidebar layout shared by every role dashboard. */
+  layout: 'public' | 'dashboard';
   element: ReactElement;
   /** Roles allowed to see the page (UX only — the API enforces permissions). Omit for public pages. */
   roles?: UserRole[];

@@ -2,8 +2,10 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 
 import type { AuthSession } from '@shared/types/api';
 import type { AuthLoginRequest, AuthSignupRequest } from '@shared/types/requests.generated';
+import type { UserRole } from '@shared/constants/enums';
 import * as authApi from '@/api/auth';
 import { isBackendConfigured, setAuthToken } from '@/api/client';
+import { buildDemoSession, DEMO_TOKEN } from '@/features/demo/session'; // DEMO (temporary)
 
 /**
  * Session state. A session only ever comes from the server's AuthSession response; the role is the server's,
@@ -18,6 +20,8 @@ interface AuthContextValue {
   login: (body: AuthLoginRequest) => Promise<AuthSession>;
   signup: (body: AuthSignupRequest) => Promise<AuthSession>;
   logout: () => Promise<void>;
+  /** DEMO (temporary): one-click sign-in as a mock-data identity. */
+  demoLogin: (role: UserRole) => AuthSession;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -33,7 +37,10 @@ function readStored(): AuthSession | null {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<AuthSession | null>(null);
+  const [session, setSession] = useState<AuthSession | null>(() => {
+    const s = readStored(); // DEMO: a demo session survives a page reload
+    return s?.token === DEMO_TOKEN ? s : null;
+  });
   const [restoring, setRestoring] = useState(isBackendConfigured);
 
   const store = useCallback((s: AuthSession | null) => {
@@ -46,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isBackendConfigured) return;
     const stored = readStored();
-    if (!stored) {
+    if (!stored || stored.token === DEMO_TOKEN) {
       setRestoring(false);
       return;
     }
@@ -69,6 +76,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       signup: async (body) => {
         const s = await authApi.signup(body);
+        store(s);
+        return s;
+      },
+      demoLogin: (role) => {
+        const s = buildDemoSession(role);
         store(s);
         return s;
       },

@@ -31,7 +31,7 @@ export function useLoad<T>(load: () => Promise<T>, deps: unknown[] = []) {
  * Role gate. With a backend configured it requires a real session with the matching role (UX only — the API
  * enforces access). Without one, dashboards open as clearly labelled previews of seed data.
  */
-function Gate({ role, children }: { role: UserRole; children: ReactNode }) {
+export function Gate({ role, children }: { role: UserRole; children: ReactNode }) {
   const { session, restoring } = useAuth();
   if (!isBackendConfigured) return <>{children}</>;
   if (restoring) return <Loading label="Checking your session" />;

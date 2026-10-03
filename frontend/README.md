@@ -1,6 +1,6 @@
 # Frontend — Meridian Bay
 
-> **Status:** public homepage built (`features/public`), reading `mock-data/*.json` through `src/api/public.ts`. Role dashboards are still to be built. This file is the **layout contract** so four developers can build screens in parallel without editing each other's files.
+> **Status:** public site built (`features/public`, `shop`, `membership`, `bar-cafe`) **and all five role dashboards built** (`features/dashboards`) on a client-side demo store seeded from `mock-data/*.json`. The API is not wired yet. This file is also the **layout contract** so four developers can extend screens in parallel without editing each other's files.
 
 **Run:** `cd frontend && npm install && npm run dev` (http://localhost:5173) · `npm run build` typechecks and bundles.
 
@@ -45,3 +45,23 @@ frontend/
 6. **Add routes by creating `features/<module>/routes.ts`** — do not edit `App.tsx`. Add API functions in your own `api/<module>.ts`.
 7. While the backend is unfinished, develop against `mock-data/*.json` shapes (identical to the row types) behind the same `api/<module>.ts` functions, then flip to real calls.
 8. Polling intervals: kitchen board 5 s, member bookings/orders on focus, notifications badge 30 s (ADR-010).
+
+## Role dashboards (`src/features/dashboards`)
+
+One sidebar layout (`layout/DashboardLayout.tsx`) wraps every role; the role comes from the URL prefix (`ROLE_HOME_ROUTE`). Pages are lazy-loaded and registered in `routes.ts`; the sidebar items live in `layout/nav.ts`.
+
+| Role | Routes |
+|---|---|
+| Member `/member` | `/` court calendar + booking, `/store`, `/kitchen`, `/events` |
+| Front desk `/front-desk` | `/` full court calendar, `/bookings`, `/members`, `/payments` |
+| Business client `/business` | `/` overview (P&L, KPIs, charts), `/invoices`, `/history`, `/partners`, `/store` (CRUD) |
+| Kitchen manager `/kitchen` | `/` POS, `/orders` live board, `/history`, `/invoices`, `/stock`, `/products` (CRUD) |
+| Owner `/owner` | `/` overview, `/analytics`, `/members`, `/memberships`, `/bookings`, `/store`, `/kitchen`, `/payments`, `/staff`, `/events`, `/enquiries`, `/reports` (CSV) |
+
+**Shared building blocks** — `ui/kit.tsx` (cards, KPI with count-up, tabs, tables, drawer/modal, toasts, skeletons, stepper), `ui/charts.tsx` (dependency-free SVG area/bar/donut/sparkline), `ui/forms.tsx` (one create/edit form + delete confirm for all CRUD), `components/CourtCalendar.tsx` (the booking calendar, `mode="member" | "desk"`: members never see who booked a slot). All of it uses the existing design tokens in `src/index.css`; new motion utilities are appended there (`.anim-*`, `.card-lift`, `.skeleton`) and collapse under `prefers-reduced-motion`.
+
+**Demo data store** (`store/`) — `seed.ts` + `staticData.ts` build state from `mock-data` (plus a deterministic generated history for charts); `demoStore.ts` is the only place state changes (`demo.bookCourt`, `demo.placeShopOrder`, `demo.setKitchenStatus`, …) and applies the same rules as `docs/business-rules` (30-min grid, no double booking, max plays/day, plan discounts, atomic stock). It persists to `localStorage` and syncs across tabs, so a member's order shows up on the kitchen board in another tab. **To connect the real API**, replace the `demo.*` actions and `useDemo()` selectors with calls in `src/api/<module>.ts`; page components do not need to change shape. "Reset demo data" is in the user menu.
+
+**Temporary one-click demo login** — `src/features/demo` (accounts, session, `/demo` page, dropdown block). To remove it: delete that folder and the two lines marked `DEMO` in `src/auth/AuthProvider.tsx` and `src/auth/LoginMenu.tsx`.
+
+The calendar is plain React/CSS (fast, accessible, no 3D runtime). A Spline scene was deliberately not embedded: it would add a heavy runtime and a failure mode to the one screen that must never lag.

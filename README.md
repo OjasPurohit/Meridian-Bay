@@ -99,7 +99,7 @@ Frontend → static host (Vercel/Netlify) with `VITE_API_BASE_URL`; backend → 
 
 ## 18. Known assumptions
 
-39 recorded decisions where the brief is silent (sports offered, prices, tax regime, business-client meaning, cancellation policy, who runs the bar POS, social-play format …): [ASSUMPTIONS.md](docs/ASSUMPTIONS.md).
+40 recorded decisions where the brief is silent (sports offered, prices, tax regime, business-client meaning, cancellation policy, who runs the bar POS, social-play format …): [ASSUMPTIONS.md](docs/ASSUMPTIONS.md).
 
 ## 19. Known limitations (by design for v1)
 

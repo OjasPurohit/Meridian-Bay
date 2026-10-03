@@ -113,3 +113,181 @@
     animation-duration: 0.01ms !important;
   }
 }
+
+/* ------------------------------------------------------------------------------------------------
+   Dashboard motion + surfaces (additive; used only by role dashboards under features/dashboards).
+   All durations collapse to ~0 under prefers-reduced-motion (see the media query above).
+   ------------------------------------------------------------------------------------------------ */
+@layer components {
+  .anim-rise {
+    animation: rise 620ms var(--ease-soft) both;
+    animation-delay: var(--d, 0ms);
+  }
+  .anim-fade {
+    animation: fade 420ms ease both;
+    animation-delay: var(--d, 0ms);
+  }
+  .anim-pop {
+    animation: pop 380ms var(--ease-soft) both;
+    animation-delay: var(--d, 0ms);
+  }
+  .anim-slide-in {
+    animation: slideIn 420ms var(--ease-soft) both;
+  }
+  .anim-draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw 1500ms var(--ease-soft) forwards;
+    animation-delay: var(--d, 0ms);
+  }
+  .anim-grow-y {
+    transform-origin: bottom;
+    animation: growY 900ms var(--ease-soft) both;
+    animation-delay: var(--d, 0ms);
+  }
+  .anim-grow-x {
+    transform-origin: left;
+    animation: growX 900ms var(--ease-soft) both;
+    animation-delay: var(--d, 0ms);
+  }
+  .card-lift {
+    transition:
+      transform 260ms var(--ease-soft),
+      box-shadow 260ms var(--ease-soft),
+      border-color 260ms ease;
+  }
+  .card-lift:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-olive-mid);
+    box-shadow: 0 22px 44px -28px rgba(30, 37, 32, 0.5);
+  }
+  .skeleton {
+    background: linear-gradient(100deg, rgba(30, 37, 32, 0.05) 30%, rgba(30, 37, 32, 0.11) 50%, rgba(30, 37, 32, 0.05) 70%);
+    background-size: 220% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+  .hatch {
+    background-image: repeating-linear-gradient(135deg, rgba(185, 95, 66, 0.18) 0 5px, transparent 5px 10px);
+  }
+  .hatch-grey {
+    background-image: repeating-linear-gradient(135deg, rgba(30, 37, 32, 0.14) 0 5px, transparent 5px 10px);
+  }
+  .live-dot {
+    position: relative;
+  }
+  .live-dot::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 9999px;
+    border: 2px solid currentColor;
+    opacity: 0;
+    animation: ping 1.8s var(--ease-soft) infinite;
+  }
+  .sidebar-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(252, 250, 246, 0.25) transparent;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes growY {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes growX {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes shimmer {
+  to {
+    background-position: -220% 0;
+  }
+}
+@keyframes ping {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+
+/* Receipts: print only the receipt dialog. */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible !important;
+  }
+  .print-area {
+    position: fixed !important;
+    inset: 0 !important;
+    margin: auto !important;
+    max-height: none !important;
+    box-shadow: none !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
