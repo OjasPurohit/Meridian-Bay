@@ -2,7 +2,7 @@
   {
     "id": "1f000000-0000-4000-8000-000000000001",
     "key": "club_name",
-    "value": "The Champions Club",
+    "value": "Meridian Bay",
     "description": "Club display name",
     "is_public": true,
     "updated_by_user_id": "01000000-0000-4000-8000-000000000001",
@@ -52,7 +52,7 @@
   {
     "id": "1f000000-0000-4000-8000-000000000006",
     "key": "club_email",
-    "value": "hello@championsclub.example",
+    "value": "hello@meridianbay.example",
     "description": "PLACEHOLDER email",
     "is_public": true,
     "updated_by_user_id": "01000000-0000-4000-8000-000000000001",

@@ -2,7 +2,7 @@
   {
     "id": "01000000-0000-4000-8000-000000000001",
     "email": "owner@championsclub.example",
-    "password_hash": "$2b$10$s8if1GCF16la4EY2IVSatuTfLDgnpNf2F65B3aAFE4yZQC84jQezO",
+    "password_hash": "$2b$10$VT/S0I4BuzaoZQwy4rkXIucEW6Bmkcg/07FVLlsAnZE.uxoxCtqja",
     "role": "OWNER_ADMIN",
     "full_name": "Vikram Malhotra",
     "phone": "+919820000001",
@@ -15,7 +15,7 @@
   {
     "id": "01000000-0000-4000-8000-000000000002",
     "email": "neha.sharma@championsclub.example",
-    "password_hash": "$2b$10$s8if1GCF16la4EY2IVSatuTfLDgnpNf2F65B3aAFE4yZQC84jQezO",
+    "password_hash": "$2b$10$VT/S0I4BuzaoZQwy4rkXIucEW6Bmkcg/07FVLlsAnZE.uxoxCtqja",
     "role": "FRONT_DESK",
     "full_name": "Neha Sharma",
     "phone": "+919820000002",
@@ -28,7 +28,7 @@
   {
     "id": "01000000-0000-4000-8000-000000000003",
     "email": "arjun.mehta@championsclub.example",
-    "password_hash": "$2b$10$s8if1GCF16la4EY2IVSatuTfLDgnpNf2F65B3aAFE4yZQC84jQezO",
+    "password_hash": "$2b$10$VT/S0I4BuzaoZQwy4rkXIucEW6Bmkcg/07FVLlsAnZE.uxoxCtqja",
     "role": "FRONT_DESK",
     "full_name": "Arjun Mehta",
     "phone": "+919820000003",
@@ -41,7 +41,7 @@
   {
     "id": "01000000-0000-4000-8000-000000000004",
     "email": "pooja.iyer@championsclub.example",
-    "password_hash": "$2b$10$s8if1GCF16la4EY2IVSatuTfLDgnpNf2F65B3aAFE4yZQC84jQezO",
+    "password_hash": "$2b$10$VT/S0I4BuzaoZQwy4rkXIucEW6Bmkcg/07FVLlsAnZE.uxoxCtqja",
     "role": "FRONT_DESK",
     "full_name": "Pooja Iyer",
     "phone": "+919820000004",
@@ -54,7 +54,7 @@
   {
     "id": "01000000-0000-4000-8000-000000000005",
     "email": "kitchen@championsclub.example",
-    "password_hash": "$2b$10$s8if1GCF16la4EY2IVSatuTfLDgnpNf2F65B3aAFE4yZQC84jQezO",
+    "password_hash": "$2b$10$VT/S0I4BuzaoZQwy4rkXIucEW6Bmkcg/07FVLlsAnZE.uxoxCtqja",
     "role": "KITCHEN_MANAGER",
     "full_name": "Ramesh Patil",
     "phone": "+919820000005",
@@ -67,7 +67,7 @@
   {
     "id": "01000000-0000-4000-8000-000000000006",
     "email": "sanjay.gupta@technova.example",
-    "password_hash": "$2b$10$s8if1GCF16la4EY2IVSatuTfLDgnpNf2F65B3aAFE4yZQC84jQezO",
+    "password_hash": "$2b$10$VT/S0I4BuzaoZQwy4rkXIucEW6Bmkcg/07FVLlsAnZE.uxoxCtqja",
     "role": "BUSINESS_CLIENT",
     "full_name": "Sanjay Gupta",
     "phone": "+919820000006",
@@ -80,7 +80,7 @@
   {
     "id": "01000000-0000-4000-8000-000000000007",
     "email": "aarav.kapoor@example.com",
-    "password_hash": "$2b$10$s8if1GCF16la4EY2IVSatuTfLDgnpNf2F65B3aAFE4yZQC84jQezO",
+    "password_hash": "$2b$10$VT/S0I4BuzaoZQwy4rkXIucEW6Bmkcg/07FVLlsAnZE.uxoxCtqja",
     "role": "MEMBER",
     "full_name": "Aarav Kapoor",
     "phone": "+919811100001",
@@ -93,7 +93,7 @@
   {
     "id": "01000000-0000-4000-8000-000000000008",
     "email": "priya.nair@example.com",
-    "password_hash": "$2b$10$s8if1GCF16la4EY2IVSatuTfLDgnpNf2F65B3aAFE4yZQC84jQezO",
+    "password_hash": "$2b$10$VT/S0I4BuzaoZQwy4rkXIucEW6Bmkcg/07FVLlsAnZE.uxoxCtqja",
     "role": "MEMBER",
     "full_name": "Priya Nair",
     "phone": "+919811100002",
@@ -106,7 +106,7 @@
   {
     "id": "01000000-0000-4000-8000-000000000009",
     "email": "rohan.desai@example.com",
-    "password_hash": "$2b$10$s8if1GCF16la4EY2IVSatuTfLDgnpNf2F65B3aAFE4yZQC84jQezO",
+    "password_hash": "$2b$10$VT/S0I4BuzaoZQwy4rkXIucEW6Bmkcg/07FVLlsAnZE.uxoxCtqja",
     "role": "MEMBER",
     "full_name": "Rohan Desai",
     "phone": "+919811100003",
@@ -119,7 +119,7 @@
   {
     "id": "01000000-0000-4000-8000-000000000010",
     "email": "ananya.iyer@example.com",
-    "password_hash": "$2b$10$s8if1GCF16la4EY2IVSatuTfLDgnpNf2F65B3aAFE4yZQC84jQezO",
+    "password_hash": "$2b$10$VT/S0I4BuzaoZQwy4rkXIucEW6Bmkcg/07FVLlsAnZE.uxoxCtqja",
     "role": "MEMBER",
     "full_name": "Ananya Iyer",
     "phone": "+919811100004",
@@ -132,7 +132,7 @@
   {
     "id": "01000000-0000-4000-8000-000000000011",
     "email": "kabir.singh@example.com",
-    "password_hash": "$2b$10$s8if1GCF16la4EY2IVSatuTfLDgnpNf2F65B3aAFE4yZQC84jQezO",
+    "password_hash": "$2b$10$VT/S0I4BuzaoZQwy4rkXIucEW6Bmkcg/07FVLlsAnZE.uxoxCtqja",
     "role": "MEMBER",
     "full_name": "Kabir Singh",
     "phone": "+919811100005",
@@ -145,7 +145,7 @@
   {
     "id": "01000000-0000-4000-8000-000000000012",
     "email": "meera.joshi@example.com",
-    "password_hash": "$2b$10$s8if1GCF16la4EY2IVSatuTfLDgnpNf2F65B3aAFE4yZQC84jQezO",
+    "password_hash": "$2b$10$VT/S0I4BuzaoZQwy4rkXIucEW6Bmkcg/07FVLlsAnZE.uxoxCtqja",
     "role": "MEMBER",
     "full_name": "Meera Joshi",
     "phone": "+919811100006",
@@ -158,7 +158,7 @@
   {
     "id": "01000000-0000-4000-8000-000000000013",
     "email": "ishaan.verma@example.com",
-    "password_hash": "$2b$10$s8if1GCF16la4EY2IVSatuTfLDgnpNf2F65B3aAFE4yZQC84jQezO",
+    "password_hash": "$2b$10$VT/S0I4BuzaoZQwy4rkXIucEW6Bmkcg/07FVLlsAnZE.uxoxCtqja",
     "role": "MEMBER",
     "full_name": "Ishaan Verma",
     "phone": "+919811100007",
@@ -171,7 +171,7 @@
   {
     "id": "01000000-0000-4000-8000-000000000014",
     "email": "diya.reddy@example.com",
-    "password_hash": "$2b$10$s8if1GCF16la4EY2IVSatuTfLDgnpNf2F65B3aAFE4yZQC84jQezO",
+    "password_hash": "$2b$10$VT/S0I4BuzaoZQwy4rkXIucEW6Bmkcg/07FVLlsAnZE.uxoxCtqja",
     "role": "MEMBER",
     "full_name": "Diya Reddy",
     "phone": "+919811100008",
@@ -184,7 +184,7 @@
   {
     "id": "01000000-0000-4000-8000-000000000015",
     "email": "karan.bhatia@example.com",
-    "password_hash": "$2b$10$s8if1GCF16la4EY2IVSatuTfLDgnpNf2F65B3aAFE4yZQC84jQezO",
+    "password_hash": "$2b$10$VT/S0I4BuzaoZQwy4rkXIucEW6Bmkcg/07FVLlsAnZE.uxoxCtqja",
     "role": "MEMBER",
     "full_name": "Karan Bhatia",
     "phone": "+919811100009",
@@ -197,7 +197,7 @@
   {
     "id": "01000000-0000-4000-8000-000000000016",
     "email": "sneha.kulkarni@example.com",
-    "password_hash": "$2b$10$s8if1GCF16la4EY2IVSatuTfLDgnpNf2F65B3aAFE4yZQC84jQezO",
+    "password_hash": "$2b$10$VT/S0I4BuzaoZQwy4rkXIucEW6Bmkcg/07FVLlsAnZE.uxoxCtqja",
     "role": "MEMBER",
     "full_name": "Sneha Kulkarni",
     "phone": "+919811100010",
@@ -210,7 +210,7 @@
   {
     "id": "01000000-0000-4000-8000-000000000017",
     "email": "rahul.menon@example.com",
-    "password_hash": "$2b$10$s8if1GCF16la4EY2IVSatuTfLDgnpNf2F65B3aAFE4yZQC84jQezO",
+    "password_hash": "$2b$10$VT/S0I4BuzaoZQwy4rkXIucEW6Bmkcg/07FVLlsAnZE.uxoxCtqja",
     "role": "MEMBER",
     "full_name": "Rahul Menon",
     "phone": "+919811100011",
@@ -223,7 +223,7 @@
   {
     "id": "01000000-0000-4000-8000-000000000018",
     "email": "tanvi.shah@example.com",
-    "password_hash": "$2b$10$s8if1GCF16la4EY2IVSatuTfLDgnpNf2F65B3aAFE4yZQC84jQezO",
+    "password_hash": "$2b$10$VT/S0I4BuzaoZQwy4rkXIucEW6Bmkcg/07FVLlsAnZE.uxoxCtqja",
     "role": "MEMBER",
     "full_name": "Tanvi Shah",
     "phone": "+919811100012",
@@ -236,7 +236,7 @@
   {
     "id": "01000000-0000-4000-8000-000000000019",
     "email": "vihaan.patel@example.com",
-    "password_hash": "$2b$10$s8if1GCF16la4EY2IVSatuTfLDgnpNf2F65B3aAFE4yZQC84jQezO",
+    "password_hash": "$2b$10$VT/S0I4BuzaoZQwy4rkXIucEW6Bmkcg/07FVLlsAnZE.uxoxCtqja",
     "role": "MEMBER",
     "full_name": "Vihaan Patel",
     "phone": "+919811100013",

@@ -1,6 +1,8 @@
-# Frontend (to be built — structure and rules are fixed now)
+# Frontend — Meridian Bay
 
-> No application code exists yet. This file is the **layout contract** so four developers can build screens in parallel without editing each other's files.
+> **Status:** public homepage built (`features/public`), reading `mock-data/*.json` through `src/api/public.ts`. Role dashboards are still to be built. This file is the **layout contract** so four developers can build screens in parallel without editing each other's files.
+
+**Run:** `cd frontend && npm install && npm run dev` (http://localhost:5173) · `npm run build` typechecks and bundles. Design tokens live in `src/index.css` (`@theme`); photo slots use `components/ui/PlaceholderArt.tsx` until real photography is supplied (pass `src`).
 
 **Stack (ADR-008):** React 18 · Vite · TypeScript · React Router · TanStack Query · Tailwind CSS. Types, enums, error codes, money/time helpers come from `/shared` (alias `@shared/*`). Network contract: [API_CONTRACT.md](../docs/api/API_CONTRACT.md) (`docs/api/openapi.yaml` can generate a client if wanted).
 

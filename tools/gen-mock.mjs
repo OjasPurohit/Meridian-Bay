@@ -301,9 +301,9 @@ const PRODUCTS = [
   ['overgrip', 'ACC-WIL-OVERGRIP3', 'Wilson Pro Overgrip (pack of 3)', 'ACCESSORY', 'Wilson', '499.00', 40, 10, 0],
   ['wristband', 'ACC-NIK-WRIST', 'Nike Wristband (pair)', 'ACCESSORY', 'Nike', '350.00', 25, 6, 0],
   ['bag', 'ACC-HEA-BAG6', 'Head Tour Team 6R Racket Bag', 'ACCESSORY', 'Head', '3299.00', 9, 3, 0],
-  ['polo', 'APP-CC-POLO', 'Champions Club Performance Polo', 'APPAREL', 'Champions Club', '1499.00', 33, 10, 0],
-  ['tee', 'APP-CC-TEE', 'Champions Club Dri-Fit Tee', 'APPAREL', 'Champions Club', '999.00', 28, 10, 0],
-  ['track', 'APP-CC-TRACK', 'Champions Club Track Pants', 'APPAREL', 'Champions Club', '1799.00', 18, 6, 0],
+  ['polo', 'APP-CC-POLO', 'Meridian Bay Performance Polo', 'APPAREL', 'Meridian Bay', '1499.00', 33, 10, 0],
+  ['tee', 'APP-CC-TEE', 'Meridian Bay Dri-Fit Tee', 'APPAREL', 'Meridian Bay', '999.00', 28, 10, 0],
+  ['track', 'APP-CC-TRACK', 'Meridian Bay Track Pants', 'APPAREL', 'Meridian Bay', '1799.00', 18, 6, 0],
 ];
 const prod = Object.fromEntries(PRODUCTS.map((p) => [p[0], p]));
 const SHOP_ORDERS = [
@@ -326,7 +326,7 @@ for (const p of PRODUCTS) restocked[p[0]] = p[8];
 const opening = Object.fromEntries(PRODUCTS.map((p) => [p[0], p[6] - restocked[p[0]] + (sold[p[0]] ?? 0)]));
 for (const p of PRODUCTS) if (opening[p[0]] < 0) throw new Error('negative opening stock ' + p[0]);
 for (const p of PRODUCTS)
-  add('products', { id: uid('products', p[0]), sku: p[1], name: p[2], category: p[3], brand: p[4], description: `${p[2]} — available at the Champions Club shop.`, price: p[5], image_url: null, stock_quantity: p[6], low_stock_threshold: p[7], is_active: true, created_at: ts(-30, '09:00'), updated_at: ts(0, '09:00') });
+  add('products', { id: uid('products', p[0]), sku: p[1], name: p[2], category: p[3], brand: p[4], description: `${p[2]} — available at the Meridian Bay shop.`, price: p[5], image_url: null, stock_quantity: p[6], low_stock_threshold: p[7], is_active: true, created_at: ts(-30, '09:00'), updated_at: ts(0, '09:00') });
 const movements = []; // collect then sort by time to compute quantity_after
 for (const p of PRODUCTS) {
   if (opening[p[0]] > 0) movements.push({ at: tsMs(d(-30), '09:00'), product: p[0], change: opening[p[0]], reason: 'OPENING', note: 'Opening stock', order: null });
@@ -506,12 +506,12 @@ note('sanjay', 'PAYMENT_RECEIVED', 'Payment received', '₹10,000.00 received vi
 
 // ================================================================== SETTINGS
 const setting = (key, value, description, isPublic) => add('club_settings', { id: uid('club_settings', key), key, value, description, is_public: isPublic, updated_by_user_id: uid('users', 'owner'), created_at: T0, updated_at: T0 });
-setting('club_name', 'The Champions Club', 'Club display name', true);
+setting('club_name', 'Meridian Bay', 'Club display name', true);
 setting('club_tagline', 'Play. Train. Belong.', 'Website tagline', true);
 setting('club_description', 'A busy neighbourhood sports club with tennis, cricket, padel and badminton courts, a gear shop and a bar & cafeteria.', 'Homepage introduction', true);
 setting('club_address', 'Plot 12, Sports Enclave, Baner Road, Pune 411045', 'PLACEHOLDER address — replace with the real one', true);
 setting('club_phone', '+91 20 5550 1234', 'PLACEHOLDER phone', true);
-setting('club_email', 'hello@championsclub.example', 'PLACEHOLDER email', true);
+setting('club_email', 'hello@meridianbay.example', 'PLACEHOLDER email', true);
 setting('club_open_time', '06:00:00', 'Courts open (IST)', true);
 setting('club_close_time', '22:00:00', 'Courts close (IST); last session must END by this time', true);
 setting('social_play_weekday', 5, 'ISO weekday for social play (1=Mon .. 7=Sun); 5 = Friday', true);

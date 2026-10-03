@@ -1,0 +1,115 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/fraunces/full.css';
+@import '@fontsource-variable/manrope';
+
+@theme {
+  --color-sand: #f6f1e8;
+  --color-clay: #e8d9c7;
+  --color-clay-deep: #c98a6a;
+  --color-terracotta: #b95f42;
+  --color-olive: #314237;
+  --color-olive-mid: #58705a;
+  --color-ink: #1e2520;
+  --color-sun: #d79b43;
+  --color-sky: #c9dadd;
+  --color-chalk: #fcfaf6;
+
+  /* Semantic aliases used by shared UI components (darker terracotta keeps chalk text at AA). */
+  --color-background: #fcfaf6;
+  --color-foreground: #1e2520;
+  --color-primary: #a4523a;
+  --color-primary-foreground: #fcfaf6;
+  --color-muted: #5b625c;
+  --color-line: #d9cbb8;
+
+  --font-display: 'Fraunces Variable', 'Iowan Old Style', Georgia, serif;
+  --font-sans: 'Manrope Variable', ui-sans-serif, system-ui, sans-serif;
+
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-sand text-ink font-sans antialiased;
+    font-feature-settings: 'ss01', 'cv11';
+  }
+  ::selection {
+    background: var(--color-sun);
+    color: var(--color-ink);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  .on-dark :focus-visible {
+    outline-color: var(--color-sun);
+  }
+}
+
+@layer components {
+  .eyebrow {
+    @apply text-[0.72rem] font-semibold tracking-[0.22em] uppercase;
+  }
+  .display {
+    @apply font-display font-light tracking-[-0.02em];
+    font-variation-settings: 'opsz' 144, 'SOFT' 50;
+  }
+  .court-lines * {
+    vector-effect: non-scaling-stroke;
+  }
+  .grain {
+    position: relative;
+    isolation: isolate;
+  }
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.22;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.25 0 0 0 0 0.18 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+/* Reveal-on-scroll: content is visible by default; motion only when JS marks it and the user allows motion. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal='pending'] {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  [data-reveal] {
+    transition:
+      opacity 900ms var(--ease-soft),
+      transform 900ms var(--ease-soft);
+  }
+  .hero-drift {
+    animation: drift 24s var(--ease-soft) infinite alternate;
+  }
+  @keyframes drift {
+    from {
+      transform: scale(1.04) translate3d(0, 0, 0);
+    }
+    to {
+      transform: scale(1.09) translate3d(-1.5%, -1%, 0);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
