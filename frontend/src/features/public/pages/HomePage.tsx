@@ -2,22 +2,16 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { ArrowDownRight } from 'lucide-react';
 
-import type { BarMenuItem, Court, MembershipPlan } from '@shared/types/rows';
+import type { Court, MembershipPlan } from '@shared/types/rows';
 import type { SportType } from '@shared/constants/enums';
-import {
-  listCourts,
-  listMenu,
-  listPlans,
-  listShopBrands,
-  listUpcomingSocialSessions,
-  SPORT_LABEL,
-  type PublicClubInfo,
-  type UpcomingSocialSession,
-} from '@/api/public';
-import { InteractiveHoverLink } from '@/components/ui/interactive-hover-button';
+import { listCourts, listPlans, listUpcomingSocialSessions, SPORT_LABEL, type PublicClubInfo, type UpcomingSocialSession } from '@/api/public';
+import { ActionAnchor, ActionLink } from '@/components/ui/button';
+import { HeroMedia } from '@/components/ui/HeroMedia';
 import { PlaceholderArt, type ArtVariant } from '@/components/ui/PlaceholderArt';
+import { HERO_MEDIA } from '@/config/media';
 import { presetEnquiry } from '@/features/public/nav';
 import { EnquirySection } from '@/features/public/components/EnquirySection';
+import { ageLine, planShortName } from '@/features/membership/plans';
 import { formatClockIst, formatDayIst, formatRupees, formatTimeOfDay } from '@/lib/format';
 import { useReveal } from '@/lib/useReveal';
 import { cn } from '@/lib/utils';
@@ -93,7 +87,12 @@ function SectionHeading({ eyebrow, title, intro, dark }: { eyebrow: string; titl
 function Hero({ club }: { club: PublicClubInfo | null }) {
   return (
     <section aria-labelledby="hero-title" className="on-dark relative isolate flex min-h-[100svh] flex-col justify-end overflow-hidden text-chalk">
-      <PlaceholderArt variant="tennis-clay" caption="Clay court at golden hour" tilt={-16} zoom={1.7} slats animate showTag={false} className="absolute inset-0 -z-10" />
+      <HeroMedia
+        videoSrc={HERO_MEDIA.videoSrc}
+        posterSrc={HERO_MEDIA.posterSrc}
+        className="absolute inset-0 -z-10"
+        fallback={<PlaceholderArt variant="tennis-clay" caption="Clay court at golden hour" tilt={-16} zoom={1.7} slats animate showTag={false} className="absolute inset-0" />}
+      />
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(30,37,32,0.35)_0%,rgba(30,37,32,0)_24%,rgba(30,37,32,0.28)_50%,rgba(30,37,32,0.85)_100%)]" aria-hidden="true" />
 
       <div className={cn(wrap, 'pt-32 pb-10 md:pb-14')}>
@@ -107,12 +106,12 @@ function Hero({ club }: { club: PublicClubInfo | null }) {
             {club ? ` — open ${formatTimeOfDay(club.club_open_time)} to ${formatTimeOfDay(club.club_close_time)}.` : '.'}
           </p>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-            <InteractiveHoverLink href="#visit" onClick={() => presetEnquiry({ enquiry_type: 'TRIAL' })} className="border-transparent px-7 text-base">
+            <ActionAnchor href="#visit" tone="dark" onClick={() => presetEnquiry({ enquiry_type: 'TRIAL' })} className="px-7 text-base">
               Book a trial session
-            </InteractiveHoverLink>
-            <a href="#membership" className="inline-flex min-h-11 items-center gap-2 font-semibold underline decoration-chalk/40 underline-offset-[6px] hover:decoration-chalk">
+            </ActionAnchor>
+            <ActionLink to="/membership" variant="text" tone="dark">
               Explore membership
-            </a>
+            </ActionLink>
           </div>
         </div>
 
@@ -120,7 +119,9 @@ function Hero({ club }: { club: PublicClubInfo | null }) {
           <span className="inline-flex items-center gap-2">
             <ArrowDownRight className="size-4" aria-hidden="true" /> Scroll to see the club
           </span>
-          <span className="text-[0.66rem] font-semibold tracking-[0.14em] uppercase opacity-80">Photo placeholder · clay court at golden hour</span>
+          {!HERO_MEDIA.videoSrc && !HERO_MEDIA.posterSrc && (
+            <span className="text-[0.66rem] font-semibold tracking-[0.14em] uppercase opacity-80">Photo placeholder · clay court at golden hour</span>
+          )}
         </div>
       </div>
     </section>
@@ -292,15 +293,9 @@ function SocialSection({ sessions, club }: { sessions: UpcomingSocialSession[]; 
   );
 }
 
-function ageLine(p: MembershipPlan) {
-  if (p.max_age != null) return `Ages ${p.min_age ?? 0}–${p.max_age}`;
-  if (p.min_age != null) return `Ages ${p.min_age}+`;
-  return 'All ages';
-}
-
 function MembershipSection({ plans }: { plans: MembershipPlan[] }) {
   return (
-    <section id="membership" aria-labelledby="membership-title" className="bg-sand py-24 md:py-36">
+    <section aria-labelledby="membership-title" className="bg-sand py-24 md:py-32">
       <div className={wrap}>
         <div id="membership-title">
           <SectionHeading
@@ -310,90 +305,55 @@ function MembershipSection({ plans }: { plans: MembershipPlan[] }) {
           />
         </div>
 
-        <div className="mt-16 grid gap-6 md:mt-24 lg:grid-cols-3">
-          {plans.map((p, i) => {
-            const featured = i === 0;
-            return (
-              <article
-                key={p.id}
-                data-reveal
-                aria-labelledby={`plan-${p.id}`}
-                className={cn('flex flex-col p-8 md:p-10', featured ? 'on-dark bg-olive text-chalk' : 'border border-line bg-chalk')}
-              >
-                <div className="flex items-baseline justify-between gap-4">
-                  <h3 id={`plan-${p.id}`} className="display text-4xl md:text-5xl">
-                    {p.name.replace(/ Membership$/, '')}
-                  </h3>
-                  <span className={cn('text-xs font-semibold tracking-[0.14em] uppercase', featured ? 'text-sun' : 'text-olive-mid')}>{ageLine(p)}</span>
-                </div>
-                <p className={cn('mt-4 leading-relaxed', featured ? 'text-chalk/75' : 'text-muted')}>{p.description}</p>
-                <p className="mt-8">
-                  <span className="display text-5xl tabular-nums">{formatRupees(p.price)}</span>
-                  <span className={cn('ml-2 text-sm', featured ? 'text-chalk/60' : 'text-muted')}>/ {p.duration_months} months</span>
-                </p>
-                <ul className={cn('mt-8 flex-1 space-y-3 border-t pt-6 text-[0.95rem]', featured ? 'border-chalk/20' : 'border-line')}>
-                  {p.benefits.map((b) => (
-                    <li key={b} className="flex gap-3">
-                      <span className={cn('mt-2 h-1.5 w-1.5 shrink-0 rounded-full', featured ? 'bg-sun' : 'bg-terracotta')} aria-hidden="true" />
-                      {b}
-                    </li>
-                  ))}
-                </ul>
-                <InteractiveHoverLink
-                  href="#visit"
-                  onClick={() => presetEnquiry({ enquiry_type: 'MEMBERSHIP', membership_plan_id: p.id })}
-                  className={cn('mt-10 self-start', featured && 'border-transparent')}
-                >
-                  Ask about {p.name.replace(/ Membership$/, '')}
-                </InteractiveHoverLink>
-              </article>
-            );
-          })}
+        <ul className="mt-14 grid border-t border-line sm:grid-cols-2 lg:grid-cols-4 md:mt-20">
+          {plans.map((p) => (
+            <li key={p.id} className="border-b border-line py-6 sm:pr-6" data-reveal>
+              <p className="display text-3xl">{planShortName(p)}</p>
+              <p className="mt-1 text-sm text-muted">
+                <span className="font-semibold text-ink tabular-nums">{formatRupees(p.price)}</span> / {p.duration_months} months · {ageLine(p)}
+              </p>
+            </li>
+          ))}
+          <li className="border-b border-line py-6" data-reveal>
+            <p className="display text-3xl">Day Pass</p>
+            <p className="mt-1 text-sm text-muted">For visitors · pay as you play</p>
+          </li>
+        </ul>
+        <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
+          <ActionLink to="/membership">Compare membership</ActionLink>
+          <p className="text-sm text-muted">Prices include GST. Junior is for players under 18.</p>
         </div>
-        <p className="mt-8 text-sm text-muted">Prices include GST. Junior is for players under 18.</p>
       </div>
     </section>
   );
 }
 
-const CATEGORY_LINE = 'Rackets, balls, shoes, accessories and apparel';
-
-function ShopAndBar({ brands, menu }: { brands: string[]; menu: BarMenuItem[] }) {
-  const picks = (['DRINK', 'FOOD', 'SNACK'] as const).flatMap((cat) => menu.filter((m) => m.category === cat).slice(0, 2));
+function ShopAndBar() {
   return (
-    <section aria-label="Shop and bar" className="bg-chalk py-24 md:py-36">
-      <div className={cn(wrap, 'grid gap-24 lg:grid-cols-12 lg:gap-10')}>
-        <article id="shop" aria-labelledby="shop-title" className="lg:col-span-6" data-reveal>
-          <PlaceholderArt variant="shop" caption="Fresh balls at the gear shop" className="aspect-[5/4]" />
-          <p className="eyebrow mt-10 text-olive-mid">The gear shop</p>
-          <h2 id="shop-title" className="display mt-4 text-[clamp(2.2rem,4.4vw,3.75rem)] leading-[1]">
+    <section aria-label="Shop and bar & café" className="bg-chalk py-24 md:py-32">
+      <div className={cn(wrap, 'grid gap-16 md:grid-cols-2 md:gap-10')}>
+        <article aria-labelledby="shop-title" data-reveal>
+          <PlaceholderArt variant="shop" caption="Fresh balls at the gear shop" className="aspect-[16/10]" />
+          <p className="eyebrow mt-8 text-olive-mid">The gear shop</p>
+          <h2 id="shop-title" className="display mt-3 text-[clamp(2rem,3.6vw,3.2rem)] leading-[1]">
             Everything for the next match.
           </h2>
-          <p className="mt-5 max-w-md leading-relaxed text-muted">
-            {CATEGORY_LINE}
-            {brands.length ? ` from ${brands.slice(0, -1).join(', ')} and ${brands.at(-1)}` : ''}. Buy at the counter, or order online as a member and collect at the club or have it delivered — your plan discount comes off automatically.
-          </p>
+          <p className="mt-4 max-w-md leading-relaxed text-muted">Rackets, balls and shuttles, shoes, accessories and apparel. Members save automatically.</p>
+          <ActionLink to="/shop" className="mt-7">
+            Visit the shop
+          </ActionLink>
         </article>
 
-        <article id="bar" aria-labelledby="bar-title" className="lg:col-span-6 lg:mt-48" data-reveal>
-          <PlaceholderArt variant="bar" caption="Filter coffee at the bar & café" className="aspect-[4/3]" />
-          <p className="eyebrow mt-10 text-olive-mid">Bar &amp; café</p>
-          <h2 id="bar-title" className="display mt-4 text-[clamp(2.2rem,4.4vw,3.75rem)] leading-[1]">
+        <article aria-labelledby="bar-title" className="md:mt-24" data-reveal>
+          <PlaceholderArt variant="bar" caption="Coffee at the bar & café" className="aspect-[16/10]" />
+          <p className="eyebrow mt-8 text-olive-mid">Bar &amp; café</p>
+          <h2 id="bar-title" className="display mt-3 text-[clamp(2rem,3.6vw,3.2rem)] leading-[1]">
             Stay a little longer.
           </h2>
-          <p className="mt-5 max-w-md leading-relaxed text-muted">
-            Staff take your order at the table and can run a tab until you leave — settle by cash, card or UPI. Members&rsquo; discounts apply without asking.
-          </p>
-          <ul className="mt-8 max-w-md">
-            {picks.map((m) => (
-              <li key={m.id} className="flex items-baseline gap-3 border-b border-line py-3">
-                <span className="font-semibold">{m.name}</span>
-                <span className="flex-1 translate-y-[-3px] border-b border-dotted border-ink/25" aria-hidden="true" />
-                <span className="tabular-nums text-muted">{formatRupees(m.price)}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 text-xs text-muted">A selection from the menu. List prices, GST included.</p>
+          <p className="mt-4 max-w-md leading-relaxed text-muted">Hot and cold brews, all-day breakfast, sandwiches and mains — ordered at your table.</p>
+          <ActionLink to="/bar-cafe" variant="secondary" className="mt-7">
+            See the menu
+          </ActionLink>
         </article>
       </div>
     </section>
@@ -405,18 +365,14 @@ export default function HomePage() {
   const [courts, setCourts] = useState<Court[]>([]);
   const [plans, setPlans] = useState<MembershipPlan[]>([]);
   const [sessions, setSessions] = useState<UpcomingSocialSession[]>([]);
-  const [menu, setMenu] = useState<BarMenuItem[]>([]);
-  const [brands, setBrands] = useState<string[]>([]);
   const [ready, setReady] = useState(false);
   const root = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    Promise.all([listCourts(), listPlans(), listUpcomingSocialSessions(), listMenu(), listShopBrands()]).then(([c, p, s, m, b]) => {
+    Promise.all([listCourts(), listPlans(), listUpcomingSocialSessions()]).then(([c, p, s]) => {
       setCourts(c);
       setPlans(p);
       setSessions(s);
-      setMenu(m);
-      setBrands(b);
       setReady(true);
     });
   }, []);
@@ -434,7 +390,7 @@ export default function HomePage() {
       <CourtsSection courts={courts} />
       <SocialSection sessions={sessions} club={club} />
       <MembershipSection plans={plans} />
-      <ShopAndBar brands={brands} menu={menu} />
+      <ShopAndBar />
       <EnquirySection club={club} plans={plans} />
       <div className="sr-only" aria-live="polite">
         {ready ? '' : 'Loading club details'}

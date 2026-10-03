@@ -96,6 +96,44 @@ export function listMenu(): Promise<BarMenuItem[]> {
   return resolve(menu.filter((m) => m.is_available).sort((a, b) => a.sort_order - b.sort_order));
 }
 
+export type StockStatus = 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK';
+
+export interface CatalogueProduct extends Product {
+  stock_status: StockStatus;
+}
+
+/** Sports gear only — the shop never lists café items (those live in the bar & café menu). */
+export function listProducts(): Promise<CatalogueProduct[]> {
+  return resolve(
+    products
+      .filter((p) => p.is_active)
+      .map((p) => ({
+        ...p,
+        stock_status: (p.stock_quantity <= 0 ? 'OUT_OF_STOCK' : p.stock_quantity <= p.low_stock_threshold ? 'LOW_STOCK' : 'IN_STOCK') as StockStatus,
+      })),
+  );
+}
+
+export interface WalkInInfo {
+  /** Lowest walk-in rate per sport, from the court catalogue. */
+  rates: { sport: SportType; from: string }[];
+  /** Per-person social-play fee for guests (from the published sessions). */
+  social_guest_fee: string | null;
+}
+
+export function getWalkInInfo(): Promise<WalkInInfo> {
+  const bySport = new Map<SportType, number>();
+  for (const c of courts.filter((c) => c.is_active)) {
+    const r = parseFloat(c.walk_in_rate_per_hour);
+    bySport.set(c.sport_type, Math.min(r, bySport.get(c.sport_type) ?? Infinity));
+  }
+  const fee = sessions.find((s) => s.status === 'OPEN')?.fee_per_person ?? null;
+  return resolve({
+    rates: [...bySport].map(([sport, from]) => ({ sport, from: from.toFixed(2) })),
+    social_guest_fee: fee,
+  });
+}
+
 export function listShopBrands(): Promise<string[]> {
   return resolve([...new Set(products.filter((p) => p.is_active && p.brand).map((p) => p.brand as string))]);
 }

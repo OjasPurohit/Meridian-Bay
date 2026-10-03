@@ -5,7 +5,7 @@ import type { EnquiryType, SportType } from '@shared/constants/enums';
 import type { MembershipPlan } from '@shared/types/rows';
 import { createEnquiry, SPORT_LABEL, type PublicClubInfo } from '@/api/public';
 import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button';
-import { ENQUIRY_PRESET_EVENT, type EnquiryPreset } from '@/features/public/nav';
+import { ENQUIRY_PRESET_EVENT, takePendingPreset, type EnquiryPreset } from '@/features/public/nav';
 import { formatTimeOfDay } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -15,8 +15,8 @@ const TYPES: { value: EnquiryType; label: string }[] = [
   { value: 'GENERAL', label: 'Something else' },
 ];
 
-const field = 'mt-2 block min-h-12 w-full border border-line bg-chalk px-4 py-3 text-base text-ink placeholder:text-ink/40 focus:border-olive focus:outline-none focus-visible:outline-2';
-const label = 'text-sm font-semibold';
+export const field = 'mt-2 block min-h-12 w-full border border-line bg-chalk px-4 py-3 text-base text-ink placeholder:text-ink/40 focus:border-olive focus:outline-none focus-visible:outline-2';
+export const label = 'text-sm font-semibold';
 
 function minLocalDateTime() {
   const d = new Date(Date.now() + 60 * 60 * 1000);
@@ -28,8 +28,9 @@ type Status = { kind: 'idle' } | { kind: 'sending' } | { kind: 'sent'; name: str
 
 export function EnquirySection({ club, plans }: { club: PublicClubInfo | null; plans: MembershipPlan[] }) {
   const uid = useId();
-  const [type, setType] = useState<EnquiryType>('TRIAL');
-  const [planId, setPlanId] = useState('');
+  const [initial] = useState(takePendingPreset);
+  const [type, setType] = useState<EnquiryType>(initial?.enquiry_type ?? 'TRIAL');
+  const [planId, setPlanId] = useState(initial?.membership_plan_id ?? '');
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
 
   useEffect(() => {

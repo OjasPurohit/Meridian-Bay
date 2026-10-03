@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 
 import { getClubInfo, type PublicClubInfo } from '@/api/public';
-import { InteractiveHoverLink } from '@/components/ui/interactive-hover-button';
+import { InteractiveHoverRouteLink } from '@/components/ui/interactive-hover-button';
 import { PUBLIC_NAV, presetEnquiry } from '@/features/public/nav';
 import { formatTimeOfDay } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -59,13 +59,22 @@ function Header() {
 
         <nav aria-label="Primary" className="hidden lg:block">
           <ul className="flex items-center gap-1">
-            {PUBLIC_NAV.map((n) => (
-              <li key={n.href}>
-                <a href={n.href} className="inline-flex min-h-11 items-center px-3 text-[0.9rem] font-medium opacity-85 transition-opacity hover:opacity-100">
-                  {n.label}
-                </a>
-              </li>
-            ))}
+            {PUBLIC_NAV.map((n) => {
+              const base = 'inline-flex min-h-11 items-center px-3 text-[0.9rem] font-medium opacity-85 transition-opacity hover:opacity-100';
+              return (
+                <li key={n.to}>
+                  {n.to.includes('#') ? (
+                    <Link to={n.to} className={base}>
+                      {n.label}
+                    </Link>
+                  ) : (
+                    <NavLink to={n.to} className={({ isActive }) => cn(base, isActive && 'underline decoration-primary decoration-2 underline-offset-[10px] opacity-100')}>
+                      {n.label}
+                    </NavLink>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </nav>
 
@@ -73,9 +82,9 @@ function Header() {
           <Link to="/login" className="hidden min-h-11 items-center px-3 text-[0.9rem] font-medium sm:inline-flex">
             Log in
           </Link>
-          <InteractiveHoverLink href="/#visit" onClick={() => presetEnquiry({ enquiry_type: 'TRIAL' })} className="hidden text-[0.9rem] md:inline-flex">
+          <InteractiveHoverRouteLink to="/#visit" onClick={() => presetEnquiry({ enquiry_type: 'TRIAL' })} className="hidden text-[0.9rem] md:inline-flex">
             Book a trial
-          </InteractiveHoverLink>
+          </InteractiveHoverRouteLink>
           <button
             type="button"
             className="inline-flex size-11 items-center justify-center lg:hidden"
@@ -93,17 +102,17 @@ function Header() {
         <nav aria-label="Mobile">
           <ul className="divide-y divide-line border-y border-line">
             {PUBLIC_NAV.map((n) => (
-              <li key={n.href}>
-                <a href={n.href} onClick={() => setOpen(false)} className="display flex min-h-14 items-center text-3xl">
+              <li key={n.to}>
+                <Link to={n.to} onClick={() => setOpen(false)} className="display flex min-h-14 items-center text-3xl">
                   {n.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
         </nav>
         <div className="mt-8 flex flex-col gap-3">
-          <InteractiveHoverLink
-            href="/#visit"
+          <InteractiveHoverRouteLink
+            to="/#visit"
             onClick={() => {
               presetEnquiry({ enquiry_type: 'TRIAL' });
               setOpen(false);
@@ -111,7 +120,7 @@ function Header() {
             className="w-full"
           >
             Book a trial session
-          </InteractiveHoverLink>
+          </InteractiveHoverRouteLink>
           <div className="flex gap-3">
             <Link to="/login" onClick={() => setOpen(false)} className="inline-flex min-h-11 flex-1 items-center justify-center border border-ink/20 font-semibold">
               Log in
@@ -142,10 +151,10 @@ function Footer({ club }: { club: PublicClubInfo | null }) {
               <h2 className="eyebrow text-sun">Explore</h2>
               <ul className="mt-4 space-y-1">
                 {PUBLIC_NAV.map((n) => (
-                  <li key={n.href}>
-                    <a href={n.href} className="inline-flex min-h-9 items-center text-chalk/80 hover:text-chalk">
+                  <li key={n.to}>
+                    <Link to={n.to} className="inline-flex min-h-11 items-center text-chalk/80 hover:text-chalk">
                       {n.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -224,7 +233,13 @@ export default function PublicLayout() {
   }, []);
 
   useEffect(() => {
-    if (!hash) window.scrollTo(0, 0);
+    if (!hash) {
+      window.scrollTo(0, 0);
+      return;
+    }
+    // The target section may render a frame after navigation.
+    const id = window.setTimeout(() => document.getElementById(hash.slice(1))?.scrollIntoView(), 60);
+    return () => window.clearTimeout(id);
   }, [pathname, hash]);
 
   return (
