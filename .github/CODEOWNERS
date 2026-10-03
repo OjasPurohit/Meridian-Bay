@@ -1,0 +1,61 @@
+# Replace @dev1..@dev4 with the real GitHub handles. See docs/integration/TEAM_GUIDELINES.md §2.
+# Contract & protected files need the listed owners AND (by convention) one more approval.
+
+# --- contracts (everyone reviews) ---
+/shared/                         @dev1 @dev2 @dev3 @dev4
+/database/migrations/            @dev1 @dev2 @dev3 @dev4
+/tools/api/endpoints.mjs         @dev1 @dev2 @dev3 @dev4
+/tools/api/requirements.mjs      @dev1 @dev2 @dev3 @dev4
+/tools/gen-mock.mjs              @dev1 @dev2 @dev3 @dev4
+
+# --- platform kernel (Dev 1) ---
+/backend/src/kernel/             @dev1
+/backend/src/app.ts              @dev1
+/backend/src/config.ts           @dev1
+/frontend/src/api/client.ts      @dev1
+/frontend/src/auth/              @dev1
+/frontend/src/layouts/           @dev1
+/frontend/src/components/ui/     @dev1
+
+# --- Dev 1: auth, public, notifications, enquiries ---
+/backend/src/modules/auth/           @dev1
+/backend/src/modules/public/         @dev1
+/backend/src/modules/notifications/  @dev1
+/backend/src/modules/enquiries/      @dev1
+/frontend/src/features/public/       @dev1
+/frontend/src/features/auth/         @dev1
+/frontend/src/features/member-home/  @dev1
+/frontend/src/features/enquiries/    @dev1
+
+# --- Dev 2: members, memberships, courts, bookings, social ---
+/backend/src/modules/members/        @dev2
+/backend/src/modules/memberships/    @dev2
+/backend/src/modules/courts/         @dev2
+/backend/src/modules/bookings/       @dev2
+/backend/src/modules/social/         @dev2
+/frontend/src/features/members/      @dev2
+/frontend/src/features/bookings/     @dev2
+/frontend/src/features/social/       @dev2
+/frontend/src/features/front-desk/   @dev2
+
+# --- Dev 3: shop, inventory, bar, kitchen ---
+/backend/src/modules/shop/           @dev3
+/backend/src/modules/inventory/      @dev3
+/backend/src/modules/bar/            @dev3
+/backend/src/modules/kitchen/        @dev3
+/frontend/src/features/shop/         @dev3
+/frontend/src/features/inventory/    @dev3
+/frontend/src/features/bar/          @dev3
+/frontend/src/features/kitchen/      @dev3
+
+# --- Dev 4: payments, invoices, clients, staff, reports, settings ---
+/backend/src/modules/payments/       @dev4
+/backend/src/modules/invoices/       @dev4
+/backend/src/modules/clients/        @dev4
+/backend/src/modules/staff/          @dev4
+/backend/src/modules/reports/        @dev4
+/backend/src/modules/settings/       @dev4
+/frontend/src/features/owner/        @dev4
+/frontend/src/features/finance/      @dev4
+/frontend/src/features/business/     @dev4
+/frontend/src/features/staff/        @dev4

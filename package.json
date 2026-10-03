@@ -1,0 +1,39 @@
+{
+  "name": "champions-club-blueprint",
+  "private": true,
+  "type": "module",
+  "description": "Planning package + database/contract tooling for The Champions Club (no application code yet).",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "docs:build": "node tools/gen-docs.mjs",
+    "mock:build": "node tools/gen-mock.mjs",
+    "verify": "npm run mock:build && npm run docs:build && npm run typecheck && npm run test:shared && npm run check && npm run check:openapi && npm run check:mermaid && npm run check:db && npm run test:db-scripts",
+    "check": "node tools/check-consistency.mjs",
+    "check:openapi": "node tools/check-openapi.mjs",
+    "check:mermaid": "node tools/check-mermaid.mjs",
+    "check:db": "node tools/verify-db.mjs",
+    "typecheck": "tsc -p shared/tsconfig.json",
+    "test:shared": "node tools/test-shared.mjs",
+    "test:db-scripts": "node tools/test-db-scripts.mjs",
+    "db:migrate": "node database/migrate.mjs",
+    "db:status": "node database/migrate.mjs --status",
+    "db:seed": "node database/seed.mjs",
+    "db:reset": "node database/reset.mjs"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "pg": "^8.12.0"
+  },
+  "devDependencies": {
+    "@apidevtools/swagger-parser": "^13.1.0",
+    "@electric-sql/pglite": "^0.5.8",
+    "@electric-sql/pglite-socket": "^0.2.11",
+    "bcryptjs": "^3.0.3",
+    "jsdom": "^30.1.1",
+    "mermaid": "^12.1.0",
+    "typescript": "^7.0.2",
+    "yaml": "^2.9.1"
+  }
+}

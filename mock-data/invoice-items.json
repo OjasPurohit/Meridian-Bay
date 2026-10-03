@@ -1,0 +1,65 @@
+[
+  {
+    "id": "1a000000-0000-4000-8000-000000000001",
+    "invoice_id": "19000000-0000-4000-8000-000000000001",
+    "description": "Corporate tennis day — court hire (4 courts x 4 hrs)",
+    "quantity": 16,
+    "unit_price": "800.00",
+    "line_total": "12800.00",
+    "created_at": "2026-09-13T04:00:00.000Z"
+  },
+  {
+    "id": "1a000000-0000-4000-8000-000000000002",
+    "invoice_id": "19000000-0000-4000-8000-000000000001",
+    "description": "Refreshments package (per head)",
+    "quantity": 40,
+    "unit_price": "250.00",
+    "line_total": "10000.00",
+    "created_at": "2026-09-13T04:00:00.000Z"
+  },
+  {
+    "id": "1a000000-0000-4000-8000-000000000003",
+    "invoice_id": "19000000-0000-4000-8000-000000000002",
+    "description": "Quarterly cricket net booking (12 sessions)",
+    "quantity": 12,
+    "unit_price": "1200.00",
+    "line_total": "14400.00",
+    "created_at": "2026-09-28T04:00:00.000Z"
+  },
+  {
+    "id": "1a000000-0000-4000-8000-000000000004",
+    "invoice_id": "19000000-0000-4000-8000-000000000003",
+    "description": "Team building event — full-day facility hire",
+    "quantity": 1,
+    "unit_price": "35000.00",
+    "line_total": "35000.00",
+    "created_at": "2026-08-19T04:00:00.000Z"
+  },
+  {
+    "id": "1a000000-0000-4000-8000-000000000005",
+    "invoice_id": "19000000-0000-4000-8000-000000000004",
+    "description": "Padel court hire (8 sessions)",
+    "quantity": 8,
+    "unit_price": "1000.00",
+    "line_total": "8000.00",
+    "created_at": "2026-10-03T04:00:00.000Z"
+  },
+  {
+    "id": "1a000000-0000-4000-8000-000000000006",
+    "invoice_id": "19000000-0000-4000-8000-000000000005",
+    "description": "Gold Membership renewal — 12 months",
+    "quantity": 1,
+    "unit_price": "25423.73",
+    "line_total": "25423.73",
+    "created_at": "2026-10-01T04:00:00.000Z"
+  },
+  {
+    "id": "1a000000-0000-4000-8000-000000000007",
+    "invoice_id": "19000000-0000-4000-8000-000000000006",
+    "description": "Team building event — full-day facility hire (duplicate)",
+    "quantity": 1,
+    "unit_price": "35000.00",
+    "line_total": "35000.00",
+    "created_at": "2026-09-03T04:00:00.000Z"
+  }
+]

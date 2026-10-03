@@ -1,0 +1,1017 @@
+{
+  "auth.signup": {
+    "method": "POST",
+    "path": "/api/v1/auth/signup",
+    "roles": [
+      "PUBLIC"
+    ]
+  },
+  "auth.login": {
+    "method": "POST",
+    "path": "/api/v1/auth/login",
+    "roles": [
+      "PUBLIC"
+    ]
+  },
+  "auth.logout": {
+    "method": "POST",
+    "path": "/api/v1/auth/logout",
+    "roles": [
+      "MEMBER",
+      "FRONT_DESK",
+      "KITCHEN_MANAGER",
+      "BUSINESS_CLIENT",
+      "OWNER_ADMIN"
+    ]
+  },
+  "auth.me": {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "roles": [
+      "MEMBER",
+      "FRONT_DESK",
+      "KITCHEN_MANAGER",
+      "BUSINESS_CLIENT",
+      "OWNER_ADMIN"
+    ]
+  },
+  "auth.changePassword": {
+    "method": "POST",
+    "path": "/api/v1/auth/change-password",
+    "roles": [
+      "MEMBER",
+      "FRONT_DESK",
+      "KITCHEN_MANAGER",
+      "BUSINESS_CLIENT",
+      "OWNER_ADMIN"
+    ]
+  },
+  "public.club": {
+    "method": "GET",
+    "path": "/api/v1/public/club",
+    "roles": [
+      "PUBLIC"
+    ]
+  },
+  "members.list": {
+    "method": "GET",
+    "path": "/api/v1/members",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "members.create": {
+    "method": "POST",
+    "path": "/api/v1/members",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "members.me": {
+    "method": "GET",
+    "path": "/api/v1/members/me",
+    "roles": [
+      "MEMBER"
+    ]
+  },
+  "members.get": {
+    "method": "GET",
+    "path": "/api/v1/members/:id",
+    "roles": [
+      "MEMBER:own",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "members.update": {
+    "method": "PATCH",
+    "path": "/api/v1/members/:id",
+    "roles": [
+      "MEMBER:own",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "members.history": {
+    "method": "GET",
+    "path": "/api/v1/members/:id/history",
+    "roles": [
+      "MEMBER:own",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "members.memberships": {
+    "method": "GET",
+    "path": "/api/v1/members/:id/memberships",
+    "roles": [
+      "MEMBER:own",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "memberships.plans": {
+    "method": "GET",
+    "path": "/api/v1/memberships/plans",
+    "roles": [
+      "PUBLIC"
+    ]
+  },
+  "memberships.planCreate": {
+    "method": "POST",
+    "path": "/api/v1/memberships/plans",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "memberships.planUpdate": {
+    "method": "PATCH",
+    "path": "/api/v1/memberships/plans/:id",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "memberships.purchase": {
+    "method": "POST",
+    "path": "/api/v1/memberships",
+    "roles": [
+      "MEMBER:own",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "memberships.changePlan": {
+    "method": "POST",
+    "path": "/api/v1/memberships/:id/change-plan",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "memberships.cancel": {
+    "method": "POST",
+    "path": "/api/v1/memberships/:id/cancel",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "memberships.expiring": {
+    "method": "GET",
+    "path": "/api/v1/memberships/expiring",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "memberships.runExpiry": {
+    "method": "POST",
+    "path": "/api/v1/memberships/run-expiry",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "courts.list": {
+    "method": "GET",
+    "path": "/api/v1/courts",
+    "roles": [
+      "PUBLIC"
+    ]
+  },
+  "courts.availability": {
+    "method": "GET",
+    "path": "/api/v1/courts/availability",
+    "roles": [
+      "PUBLIC"
+    ]
+  },
+  "courts.create": {
+    "method": "POST",
+    "path": "/api/v1/courts",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "courts.update": {
+    "method": "PATCH",
+    "path": "/api/v1/courts/:id",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "courts.block": {
+    "method": "POST",
+    "path": "/api/v1/courts/:id/blocks",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "courts.unblock": {
+    "method": "DELETE",
+    "path": "/api/v1/courts/blocks/:booking_id",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "bookings.price": {
+    "method": "GET",
+    "path": "/api/v1/bookings/price",
+    "roles": [
+      "MEMBER",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "bookings.create": {
+    "method": "POST",
+    "path": "/api/v1/bookings",
+    "roles": [
+      "MEMBER",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "bookings.list": {
+    "method": "GET",
+    "path": "/api/v1/bookings",
+    "roles": [
+      "MEMBER:own",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "bookings.get": {
+    "method": "GET",
+    "path": "/api/v1/bookings/:id",
+    "roles": [
+      "MEMBER:own",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "bookings.cancel": {
+    "method": "POST",
+    "path": "/api/v1/bookings/:id/cancel",
+    "roles": [
+      "MEMBER:own",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "bookings.complete": {
+    "method": "POST",
+    "path": "/api/v1/bookings/:id/complete",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "social.list": {
+    "method": "GET",
+    "path": "/api/v1/social-play/sessions",
+    "roles": [
+      "PUBLIC"
+    ]
+  },
+  "social.get": {
+    "method": "GET",
+    "path": "/api/v1/social-play/sessions/:id",
+    "roles": [
+      "MEMBER",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "social.create": {
+    "method": "POST",
+    "path": "/api/v1/social-play/sessions",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "social.join": {
+    "method": "POST",
+    "path": "/api/v1/social-play/sessions/:id/join",
+    "roles": [
+      "MEMBER",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "social.leave": {
+    "method": "POST",
+    "path": "/api/v1/social-play/sessions/:id/leave",
+    "roles": [
+      "MEMBER:own",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "social.cancel": {
+    "method": "POST",
+    "path": "/api/v1/social-play/sessions/:id/cancel",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "shop.products": {
+    "method": "GET",
+    "path": "/api/v1/shop/products",
+    "roles": [
+      "PUBLIC"
+    ]
+  },
+  "shop.product": {
+    "method": "GET",
+    "path": "/api/v1/shop/products/:id",
+    "roles": [
+      "PUBLIC"
+    ]
+  },
+  "shop.productCreate": {
+    "method": "POST",
+    "path": "/api/v1/shop/products",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "shop.productUpdate": {
+    "method": "PATCH",
+    "path": "/api/v1/shop/products/:id",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "shop.productDelete": {
+    "method": "DELETE",
+    "path": "/api/v1/shop/products/:id",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "shop.orderCreate": {
+    "method": "POST",
+    "path": "/api/v1/shop/orders",
+    "roles": [
+      "MEMBER",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "shop.orderList": {
+    "method": "GET",
+    "path": "/api/v1/shop/orders",
+    "roles": [
+      "MEMBER:own",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "shop.orderGet": {
+    "method": "GET",
+    "path": "/api/v1/shop/orders/:id",
+    "roles": [
+      "MEMBER:own",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "shop.orderStatus": {
+    "method": "PATCH",
+    "path": "/api/v1/shop/orders/:id/status",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "shop.orderCancel": {
+    "method": "POST",
+    "path": "/api/v1/shop/orders/:id/cancel",
+    "roles": [
+      "MEMBER:own",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "inventory.list": {
+    "method": "GET",
+    "path": "/api/v1/inventory",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "inventory.lowStock": {
+    "method": "GET",
+    "path": "/api/v1/inventory/low-stock",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "inventory.adjust": {
+    "method": "POST",
+    "path": "/api/v1/inventory/adjustments",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "inventory.movements": {
+    "method": "GET",
+    "path": "/api/v1/inventory/movements",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "bar.menu": {
+    "method": "GET",
+    "path": "/api/v1/bar/menu",
+    "roles": [
+      "PUBLIC"
+    ]
+  },
+  "bar.menuCreate": {
+    "method": "POST",
+    "path": "/api/v1/bar/menu-items",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "bar.menuUpdate": {
+    "method": "PATCH",
+    "path": "/api/v1/bar/menu-items/:id",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "bar.tables": {
+    "method": "GET",
+    "path": "/api/v1/bar/tables",
+    "roles": [
+      "FRONT_DESK",
+      "KITCHEN_MANAGER",
+      "OWNER_ADMIN"
+    ]
+  },
+  "bar.tableCreate": {
+    "method": "POST",
+    "path": "/api/v1/bar/tables",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "bar.tableUpdate": {
+    "method": "PATCH",
+    "path": "/api/v1/bar/tables/:id",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "bar.orderCreate": {
+    "method": "POST",
+    "path": "/api/v1/bar/orders",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "bar.orderList": {
+    "method": "GET",
+    "path": "/api/v1/bar/orders",
+    "roles": [
+      "MEMBER:own",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "bar.orderGet": {
+    "method": "GET",
+    "path": "/api/v1/bar/orders/:id",
+    "roles": [
+      "MEMBER:own",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "bar.orderCancel": {
+    "method": "POST",
+    "path": "/api/v1/bar/orders/:id/cancel",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "bar.tabOpen": {
+    "method": "POST",
+    "path": "/api/v1/bar/tabs",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "bar.tabList": {
+    "method": "GET",
+    "path": "/api/v1/bar/tabs",
+    "roles": [
+      "MEMBER:own",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "bar.tabGet": {
+    "method": "GET",
+    "path": "/api/v1/bar/tabs/:id",
+    "roles": [
+      "MEMBER:own",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "bar.tabSettle": {
+    "method": "POST",
+    "path": "/api/v1/bar/tabs/:id/settle",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "bar.tabVoid": {
+    "method": "POST",
+    "path": "/api/v1/bar/tabs/:id/void",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "bar.dailySummary": {
+    "method": "GET",
+    "path": "/api/v1/bar/daily-summary",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "kitchen.list": {
+    "method": "GET",
+    "path": "/api/v1/kitchen/orders",
+    "roles": [
+      "KITCHEN_MANAGER",
+      "OWNER_ADMIN"
+    ]
+  },
+  "kitchen.get": {
+    "method": "GET",
+    "path": "/api/v1/kitchen/orders/:id",
+    "roles": [
+      "KITCHEN_MANAGER",
+      "OWNER_ADMIN"
+    ]
+  },
+  "kitchen.status": {
+    "method": "PATCH",
+    "path": "/api/v1/kitchen/orders/:id/status",
+    "roles": [
+      "KITCHEN_MANAGER",
+      "OWNER_ADMIN"
+    ]
+  },
+  "enquiries.create": {
+    "method": "POST",
+    "path": "/api/v1/enquiries",
+    "roles": [
+      "PUBLIC",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "enquiries.summary": {
+    "method": "GET",
+    "path": "/api/v1/enquiries/summary",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "enquiries.list": {
+    "method": "GET",
+    "path": "/api/v1/enquiries",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "enquiries.get": {
+    "method": "GET",
+    "path": "/api/v1/enquiries/:id",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "enquiries.update": {
+    "method": "PATCH",
+    "path": "/api/v1/enquiries/:id",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "enquiries.followUp": {
+    "method": "POST",
+    "path": "/api/v1/enquiries/:id/follow-ups",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "enquiries.quoteCreate": {
+    "method": "POST",
+    "path": "/api/v1/enquiries/:id/quotes",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "enquiries.quoteUpdate": {
+    "method": "PATCH",
+    "path": "/api/v1/quotes/:id",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "enquiries.trialBooking": {
+    "method": "POST",
+    "path": "/api/v1/enquiries/:id/trial-booking",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "enquiries.convert": {
+    "method": "POST",
+    "path": "/api/v1/enquiries/:id/convert",
+    "roles": [
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "clients.list": {
+    "method": "GET",
+    "path": "/api/v1/business-clients",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "clients.create": {
+    "method": "POST",
+    "path": "/api/v1/business-clients",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "clients.me": {
+    "method": "GET",
+    "path": "/api/v1/business-clients/me",
+    "roles": [
+      "BUSINESS_CLIENT"
+    ]
+  },
+  "clients.get": {
+    "method": "GET",
+    "path": "/api/v1/business-clients/:id",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "clients.update": {
+    "method": "PATCH",
+    "path": "/api/v1/business-clients/:id",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "invoices.list": {
+    "method": "GET",
+    "path": "/api/v1/invoices",
+    "roles": [
+      "BUSINESS_CLIENT:own",
+      "MEMBER:own",
+      "OWNER_ADMIN"
+    ]
+  },
+  "invoices.create": {
+    "method": "POST",
+    "path": "/api/v1/invoices",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "invoices.get": {
+    "method": "GET",
+    "path": "/api/v1/invoices/:id",
+    "roles": [
+      "BUSINESS_CLIENT:own",
+      "MEMBER:own",
+      "OWNER_ADMIN"
+    ]
+  },
+  "invoices.update": {
+    "method": "PATCH",
+    "path": "/api/v1/invoices/:id",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "invoices.send": {
+    "method": "POST",
+    "path": "/api/v1/invoices/:id/send",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "invoices.void": {
+    "method": "POST",
+    "path": "/api/v1/invoices/:id/void",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "payments.create": {
+    "method": "POST",
+    "path": "/api/v1/payments",
+    "roles": [
+      "MEMBER:own",
+      "BUSINESS_CLIENT:own",
+      "FRONT_DESK",
+      "OWNER_ADMIN"
+    ]
+  },
+  "payments.list": {
+    "method": "GET",
+    "path": "/api/v1/payments",
+    "roles": [
+      "MEMBER:own",
+      "BUSINESS_CLIENT:own",
+      "FRONT_DESK:own",
+      "OWNER_ADMIN"
+    ]
+  },
+  "payments.get": {
+    "method": "GET",
+    "path": "/api/v1/payments/:id",
+    "roles": [
+      "MEMBER:own",
+      "BUSINESS_CLIENT:own",
+      "FRONT_DESK:own",
+      "OWNER_ADMIN"
+    ]
+  },
+  "payments.refund": {
+    "method": "POST",
+    "path": "/api/v1/payments/:id/refund",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "staff.list": {
+    "method": "GET",
+    "path": "/api/v1/staff",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "staff.create": {
+    "method": "POST",
+    "path": "/api/v1/staff",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "staff.get": {
+    "method": "GET",
+    "path": "/api/v1/staff/:id",
+    "roles": [
+      "FRONT_DESK:own",
+      "KITCHEN_MANAGER:own",
+      "OWNER_ADMIN"
+    ]
+  },
+  "staff.update": {
+    "method": "PATCH",
+    "path": "/api/v1/staff/:id",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "staff.shifts": {
+    "method": "GET",
+    "path": "/api/v1/staff/shifts",
+    "roles": [
+      "FRONT_DESK",
+      "KITCHEN_MANAGER:own",
+      "OWNER_ADMIN"
+    ]
+  },
+  "staff.shiftCreate": {
+    "method": "POST",
+    "path": "/api/v1/staff/shifts",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "staff.shiftUpdate": {
+    "method": "PATCH",
+    "path": "/api/v1/staff/shifts/:id",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "staff.shiftDelete": {
+    "method": "DELETE",
+    "path": "/api/v1/staff/shifts/:id",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "staff.leaveList": {
+    "method": "GET",
+    "path": "/api/v1/staff/leave-requests",
+    "roles": [
+      "FRONT_DESK:own",
+      "KITCHEN_MANAGER:own",
+      "OWNER_ADMIN"
+    ]
+  },
+  "staff.leaveCreate": {
+    "method": "POST",
+    "path": "/api/v1/staff/leave-requests",
+    "roles": [
+      "FRONT_DESK",
+      "KITCHEN_MANAGER"
+    ]
+  },
+  "staff.leaveDecide": {
+    "method": "POST",
+    "path": "/api/v1/staff/leave-requests/:id/decision",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "staff.leaveCancel": {
+    "method": "POST",
+    "path": "/api/v1/staff/leave-requests/:id/cancel",
+    "roles": [
+      "FRONT_DESK:own",
+      "KITCHEN_MANAGER:own",
+      "OWNER_ADMIN"
+    ]
+  },
+  "staff.payrollList": {
+    "method": "GET",
+    "path": "/api/v1/staff/payroll",
+    "roles": [
+      "FRONT_DESK:own",
+      "KITCHEN_MANAGER:own",
+      "OWNER_ADMIN"
+    ]
+  },
+  "staff.payrollCreate": {
+    "method": "POST",
+    "path": "/api/v1/staff/payroll",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "staff.payrollPay": {
+    "method": "POST",
+    "path": "/api/v1/staff/payroll/:id/pay",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "reports.dashboard": {
+    "method": "GET",
+    "path": "/api/v1/reports/dashboard",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "reports.revenue": {
+    "method": "GET",
+    "path": "/api/v1/reports/revenue",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "reports.courts": {
+    "method": "GET",
+    "path": "/api/v1/reports/courts",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "reports.memberships": {
+    "method": "GET",
+    "path": "/api/v1/reports/memberships",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "reports.shop": {
+    "method": "GET",
+    "path": "/api/v1/reports/shop",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "reports.bar": {
+    "method": "GET",
+    "path": "/api/v1/reports/bar",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "reports.finance": {
+    "method": "GET",
+    "path": "/api/v1/reports/finance",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "reports.tax": {
+    "method": "GET",
+    "path": "/api/v1/reports/tax",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "reports.export": {
+    "method": "GET",
+    "path": "/api/v1/reports/export",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "notifications.list": {
+    "method": "GET",
+    "path": "/api/v1/notifications",
+    "roles": [
+      "MEMBER",
+      "FRONT_DESK",
+      "KITCHEN_MANAGER",
+      "BUSINESS_CLIENT",
+      "OWNER_ADMIN"
+    ]
+  },
+  "notifications.unreadCount": {
+    "method": "GET",
+    "path": "/api/v1/notifications/unread-count",
+    "roles": [
+      "MEMBER",
+      "FRONT_DESK",
+      "KITCHEN_MANAGER",
+      "BUSINESS_CLIENT",
+      "OWNER_ADMIN"
+    ]
+  },
+  "notifications.read": {
+    "method": "PATCH",
+    "path": "/api/v1/notifications/:id/read",
+    "roles": [
+      "MEMBER",
+      "FRONT_DESK",
+      "KITCHEN_MANAGER",
+      "BUSINESS_CLIENT",
+      "OWNER_ADMIN"
+    ]
+  },
+  "notifications.readAll": {
+    "method": "POST",
+    "path": "/api/v1/notifications/read-all",
+    "roles": [
+      "MEMBER",
+      "FRONT_DESK",
+      "KITCHEN_MANAGER",
+      "BUSINESS_CLIENT",
+      "OWNER_ADMIN"
+    ]
+  },
+  "settings.list": {
+    "method": "GET",
+    "path": "/api/v1/settings",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "settings.update": {
+    "method": "PATCH",
+    "path": "/api/v1/settings/:key",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "04000000-0000-4000-8000-000000000001",
+    "user_id": "01000000-0000-4000-8000-000000000006",
+    "company_name": "TechNova Solutions Pvt Ltd",
+    "contact_name": "Sanjay Gupta",
+    "email": "sanjay.gupta@technova.example",
+    "phone": "+919820000006",
+    "gstin": "27AABCT1234F1Z5",
+    "billing_address": "5th Floor, Cyber Park, Hinjewadi, Pune 411057",
+    "notes": "Quarterly corporate sports day + cricket net bookings",
+    "is_active": true,
+    "created_at": "2026-07-05T05:30:00.000Z",
+    "updated_at": "2026-07-05T05:30:00.000Z"
+  },
+  {
+    "id": "04000000-0000-4000-8000-000000000002",
+    "user_id": null,
+    "company_name": "Greenfield Corp",
+    "contact_name": "Meera Pillai",
+    "email": "accounts@greenfield.example",
+    "phone": "+919820000007",
+    "gstin": "27AAACG9876K1Z2",
+    "billing_address": "12 Industrial Estate, Chakan, Pune 410501",
+    "notes": "Invoiced only; no portal login",
+    "is_active": true,
+    "created_at": "2026-08-04T05:30:00.000Z",
+    "updated_at": "2026-08-04T05:30:00.000Z"
+  }
+]

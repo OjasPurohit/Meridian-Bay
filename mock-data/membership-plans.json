@@ -1,0 +1,75 @@
+[
+  {
+    "id": "05000000-0000-4000-8000-000000000001",
+    "membership_type": "GOLD",
+    "name": "Gold Membership",
+    "description": "Premium, full access to every court, best discounts at the shop and bar.",
+    "duration_months": 12,
+    "price": "30000.00",
+    "court_discount_percent": "100.00",
+    "shop_discount_percent": "15.00",
+    "bar_discount_percent": "15.00",
+    "max_plays_per_day": 2,
+    "min_age": 18,
+    "max_age": null,
+    "benefits": [
+      "Free court bookings (up to 2 plays per day)",
+      "15% off at the gear shop",
+      "15% off at the bar & cafeteria",
+      "Join Friday social play free",
+      "Priority support from the front desk"
+    ],
+    "sort_order": 1,
+    "is_active": true,
+    "created_at": "2026-03-17T04:30:00.000Z",
+    "updated_at": "2026-03-17T04:30:00.000Z"
+  },
+  {
+    "id": "05000000-0000-4000-8000-000000000002",
+    "membership_type": "SILVER",
+    "name": "Silver Membership",
+    "description": "Standard membership with member court rates and everyday discounts.",
+    "duration_months": 12,
+    "price": "15000.00",
+    "court_discount_percent": "50.00",
+    "shop_discount_percent": "10.00",
+    "bar_discount_percent": "10.00",
+    "max_plays_per_day": 2,
+    "min_age": 18,
+    "max_age": null,
+    "benefits": [
+      "50% off court bookings (up to 2 plays per day)",
+      "10% off at the gear shop",
+      "10% off at the bar & cafeteria",
+      "Join Friday social play at member rate"
+    ],
+    "sort_order": 2,
+    "is_active": true,
+    "created_at": "2026-03-17T04:30:00.000Z",
+    "updated_at": "2026-03-17T04:30:00.000Z"
+  },
+  {
+    "id": "05000000-0000-4000-8000-000000000003",
+    "membership_type": "JUNIOR",
+    "name": "Junior Membership",
+    "description": "For players under 18 — discounted court rates.",
+    "duration_months": 12,
+    "price": "7500.00",
+    "court_discount_percent": "70.00",
+    "shop_discount_percent": "5.00",
+    "bar_discount_percent": "5.00",
+    "max_plays_per_day": 2,
+    "min_age": 5,
+    "max_age": 17,
+    "benefits": [
+      "70% off court bookings (up to 2 plays per day)",
+      "5% off at the gear shop",
+      "5% off at the bar & cafeteria",
+      "Junior-friendly Friday social play"
+    ],
+    "sort_order": 3,
+    "is_active": true,
+    "created_at": "2026-03-17T04:30:00.000Z",
+    "updated_at": "2026-03-17T04:30:00.000Z"
+  }
+]

@@ -1,0 +1,72 @@
+%% GENERATED from docs/architecture/SYSTEM_ARCHITECTURE.md (first diagram) — DO NOT EDIT BY HAND
+flowchart TB
+  subgraph ACTORS["Actors"]
+    V["Online visitor"]
+    M["Member (Gold / Silver / Junior)"]
+    G["Walk-in guest (served by staff)"]
+    FD["Front desk staff"]
+    KM["Kitchen manager"]
+    BC["Business client"]
+    OW["Owner / Admin"]
+  end
+
+  subgraph UI["Frontend: React SPA"]
+    PUB["Public website"]
+    DM["Member dashboard"]
+    DF["Front desk dashboard + POS"]
+    DK["Kitchen dashboard"]
+    DB["Business dashboard"]
+    DO["Owner dashboard"]
+  end
+
+  subgraph API["Backend: Express REST API  /api/v1"]
+    AUTH["Authentication and authorization (JWT + RBAC)"]
+    VAL["Validation and error mapping"]
+    subgraph MODS["Application modules"]
+      MEMB["Membership"]
+      COURT["Court booking"]
+      SOC["Social play"]
+      SHOP["Shop"]
+      INV["Inventory"]
+      BAR["Bar / POS"]
+      KIT["Kitchen orders"]
+      CRM["Enquiries / CRM"]
+      FIN["Payments / Finance"]
+      INVC["Invoicing / Business clients"]
+      HR["Staff / HR"]
+      NOTIF["Notifications"]
+      REP["Reporting"]
+    end
+    BL["Business logic: pricing, limits, state machines, transactions"]
+  end
+
+  subgraph DATA["Data layer"]
+    PG[("PostgreSQL: one canonical schema")]
+    LOCAL["Local PostgreSQL + pgAdmin (development)"]
+    SUPA["Supabase PostgreSQL (cloud)"]
+  end
+
+  subgraph EXT["External integrations"]
+    PAY["Payment gateway (mocked in v1)"]
+    MSG["Email / SMS / WhatsApp (out of scope v1)"]
+  end
+
+  V --> PUB
+  M --> DM
+  G -. "served by" .-> DF
+  FD --> DF
+  KM --> DK
+  BC --> DB
+  OW --> DO
+  PUB --> AUTH
+  DM --> AUTH
+  DF --> AUTH
+  DK --> AUTH
+  DB --> AUTH
+  DO --> AUTH
+  AUTH --> VAL --> MODS
+  MODS --> BL --> PG
+  PG --- LOCAL
+  PG --- SUPA
+  FIN -.-> PAY
+  NOTIF -.-> MSG
