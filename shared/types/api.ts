@@ -3,13 +3,15 @@
  * Every endpoint in tools/api/endpoints.mjs names its response type from this file or rows.ts.
  * Request-body / query types are GENERATED into ./requests.generated.ts (do not hand-write them).
  * Naming rule: field names are the DB column names; joined/derived fields use the same snake_case style.
+ *
+ * DERIVED fields (status, amounts, payment_status ...) are NOT table columns: the backend reads them from the SQL views
+ * membership_terms, court_booking_totals, shop_order_totals, bar_order_totals, invoice_totals and payment_ledger (ADR-015, ADR-016).
  */
 import type * as E from '../constants/enums';
 import type { ErrorCode } from '../constants/errors';
 import type {
   Uuid, Money, Percent, IsoDate, IsoDateTime, TimeOfDay, User, Member, Staff, BusinessClient, MembershipPlan, Membership,
-  Enquiry, EnquiryFollowUp, Quote, Court, CourtBooking, SocialSession, SocialSessionParticipant, Product, ShopOrder,
-  ShopOrderItem, InventoryMovement, BarMenuItem, BarTable, BarTab, BarOrder, BarOrderItem, Payment, Invoice, InvoiceItem,
+  Enquiry, Court, CourtBooking, Product, ShopOrder, ShopOrderItem, BarMenuItem, BarOrder, BarOrderItem, Payment, Invoice, InvoiceItem,
   StaffShift, LeaveRequest, PayrollPayment,
 } from './rows';
 
@@ -75,13 +77,13 @@ export interface MemberDetail extends MemberSummary {
   address: string | null;
   emergency_contact_name: string | null;
   emergency_contact_phone: string | null;
-  notes: string | null;
   plan: MembershipPlan | null; // plan of the active membership (benefits, discounts)
   plays_used_today: number;
   plays_allowed_per_day: number;
 }
 
 export interface MembershipView extends Membership {
+  status: E.MembershipStatus; // derived from dates + cancelled_at (SQL view membership_terms); not a table column
   plan: MembershipPlan;
   member_name: string;
   member_code: string;
@@ -103,8 +105,6 @@ export interface CourtSlot {
   end_at: IsoDateTime; // start_at + 1h
   status: E.SlotStatus;
   booking_id: Uuid | null; // only for staff roles, null for PUBLIC/MEMBER
-  social_session_id: Uuid | null; // set when status = SOCIAL
-  spots_left: number | null; // set when status = SOCIAL
   walk_in_price: Money;
 }
 
@@ -120,8 +120,7 @@ export interface PriceBreakdown {
   court_id: Uuid;
   start_at: IsoDateTime;
   end_at: IsoDateTime;
-  customer_type: E.CustomerType;
-  membership_type: E.MembershipType | null;
+  membership_type: E.MembershipType | null; // null => walk-in price
   list_price: Money;
   discount_percent: Percent;
   discount_amount: Money;
@@ -133,35 +132,22 @@ export interface PriceBreakdown {
   plays_allowed_per_day: number | null;
 }
 
+/** A booking + the values the view `court_booking_totals` derives from it. */
 export interface BookingDetail extends CourtBooking {
+  status: E.BookingStatus; // CANCELLED when cancelled_at is set, COMPLETED once end_at has passed
+  amount_due: Money; // list_price - discount_amount
+  amount_paid: Money; // net of refunds
+  payment_status: E.PaymentStatus;
   court_name: string;
   sport_type: E.SportType;
   member_name: string | null;
   member_code: string | null;
-  social_session_id: Uuid | null;
 }
 
 export interface BookingCancelResult {
   booking: BookingDetail;
   refund_amount: Money; // 0.00 when cancelled inside the cut-off window or when nothing was paid
   refund_payment_id: Uuid | null;
-}
-
-// ------------------------------------------------------------------ social play
-export interface ParticipantView extends SocialSessionParticipant {
-  display_name: string;
-  member_code: string | null;
-}
-
-export interface SocialSessionView extends SocialSession {
-  court_id: Uuid;
-  court_name: string;
-  sport_type: E.SportType;
-  start_at: IsoDateTime;
-  end_at: IsoDateTime;
-  participant_count: number; // JOINED only
-  spots_left: number;
-  participants?: ParticipantView[]; // only on GET /social-play/sessions/:id for authenticated roles
 }
 
 // ------------------------------------------------------------------ shop / inventory
@@ -193,50 +179,29 @@ export interface InventoryItem {
   low_stock_threshold: number;
   stock_status: E.StockStatus;
   is_active: boolean;
-  last_movement_at: IsoDateTime | null;
 }
 
-export interface InventoryMovementView extends InventoryMovement {
-  sku: string;
-  product_name: string;
-}
-
-export interface StockAdjustmentResult {
-  item: InventoryItem;
-  movement: InventoryMovement;
-}
-
+/** A shop order + the values the view `shop_order_totals` derives (subtotal from the lines, total = subtotal - discount + delivery fee). */
 export interface ShopOrderDetail extends ShopOrder {
+  subtotal: Money;
+  total_amount: Money;
+  amount_paid: Money; // net of refunds
+  payment_status: E.PaymentStatus;
   items: ShopOrderItem[];
   member_name: string | null;
   member_code: string | null;
 }
 
-// ------------------------------------------------------------------ bar / kitchen
-export interface BarTableView extends BarTable {
-  current_tab_id: Uuid | null;
-  active_order_count: number;
-}
-
+// ------------------------------------------------------------------ cafe / kitchen
+/** A cafe order + the values the view `bar_order_totals` derives. */
 export interface BarOrderDetail extends BarOrder {
+  subtotal: Money;
+  total_amount: Money;
+  amount_paid: Money; // net of refunds
+  payment_status: E.PaymentStatus;
   items: BarOrderItem[];
-  table_label: string | null;
-  tab_number: string | null;
   member_name: string | null;
   member_code: string | null;
-}
-
-export interface BarTabDetail extends BarTab {
-  table_label: string | null;
-  member_name: string | null;
-  member_code: string | null;
-  orders: BarOrderDetail[];
-  running_total: Money; // sum of non-cancelled order totals (live); equals total_amount once SETTLED
-}
-
-export interface BarSettleResult {
-  tab: BarTabDetail;
-  payment: Payment;
 }
 
 export interface KitchenOrderItem {
@@ -251,11 +216,9 @@ export interface KitchenOrder {
   order_number: string;
   status: E.OrderStatus;
   table_label: string | null;
-  tab_number: string | null;
-  customer_label: string; // member name / guest name / "Table T3"
+  customer_label: string; // member name / guest name / table label
   notes: string | null;
   created_at: IsoDateTime;
-  ready_at: IsoDateTime | null;
   minutes_waiting: number;
   items: KitchenOrderItem[];
 }
@@ -269,46 +232,34 @@ export interface BarDailySummary {
   discount_total: Money;
   tax_total: Money;
   by_method: { method: E.PaymentMethod; amount: Money; count: number }[];
-  open_tabs_count: number;
-  open_tabs_amount: Money; // running totals of tabs still OPEN (earned but not yet collected)
   shifts: { staff_id: Uuid; full_name: string; start_time: TimeOfDay; end_time: TimeOfDay }[];
 }
 
 // ------------------------------------------------------------------ enquiries
 export interface EnquiryView extends Enquiry {
   plan_name: string | null;
-  assigned_to_name: string | null;
-}
-
-export interface EnquiryDetail extends EnquiryView {
-  follow_ups: EnquiryFollowUp[];
-  quotes: Quote[];
-}
-
-export interface EnquiryFunnel {
-  counts: Record<E.EnquiryStatus, number>;
-  total: number;
-  conversion_rate_percent: Percent;
-  follow_ups_due: number; // next_follow_up_at <= now and status not CONVERTED/LOST
-}
-
-export interface EnquiryConvertResult {
-  enquiry: EnquiryView;
-  member: MemberSummary;
-  membership: Membership | null;
-  payment: Payment | null;
 }
 
 // ------------------------------------------------------------------ finance
+/** A payment + what the view `payment_ledger` derives from it. */
 export interface PaymentView extends Payment {
+  revenue_category: E.RevenueCategory;
+  status: E.PaymentTxnStatus; // SUCCEEDED / PARTIALLY_REFUNDED / REFUNDED from refunded_amount
   payer_label: string;
   source_label: string; // human text, e.g. "Court 1 · 3 Oct 18:00"
   received_by_name: string | null;
 }
 
+/** An invoice + the values the view `invoice_totals` derives from its lines, tax_rate and payments. */
 export interface InvoiceView extends Invoice {
-  client_name: string | null; // business client company or member name
+  invoice_type: E.InvoiceType; // BUSINESS when addressed to a business client, MEMBERSHIP when addressed to a member
+  subtotal: Money;
+  tax_amount: Money;
+  total_amount: Money;
+  amount_paid: Money; // net of refunds
   amount_outstanding: Money;
+  payment_state: E.InvoicePaymentState | null; // null unless status = SENT
+  client_name: string | null; // business client company or member name
 }
 
 export interface InvoiceDetail extends InvoiceView {
@@ -335,18 +286,17 @@ export interface StaffView extends Staff {
   email: string;
   phone: string | null;
   role: E.UserRole;
+  is_active: boolean; // users.is_active (the account state)
 }
 export interface ShiftView extends StaffShift {
   staff_name: string;
-  employee_code: string;
 }
 export interface LeaveView extends LeaveRequest {
   staff_name: string;
-  employee_code: string;
 }
 export interface PayrollView extends PayrollPayment {
   staff_name: string;
-  employee_code: string;
+  is_paid: boolean; // paid_on IS NOT NULL
 }
 
 // ------------------------------------------------------------------ public site
@@ -359,7 +309,6 @@ export interface PublicClubInfo {
   email: string | null;
   open_time: TimeOfDay;
   close_time: TimeOfDay;
-  social_play: { weekday: number; start_time: TimeOfDay; end_time: TimeOfDay }; // weekday: ISO 1=Mon..7=Sun
   sports: E.SportType[];
   court_count: number;
 }
@@ -391,8 +340,8 @@ export interface OwnerDashboard {
   memberships: { active_total: number; by_type: AmountByKey[]; new_in_period: number; expiring_soon: number };
   courts: { bookings_count: number; utilization_percent: Percent; cancellations_count: number; revenue: Money };
   shop: { orders_count: number; sales_amount: Money; low_stock_count: number };
-  bar: { orders_count: number; sales_amount: Money; open_tabs_count: number };
-  enquiries: { new_count: number; follow_ups_due: number; converted_in_period: number };
+  bar: { orders_count: number; sales_amount: Money };
+  enquiries: { unhandled_count: number };
   finance: { outstanding_invoices_amount: Money; payroll_pending_amount: Money; tax_collected: Money };
   staff: { pending_leave_requests: number };
 }
@@ -426,7 +375,7 @@ export interface ShopReport {
   range: DateRange;
   sales_amount: Money;
   orders_count: number;
-  by_channel: AmountByKey[];
+  by_fulfillment: AmountByKey[];
   top_products: { product_id: Uuid; name: string; quantity: number; amount: Money }[];
   low_stock: InventoryItem[];
 }
@@ -446,15 +395,4 @@ export interface TaxReport {
   range: DateRange;
   rows: { revenue_category: E.RevenueCategory; gross_amount: Money; taxable_amount: Money; tax_rate: Percent; tax_amount: Money }[];
   total_tax: Money;
-}
-
-// ------------------------------------------------------------------ small utility results
-export interface CountResult {
-  count: number;
-}
-
-export interface ExpiryRunResult {
-  promoted_count: number; // UPCOMING -> ACTIVE
-  expired_count: number; // ACTIVE -> EXPIRED
-  notified_count: number; // expiry-warning / expired notifications created
 }

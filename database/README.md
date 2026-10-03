@@ -3,6 +3,7 @@
 ```
 database/migrations/0001_init.sql      ← the canonical schema (tables, enums, constraints, indexes, triggers)
 database/migrations/0002_security.sql  ← RLS deny-all (Supabase) + revokes
+database/migrations/0003_database_cleanup.sql ← derived data generated/computed (membership status from dates), see ADR-015
 database/migrations/000N_*.sql         ← every future change = a NEW numbered file
 database/seed/seed.sql                 ← GENERATED from mock-data/*.json (never hand-edited)
 database/migrate.mjs  seed.mjs  reset.mjs  guards.mjs
@@ -64,7 +65,7 @@ Adding an enum label: `ALTER TYPE booking_status ADD VALUE IF NOT EXISTS 'NO_SHO
 
 ## Keeping environments synchronised
 
-- `schema_migrations(filename, checksum, applied_at)` records what each database has. `npm run db:status` shows pending files.
+- `schema_migrations(filename, checksum, applied_at)` records what each database has. `npm run db:status` shows pending files. The checksum is SHA-256 of the file with line endings normalised to CRLF ([checksum.mjs](checksum.mjs)), so LF/CRLF checkouts of the same migration never mismatch; any real SQL change still does.
 - **Rule: if it is on `main`, it must be migrated everywhere before the demo.** The deployer runs `db:migrate` against Supabase after every merge that touches `database/migrations`.
 - Never hotfix Supabase directly. If someone did, capture it as a migration immediately (`pg_dump --schema-only` diff) and merge it so local matches.
 - Drift check: `npm run db:status` on both databases must list identical files; for deeper checks compare `pg_dump --schema-only --no-owner` output.

@@ -4,6 +4,6 @@
  * The poster is shown while the video loads, when it fails, and to visitors who prefer reduced motion.
  */
 export const HERO_MEDIA = {
-  videoSrc: (import.meta.env.VITE_HERO_VIDEO_SRC as string | undefined) || null,
-  posterSrc: (import.meta.env.VITE_HERO_POSTER_SRC as string | undefined) || null,
+  videoSrc: (import.meta.env.VITE_HERO_VIDEO_SRC as string | undefined) || '/media/bayvideo.mp4',
+  posterSrc: (import.meta.env.VITE_HERO_POSTER_SRC as string | undefined) || '/media/Outdoor_Hard_Tennis_Court.png',
 };

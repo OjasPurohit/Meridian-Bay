@@ -17,7 +17,6 @@ backend/
       errors.ts          AppError(code, details)  (codes from @shared/constants/errors)
       auth.ts            requireAuth, requireRole(...roles), callerScope(req) { member_id | staff_id | business_client_id }
       validate.ts        zod helpers; one schema per generated *Request / *Query type
-      notify.ts          NotificationsService.notify(tx, userIds, type, title, body, entity)
       settings.ts        SettingsService.get(key) (cached, read-only; writes via the settings module)
     modules/             ONE FOLDER PER API MODULE — owned by exactly one developer
       <module>/
@@ -32,7 +31,7 @@ backend/
 ```
 
 ## Module → owner → folder
-See [OWNERSHIP_MAP.md](../docs/integration/OWNERSHIP_MAP.md). Folder names = the `module` column of the API contract (`auth`, `public`, `members`, `memberships`, `courts`, `bookings`, `social`, `shop`, `inventory`, `bar`, `kitchen`, `enquiries`, `clients`, `invoices`, `payments`, `staff`, `reports`, `notifications`, `settings`).
+See [OWNERSHIP_MAP.md](../docs/integration/OWNERSHIP_MAP.md). Folder names = the `module` column of the API contract (`auth`, `public`, `members`, `memberships`, `courts`, `bookings`, `shop`, `inventory`, `bar`, `kitchen`, `enquiries`, `clients`, `invoices`, `payments`, `staff`, `reports`, `settings`).
 
 ## Rules
 1. **Respond only through `kernel/http.ts`** (`{ success, data, meta?, message? }`) and **fail only by throwing `AppError(code, details)`** with a code from `shared/constants/errors.ts`. No `res.status(400).json({...})` by hand.
@@ -41,4 +40,4 @@ See [OWNERSHIP_MAP.md](../docs/integration/OWNERSHIP_MAP.md). Folder names = the
 4. **Money & dates:** use `shared/lib/money.ts` and `shared/lib/time.ts`. Configure `pg` type parsers once in `kernel/db.ts`: `numeric` → string (default), `date` → raw string (OID 1082), `int8` → number, `timestamptz` → ISO string via `toISOString()`.
 5. **No cross-module SQL.** Need a member's discount? call `MembershipService.getEffectiveMembership` — don't join `memberships` yourself (see [SYSTEM_ARCHITECTURE §5](../docs/architecture/SYSTEM_ARCHITECTURE.md#5-internal-service-contracts)).
 6. **Don't edit `kernel/` or another module's folder.** Need a change? Ask the owner; for tiny fixes open a PR and tag them.
-7. Tests: at minimum the critical rules in [INTEGRATION_CHECKLIST.md](../docs/integration/INTEGRATION_CHECKLIST.md) (double booking, daily limit, oversell, tab settlement, payment totals) against a real Postgres (use `npm run db:reset` first).
+7. Tests: at minimum the critical rules in [INTEGRATION_CHECKLIST.md](../docs/integration/INTEGRATION_CHECKLIST.md) (double booking, daily limit, oversell, payment totals) against a real Postgres (use `npm run db:reset` first).

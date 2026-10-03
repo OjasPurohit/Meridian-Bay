@@ -3,14 +3,13 @@
  *
  * Division of responsibility (avoids two sources of truth):
  *  - THIS FILE  = invariants that are NOT owner-editable (slot size, session length, timezone, state machines).
- *  - club_settings table = owner-editable policy values (hours, cancel cut-off, tax rates, delivery fee, social-play window...).
+ *  - club_settings table = owner-editable policy values (hours, cancel cut-off, tax rates, delivery fee...).
  *  - membership_plans table = per-plan benefits (discount %, max plays/day, price, duration).
  * Prose version of every rule: docs/business-rules/BUSINESS_RULES.md
  */
 
 import type {
-  UserRole, BookingStatus, OrderStatus, ShopOrderStatus, EnquiryStatus, TabStatus,
-  InvoiceStatus, LeaveStatus, QuoteStatus,
+  UserRole, OrderStatus, ShopOrderStatus, InvoiceStatus, LeaveStatus,
 } from './enums';
 
 // ---------- conventions ----------
@@ -38,7 +37,6 @@ export const ROLE_HOME_ROUTE: Record<UserRole, string> = {
 export const SETTING_KEYS = [
   'club_name', 'club_tagline', 'club_description', 'club_address', 'club_phone', 'club_email',
   'club_open_time', 'club_close_time',
-  'social_play_weekday', 'social_play_start_time', 'social_play_end_time',
   'cancellation_cutoff_hours', 'low_stock_default_threshold', 'membership_expiry_warning_days',
   'delivery_fee', 'free_delivery_above',
   'tax_rate_court', 'tax_rate_membership', 'tax_rate_shop', 'tax_rate_bar', 'tax_rate_business',
@@ -46,17 +44,12 @@ export const SETTING_KEYS = [
 export type SettingKey = (typeof SETTING_KEYS)[number];
 
 // ---------- state machines (server MUST reject anything else with INVALID_STATUS_TRANSITION) ----------
-export const BOOKING_TRANSITIONS: Record<BookingStatus, readonly BookingStatus[]> = {
-  PENDING: ['CONFIRMED', 'CANCELLED'],
-  CONFIRMED: ['COMPLETED', 'CANCELLED'],
-  CANCELLED: [],
-  COMPLETED: [],
-};
+// A court booking has no stored status: it stands until cancelled_at is set (ADR-006, view court_booking_totals derives
+// CONFIRMED / CANCELLED / COMPLETED). An enquiry has none either: handled_at IS NULL means new.
 
-/** Kitchen/bar order flow. Kitchen may cancel only NEW/ACCEPTED (rejecting an order). */
+/** Cafe / kitchen order flow. The kitchen may reject (cancel) an order only while it is NEW. */
 export const ORDER_TRANSITIONS: Record<OrderStatus, readonly OrderStatus[]> = {
-  NEW: ['ACCEPTED', 'CANCELLED'],
-  ACCEPTED: ['PREPARING', 'CANCELLED'],
+  NEW: ['PREPARING', 'CANCELLED'],
   PREPARING: ['READY'],
   READY: ['SERVED'],
   SERVED: [],
@@ -73,27 +66,10 @@ export const SHOP_ORDER_TRANSITIONS: Record<ShopOrderStatus, readonly ShopOrderS
   CANCELLED: [],
 };
 
-export const ENQUIRY_TRANSITIONS: Record<EnquiryStatus, readonly EnquiryStatus[]> = {
-  NEW: ['CONTACTED', 'FOLLOW_UP', 'QUOTE_SENT', 'CONVERTED', 'LOST'],
-  CONTACTED: ['FOLLOW_UP', 'QUOTE_SENT', 'CONVERTED', 'LOST'],
-  FOLLOW_UP: ['CONTACTED', 'QUOTE_SENT', 'CONVERTED', 'LOST'],
-  QUOTE_SENT: ['FOLLOW_UP', 'CONVERTED', 'LOST'],
-  CONVERTED: [],
-  LOST: ['FOLLOW_UP'], // a lost lead can be reopened
-};
-
-export const TAB_TRANSITIONS: Record<TabStatus, readonly TabStatus[]> = {
-  OPEN: ['SETTLED', 'VOID'],
-  SETTLED: [],
-  VOID: [],
-};
-
+/** Stored invoice lifecycle. Paid / partially paid / overdue are DERIVED (view invoice_totals); an invoice can be voided only while unpaid. */
 export const INVOICE_TRANSITIONS: Record<InvoiceStatus, readonly InvoiceStatus[]> = {
   DRAFT: ['SENT', 'VOID'],
-  SENT: ['PARTIALLY_PAID', 'PAID', 'OVERDUE', 'VOID'],
-  PARTIALLY_PAID: ['PAID', 'OVERDUE', 'VOID'],
-  OVERDUE: ['PARTIALLY_PAID', 'PAID', 'VOID'],
-  PAID: [],
+  SENT: ['VOID'],
   VOID: [],
 };
 
@@ -103,14 +79,3 @@ export const LEAVE_TRANSITIONS: Record<LeaveStatus, readonly LeaveStatus[]> = {
   REJECTED: [],
   CANCELLED: [],
 };
-
-export const QUOTE_TRANSITIONS: Record<QuoteStatus, readonly QuoteStatus[]> = {
-  DRAFT: ['SENT'],
-  SENT: ['ACCEPTED', 'REJECTED', 'EXPIRED'],
-  ACCEPTED: [],
-  REJECTED: [],
-  EXPIRED: [],
-};
-
-/** Booking statuses that occupy a court (used by the exclusion constraint AND availability queries). */
-export const COURT_OCCUPYING_STATUSES: readonly BookingStatus[] = ['PENDING', 'CONFIRMED', 'COMPLETED'];

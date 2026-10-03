@@ -4,15 +4,15 @@ import { ArrowDownRight } from 'lucide-react';
 
 import type { Court, MembershipPlan } from '@shared/types/rows';
 import type { SportType } from '@shared/constants/enums';
-import { listCourts, listPlans, listUpcomingSocialSessions, SPORT_LABEL, type PublicClubInfo, type UpcomingSocialSession } from '@/api/public';
+import { listCourts, listPlans, SPORT_LABEL, type PublicClubInfo } from '@/api/public';
 import { ActionAnchor, ActionLink } from '@/components/ui/button';
 import { HeroMedia } from '@/components/ui/HeroMedia';
 import { PlaceholderArt, type ArtVariant } from '@/components/ui/PlaceholderArt';
 import { HERO_MEDIA } from '@/config/media';
 import { presetEnquiry } from '@/features/public/nav';
 import { EnquirySection } from '@/features/public/components/EnquirySection';
-import { ageLine, planShortName } from '@/features/membership/plans';
-import { formatClockIst, formatDayIst, formatRupees, formatTimeOfDay } from '@/lib/format';
+import { planShortName } from '@/features/membership/plans';
+import { formatRupees, formatTimeOfDay } from '@/lib/format';
 import { useReveal } from '@/lib/useReveal';
 import { cn } from '@/lib/utils';
 
@@ -97,8 +97,8 @@ function Hero({ club }: { club: PublicClubInfo | null }) {
 
       <div className={cn(wrap, 'pt-32 pb-10 md:pb-14')}>
         <p className="eyebrow text-chalk/85">Tennis · Padel · Cricket · Badminton</p>
-        <h1 id="hero-title" className="display mt-5 max-w-[14ch] text-[clamp(3.1rem,9vw,8.25rem)] leading-[0.9] text-balance">
-          Long light, good courts, and a table for after.
+        <h1 id="hero-title" className="display mt-5 max-w-[22ch] text-[clamp(3.1rem,9vw,8.25rem)] leading-[0.9] text-balance">
+          The ultimate wellness destination
         </h1>
         <div className="mt-8 flex flex-col gap-8 md:mt-10 md:flex-row md:items-end md:justify-between">
           <p className="max-w-md text-lg leading-relaxed text-chalk/85">
@@ -229,70 +229,6 @@ function CourtsSection({ courts }: { courts: Court[] }) {
   );
 }
 
-function SocialSection({ sessions, club }: { sessions: UpcomingSocialSession[]; club: PublicClubInfo | null }) {
-  const hours = club ? `${formatTimeOfDay(club.social_play_start_time)} to ${formatTimeOfDay(club.social_play_end_time)}` : 'the evening';
-  return (
-    <section id="social" aria-labelledby="social-title" className="on-dark relative overflow-hidden bg-olive py-24 text-chalk md:py-36">
-      <div className={cn(wrap, 'grid gap-14 lg:grid-cols-12 lg:gap-10')}>
-        <div className="lg:col-span-5" data-reveal>
-          <p className="eyebrow text-sun">Friday social play</p>
-          <h2 id="social-title" className="display mt-6 text-[clamp(2.6rem,5.6vw,5rem)] leading-[0.96] text-balance">
-            On Fridays, the courts open up.
-          </h2>
-          <p className="mt-6 max-w-md text-lg leading-relaxed text-chalk/75">
-            From {hours}, courts are held for open play. Many players share a court, partners rotate, and all levels are welcome.
-          </p>
-          <p className="mt-4 max-w-md text-sm leading-relaxed text-chalk/60">
-            Members join from their account; guests join at the front desk. Your plan decides the fee — Gold members play free.
-          </p>
-        </div>
-
-        <div className="lg:col-span-7">
-          <PlaceholderArt variant="social" caption="Floodlit court, Friday night" tilt={-4} zoom={0.95} className="aspect-[16/10]" />
-          <div className="mt-8" data-reveal>
-            <h3 className="eyebrow text-chalk/60">Next sessions</h3>
-            {sessions.length === 0 ? (
-              <p className="mt-4 border-t border-chalk/15 pt-4 text-chalk/70">No sessions are open yet — the desk publishes them each week.</p>
-            ) : (
-              <ul className="mt-4 divide-y divide-chalk/15 border-y border-chalk/15">
-                {sessions.map((s) => (
-                  <li key={s.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-x-5 gap-y-1 py-5">
-                    <div className="whitespace-nowrap">
-                      <p className="text-sm font-semibold">{formatDayIst(s.start_at)}</p>
-                      <p className="text-sm text-chalk/60 tabular-nums">
-                        {formatClockIst(s.start_at)}–{formatClockIst(s.end_at)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="display text-xl md:text-2xl">{s.title}</p>
-                      <p className="text-sm text-chalk/60">
-                        {s.court_name} · {formatRupees(s.fee_per_person)} per guest
-                      </p>
-                    </div>
-                    <p className="text-right text-sm whitespace-nowrap">
-                      {s.spots_left > 0 ? (
-                        <>
-                          <span className="display block text-2xl text-sun tabular-nums">{s.spots_left}</span>
-                          <span className="text-chalk/60">of {s.capacity} left</span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="display block text-2xl text-chalk/50">Full</span>
-                          <span className="text-chalk/60">{s.capacity} players</span>
-                        </>
-                      )}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function MembershipSection({ plans }: { plans: MembershipPlan[] }) {
   return (
     <section aria-labelledby="membership-title" className="bg-sand py-24 md:py-32">
@@ -310,7 +246,7 @@ function MembershipSection({ plans }: { plans: MembershipPlan[] }) {
             <li key={p.id} className="border-b border-line py-6 sm:pr-6" data-reveal>
               <p className="display text-3xl">{planShortName(p)}</p>
               <p className="mt-1 text-sm text-muted">
-                <span className="font-semibold text-ink tabular-nums">{formatRupees(p.price)}</span> / {p.duration_months} months · {ageLine(p)}
+                <span className="font-semibold text-ink tabular-nums">{formatRupees(p.price)}</span> / {p.duration_months} months
               </p>
             </li>
           ))}
@@ -321,7 +257,7 @@ function MembershipSection({ plans }: { plans: MembershipPlan[] }) {
         </ul>
         <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
           <ActionLink to="/membership">Compare membership</ActionLink>
-          <p className="text-sm text-muted">Prices include GST. Junior is for players under 18.</p>
+          <p className="text-sm text-muted">Prices include GST.</p>
         </div>
       </div>
     </section>
@@ -364,15 +300,13 @@ export default function HomePage() {
   const club = useOutletContext<PublicClubInfo | null>();
   const [courts, setCourts] = useState<Court[]>([]);
   const [plans, setPlans] = useState<MembershipPlan[]>([]);
-  const [sessions, setSessions] = useState<UpcomingSocialSession[]>([]);
   const [ready, setReady] = useState(false);
   const root = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    Promise.all([listCourts(), listPlans(), listUpcomingSocialSessions()]).then(([c, p, s]) => {
+    Promise.all([listCourts(), listPlans()]).then(([c, p]) => {
       setCourts(c);
       setPlans(p);
-      setSessions(s);
       setReady(true);
     });
   }, []);
@@ -388,7 +322,6 @@ export default function HomePage() {
       <Hero club={club} />
       <ClubStory courts={courts} club={club} />
       <CourtsSection courts={courts} />
-      <SocialSection sessions={sessions} club={club} />
       <MembershipSection plans={plans} />
       <ShopAndBar />
       <EnquirySection club={club} plans={plans} />

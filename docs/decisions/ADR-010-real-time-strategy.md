@@ -3,10 +3,10 @@
 **Status:** accepted · **Date:** 2026-10-03 · **Owners:** Dev 1, Dev 3
 
 ## Context
-The kitchen board and the notification badge should feel live, but infrastructure time is scarce.
+The kitchen board should feel live, but infrastructure time is scarce.
 
 ## Decision
-Polling only: kitchen board every **5 s**, notification count every **30 s**, everything else on focus/refresh. No websockets, SSE or Supabase Realtime in v1. The kitchen query is indexed (`bar_orders(status, created_at)`).
+Polling only: kitchen board every **5 s**, everything else on focus/refresh. No websockets, SSE or Supabase Realtime in v1. The kitchen query is indexed (`bar_orders(status, created_at)`).
 
 ## Consequences
 - ✅ No extra infrastructure; behaves identically locally and on Supabase.

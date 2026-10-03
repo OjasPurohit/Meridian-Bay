@@ -9,7 +9,7 @@
   "scripts": {
     "docs:build": "node tools/gen-docs.mjs",
     "mock:build": "node tools/gen-mock.mjs",
-    "verify": "npm run mock:build && npm run docs:build && npm run typecheck && npm run test:shared && npm run check && npm run check:openapi && npm run check:mermaid && npm run check:db && npm run test:db-scripts",
+    "verify": "npm run mock:build && npm run docs:build && npm run typecheck && npm run test:shared && npm run check && npm run check:openapi && npm run check:mermaid && npm run check:db && npm run test:migration-checksum && npm run test:db-scripts",
     "check": "node tools/check-consistency.mjs",
     "check:openapi": "node tools/check-openapi.mjs",
     "check:mermaid": "node tools/check-mermaid.mjs",
@@ -17,6 +17,7 @@
     "typecheck": "tsc -p shared/tsconfig.json",
     "test:shared": "node tools/test-shared.mjs",
     "test:db-scripts": "node tools/test-db-scripts.mjs",
+    "test:migration-checksum": "node tools/test-migration-checksum.mjs",
     "db:migrate": "node database/migrate.mjs",
     "db:status": "node database/migrate.mjs --status",
     "db:seed": "node database/seed.mjs",

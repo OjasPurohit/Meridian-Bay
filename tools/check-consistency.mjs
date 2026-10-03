@@ -19,7 +19,7 @@ const section = (t) => console.log(`\n▸ ${t}`);
 const ok = (m) => console.log(`  ✔ ${m}`);
 const bad = (m) => { fails++; console.log(`  ✘ ${m}`); };
 const warn = (m) => { warns++; console.log(`  ! ${m}`); };
-const POLYMORPHIC = ['payments.source_id', 'notifications.entity_id']; // documented in ADR-009 / DATABASE_SCHEMA.md
+const POLYMORPHIC = ['payments.source_id']; // documented in ADR-009 / DATABASE_SCHEMA.md
 const API_ONLY = ['SLOT_STATUS', 'STOCK_STATUS', 'REPORT_PERIOD', 'LEAVE_DECISION', 'HISTORY_EVENT_TYPE', 'REPORT_GROUP_BY', 'EXPORT_REPORT'];
 
 // ---------------------------------------------------------------- 1 enums
@@ -119,7 +119,7 @@ const mock = {};
   }
   if (!fkBad) ok('all foreign keys in mock data resolve'); if (!uqBad) ok('primary keys / unique columns are unique in mock data');
   // polymorphic payments
-  const srcTable = { COURT_BOOKING: 'court_bookings', SOCIAL_PARTICIPANT: 'social_session_participants', MEMBERSHIP: 'memberships', SHOP_ORDER: 'shop_orders', BAR_ORDER: 'bar_orders', TAB: 'bar_tabs', INVOICE: 'invoices' };
+  const srcTable = { COURT_BOOKING: 'court_bookings', MEMBERSHIP: 'memberships', SHOP_ORDER: 'shop_orders', BAR_ORDER: 'bar_orders', INVOICE: 'invoices' };
   let pBad = 0; for (const p of mock.payments ?? []) { const ids = new Set(mock[srcTable[p.source_type]].map((r) => r.id)); if (!ids.has(p.source_id)) { pBad++; bad(`payment ${p.payment_number}: source ${p.source_type}/${p.source_id} not found`); } }
   if (!pBad) ok('payments.source_type/source_id (polymorphic) all resolve');
 }
@@ -308,7 +308,7 @@ section('14. schema columns never populated by the seed');
 {
   const EXPECTED_NULL = {
     // column -> why the seed leaves it empty (documented in mock-data/README.md "Intentionally empty columns")
-    'members.photo_url': 'upload feature (FR-MEM-015, NICE)', 'courts.image_url': 'no image hosting in the mock', 'products.image_url': 'no image hosting in the mock',
+    'members.photo_url': 'upload feature (FR-MEM-015, NICE)', 'courts.image_url': 'no image hosting in the mock',
   };
   const empty = [];
   for (const t of Object.values(schema.tables)) {

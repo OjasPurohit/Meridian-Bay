@@ -1,6 +1,6 @@
 [
   {
-    "id": "0a000000-0000-4000-8000-000000000001",
+    "id": "08000000-0000-4000-8000-000000000001",
     "name": "Tennis Court 1",
     "sport_type": "TENNIS",
     "description": "Clay court, floodlit",
@@ -13,7 +13,7 @@
     "updated_at": "2026-03-17T04:30:00.000Z"
   },
   {
-    "id": "0a000000-0000-4000-8000-000000000002",
+    "id": "08000000-0000-4000-8000-000000000002",
     "name": "Tennis Court 2",
     "sport_type": "TENNIS",
     "description": "Hard court, floodlit",
@@ -26,7 +26,7 @@
     "updated_at": "2026-03-17T04:30:00.000Z"
   },
   {
-    "id": "0a000000-0000-4000-8000-000000000003",
+    "id": "08000000-0000-4000-8000-000000000003",
     "name": "Cricket Net 1",
     "sport_type": "CRICKET",
     "description": "Practice net with bowling machine",
@@ -39,7 +39,7 @@
     "updated_at": "2026-03-17T04:30:00.000Z"
   },
   {
-    "id": "0a000000-0000-4000-8000-000000000004",
+    "id": "08000000-0000-4000-8000-000000000004",
     "name": "Padel Court 1",
     "sport_type": "PADEL",
     "description": "Glass-walled padel court",
@@ -52,7 +52,7 @@
     "updated_at": "2026-03-17T04:30:00.000Z"
   },
   {
-    "id": "0a000000-0000-4000-8000-000000000005",
+    "id": "08000000-0000-4000-8000-000000000005",
     "name": "Badminton Court 1",
     "sport_type": "BADMINTON",
     "description": "Indoor wooden court",
@@ -65,7 +65,7 @@
     "updated_at": "2026-03-17T04:30:00.000Z"
   },
   {
-    "id": "0a000000-0000-4000-8000-000000000006",
+    "id": "08000000-0000-4000-8000-000000000006",
     "name": "Badminton Court 2",
     "sport_type": "BADMINTON",
     "description": "Indoor wooden court",

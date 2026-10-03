@@ -10,7 +10,7 @@ One unified platform for **The Champions Club** (tennis/cricket/padel/badminton 
 
 ## 2. Problem statement
 
-Source: *Sports Club Management System* (provided PDF; the primary source of truth). Eight "scenes" — a new member walks in; booking a court on a busy evening; gearing up before a match; after the match at the bar; a stranger finds the club online; the owner at the end of the month — are translated into **137 functional requirements** with IDs (`FR-COURT-008` …), each traced to a user, module, API and database entity: [REQUIREMENTS.md](docs/requirements/REQUIREMENTS.md) · [TRACEABILITY_MATRIX.md](docs/requirements/TRACEABILITY_MATRIX.md) (includes a line-by-line **coverage check** of the brief). Where the brief is silent we record a decision instead of silently inventing: [ASSUMPTIONS.md](docs/ASSUMPTIONS.md).
+Source: *Sports Club Management System* (provided PDF; the primary source of truth). Eight "scenes" — a new member walks in; booking a court on a busy evening; gearing up before a match; after the match at the bar; a stranger finds the club online; the owner at the end of the month — are translated into **113 functional requirements** with IDs (`FR-COURT-008` …), each traced to a user, module, API and database entity: [REQUIREMENTS.md](docs/requirements/REQUIREMENTS.md) · [TRACEABILITY_MATRIX.md](docs/requirements/TRACEABILITY_MATRIX.md) (includes a line-by-line **coverage check** of the brief). Where the brief is silent we record a decision instead of silently inventing: [ASSUMPTIONS.md](docs/ASSUMPTIONS.md).
 
 ## 3. Architecture
 
@@ -24,11 +24,11 @@ Seven actors, **five logins**: `MEMBER` (Gold / Silver / Junior are *plans*, not
 
 ## 5. Modules
 
-Membership · Court booking · Social play · Shop · Inventory · Bar/POS · Kitchen · Enquiries/CRM · Finance/Payments · Invoicing/Business clients · Staff/HR · Notifications · Reporting · Settings — 127 endpoints across 19 API modules. Flows (21, with Mermaid): [USER_FLOWS.md](docs/workflows/USER_FLOWS.md) · [workflows.mmd](docs/workflows/workflows.mmd).
+Membership · Court booking · Shop · Inventory · Cafe · Kitchen · Enquiries · Finance/Payments · Invoicing/Business clients · Staff/HR · Reporting · Settings — 100 endpoints across 17 API modules. Flows (18, with Mermaid): [USER_FLOWS.md](docs/workflows/USER_FLOWS.md) · [workflows.mmd](docs/workflows/workflows.mmd).
 
 ## 6. Database
 
-One canonical schema = `database/migrations/*.sql` (31 tables, 35 enums). Docs: [DATABASE_SCHEMA.md](docs/database/DATABASE_SCHEMA.md) · [er-diagram.mmd](docs/database/er-diagram.mmd) · [schema.sql](docs/database/schema.sql) (generated snapshot) · how migrations/seeds work: [database/README.md](database/README.md). Highlights: exclusion constraint = **no double booking**; `CHECK (stock_quantity >= 0)` + atomic decrement = **no overselling**; `payments` = **one revenue ledger**; `memberships` rows = **membership history**.
+One canonical schema = `database/migrations/*.sql` (22 tables, 22 enums). Docs: [DATABASE_SCHEMA.md](docs/database/DATABASE_SCHEMA.md) · [er-diagram.mmd](docs/database/er-diagram.mmd) · [schema.sql](docs/database/schema.sql) (generated snapshot) · how migrations/seeds work: [database/README.md](database/README.md). Highlights: exclusion constraint = **no double booking**; `CHECK (stock_quantity >= 0)` + atomic decrement = **no overselling**; `payments` = **one revenue ledger**; `memberships` rows = **membership history**.
 
 ## 7. API
 
@@ -40,7 +40,7 @@ One canonical schema = `database/migrations/*.sql` (31 tables, 35 enums). Docs: 
 
 ## 9. Business rules
 
-All critical rules, with IDs, in **one** file: [BUSINESS_RULES.md](docs/business-rules/BUSINESS_RULES.md) (1-hour sessions on a 30-min grid, ≤ 2 plays/day, member vs walk-in pricing, social play, stock, tabs, tax, refunds, …).
+All critical rules, with IDs, in **one** file: [BUSINESS_RULES.md](docs/business-rules/BUSINESS_RULES.md) (1-hour sessions on a 30-min grid, ≤ 2 plays/day, member vs walk-in pricing, stock, tax, refunds, …).
 
 ## 10. Mock data
 
@@ -66,9 +66,9 @@ Create a project → copy the **session pooler** connection string (port 5432) �
 
 | | Owner of |
 |---|---|
-| **Dev 1** | Platform kernel, auth, public website, member dashboard shell, notifications, enquiries/CRM |
-| **Dev 2** | Members, memberships, courts, bookings, social play, front-desk dashboard |
-| **Dev 3** | Shop, inventory, bar/POS, kitchen |
+| **Dev 1** | Platform kernel, auth, public website, member dashboard shell, enquiries |
+| **Dev 2** | Members, memberships, courts, bookings, front-desk dashboard |
+| **Dev 3** | Shop, inventory, cafe, kitchen |
 | **Dev 4** | Payments, invoices/business clients, staff/HR, reports, settings, owner dashboard |
 
 Full map with tables, endpoints and what not to touch: [OWNERSHIP_MAP.md](docs/integration/OWNERSHIP_MAP.md) · [TEAM_GUIDELINES.md](docs/integration/TEAM_GUIDELINES.md) (incl. the **12-hour plan**).
@@ -99,11 +99,11 @@ Frontend → static host (Vercel/Netlify) with `VITE_API_BASE_URL`; backend → 
 
 ## 18. Known assumptions
 
-39 recorded decisions where the brief is silent (sports offered, prices, tax regime, business-client meaning, cancellation policy, who runs the bar POS, social-play format …): [ASSUMPTIONS.md](docs/ASSUMPTIONS.md).
+40 recorded decisions where the brief is silent (sports offered, prices, tax regime, business-client meaning, cancellation policy, who runs the cafe POS …): [ASSUMPTIONS.md](docs/ASSUMPTIONS.md).
 
 ## 19. Known limitations (by design for v1)
 
-Mock online-payment gateway · in-app notifications only (no email/SMS/WhatsApp) · polling instead of websockets · no pro-rata on plan change · no supplier/purchase-order or courier modules · no alcohol/age gating · flat court pricing (no peak rates) · single club/currency/timezone · no password-reset email (staff reset). Each is isolated behind a seam so it can be added without redesign.
+Mock online-payment gateway · no notification system (no in-app messages, email, SMS or WhatsApp) · polling instead of websockets · no pro-rata on plan change · no supplier/purchase-order or courier modules · no alcohol/age gating · flat court pricing (no peak rates) · single club/currency/timezone · no password-reset email (staff reset). Each is isolated behind a seam so it can be added without redesign.
 
 ---
 
@@ -123,7 +123,7 @@ docs/
   contracts/                   SHARED_TYPES.md, ENUMS.md, ERROR_CODES.md        (the .ts contracts live in /shared)
   business-rules/              BUSINESS_RULES.md
   security/                    PERMISSIONS_MATRIX.md, permissions.generated.json
-  decisions/                   ADR-001 … ADR-014
+  decisions/                   ADR-001 … ADR-016
   integration/                 TEAM_GUIDELINES, INTEGRATION_CHECKLIST, DEFINITION_OF_DONE, ENVIRONMENT, OWNERSHIP_MAP
 shared/                        constants/{enums,errors,rules}.ts · types/{rows,api,requests.generated}.ts · lib/{money,time}.ts
 database/                      migrations/ · seed/ · migrate/seed/reset/guards .mjs · README.md

@@ -3,6 +3,8 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 
 import { getClubInfo, type PublicClubInfo } from '@/api/public';
+import { openLoginMenu, useAuth } from '@/auth/AuthProvider';
+import { LoginMenu } from '@/auth/LoginMenu';
 import { InteractiveHoverRouteLink } from '@/components/ui/interactive-hover-button';
 import { PUBLIC_NAV, presetEnquiry } from '@/features/public/nav';
 import { formatTimeOfDay } from '@/lib/format';
@@ -22,6 +24,7 @@ function Wordmark({ className }: { className?: string }) {
 }
 
 function Header() {
+  const { session } = useAuth();
   const { pathname } = useLocation();
   const overHero = pathname === '/';
   const [scrolled, setScrolled] = useState(false);
@@ -78,10 +81,13 @@ function Header() {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-2">
-          <Link to="/login" className="hidden min-h-11 items-center px-3 text-[0.9rem] font-medium sm:inline-flex">
-            Log in
-          </Link>
+        <div className="flex items-center gap-1 sm:gap-2">
+          <LoginMenu />
+          {!session && (
+            <Link to="/signup" className="hidden min-h-11 items-center px-1 text-[0.8rem] opacity-70 underline decoration-current/30 underline-offset-4 hover:opacity-100 sm:inline-flex">
+              Sign up
+            </Link>
+          )}
           <InteractiveHoverRouteLink to="/#visit" onClick={() => presetEnquiry({ enquiry_type: 'TRIAL' })} className="hidden text-[0.9rem] md:inline-flex">
             Book a trial
           </InteractiveHoverRouteLink>
@@ -121,14 +127,23 @@ function Header() {
           >
             Book a trial session
           </InteractiveHoverRouteLink>
-          <div className="flex gap-3">
-            <Link to="/login" onClick={() => setOpen(false)} className="inline-flex min-h-11 flex-1 items-center justify-center border border-ink/20 font-semibold">
-              Log in
-            </Link>
-            <Link to="/signup" onClick={() => setOpen(false)} className="inline-flex min-h-11 flex-1 items-center justify-center border border-ink/20 font-semibold">
-              Sign up
-            </Link>
-          </div>
+          {!session && (
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  openLoginMenu();
+                }}
+                className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full border border-ink/25 font-semibold"
+              >
+                Log in
+              </button>
+              <Link to="/signup" onClick={() => setOpen(false)} className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full border border-ink/25 font-semibold">
+                Sign up
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </header>
@@ -190,20 +205,14 @@ function Footer({ club }: { club: PublicClubInfo | null }) {
                       {formatTimeOfDay(club.club_open_time)} – {formatTimeOfDay(club.club_close_time)} IST
                     </dd>
                   </div>
-                  <div>
-                    <dt className="text-xs text-chalk/50">Friday social play</dt>
-                    <dd>
-                      {formatTimeOfDay(club.social_play_start_time)} – {formatTimeOfDay(club.social_play_end_time)} IST
-                    </dd>
-                  </div>
                 </dl>
               )}
               <h2 className="eyebrow mt-8 text-sun">Members</h2>
               <ul className="mt-4 flex gap-5">
                 <li>
-                  <Link to="/login" className="inline-flex min-h-11 items-center underline-offset-4 hover:underline">
+                  <button type="button" onClick={openLoginMenu} className="inline-flex min-h-11 items-center underline-offset-4 hover:underline">
                     Log in
-                  </Link>
+                  </button>
                 </li>
                 <li>
                   <Link to="/signup" className="inline-flex min-h-11 items-center underline-offset-4 hover:underline">

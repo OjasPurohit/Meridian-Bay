@@ -18,5 +18,7 @@ Short, binding decisions. To change one, write a **new** ADR that supersedes it 
 | [ADR-012](ADR-012-api-versioning.md) | `/api/v1`, additive-only within v1, contract freeze at hour 2 |
 | [ADR-013](ADR-013-money-time-conventions.md) | Money strings + paise maths + IST business dates |
 | [ADR-014](ADR-014-contract-first-generation.md) | Single sources, generated docs, automated consistency checks |
+| [ADR-015](ADR-015-derived-data-not-stored.md) | One fact, one place: derived values are generated or computed (membership status from dates); no table removed |
+| [ADR-016](ADR-016-database-simplification.md) | Database simplification: 31 tables to 22 (no tabs, CRM pipeline, notifications, stock ledger, social play) |
 
 Template: *Context → Decision → Consequences → Alternatives considered.*

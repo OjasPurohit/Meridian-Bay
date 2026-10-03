@@ -25,16 +25,14 @@ flowchart TB
     subgraph MODS["Application modules"]
       MEMB["Membership"]
       COURT["Court booking"]
-      SOC["Social play"]
       SHOP["Shop"]
       INV["Inventory"]
-      BAR["Bar / POS"]
+      BAR["Cafe"]
       KIT["Kitchen orders"]
-      CRM["Enquiries / CRM"]
+      CRM["Enquiries"]
       FIN["Payments / Finance"]
       INVC["Invoicing / Business clients"]
       HR["Staff / HR"]
-      NOTIF["Notifications"]
       REP["Reporting"]
     end
     BL["Business logic: pricing, limits, state machines, transactions"]
@@ -69,4 +67,3 @@ flowchart TB
   PG --- LOCAL
   PG --- SUPA
   FIN -.-> PAY
-  NOTIF -.-> MSG

@@ -6,15 +6,14 @@ flowchart LR
   H --> P["Plans: Gold / Silver / Junior + prices"]
   H --> C["Courts + availability this week"]
   H --> S["Shop catalogue"]
-  H --> B["Bar menu"]
-  H --> F["Friday social play"]
+  H --> B["Cafe menu"]
   P --> E["Enquiry / Trial form"]
   C --> E
   C --> T["Trial request"]
   E --> SUB["Submit enquiry"]
   T --> SUB
-  SUB --> N["Staff notified (NEW_ENQUIRY)"]
-  N --> FU["Staff follow-up, quote, convert"]
+  SUB --> N["Waits in the front desk inbox (handled_at empty)"]
+  N --> FU["Front desk contacts the visitor"]
   H --> L["Login / Signup"]
 
 %% ===== Flow 2: Signup / login flow =====
@@ -29,7 +28,7 @@ sequenceDiagram
   API-->>FE: AuthSession (token, redirect_to=/member)
   U->>FE: later: email + password
   FE->>API: POST /auth/login
-  API->>DB: find user, bcrypt compare, update last_login_at
+  API->>DB: find user, bcrypt compare
   alt invalid
     API-->>FE: 401 AUTH_INVALID
   else disabled
@@ -44,9 +43,8 @@ flowchart TB
   L["Login"] --> D["Member dashboard"]
   D --> PR["Profile, plan, benefits, expiry, history"]
   D --> AV["Court availability"] --> BK["Book court"] --> MB["My bookings"] --> CN["Cancel booking"]
-  D --> SP["Friday social play: join / leave"]
   D --> SH["Shop: browse, order, pickup or delivery"] --> SO["My shop orders"]
-  D --> BA["Bar activity and tabs"]
+  D --> BA["My cafe orders"]
   D --> PY["Payments and receipts"]
   D --> RN["Renew membership"]
 
@@ -55,22 +53,22 @@ flowchart TB
   A["Request: price / discount / limit for member M on date D"] --> Q["getEffectiveMembership(M, D)"]
   Q -->|none or expired| W["Walk-in price, no discount, default max 2 plays/day"]
   Q -->|plan found| P["membership_plans row"]
-  P --> C1["court_discount_percent (100 = free) -> court / social price"]
+  P --> C1["court_discount_percent (100 = free) -> court price"]
   P --> C2["shop_discount_percent -> shop order discount"]
-  P --> C3["bar_discount_percent -> bar order discount"]
+  P --> C3["bar_discount_percent -> cafe order discount"]
   P --> C4["max_plays_per_day -> daily limit"]
-  P --> C5["min_age / max_age -> eligibility at purchase (Junior < 18)"]
+  P --> C5["max_age -> eligibility at purchase (Junior < 18)"]
 
 %% ===== Flow 5: Front desk flow =====
 flowchart TB
   FD["Front desk dashboard"] --> M1["Search member: name / phone / code"]
   M1 --> M2["Member card: plan, expiry, plays today, history"]
-  M2 --> M3["Book court / join social / sell product / bar order"]
+  M2 --> M3["Book court / sell product / cafe order"]
   FD --> R["Register new member (+ buy plan)"]
   FD --> W["Walk-in guest: book / buy / order, pay cash-card-UPI"]
-  FD --> BKV["Bookings day view: create, cancel, complete"]
-  FD --> E["Enquiries: log phone enquiry, follow up, quote, convert, trial"]
-  FD --> POS["Shop counter + Bar POS + tabs"]
+  FD --> BKV["Bookings day view: create, cancel"]
+  FD --> E["Enquiry inbox: log phone enquiry, mark handled"]
+  FD --> POS["Shop counter + cafe orders"]
   FD --> SC["Staff schedule (read-only) and own leave"]
 
 %% ===== Flow 6: Court booking flow =====
@@ -83,7 +81,7 @@ sequenceDiagram
   participant DB as Database
   U->>FE: pick date, sport
   FE->>API: GET /courts/availability?date&sport_type
-  API-->>FE: slots (AVAILABLE / BOOKED / SOCIAL / BLOCKED / PAST)
+  API-->>FE: slots (AVAILABLE / BOOKED / BLOCKED / PAST)
   U->>FE: pick slot
   FE->>API: GET /bookings/price?court_id&start_at
   API-->>FE: PriceBreakdown (discount, amount_due, plays_used_today)
@@ -91,62 +89,35 @@ sequenceDiagram
   FE->>API: POST /bookings
   API->>DB: BEGIN, advisory lock on member
   API->>MS: getEffectiveMembership(member, IST date)
-  API->>DB: count plays that IST day (regular + joined social)
+  API->>DB: count the member's bookings that stand that IST day
   alt plays >= max_plays_per_day
     API-->>FE: 409 DAILY_BOOKING_LIMIT
   else
-    API->>DB: INSERT court_bookings (list_price, discount, amount_due, tax snapshot)
+    API->>DB: INSERT court_bookings (list_price + discount_amount snapshot)
     alt overlap (SQLSTATE 23P01)
       API-->>FE: 409 BOOKING_CONFLICT
     else inserted
-      opt payment_method given and amount_due > 0
+      opt payment_method given and amount due > 0
         API->>PS: record(COURT_BOOKING)
       end
-      API->>DB: COMMIT + notification
+      API->>DB: COMMIT
       API-->>FE: 201 BookingDetail
     end
   end
 
 %% ===== Flow 7: Court cancellation flow =====
 flowchart TB
-  S["Cancel request (member own / front desk)"] --> C1{"Status CONFIRMED or PENDING and start_at in the future?"}
+  S["Cancel request (member own / front desk)"] --> C1{"Booking stands (cancelled_at empty) and start_at in the future?"}
   C1 -->|no| X["409 BOOKING_NOT_CANCELLABLE"]
   C1 -->|yes| C2{"Hours until start >= cancellation_cutoff_hours?"}
-  C2 -->|yes| R["Refund the payment in full; booking.payment_status = REFUNDED"]
+  C2 -->|yes| R["Refund the payment in full (refunded_amount); booking reports payment_status REFUNDED"]
   C2 -->|no and member| N["No refund (policy)"]
   C2 -->|no and staff| O["Staff may override with refund=true"]
-  R --> F["status = CANCELLED, cancelled_at/by/reason set; slot becomes AVAILABLE again"]
+  R --> F["cancelled_at set; derived status CANCELLED; slot becomes AVAILABLE again"]
   N --> F
   O --> F
-  F --> NT["Notification BOOKING_CANCELLED"]
 
-%% ===== Flow 8: Friday social-play flow =====
-sequenceDiagram
-  actor FD as Front desk / Owner
-  actor M as Member
-  participant API as Social API
-  participant DB as Database
-  FD->>API: POST /social-play/sessions (court, Friday start_at, capacity, fee)
-  API->>DB: validate weekday + window (settings)
-  API->>DB: INSERT court_bookings(SOCIAL_SESSION) -> exclusion check
-  API->>DB: INSERT social_sessions
-  API-->>FD: SocialSessionView
-  M->>API: GET /social-play/sessions (public list, spots_left)
-  M->>API: POST /social-play/sessions/:id/join
-  API->>DB: lock session, count JOINED
-  alt full
-    API-->>M: 409 SOCIAL_SESSION_FULL
-  else already in
-    API-->>M: 409 ALREADY_JOINED
-  else daily limit reached
-    API-->>M: 409 DAILY_BOOKING_LIMIT
-  else ok
-    API->>DB: INSERT participant (fee after plan discount) + optional payment
-    API-->>M: 201 ParticipantView
-  end
-  M->>API: POST /social-play/sessions/:id/leave
-
-%% ===== Flow 9: Shop — physical purchase flow =====
+%% ===== Flow 8: Shop — physical purchase flow =====
 sequenceDiagram
   actor FD as Front desk
   participant API as Shop API
@@ -159,14 +130,13 @@ sequenceDiagram
     alt 0 rows
       API-->>FD: 409 OUT_OF_STOCK (rollback)
     end
-    API->>DB: INSERT inventory_movements(SALE)
   end
-  API->>DB: INSERT shop_orders(PHYSICAL, IN_STORE, COMPLETED) + items (price snapshots, member discount)
+  API->>DB: INSERT shop_orders(IN_STORE, COMPLETED) + items (price snapshots, member discount)
   API->>DB: INSERT payments (SHOP_ORDER)
-  API->>DB: COMMIT (+ LOW_STOCK notification if threshold crossed)
+  API->>DB: COMMIT
   API-->>FD: 201 ShopOrderDetail (receipt)
 
-%% ===== Flow 10: Shop — online purchase flow =====
+%% ===== Flow 9: Shop — online purchase flow =====
 flowchart TB
   M["Member browses /shop/products (member_price shown)"] --> CART["Cart"]
   CART --> CH{"Fulfilment"}
@@ -177,17 +147,17 @@ flowchart TB
   OK -->|stock short| ERR["409 OUT_OF_STOCK: nothing written"]
   OK --> TR["Member tracks status in My orders"]
 
-%% ===== Flow 11: Pickup flow =====
+%% ===== Flow 10: Pickup flow =====
 stateDiagram-v2
   [*] --> PLACED
   PLACED --> CONFIRMED : staff confirms
-  CONFIRMED --> READY_FOR_PICKUP : packed, member notified
+  CONFIRMED --> READY_FOR_PICKUP : packed
   READY_FOR_PICKUP --> COMPLETED : member collects, desk marks complete
   PLACED --> CANCELLED
   CONFIRMED --> CANCELLED
   READY_FOR_PICKUP --> CANCELLED
 
-%% ===== Flow 12: Delivery flow =====
+%% ===== Flow 11: Delivery flow =====
 stateDiagram-v2
   [*] --> PLACED
   PLACED --> CONFIRMED
@@ -197,129 +167,83 @@ stateDiagram-v2
   CONFIRMED --> CANCELLED
   OUT_FOR_DELIVERY --> CANCELLED
 
-%% ===== Flow 13: Bar order flow =====
+%% ===== Flow 12: Cafe order flow =====
 sequenceDiagram
-  actor FD as Front desk (bar counter)
-  participant API as Bar API
+  actor FD as Front desk (cafe counter)
+  participant API as Cafe API
   participant DB as Database
   actor K as Kitchen
-  FD->>API: GET /bar/tables, GET /bar/menu
-  opt customer wants a tab
-    FD->>API: POST /bar/tabs {bar_table_id, member_id or guest_name}
-  end
-  FD->>API: POST /bar/orders {bar_table_id, bar_tab_id?, member_id?, items, payment_method?}
+  FD->>API: GET /bar/menu
+  FD->>API: POST /bar/orders {table_label?, member_id?, guest_name?, items, payment_method?}
   API->>DB: price items (snapshots), apply member bar_discount_percent automatically
-  API->>DB: INSERT bar_orders(NEW) + items + order_status_events(null->NEW)
-  API->>DB: table -> OCCUPIED
+  API->>DB: INSERT bar_orders(NEW) + bar_order_items
   API-->>FD: 201 BarOrderDetail
   Note over K: order appears on the kitchen board (polling 5 s)
-  alt guest pays now
+  alt customer pays now
     FD->>API: payment in the same call (CASH/CARD/UPI)
-  else tab
-    Note over FD: payment deferred to tab settlement
+  else pays when leaving
+    FD->>API: POST /payments {BAR_ORDER, payment_method} later
   end
 
-%% ===== Flow 14: Kitchen flow =====
+%% ===== Flow 13: Kitchen flow =====
 stateDiagram-v2
   [*] --> NEW : front desk places order
-  NEW --> ACCEPTED : kitchen accepts
-  ACCEPTED --> PREPARING
-  PREPARING --> READY : staff notified (ORDER_READY)
+  NEW --> PREPARING : kitchen starts
+  PREPARING --> READY
   READY --> SERVED : delivered to table
-  NEW --> CANCELLED : rejected / cancelled with reason
-  ACCEPTED --> CANCELLED
+  NEW --> CANCELLED : rejected
 
-%% ===== Flow 15: Tab settlement flow =====
-flowchart TB
-  S["Customer wants to leave"] --> G["GET /bar/tabs/:id: orders + running_total"]
-  G --> Q{"All non-cancelled orders SERVED?"}
-  Q -->|no| E["409 TAB_HAS_ACTIVE_ORDERS"]
-  Q -->|yes| P["POST /bar/tabs/:id/settle {payment_method}"]
-  P --> T["Lock tab; sum orders; write subtotal / discount / tax / total"]
-  T --> Y["Insert payment (source TAB, category BAR)"]
-  Y --> Z["Orders payment_status = PAID; tab SETTLED; table AVAILABLE if idle"]
-
-%% ===== Flow 16: Enquiry flow =====
+%% ===== Flow 14: Enquiry flow =====
 stateDiagram-v2
-  [*] --> NEW : website form / phone / walk-in
-  NEW --> CONTACTED : first follow-up logged
-  CONTACTED --> FOLLOW_UP : next follow-up scheduled
-  CONTACTED --> QUOTE_SENT : quote sent
-  FOLLOW_UP --> QUOTE_SENT
-  QUOTE_SENT --> FOLLOW_UP
-  NEW --> CONVERTED
-  CONTACTED --> CONVERTED
-  FOLLOW_UP --> CONVERTED
-  QUOTE_SENT --> CONVERTED : accepted quote, member registered
-  NEW --> LOST
-  CONTACTED --> LOST
-  FOLLOW_UP --> LOST
-  QUOTE_SENT --> LOST : lost_reason required
-  LOST --> FOLLOW_UP : reopened
+  [*] --> NEW : website form / phone / walk-in (handled_at empty)
+  NEW --> HANDLED : front desk marks it handled (handled_at set)
+  HANDLED --> NEW : reopened
 
-%% ===== Flow 17: Trial booking flow =====
-sequenceDiagram
-  actor V as Visitor
-  actor FD as Front desk
-  participant API as API
-  V->>API: GET /courts/availability (public)
-  V->>API: POST /enquiries {enquiry_type TRIAL, sport_type, preferred_start_at}
-  API-->>FD: notification NEW_ENQUIRY
-  FD->>API: POST /enquiries/:id/follow-ups (confirm by phone)
-  FD->>API: POST /enquiries/:id/trial-booking {court_id, start_at}
-  API->>API: BookingService.createTrial (TRIAL booking, free, guest from enquiry)
-  API-->>FD: BookingDetail (CONFIRMED, NOT_REQUIRED)
-  Note over FD: after the trial: quote -> convert (flow 16)
-
-%% ===== Flow 18: Business-client invoice flow =====
+%% ===== Flow 15: Business-client invoice flow =====
 sequenceDiagram
   actor O as Owner
   actor B as Business client
   participant API as API
   O->>API: POST /business-clients (optional portal login)
-  O->>API: POST /invoices {BUSINESS, items (tax-exclusive), due_date, send_now}
-  API-->>B: notification INVOICE_ISSUED
+  O->>API: POST /invoices {business_client_id, items (tax-exclusive), due_date, send_now}
   B->>API: GET /invoices (own), GET /invoices/:id
   B->>API: POST /payments {INVOICE, amount (partial ok), ONLINE}
-  API->>API: ledger row, invoice.amount_paid += amount, status PARTIALLY_PAID or PAID
+  API->>API: ledger row, then the view invoice_totals derives amount_paid and payment_state
   B->>API: GET /payments (own) = transaction history
-  Note over API: daily job marks SENT/PARTIALLY_PAID past due_date as OVERDUE
 
-%% ===== Flow 19: Owner / admin flow =====
+%% ===== Flow 16: Owner / admin flow =====
 flowchart TB
-  O["Owner dashboard (period: today / week / month)"] --> K["KPI tiles: revenue by stream, members, courts, shop, bar, enquiries, finance, staff"]
+  O["Owner dashboard (period: today / week / month)"] --> K["KPI tiles: revenue by stream, members, courts, shop, cafe, enquiries, finance, staff"]
   O --> A1["Membership: members, plans, expiring, revenue"]
   O --> A2["Courts: availability, bookings, utilisation, maintenance blocks, rates"]
-  O --> A3["Shop: products, inventory, low stock, orders, sales"]
-  O --> A4["Bar: menu, tables, tabs, daily sales"]
+  O --> A3["Shop: products, stock, low stock, orders, sales"]
+  O --> A4["Cafe: menu, orders, daily sales"]
   O --> A5["Finance: payments, refunds, invoices, outstanding, payroll, tax"]
   O --> A6["Staff: records, shifts, leave approval"]
-  O --> A7["Enquiries: funnel, follow-ups due, quotes, conversions"]
+  O --> A7["Enquiries: inbox"]
   O --> A8["Reports + CSV export"]
   O --> A9["Settings: hours, tax rates, delivery, cut-offs"]
 
-%% ===== Flow 20: Staff & leave flow =====
+%% ===== Flow 17: Staff & leave flow =====
 sequenceDiagram
   actor O as Owner
   actor S as Staff (front desk / kitchen)
   participant API as API
   O->>API: POST /staff (account + employee record)
   O->>API: POST /staff/shifts (roster, overlap check)
-  API-->>S: notification SHIFT_ASSIGNED
   S->>API: GET /staff/shifts (own - front desk sees all)
   S->>API: POST /staff/leave-requests
-  API-->>O: notification LEAVE_REQUESTED
+  O->>API: GET /staff/leave-requests (pending)
   O->>API: POST /staff/leave-requests/:id/decision {APPROVE or REJECT}
-  API-->>S: notification LEAVE_DECIDED
   O->>API: POST /staff/payroll {staff, month, method, mark_paid}
 
-%% ===== Flow 21: Finance & reporting flow =====
+%% ===== Flow 18: Finance & reporting flow =====
 flowchart LR
   subgraph IN["Money in"]
-    C["Court bookings and social play"] --> P[("payments ledger")]
+    C["Court bookings"] --> P[("payments ledger")]
     M["Memberships"] --> P
     S["Shop orders"] --> P
-    B["Bar orders and tabs"] --> P
+    B["Cafe orders"] --> P
     I["Invoices (business, membership)"] --> P
   end
   P --> R["Revenue by category / method / day"]

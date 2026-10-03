@@ -165,13 +165,6 @@
       "OWNER_ADMIN"
     ]
   },
-  "memberships.runExpiry": {
-    "method": "POST",
-    "path": "/api/v1/memberships/run-expiry",
-    "roles": [
-      "OWNER_ADMIN"
-    ]
-  },
   "courts.list": {
     "method": "GET",
     "path": "/api/v1/courts",
@@ -255,64 +248,6 @@
     "path": "/api/v1/bookings/:id/cancel",
     "roles": [
       "MEMBER:own",
-      "FRONT_DESK",
-      "OWNER_ADMIN"
-    ]
-  },
-  "bookings.complete": {
-    "method": "POST",
-    "path": "/api/v1/bookings/:id/complete",
-    "roles": [
-      "FRONT_DESK",
-      "OWNER_ADMIN"
-    ]
-  },
-  "social.list": {
-    "method": "GET",
-    "path": "/api/v1/social-play/sessions",
-    "roles": [
-      "PUBLIC"
-    ]
-  },
-  "social.get": {
-    "method": "GET",
-    "path": "/api/v1/social-play/sessions/:id",
-    "roles": [
-      "MEMBER",
-      "FRONT_DESK",
-      "OWNER_ADMIN"
-    ]
-  },
-  "social.create": {
-    "method": "POST",
-    "path": "/api/v1/social-play/sessions",
-    "roles": [
-      "FRONT_DESK",
-      "OWNER_ADMIN"
-    ]
-  },
-  "social.join": {
-    "method": "POST",
-    "path": "/api/v1/social-play/sessions/:id/join",
-    "roles": [
-      "MEMBER",
-      "FRONT_DESK",
-      "OWNER_ADMIN"
-    ]
-  },
-  "social.leave": {
-    "method": "POST",
-    "path": "/api/v1/social-play/sessions/:id/leave",
-    "roles": [
-      "MEMBER:own",
-      "FRONT_DESK",
-      "OWNER_ADMIN"
-    ]
-  },
-  "social.cancel": {
-    "method": "POST",
-    "path": "/api/v1/social-play/sessions/:id/cancel",
-    "roles": [
       "FRONT_DESK",
       "OWNER_ADMIN"
     ]
@@ -419,13 +354,6 @@
       "OWNER_ADMIN"
     ]
   },
-  "inventory.movements": {
-    "method": "GET",
-    "path": "/api/v1/inventory/movements",
-    "roles": [
-      "OWNER_ADMIN"
-    ]
-  },
   "bar.menu": {
     "method": "GET",
     "path": "/api/v1/bar/menu",
@@ -444,30 +372,6 @@
     "method": "PATCH",
     "path": "/api/v1/bar/menu-items/:id",
     "roles": [
-      "OWNER_ADMIN"
-    ]
-  },
-  "bar.tables": {
-    "method": "GET",
-    "path": "/api/v1/bar/tables",
-    "roles": [
-      "FRONT_DESK",
-      "KITCHEN_MANAGER",
-      "OWNER_ADMIN"
-    ]
-  },
-  "bar.tableCreate": {
-    "method": "POST",
-    "path": "/api/v1/bar/tables",
-    "roles": [
-      "OWNER_ADMIN"
-    ]
-  },
-  "bar.tableUpdate": {
-    "method": "PATCH",
-    "path": "/api/v1/bar/tables/:id",
-    "roles": [
-      "FRONT_DESK",
       "OWNER_ADMIN"
     ]
   },
@@ -502,47 +406,6 @@
     "path": "/api/v1/bar/orders/:id/cancel",
     "roles": [
       "FRONT_DESK",
-      "OWNER_ADMIN"
-    ]
-  },
-  "bar.tabOpen": {
-    "method": "POST",
-    "path": "/api/v1/bar/tabs",
-    "roles": [
-      "FRONT_DESK",
-      "OWNER_ADMIN"
-    ]
-  },
-  "bar.tabList": {
-    "method": "GET",
-    "path": "/api/v1/bar/tabs",
-    "roles": [
-      "MEMBER:own",
-      "FRONT_DESK",
-      "OWNER_ADMIN"
-    ]
-  },
-  "bar.tabGet": {
-    "method": "GET",
-    "path": "/api/v1/bar/tabs/:id",
-    "roles": [
-      "MEMBER:own",
-      "FRONT_DESK",
-      "OWNER_ADMIN"
-    ]
-  },
-  "bar.tabSettle": {
-    "method": "POST",
-    "path": "/api/v1/bar/tabs/:id/settle",
-    "roles": [
-      "FRONT_DESK",
-      "OWNER_ADMIN"
-    ]
-  },
-  "bar.tabVoid": {
-    "method": "POST",
-    "path": "/api/v1/bar/tabs/:id/void",
-    "roles": [
       "OWNER_ADMIN"
     ]
   },
@@ -587,14 +450,6 @@
       "OWNER_ADMIN"
     ]
   },
-  "enquiries.summary": {
-    "method": "GET",
-    "path": "/api/v1/enquiries/summary",
-    "roles": [
-      "FRONT_DESK",
-      "OWNER_ADMIN"
-    ]
-  },
   "enquiries.list": {
     "method": "GET",
     "path": "/api/v1/enquiries",
@@ -614,46 +469,6 @@
   "enquiries.update": {
     "method": "PATCH",
     "path": "/api/v1/enquiries/:id",
-    "roles": [
-      "FRONT_DESK",
-      "OWNER_ADMIN"
-    ]
-  },
-  "enquiries.followUp": {
-    "method": "POST",
-    "path": "/api/v1/enquiries/:id/follow-ups",
-    "roles": [
-      "FRONT_DESK",
-      "OWNER_ADMIN"
-    ]
-  },
-  "enquiries.quoteCreate": {
-    "method": "POST",
-    "path": "/api/v1/enquiries/:id/quotes",
-    "roles": [
-      "FRONT_DESK",
-      "OWNER_ADMIN"
-    ]
-  },
-  "enquiries.quoteUpdate": {
-    "method": "PATCH",
-    "path": "/api/v1/quotes/:id",
-    "roles": [
-      "FRONT_DESK",
-      "OWNER_ADMIN"
-    ]
-  },
-  "enquiries.trialBooking": {
-    "method": "POST",
-    "path": "/api/v1/enquiries/:id/trial-booking",
-    "roles": [
-      "FRONT_DESK",
-      "OWNER_ADMIN"
-    ]
-  },
-  "enquiries.convert": {
-    "method": "POST",
-    "path": "/api/v1/enquiries/:id/convert",
     "roles": [
       "FRONT_DESK",
       "OWNER_ADMIN"
@@ -953,50 +768,6 @@
     "method": "GET",
     "path": "/api/v1/reports/export",
     "roles": [
-      "OWNER_ADMIN"
-    ]
-  },
-  "notifications.list": {
-    "method": "GET",
-    "path": "/api/v1/notifications",
-    "roles": [
-      "MEMBER",
-      "FRONT_DESK",
-      "KITCHEN_MANAGER",
-      "BUSINESS_CLIENT",
-      "OWNER_ADMIN"
-    ]
-  },
-  "notifications.unreadCount": {
-    "method": "GET",
-    "path": "/api/v1/notifications/unread-count",
-    "roles": [
-      "MEMBER",
-      "FRONT_DESK",
-      "KITCHEN_MANAGER",
-      "BUSINESS_CLIENT",
-      "OWNER_ADMIN"
-    ]
-  },
-  "notifications.read": {
-    "method": "PATCH",
-    "path": "/api/v1/notifications/:id/read",
-    "roles": [
-      "MEMBER",
-      "FRONT_DESK",
-      "KITCHEN_MANAGER",
-      "BUSINESS_CLIENT",
-      "OWNER_ADMIN"
-    ]
-  },
-  "notifications.readAll": {
-    "method": "POST",
-    "path": "/api/v1/notifications/read-all",
-    "roles": [
-      "MEMBER",
-      "FRONT_DESK",
-      "KITCHEN_MANAGER",
-      "BUSINESS_CLIENT",
       "OWNER_ADMIN"
     ]
   },

@@ -10,7 +10,7 @@ Source of truth: [shared/constants/errors.ts](../../shared/constants/errors.ts).
 |---|---|---|---|
 | `VALIDATION_ERROR` | 400 | Request validation failed. | many (automatic) |
 | `NOT_FOUND` | 404 | Resource not found. | staff.payrollPay |
-| `INVALID_STATUS_TRANSITION` | 409 | This status change is not allowed. | memberships.changePlan, memberships.cancel, bookings.cancel, bookings.complete, social.cancel, shop.orderStatus, shop.orderCancel, bar.orderCancel, kitchen.status, enquiries.update, enquiries.followUp, enquiries.quoteUpdate, invoices.send, invoices.void, staff.leaveDecide, staff.leaveCancel, staff.payrollPay |
+| `INVALID_STATUS_TRANSITION` | 409 | This status change is not allowed. | memberships.changePlan, memberships.cancel, bookings.cancel, shop.orderStatus, shop.orderCancel, bar.orderCancel, kitchen.status, invoices.send, invoices.void, staff.leaveDecide, staff.leaveCancel, staff.payrollPay |
 | `INTERNAL_ERROR` | 500 | Unexpected server error. | many (automatic) |
 
 ## Auth
@@ -20,41 +20,31 @@ Source of truth: [shared/constants/errors.ts](../../shared/constants/errors.ts).
 | `AUTH_INVALID` | 401 | Invalid email or password. | auth.login, auth.changePassword |
 | `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. | many (automatic) |
 | `FORBIDDEN` | 403 | You do not have permission to perform this action. | many (automatic) |
-| `EMAIL_TAKEN` | 409 | An account with this email already exists. | auth.signup, members.create, enquiries.convert, clients.create, staff.create |
+| `EMAIL_TAKEN` | 409 | An account with this email already exists. | auth.signup, members.create, clients.create, staff.create |
 | `ACCOUNT_DISABLED` | 403 | This account has been deactivated. | auth.login |
 
 ## Membership
 
 | Code | HTTP | Default message | Used by |
 |---|---|---|---|
-| `MEMBER_NOT_FOUND` | 404 | Member not found. | members.me, members.get, members.update, members.history, members.memberships, memberships.purchase, bookings.price, bookings.create, social.join, shop.orderCreate, bar.orderCreate, bar.tabOpen, invoices.create |
+| `MEMBER_NOT_FOUND` | 404 | Member not found. | members.me, members.get, members.update, members.history, members.memberships, memberships.purchase, bookings.price, bookings.create, shop.orderCreate, bar.orderCreate, invoices.create |
 | `MEMBERSHIP_NOT_FOUND` | 404 | Membership not found. | memberships.changePlan, memberships.cancel, payments.create |
-| `MEMBERSHIP_PLAN_NOT_FOUND` | 404 | Membership plan not found. | members.create, memberships.planUpdate, memberships.purchase, memberships.changePlan, enquiries.create, enquiries.quoteCreate, enquiries.convert |
+| `MEMBERSHIP_PLAN_NOT_FOUND` | 404 | Membership plan not found. | members.create, memberships.planUpdate, memberships.purchase, memberships.changePlan, enquiries.create |
 | `MEMBERSHIP_EXPIRED` | 403 | Membership has expired; member rates do not apply. | memberships.changePlan |
 | `MEMBERSHIP_ALREADY_ACTIVE` | 409 | Member already has an active membership. | memberships.purchase |
-| `JUNIOR_AGE_INVALID` | 422 | Junior plan requires the member to be under 18. | members.create, memberships.purchase, memberships.changePlan, enquiries.convert |
+| `JUNIOR_AGE_INVALID` | 422 | Junior plan requires the member to be under 18. | members.create, memberships.purchase, memberships.changePlan |
 
 ## Courts
 
 | Code | HTTP | Default message | Used by |
 |---|---|---|---|
-| `COURT_NOT_FOUND` | 404 | Court not found. | courts.availability, courts.update, courts.block, bookings.price, bookings.create, social.create, enquiries.trialBooking |
+| `COURT_NOT_FOUND` | 404 | Court not found. | courts.availability, courts.update, courts.block, bookings.price, bookings.create |
 | `COURT_UNAVAILABLE` | 409 | Court is closed, inactive, blocked, or outside opening hours. | bookings.create |
-| `INVALID_SLOT` | 422 | Start time must be on a 30-minute boundary, in the future, within opening hours. | courts.block, bookings.price, bookings.create, social.create, enquiries.trialBooking |
-| `BOOKING_NOT_FOUND` | 404 | Booking not found. | courts.unblock, bookings.get, bookings.cancel, bookings.complete, payments.create |
-| `BOOKING_CONFLICT` | 409 | This court is already booked for that time. | courts.block, bookings.create, social.create, enquiries.trialBooking |
-| `DAILY_BOOKING_LIMIT` | 409 | Member has reached the maximum plays allowed per day. | bookings.create, social.join |
-| `BOOKING_NOT_CANCELLABLE` | 409 | This booking can no longer be cancelled. | bookings.cancel, social.leave |
-
-## Social play
-
-| Code | HTTP | Default message | Used by |
-|---|---|---|---|
-| `SOCIAL_SESSION_NOT_FOUND` | 404 | Social session not found. | social.get, social.join, social.leave, social.cancel |
-| `SOCIAL_SESSION_FULL` | 409 | This social session is full. | social.join |
-| `SOCIAL_PLAY_NOT_ALLOWED` | 422 | Social sessions can only be created in the configured social-play window. | social.create |
-| `ALREADY_JOINED` | 409 | Already joined this social session. | social.join |
-| `NOT_A_PARTICIPANT` | 404 | Participant not found in this session. | social.leave, payments.create |
+| `INVALID_SLOT` | 422 | Start time must be on a 30-minute boundary, in the future, within opening hours. | courts.block, bookings.price, bookings.create |
+| `BOOKING_NOT_FOUND` | 404 | Booking not found. | courts.unblock, bookings.get, bookings.cancel, payments.create |
+| `BOOKING_CONFLICT` | 409 | This court is already booked for that time. | courts.block, bookings.create |
+| `DAILY_BOOKING_LIMIT` | 409 | Member has reached the maximum plays allowed per day. | bookings.create |
+| `BOOKING_NOT_CANCELLABLE` | 409 | This booking can no longer be cancelled. | bookings.cancel |
 
 ## Shop
 
@@ -72,17 +62,12 @@ Source of truth: [shared/constants/errors.ts](../../shared/constants/errors.ts).
 |---|---|---|---|
 | `MENU_ITEM_NOT_FOUND` | 404 | Menu item not found. | bar.menuUpdate, bar.orderCreate |
 | `MENU_ITEM_UNAVAILABLE` | 409 | Menu item is currently unavailable. | bar.orderCreate |
-| `TABLE_NOT_FOUND` | 404 | Table not found. | bar.tableUpdate, bar.orderCreate, bar.tabOpen |
-| `TABLE_OCCUPIED` | 409 | Table is already occupied or out of service. | bar.tableUpdate, bar.orderCreate, bar.tabOpen |
-| `TAB_NOT_FOUND` | 404 | Tab not found. | bar.orderCreate, bar.tabGet, bar.tabSettle, bar.tabVoid, payments.create |
-| `TAB_NOT_OPEN` | 409 | Tab is not open. | bar.orderCreate, bar.tabSettle, bar.tabVoid |
-| `TAB_HAS_ACTIVE_ORDERS` | 409 | Tab has orders that are not yet served or cancelled. | bar.tabSettle, bar.tabVoid |
 
 ## Finance
 
 | Code | HTTP | Default message | Used by |
 |---|---|---|---|
-| `PAYMENT_FAILED` | 402 | Payment could not be completed. | members.create, memberships.purchase, memberships.changePlan, bookings.create, social.join, shop.orderCreate, bar.orderCreate, bar.tabSettle, enquiries.convert, payments.create |
+| `PAYMENT_FAILED` | 402 | Payment could not be completed. | members.create, memberships.purchase, memberships.changePlan, bookings.create, shop.orderCreate, bar.orderCreate, payments.create |
 | `PAYMENT_NOT_FOUND` | 404 | Payment not found. | payments.get, payments.refund |
 | `PAYMENT_AMOUNT_MISMATCH` | 422 | Payment amount does not match the amount due. | payments.create |
 | `ALREADY_PAID` | 409 | This item is already fully paid. | payments.create |
@@ -95,9 +80,7 @@ Source of truth: [shared/constants/errors.ts](../../shared/constants/errors.ts).
 
 | Code | HTTP | Default message | Used by |
 |---|---|---|---|
-| `ENQUIRY_NOT_FOUND` | 404 | Enquiry not found. | enquiries.get, enquiries.update, enquiries.followUp, enquiries.quoteCreate, enquiries.trialBooking, enquiries.convert |
-| `QUOTE_NOT_FOUND` | 404 | Quote not found. | enquiries.quoteUpdate |
-| `ENQUIRY_ALREADY_CONVERTED` | 409 | Enquiry has already been converted. | enquiries.convert |
+| `ENQUIRY_NOT_FOUND` | 404 | Enquiry not found. | enquiries.get, enquiries.update |
 
 ## Staff
 
@@ -114,7 +97,6 @@ Source of truth: [shared/constants/errors.ts](../../shared/constants/errors.ts).
 
 | Code | HTTP | Default message | Used by |
 |---|---|---|---|
-| `NOTIFICATION_NOT_FOUND` | 404 | Notification not found. | notifications.read |
 | `SETTING_NOT_FOUND` | 404 | Setting not found. | settings.update |
 
 ## Conventions

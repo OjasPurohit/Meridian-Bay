@@ -4,7 +4,8 @@ import type { ProductCategory } from '@shared/constants/enums';
 import type { MembershipPlan } from '@shared/types/rows';
 import { listPlans, listProducts, type CatalogueProduct, type StockStatus } from '@/api/public';
 import { ActionAnchor, ActionLink } from '@/components/ui/button';
-import { formatRupees } from '@/lib/format';
+import { applyDiscount, fromPaise, toPaise } from '@shared/lib/money';
+import { formatMoney, formatRupees } from '@/lib/format';
 import { useReveal } from '@/lib/useReveal';
 import { cn } from '@/lib/utils';
 import { GearGlyph, glyphFor } from '../components/GearGlyph';
@@ -95,18 +96,35 @@ function ShopHero() {
   );
 }
 
-function ProductCard({ p }: { p: CatalogueProduct }) {
+function ProductCard({ p, plan }: { p: CatalogueProduct; plan: MembershipPlan | null }) {
   const stock = STOCK[p.stock_status];
+  const pct = plan ? parseFloat(plan.shop_discount_percent) : 0;
+  const member = pct > 0 ? fromPaise(applyDiscount(toPaise(p.price), pct).due) : null;
   return (
     <li className="group flex flex-col">
       <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-clay/60 transition-colors duration-300 group-hover:bg-clay">
-        <GearGlyph kind={glyphFor(p.category, p.name)} className="h-3/4 w-3/4 transition-transform duration-500 ease-[var(--ease-soft)] group-hover:-translate-y-1 motion-reduce:transform-none" />
+        {p.image_url ? (
+          <img
+            src={p.image_url}
+            alt=""
+            className="h-full w-full object-contain p-3 transition-transform duration-500 ease-[var(--ease-soft)] group-hover:scale-[1.02] motion-reduce:transform-none"
+          />
+        ) : (
+          <GearGlyph kind={glyphFor(p.category, p.name)} className="h-3/4 w-3/4 transition-transform duration-500 ease-[var(--ease-soft)] group-hover:-translate-y-1 motion-reduce:transform-none" />
+        )}
       </div>
       <div className="flex flex-1 flex-col pt-4">
         <p className="eyebrow text-olive-mid">{p.brand}</p>
         <h3 className="mt-2 leading-snug font-semibold text-balance">{p.name}</h3>
         <div className="mt-auto flex items-baseline justify-between gap-3 pt-3">
-          <span className="display text-2xl tabular-nums">{formatRupees(p.price)}</span>
+          {member ? (
+            <span className="flex flex-wrap items-baseline gap-x-2">
+              <span className="display text-2xl tabular-nums">{formatMoney(member)}</span>
+              <s className="text-sm text-muted tabular-nums">{formatRupees(p.price)}</s>
+            </span>
+          ) : (
+            <span className="display text-2xl tabular-nums">{formatRupees(p.price)}</span>
+          )}
           <span className={cn('text-xs font-semibold', stock.cls)}>{stock.label}</span>
         </div>
       </div>
@@ -117,6 +135,7 @@ function ProductCard({ p }: { p: CatalogueProduct }) {
 export default function ShopPage() {
   const [products, setProducts] = useState<CatalogueProduct[]>([]);
   const [plans, setPlans] = useState<MembershipPlan[]>([]);
+  const [priceFor, setPriceFor] = useState<string>('');
   const root = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -127,6 +146,7 @@ export default function ShopPage() {
 
   const grouped = useMemo(() => CATEGORIES.map((c) => ({ ...c, items: products.filter((p) => p.category === c.key) })).filter((c) => c.items.length), [products]);
   const discounts = plans.filter((p) => parseFloat(p.shop_discount_percent) > 0);
+  const pricePlan = plans.find((p) => p.id === priceFor) ?? null;
 
   return (
     <div ref={root} className="bg-chalk pt-18">
@@ -167,6 +187,27 @@ export default function ShopPage() {
         </nav>
 
         <div className={wrap}>
+          <fieldset className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-8">
+            <legend className="sr-only">Show prices for</legend>
+            <span className="text-sm font-semibold" aria-hidden="true">
+              Show prices for
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {[{ id: '', label: 'List price' }, ...discounts.map((p) => ({ id: p.id, label: `${p.name.replace(/ Membership$/, '')} −${parseFloat(p.shop_discount_percent)}%` }))].map((o) => (
+                <label
+                  key={o.id || 'list'}
+                  className={cn(
+                    'inline-flex min-h-11 cursor-pointer items-center rounded-full border px-4 text-sm font-semibold transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary',
+                    priceFor === o.id ? 'border-olive bg-olive text-chalk' : 'border-line bg-chalk hover:border-olive-mid',
+                  )}
+                >
+                  <input type="radio" name="price-for" value={o.id} checked={priceFor === o.id} onChange={() => setPriceFor(o.id)} className="sr-only" />
+                  {o.label}
+                </label>
+              ))}
+            </div>
+            {pricePlan && <p className="w-full text-xs text-muted">Member prices are applied at checkout for the member’s own orders. Walk-ins and guests pay list price.</p>}
+          </fieldset>
           {grouped.map((c) => (
             <section key={c.key} id={c.id} aria-labelledby={`${c.id}-title`} className="scroll-mt-36 py-14 md:py-20">
               <div className="flex items-end justify-between gap-6 border-b border-line pb-5" data-reveal>
@@ -179,7 +220,7 @@ export default function ShopPage() {
               </div>
               <ul className="mt-8 grid grid-cols-1 gap-x-6 gap-y-12 min-[480px]:grid-cols-2 lg:grid-cols-4">
                 {c.items.map((p) => (
-                  <ProductCard key={p.id} p={p} />
+                  <ProductCard key={p.id} p={p} plan={pricePlan} />
                 ))}
               </ul>
             </section>

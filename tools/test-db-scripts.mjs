@@ -5,6 +5,8 @@ import { PGlite } from '@electric-sql/pglite';
 import { btree_gist } from '@electric-sql/pglite/contrib/btree_gist';
 import { PGLiteSocketServer } from '@electric-sql/pglite-socket';
 import { spawn } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -38,6 +40,18 @@ const run = async (label, script, args = [], env = {}, expectFail = false) => {
 console.log('database scripts against in-memory Postgres:');
 await run('migrate (fresh database)', 'database/migrate.mjs');
 await run('migrate again is a no-op', 'database/migrate.mjs');
+// Checksums are line-ending independent. Databases created from CRLF checkouts hold the SHA-256 of the CRLF text
+// (computed independently here, not with database/checksum.mjs): migrate must still accept them, and must still refuse a changed file.
+{
+  const dir = path.join(root, 'database/migrations');
+  const crlfSha = (file) => createHash('sha256').update(readFileSync(path.join(dir, file), 'utf8').replace(/\r\n|\r|\n/g, '\r\n')).digest('hex');
+  const files = readdirSync(dir).filter((x) => /^\d{4}_.+\.sql$/.test(x)).sort();
+  for (const file of files) await db.query('UPDATE schema_migrations SET checksum = $1 WHERE filename = $2', [crlfSha(file), file]);
+  await run('migrate accepts checksums recorded from CRLF copies of the same migrations', 'database/migrate.mjs');
+  await db.query('UPDATE schema_migrations SET checksum = $1 WHERE filename = $2', [createHash('sha256').update('different content').digest('hex'), files[0]]);
+  await run('migrate refuses a migration whose content differs from the recorded checksum', 'database/migrate.mjs', [], {}, true);
+  await db.query('UPDATE schema_migrations SET checksum = $1 WHERE filename = $2', [crlfSha(files[0]), files[0]]);
+}
 await run('seed loads mock data', 'database/seed.mjs');
 await run('seed refuses when data exists', 'database/seed.mjs', [], {}, true);
 await run('reset refused without ALLOW_DB_RESET', 'database/reset.mjs', [], { ALLOW_DB_RESET: 'false' }, true);
@@ -45,8 +59,8 @@ await run('reset refused for a non-local host (Supabase-like URL)', 'database/re
 await run('reset (local, ALLOW_DB_RESET=true) rebuilds + reseeds', 'database/reset.mjs', [], { ALLOW_DB_RESET: 'true' });
 const n = (await db.query('SELECT count(*)::int AS n FROM payments')).rows[0].n;
 const m = (await db.query('SELECT count(*)::int AS n FROM schema_migrations')).rows[0].n;
-console.log(`  ${n > 0 && m === 2 ? '✔' : '✘'} after reset: payments=${n}, schema_migrations=${m}`);
-if (!(n > 0 && m === 2)) fails++;
+console.log(`  ${n > 0 && m === 4 ? '✔' : '✘'} after reset: payments=${n}, schema_migrations=${m}`);
+if (!(n > 0 && m === 4)) fails++;
 
 await server.stop();
 await db.close();

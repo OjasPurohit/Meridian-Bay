@@ -1,6 +1,6 @@
 /**
  * TIME — the ONE implementation of IST (Asia/Kolkata, UTC+05:30, no DST) day logic.
- * Storage/API = UTC ISO strings. "Business dates" (daily play limit, reports, Friday social play, expiry) are IST dates.
+ * Storage/API = UTC ISO strings. "Business dates" (daily play limit, reports, expiry) are IST dates.
  * (R-DATA-01) Never compute an IST day with the server's local timezone or with toISOString().slice(0,10) on a UTC value.
  */
 
@@ -23,7 +23,7 @@ export function istDayBounds(date: string): { start: string; end: string } {
   return { start: istToUtc(date, '00:00'), end: istToUtc(date, '24:00') };
 }
 
-/** ISO weekday of an IST date: 1 = Monday ... 7 = Sunday (matches setting social_play_weekday; Friday = 5). */
+/** ISO weekday of an IST date: 1 = Monday ... 7 = Sunday (Monday = 1). */
 export function isoWeekday(date: string): number {
   const d = new Date(Date.parse(date + 'T00:00:00Z')).getUTCDay(); // 0 = Sunday
   return d === 0 ? 7 : d;

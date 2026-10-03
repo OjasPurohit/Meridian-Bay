@@ -3,7 +3,6 @@ import type { EnquiryType, Uuid } from '@/features/public/types';
 /** `to` is a router path; entries with a hash are homepage sections, the rest are standalone pages. */
 export const PUBLIC_NAV = [
   { to: '/#courts', label: 'Courts' },
-  { to: '/#social', label: 'Social play' },
   { to: '/membership', label: 'Membership' },
   { to: '/shop', label: 'Shop' },
   { to: '/bar-cafe', label: 'Bar & café' },

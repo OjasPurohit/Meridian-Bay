@@ -59,7 +59,6 @@ export interface MembersUpdateRequest {
   emergency_contact_name?: string;
   emergency_contact_phone?: string;
   photo_url?: string;
-  notes?: string; // staff only
   is_active?: boolean; // OWNER_ADMIN only
 }
 
@@ -86,8 +85,7 @@ export interface MembershipsPlanCreateRequest {
   shop_discount_percent?: Percent;
   bar_discount_percent?: Percent;
   max_plays_per_day?: number; // default 2
-  min_age?: number;
-  max_age?: number;
+  max_age?: number; // Junior: 17
   benefits?: string[];
   sort_order?: number;
 }
@@ -169,7 +167,6 @@ export interface CourtsUpdateRequest {
 export interface CourtsBlockRequest {
   start_at: IsoDateTime; // on a 30-min boundary
   end_at: IsoDateTime; // multiple of 1h after start_at
-  reason?: string;
 }
 
 /** GET /api/v1/bookings/price (bookings.price) */
@@ -187,7 +184,6 @@ export interface BookingsCreateRequest {
   guest_name?: string; // Walk-in name. Staff only. Required when no member_id.
   guest_phone?: string; // Walk-in phone (E.164 or 10-digit). Staff only.
   payment_method?: E.PaymentMethod; // omit = pay later at the desk (payment_status PENDING). MEMBER callers pay ONLINE or later at desk.
-  notes?: string;
 }
 
 /** GET /api/v1/bookings (bookings.list) */
@@ -203,43 +199,7 @@ export interface BookingsListQuery {
 
 /** POST /api/v1/bookings/:id/cancel (bookings.cancel) */
 export interface BookingsCancelRequest {
-  reason?: string;
   refund?: boolean; // staff only: override policy (default: refund if start_at - now >= cancellation_cutoff_hours)
-}
-
-/** GET /api/v1/social-play/sessions (social.list) */
-export interface SocialListQuery {
-  from?: IsoDate;
-  to?: IsoDate;
-  status?: E.SocialSessionStatus;
-}
-
-/** POST /api/v1/social-play/sessions (social.create) */
-export interface SocialCreateRequest {
-  court_id: Uuid;
-  start_at: IsoDateTime; // must fall on social_play_weekday (IST) inside the social-play window
-  title: string;
-  description?: string;
-  capacity: number; // >=2
-  fee_per_person: Money; // >=0; tax-inclusive guest fee
-}
-
-/** POST /api/v1/social-play/sessions/:id/join (social.join) */
-export interface SocialJoinRequest {
-  member_id?: Uuid; // Staff only: book/order on behalf of this member. MEMBER callers: omit (implied = self).
-  guest_name?: string; // Walk-in name. Staff only. Required when no member_id.
-  guest_phone?: string; // Walk-in phone (E.164 or 10-digit). Staff only.
-  payment_method?: E.PaymentMethod; // omit = pay later at desk
-}
-
-/** POST /api/v1/social-play/sessions/:id/leave (social.leave) */
-export interface SocialLeaveRequest {
-  participant_id?: Uuid; // staff only; required for staff callers
-}
-
-/** POST /api/v1/social-play/sessions/:id/cancel (social.cancel) */
-export interface SocialCancelRequest {
-  reason?: string;
 }
 
 /** GET /api/v1/shop/products (shop.products) */
@@ -259,7 +219,7 @@ export interface ShopProductCreateRequest {
   description?: string;
   price: Money; // tax-inclusive
   image_url?: string;
-  initial_stock?: number; // >=0; creates an OPENING inventory movement
+  initial_stock?: number; // >=0; the starting stock_quantity
   low_stock_threshold?: number; // default = setting low_stock_default_threshold
 }
 
@@ -284,13 +244,11 @@ export interface ShopOrderCreateRequest {
   guest_name?: string; // Walk-in name. Staff only. Required when no member_id.
   guest_phone?: string; // Walk-in phone (E.164 or 10-digit). Staff only.
   payment_method?: E.PaymentMethod; // MEMBER: ONLINE. Staff counter sale: CASH|CARD|UPI (required for IN_STORE)
-  notes?: string;
 }
 
 /** GET /api/v1/shop/orders (shop.orderList) */
 export interface ShopOrderListQuery {
   status?: E.ShopOrderStatus;
-  channel?: E.OrderChannel;
   fulfillment?: E.OrderFulfillment;
   member_id?: Uuid; // staff only
   from?: IsoDate;
@@ -300,11 +258,6 @@ export interface ShopOrderListQuery {
 /** PATCH /api/v1/shop/orders/:id/status (shop.orderStatus) */
 export interface ShopOrderStatusRequest {
   status: E.ShopOrderStatus; // must be allowed by SHOP_ORDER_TRANSITIONS; READY_FOR_PICKUP only for PICKUP orders, OUT_FOR_DELIVERY only for DELIVERY orders
-}
-
-/** POST /api/v1/shop/orders/:id/cancel (shop.orderCancel) */
-export interface ShopOrderCancelRequest {
-  reason?: string;
 }
 
 /** GET /api/v1/inventory (inventory.list) */
@@ -317,17 +270,7 @@ export interface InventoryListQuery {
 /** POST /api/v1/inventory/adjustments (inventory.adjust) */
 export interface InventoryAdjustRequest {
   product_id: Uuid;
-  quantity_change: number; // non-zero; negative allowed only if result stays >= 0 (else VALIDATION_ERROR)
-  reason: E.InventoryReason; // RESTOCK | ADJUSTMENT | DAMAGE | RETURN only
-  notes?: string;
-}
-
-/** GET /api/v1/inventory/movements (inventory.movements) */
-export interface InventoryMovementsQuery {
-  product_id?: Uuid;
-  reason?: E.InventoryReason;
-  from?: IsoDate;
-  to?: IsoDate;
+  quantity_change: number; // non-zero; negative allowed only if the result stays >= 0 (else VALIDATION_ERROR)
 }
 
 /** GET /api/v1/bar/menu (bar.menu) */
@@ -355,27 +298,13 @@ export interface BarMenuUpdateRequest {
   sort_order?: number;
 }
 
-/** POST /api/v1/bar/tables (bar.tableCreate) */
-export interface BarTableCreateRequest {
-  label: string; // unique
-  capacity: number; // >0
-}
-
-/** PATCH /api/v1/bar/tables/:id (bar.tableUpdate) */
-export interface BarTableUpdateRequest {
-  status?: E.TableStatus;
-  label?: string; // OWNER_ADMIN only
-  capacity?: number; // OWNER_ADMIN only
-}
-
 /** POST /api/v1/bar/orders (bar.orderCreate) */
 export interface BarOrderCreateRequest {
-  bar_table_id?: Uuid;
-  bar_tab_id?: Uuid; // add to an OPEN tab; member/guest then inherited from the tab
+  table_label?: string; // free text, e.g. "T3" or "Court side"
   member_id?: Uuid; // Staff only: book/order on behalf of this member. MEMBER callers: omit (implied = self).
   guest_name?: string;
   items: { bar_menu_item_id: Uuid; quantity: number; notes?: string }[]; // 1-50 lines
-  payment_method?: E.PaymentMethod; // pay now (CASH|CARD|UPI); omit to leave PENDING or put on a tab
+  payment_method?: E.PaymentMethod; // pay now (CASH|CARD|UPI); omit to pay later at the desk
   notes?: string;
 }
 
@@ -383,36 +312,10 @@ export interface BarOrderCreateRequest {
 export interface BarOrderListQuery {
   status?: E.OrderStatus;
   payment_status?: E.PaymentStatus;
-  bar_table_id?: Uuid;
-  bar_tab_id?: Uuid;
+  table_label?: string;
   member_id?: Uuid; // staff only
   from?: IsoDate;
   to?: IsoDate;
-}
-
-/** POST /api/v1/bar/orders/:id/cancel (bar.orderCancel) */
-export interface BarOrderCancelRequest {
-  reason: string;
-}
-
-/** POST /api/v1/bar/tabs (bar.tabOpen) */
-export interface BarTabOpenRequest {
-  bar_table_id?: Uuid;
-  member_id?: Uuid; // Staff only: book/order on behalf of this member. MEMBER callers: omit (implied = self).
-  guest_name?: string; // required when no member_id
-}
-
-/** GET /api/v1/bar/tabs (bar.tabList) */
-export interface BarTabListQuery {
-  status?: E.TabStatus;
-  member_id?: Uuid; // staff only
-  from?: IsoDate;
-  to?: IsoDate;
-}
-
-/** POST /api/v1/bar/tabs/:id/settle (bar.tabSettle) */
-export interface BarTabSettleRequest {
-  payment_method: E.PaymentMethod; // CASH | CARD | UPI
 }
 
 /** GET /api/v1/bar/daily-summary (bar.dailySummary) */
@@ -422,14 +325,13 @@ export interface BarDailySummaryQuery {
 
 /** GET /api/v1/kitchen/orders (kitchen.list) */
 export interface KitchenListQuery {
-  status?: E.OrderStatus[]; // default NEW,ACCEPTED,PREPARING,READY
+  status?: E.OrderStatus[]; // default NEW,PREPARING,READY
   date?: IsoDate; // default today
 }
 
 /** PATCH /api/v1/kitchen/orders/:id/status (kitchen.status) */
 export interface KitchenStatusRequest {
   status: E.OrderStatus; // next status per ORDER_TRANSITIONS
-  note?: string; // required when status = CANCELLED (reason)
 }
 
 /** POST /api/v1/enquiries (enquiries.create) */
@@ -442,73 +344,22 @@ export interface EnquiriesCreateRequest {
   membership_plan_id?: Uuid;
   sport_type?: E.SportType; // TRIAL
   preferred_start_at?: IsoDateTime; // TRIAL: must be in the future
-  source?: E.EnquirySource; // staff only: PHONE | WALK_IN
-}
-
-/** GET /api/v1/enquiries/summary (enquiries.summary) */
-export interface EnquiriesSummaryQuery {
-  from?: IsoDate;
-  to?: IsoDate;
 }
 
 /** GET /api/v1/enquiries (enquiries.list) */
 export interface EnquiriesListQuery {
-  status?: E.EnquiryStatus;
+  handled?: boolean; // false = still waiting (handled_at IS NULL)
   enquiry_type?: E.EnquiryType;
-  source?: E.EnquirySource;
-  assigned_to_user_id?: Uuid;
-  follow_up_due?: boolean; // next_follow_up_at <= now and status open
   q?: string;
 }
 
 /** PATCH /api/v1/enquiries/:id (enquiries.update) */
 export interface EnquiriesUpdateRequest {
-  status?: E.EnquiryStatus; // per ENQUIRY_TRANSITIONS; not CONVERTED
-  assigned_to_user_id?: Uuid;
-  next_follow_up_at?: IsoDateTime;
-  lost_reason?: string; // required when status = LOST
+  handled?: boolean; // true sets handled_at = now, false clears it
   name?: string;
   phone?: string;
   email?: string;
   message?: string;
-}
-
-/** POST /api/v1/enquiries/:id/follow-ups (enquiries.followUp) */
-export interface EnquiriesFollowUpRequest {
-  method: E.FollowUpMethod;
-  note: string;
-  next_follow_up_at?: IsoDateTime;
-  new_status?: E.EnquiryStatus; // default: NEW -> CONTACTED
-}
-
-/** POST /api/v1/enquiries/:id/quotes (enquiries.quoteCreate) */
-export interface EnquiriesQuoteCreateRequest {
-  membership_plan_id?: Uuid;
-  description: string;
-  amount: Money;
-  valid_until: IsoDate;
-  send_now?: boolean; // true => status SENT and enquiry -> QUOTE_SENT
-}
-
-/** PATCH /api/v1/quotes/:id (enquiries.quoteUpdate) */
-export interface EnquiriesQuoteUpdateRequest {
-  status: E.QuoteStatus;
-}
-
-/** POST /api/v1/enquiries/:id/trial-booking (enquiries.trialBooking) */
-export interface EnquiriesTrialBookingRequest {
-  court_id: Uuid;
-  start_at: IsoDateTime;
-}
-
-/** POST /api/v1/enquiries/:id/convert (enquiries.convert) */
-export interface EnquiriesConvertRequest {
-  email?: string; // required if the enquiry has no email
-  date_of_birth?: IsoDate;
-  address?: string;
-  initial_password?: string;
-  membership_plan_id: Uuid;
-  payment_method: E.PaymentMethod;
 }
 
 /** GET /api/v1/business-clients (clients.list) */
@@ -545,6 +396,7 @@ export interface ClientsUpdateRequest {
 /** GET /api/v1/invoices (invoices.list) */
 export interface InvoicesListQuery {
   status?: E.InvoiceStatus;
+  payment_state?: E.InvoicePaymentState;
   invoice_type?: E.InvoiceType;
   business_client_id?: Uuid; // OWNER_ADMIN only
   member_id?: Uuid; // OWNER_ADMIN only
@@ -555,9 +407,8 @@ export interface InvoicesListQuery {
 
 /** POST /api/v1/invoices (invoices.create) */
 export interface InvoicesCreateRequest {
-  invoice_type: E.InvoiceType;
-  business_client_id?: Uuid; // required for BUSINESS
-  member_id?: Uuid; // required for MEMBERSHIP
+  business_client_id?: Uuid; // addressed to a business client (exactly one of business_client_id / member_id)
+  member_id?: Uuid; // addressed to a member (membership invoice)
   issue_date?: IsoDate; // default today
   due_date: IsoDate; // >= issue_date
   items: { description: string; quantity: number; unit_price: Money }[]; // >=1 line
@@ -617,7 +468,6 @@ export interface StaffCreateRequest {
   role: E.UserRole; // FRONT_DESK | KITCHEN_MANAGER | OWNER_ADMIN only
   password: string;
   designation: string;
-  default_area?: E.ShiftArea;
   monthly_salary: Money;
   joined_on?: IsoDate;
 }
@@ -627,7 +477,6 @@ export interface StaffUpdateRequest {
   full_name?: string;
   phone?: string;
   designation?: string;
-  default_area?: E.ShiftArea;
   monthly_salary?: Money;
   is_active?: boolean;
 }
@@ -647,7 +496,6 @@ export interface StaffShiftCreateRequest {
   start_time: TimeOfDay;
   end_time: TimeOfDay; // > start_time (same day)
   area: E.ShiftArea;
-  notes?: string;
 }
 
 /** PATCH /api/v1/staff/shifts/:id (staff.shiftUpdate) */
@@ -656,7 +504,6 @@ export interface StaffShiftUpdateRequest {
   start_time?: TimeOfDay;
   end_time?: TimeOfDay;
   area?: E.ShiftArea;
-  notes?: string;
 }
 
 /** GET /api/v1/staff/leave-requests (staff.leaveList) */
@@ -669,7 +516,6 @@ export interface StaffLeaveListQuery {
 
 /** POST /api/v1/staff/leave-requests (staff.leaveCreate) */
 export interface StaffLeaveCreateRequest {
-  leave_type: E.LeaveType;
   start_date: IsoDate;
   end_date: IsoDate; // >= start_date
   reason?: string;
@@ -685,7 +531,7 @@ export interface StaffLeaveDecideRequest {
 export interface StaffPayrollListQuery {
   staff_id?: Uuid; // OWNER_ADMIN only
   pay_period?: IsoDate; // first day of month
-  status?: E.PayrollStatus;
+  paid?: boolean; // true = paid_on is set, false = still pending
 }
 
 /** POST /api/v1/staff/payroll (staff.payrollCreate) */
@@ -694,8 +540,7 @@ export interface StaffPayrollCreateRequest {
   pay_period: IsoDate; // first day of month
   amount?: Money; // default staff.monthly_salary
   payment_method: E.PaymentMethod;
-  mark_paid?: boolean;
-  notes?: string;
+  mark_paid?: boolean; // true sets paid_on = today
 }
 
 /** POST /api/v1/staff/payroll/:id/pay (staff.payrollPay) */
@@ -757,11 +602,6 @@ export interface ReportsExportQuery {
   report: E.ExportReport;
   from: IsoDate; // Inclusive IST business date.
   to: IsoDate; // Inclusive IST business date; to >= from; max 366 days.
-}
-
-/** GET /api/v1/notifications (notifications.list) */
-export interface NotificationsListQuery {
-  unread_only?: boolean;
 }
 
 /** PATCH /api/v1/settings/:key (settings.update) */

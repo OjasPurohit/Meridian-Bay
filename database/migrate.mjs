@@ -6,9 +6,9 @@
 import 'dotenv/config';
 import pg from 'pg';
 import { readFileSync, readdirSync } from 'node:fs';
-import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { migrationChecksum } from './checksum.mjs';
 
 export const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export function connectionConfig() {
@@ -29,7 +29,7 @@ export async function migrate({ statusOnly = false } = {}) {
     let ran = 0;
     for (const file of files) {
       const sql = readFileSync(path.join(dir, file), 'utf8');
-      const checksum = createHash('sha256').update(sql).digest('hex');
+      const checksum = migrationChecksum(sql); // line-ending independent (see checksum.mjs)
       if (applied.has(file)) {
         if (applied.get(file) !== checksum) throw new Error(`Migration ${file} was modified after being applied. Never edit applied migrations — add a new one.`);
         console.log(`  ✔ ${file} (already applied)`);

@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import { toPaise, fromPaise, percentOf, taxInclusive, taxExclusive, applyDiscount, formatInr } from '../shared/lib/money.ts';
 import { istDate, istToUtc, istDayBounds, isoWeekday, addDays, termEndDate, slotStarts } from '../shared/lib/time.ts';
-import { BOOKING_TRANSITIONS, ORDER_TRANSITIONS, SHOP_ORDER_TRANSITIONS, ENQUIRY_TRANSITIONS } from '../shared/constants/rules.ts';
+import { ORDER_TRANSITIONS, SHOP_ORDER_TRANSITIONS, INVOICE_TRANSITIONS, LEAVE_TRANSITIONS } from '../shared/constants/rules.ts';
 
 let n = 0;
 const t = (name, fn) => { fn(); n++; console.log('  ✔', name); };
@@ -32,9 +32,9 @@ t('slotStarts: 06:00..22:00 => 31 half-hour starts, last 21:00 IST', () => {
 });
 
 console.log('state machines');
-t('booking: cancelled/completed are terminal', () => { assert.deepEqual(BOOKING_TRANSITIONS.CANCELLED, []); assert.deepEqual(BOOKING_TRANSITIONS.COMPLETED, []); });
-t('kitchen: no skipping NEW -> SERVED', () => { assert.ok(!ORDER_TRANSITIONS.NEW.includes('SERVED')); assert.deepEqual(ORDER_TRANSITIONS.PREPARING, ['READY']); });
+t('kitchen: NEW -> PREPARING -> READY -> SERVED, no skipping, reject only while NEW', () => { assert.ok(!ORDER_TRANSITIONS.NEW.includes('SERVED')); assert.deepEqual(ORDER_TRANSITIONS.NEW, ['PREPARING', 'CANCELLED']); assert.deepEqual(ORDER_TRANSITIONS.PREPARING, ['READY']); });
 t('shop: pickup/delivery branches both reachable from CONFIRMED', () => { assert.ok(SHOP_ORDER_TRANSITIONS.CONFIRMED.includes('READY_FOR_PICKUP') && SHOP_ORDER_TRANSITIONS.CONFIRMED.includes('OUT_FOR_DELIVERY')); });
-t('enquiry: CONVERTED is terminal; LOST can reopen', () => { assert.deepEqual(ENQUIRY_TRANSITIONS.CONVERTED, []); assert.ok(ENQUIRY_TRANSITIONS.LOST.includes('FOLLOW_UP')); });
+t('invoice: only DRAFT can be sent; a SENT invoice can only be voided (paid/overdue are derived)', () => { assert.deepEqual(INVOICE_TRANSITIONS.DRAFT, ['SENT', 'VOID']); assert.deepEqual(INVOICE_TRANSITIONS.SENT, ['VOID']); assert.deepEqual(INVOICE_TRANSITIONS.VOID, []); });
+t('leave: APPROVED can only be cancelled; REJECTED is terminal', () => { assert.deepEqual(LEAVE_TRANSITIONS.APPROVED, ['CANCELLED']); assert.deepEqual(LEAVE_TRANSITIONS.REJECTED, []); });
 
 console.log(`\n${n} shared-library tests passed`);

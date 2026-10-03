@@ -107,7 +107,8 @@ const STRING_HINTS = [[/email/, 'name@example.com'], [/phone/, '+919811100001'],
  * Build a realistic sample object for a response type. Row interfaces use the first mock-data row; view types are
  * composed from their parents plus type-driven values for the extra fields.
  */
-export function makeSampler({ interfaces, aliases, enums, mockRow, idFor = () => null }) {
+export function makeSampler({ interfaces, aliases, enums, mockRow, idFor = () => null, defaults = {} }) {
+  // defaults: 'Interface.field' -> sample value, for derived fields that are not in the mock row (e.g. MembershipView.status)
   const tableOf = {}; // iface -> table
   const sampleType = (type, field, depth, ctx = '') => {
     let t = type.trim();
@@ -145,7 +146,7 @@ export function makeSampler({ interfaces, aliases, enums, mockRow, idFor = () =>
     for (const p of it.extends) Object.assign(base, sampleInterface(p, depth));
     const row = tableOf[name] ? mockRow(tableOf[name]) : null;
     if (row) base = { ...base, ...row };
-    for (const f of it.fields) if (!(f.name in base)) base[f.name] = sampleType(f.type, f.name, depth, name);
+    for (const f of it.fields) if (!(f.name in base)) base[f.name] = `${name}.${f.name}` in defaults ? defaults[`${name}.${f.name}`] : sampleType(f.type, f.name, depth, name);
     return base;
   }
   return { sampleInterface, sampleType, register: (iface, table) => { tableOf[iface] = table; } };

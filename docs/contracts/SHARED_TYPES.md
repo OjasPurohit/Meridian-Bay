@@ -22,16 +22,14 @@ Generated references: [ENUMS.md](ENUMS.md) (values + state-machine diagrams), [E
 | Member | `members` | `Member` | `MemberSummary`, `MemberDetail`, `MemberHistoryEvent` |
 | Membership plan / Membership | `membership_plans` / `memberships` | `MembershipPlan` / `Membership` | `MembershipView`, `ActiveMembershipSummary`, `MembershipPurchaseResult` |
 | Court / Court booking | `courts` / `court_bookings` | `Court` / `CourtBooking` | `CourtAvailability`, `CourtSlot`, `PriceBreakdown`, `BookingDetail`, `BookingCancelResult` |
-| Social session / participant | `social_sessions` / `social_session_participants` | `SocialSession` / `SocialSessionParticipant` | `SocialSessionView`, `ParticipantView` |
-| Product / Inventory item | `products` (+ `inventory_movements`) | `Product` / `InventoryMovement` | `ProductView`, `InventoryItem`, `InventoryMovementView` |
+| Product / stock | `products` (`stock_quantity` is the stock) | `Product` | `ProductView`, `InventoryItem` |
 | Shop order | `shop_orders`, `shop_order_items` | `ShopOrder`, `ShopOrderItem` | `ShopOrderDetail` |
-| Bar order / tab / table | `bar_orders`, `bar_order_items`, `bar_tabs`, `bar_tables`, `bar_menu_items` | `BarOrder`, `BarOrderItem`, `BarTab`, `BarTable`, `BarMenuItem` | `BarOrderDetail`, `BarTabDetail`, `BarTableView`, `BarDailySummary` |
-| Kitchen order | *(projection of `bar_orders`; history in `order_status_events`)* | `OrderStatusEvent` | `KitchenOrder`, `KitchenOrderItem` |
+| Cafe order / menu | `bar_orders`, `bar_order_items`, `bar_menu_items` | `BarOrder`, `BarOrderItem`, `BarMenuItem` | `BarOrderDetail`, `BarDailySummary` |
+| Kitchen order | *(projection of `bar_orders`)* | — | `KitchenOrder`, `KitchenOrderItem` |
 | Payment | `payments` | `Payment` | `PaymentView` |
 | Invoice / Business client | `invoices`, `invoice_items` / `business_clients` | `Invoice`, `InvoiceItem` / `BusinessClient` | `InvoiceView`, `InvoiceDetail`, `BusinessClientDetail` |
-| Enquiry / Quote | `enquiries`, `enquiry_follow_ups` / `quotes` | `Enquiry`, `EnquiryFollowUp` / `Quote` | `EnquiryView`, `EnquiryDetail`, `EnquiryFunnel`, `EnquiryConvertResult` |
+| Enquiry | `enquiries` | `Enquiry` | `EnquiryView` |
 | Staff / Shift / Leave / Payroll | `staff`, `staff_shifts`, `leave_requests`, `payroll_payments` | `Staff`, `StaffShift`, `LeaveRequest`, `PayrollPayment` | `StaffView`, `ShiftView`, `LeaveView`, `PayrollView` |
-| Notification | `notifications` | `Notification` | — |
 | Settings | `club_settings` | `ClubSetting` | `SettingView`, `PublicClubInfo` |
 | Reports | *(queries)* | — | `OwnerDashboard`, `RevenueReport`, `CourtUtilizationReport`, `MembershipReport`, `ShopReport`, `FinanceReport`, `TaxReport` |
 

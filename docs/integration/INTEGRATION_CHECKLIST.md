@@ -47,25 +47,22 @@ npm run docs:build && git diff --exit-code   # generated files are committed and
 | D1 | **Booking conflicts:** fire two `POST /bookings` for the same free slot in parallel | exactly one `201`, one `409 BOOKING_CONFLICT`; one row in DB |
 | D2 | Half-hour overlap: book 18:00, then try 18:30 on the same court | `BOOKING_CONFLICT`; 19:00 succeeds |
 | D3 | Aarav has 2 bookings tomorrow; try a 3rd (any court) | `409 DAILY_BOOKING_LIMIT`, `details.plays_used_today = 2` |
-| D4 | Social join counts: member with 1 booking joins 2 sessions same Friday | second join → `DAILY_BOOKING_LIMIT` |
-| D5 | Pricing: Aarav (Gold) / Rohan (Silver) / Ishaan (Junior) / Sneha (expired) / Rahul (no plan) / guest — same court & slot | ₹0 / ₹400 / ₹240 / ₹800 / ₹800 / ₹800 (T1 ₹800/h); `GET /bookings/price` equals stored `amount_due` |
-| D6 | Cancel ≥ 2 h before: refund recorded, slot free again; < 2 h as member: no refund | payment `REFUNDED` / unchanged; re-book same slot succeeds |
-| D7 | **Inventory synchronisation:** (a) ASICS shoes (stock 0) ordered online and at the counter; (b) Wilson balls (stock 3): buy 2 online, then 2 at the counter | (a) `409 OUT_OF_STOCK` on both channels; (b) the second purchase is refused and stock ends at 1, never negative |
-| D8 | After D7 sales: `SELECT stock_quantity, (SELECT sum(quantity_change) FROM inventory_movements WHERE product_id=p.id) FROM products p` | equal for every product |
-| D9 | Cancel a shop order | stock restored (+ `CANCELLATION` movement), payment `REFUNDED` |
-| D10 | **Payment records:** for each created booking/order/tab/membership/invoice with a method, a `payments` row exists with correct `source_type`, `source_id`, `revenue_category`, `amount`, `tax_amount` | `SELECT … FROM payments ORDER BY created_at DESC` |
-| D11 | Free (Gold) booking | no payment row; `payment_status = NOT_REQUIRED` |
-| D12 | Partial invoice payment | `amount_paid` increases; status `PARTIALLY_PAID`; second payment completes → `PAID`; over-payment rejected |
-| D13 | Revenue reconciliation: dashboard `revenue.total` for MONTH | equals `SELECT sum(amount - refunded_amount) FROM payments …` and equals the sum of its `by_category` and of its `by_method` |
-| D14 | **Order states:** kitchen jumps NEW → SERVED | `409 INVALID_STATUS_TRANSITION`; legal path writes 4 `order_status_events` |
-| D15 | Shop order: `READY_FOR_PICKUP` on a DELIVERY order | rejected |
-| D16 | Tab: settle with an order still PREPARING | `TAB_HAS_ACTIVE_ORDERS`; after SERVED → settle → one `TAB` payment equals sum of orders; table freed |
-| D17 | Member bar discount | Priya (Gold) order shows 15 % off automatically; guest none |
-| D18 | Daily bar summary for yesterday | equals sum of BAR payments (cash + UPI + card) that day; open tabs amount listed separately |
-| D19 | Membership: early renewal for Meera (expires in 9 d) → `UPCOMING`; second ACTIVE for same member impossible | DB rejects duplicate ACTIVE |
-| D20 | Expiry job idempotent | run `POST /memberships/run-expiry` twice → second result all zeros |
-| D21 | Enquiry convert | member + membership + payment created atomically; enquiry `CONVERTED`; duplicate convert → `ENQUIRY_ALREADY_CONVERTED` |
-| D22 | Leave & shifts | shift on an approved-leave day rejected; leave overlap rejected; payroll unique per month |
+| D4 | Pricing: Aarav (Gold) / Rohan (Silver) / Ishaan (Junior) / Sneha (expired) / Rahul (no plan) / guest — same court & slot | ₹0 / ₹400 / ₹240 / ₹800 / ₹800 / ₹800 (T1 ₹800/h); `GET /bookings/price` equals stored `amount_due` |
+| D5 | Cancel ≥ 2 h before: refund recorded, slot free again; < 2 h as member: no refund | payment `REFUNDED` / unchanged; re-book same slot succeeds |
+| D6 | **Inventory synchronisation:** (a) ASICS shoes (stock 0) ordered online and at the counter; (b) Wilson balls (stock 3): buy 2 online, then 2 at the counter | (a) `409 OUT_OF_STOCK` on both channels; (b) the second purchase is refused and stock ends at 1, never negative |
+| D7 | Cancel a shop order | stock restored (quantities added back), payment `REFUNDED` |
+| D8 | **Payment records:** for each created booking/order/membership/invoice with a method, a `payments` row exists with correct `source_type`, `source_id`, `amount`, `tax_amount` (the revenue category is derived: `payment_ledger`) | `SELECT … FROM payments ORDER BY created_at DESC` |
+| D9 | Free (Gold) booking | no payment row; `payment_status = NOT_REQUIRED` |
+| D10 | Partial invoice payment | `invoice_totals.amount_paid` increases; `payment_state` `PARTIALLY_PAID`; second payment completes → `PAID`; over-payment rejected |
+| D11 | Revenue reconciliation: dashboard `revenue.total` for MONTH | equals `SELECT sum(amount - refunded_amount) FROM payments …` and equals the sum of its `by_category` and of its `by_method` |
+| D12 | **Order states:** kitchen jumps NEW → SERVED | `409 INVALID_STATUS_TRANSITION`; the legal path NEW → PREPARING → READY → SERVED works |
+| D13 | Shop order: `READY_FOR_PICKUP` on a DELIVERY order | rejected |
+| D14 | Cafe order paid on its own | one `BAR_ORDER` payment equals the order total (`bar_order_totals.total_amount`); `payment_status` PAID |
+| D15 | Member bar discount | Priya (Gold) order shows 15 % off automatically; guest none |
+| D16 | Daily bar summary for yesterday | equals sum of BAR payments (cash + UPI + card) that day |
+| D17 | Membership: early renewal for Meera (expires in 9 d) → derived status `UPCOMING`; two overlapping live terms for the same member impossible | DB rejects the overlap (`memberships_no_overlap`) |
+| D18 | Enquiry inbox | a website enquiry appears with `handled_at` empty; marking it handled sets `handled_at`; reopening clears it |
+| D19 | Leave & shifts | shift on an approved-leave day rejected; leave overlap rejected; payroll unique per month |
 
 ## E. Foreign keys & data integrity (run after the demo path)
 
@@ -73,12 +70,12 @@ npm run docs:build && git diff --exit-code   # generated files are committed and
 -- no orphans (should all return 0 rows)
 SELECT * FROM court_bookings b LEFT JOIN courts c ON c.id=b.court_id WHERE c.id IS NULL;
 SELECT p.* FROM payments p WHERE p.source_type='SHOP_ORDER' AND NOT EXISTS (SELECT 1 FROM shop_orders o WHERE o.id=p.source_id);
--- (repeat for each source_type: COURT_BOOKING→court_bookings, SOCIAL_PARTICIPANT→social_session_participants, MEMBERSHIP→memberships, BAR_ORDER→bar_orders, TAB→bar_tabs, INVOICE→invoices)
+-- (repeat for each source_type: COURT_BOOKING→court_bookings, MEMBERSHIP→memberships, BAR_ORDER→bar_orders, INVOICE→invoices)
 -- invariants
 SELECT * FROM products WHERE stock_quantity < 0;
-SELECT member_id FROM memberships WHERE status='ACTIVE' GROUP BY member_id HAVING count(*)>1;
-SELECT * FROM invoices WHERE total_amount <> subtotal + tax_amount OR amount_paid > total_amount;
-SELECT * FROM bar_tabs t WHERE status='SETTLED' AND total_amount <> (SELECT coalesce(sum(total_amount),0) FROM bar_orders o WHERE o.bar_tab_id=t.id AND o.status<>'CANCELLED');
+SELECT a.member_id FROM memberships a JOIN memberships b ON b.member_id=a.member_id AND b.id>a.id WHERE a.cancelled_at IS NULL AND b.cancelled_at IS NULL AND daterange(a.start_date,a.end_date,'[]') && daterange(b.start_date,b.end_date,'[]');
+SELECT * FROM invoice_totals WHERE total_amount <> subtotal + tax_amount OR amount_paid > total_amount;
+SELECT * FROM bar_order_totals WHERE amount_paid > total_amount;
 ```
 
 ## F. UI states (each module, each role)

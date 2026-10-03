@@ -60,7 +60,6 @@ interface PageMeta { page: number; page_size: number; total: number; total_pages
 | memberships | `POST` | `/memberships/:id/change-plan` | FRONT_DESK, OWNER_ADMIN | [memberships.changePlan](#membershipschangePlan) |
 | memberships | `POST` | `/memberships/:id/cancel` | OWNER_ADMIN | [memberships.cancel](#membershipscancel) |
 | memberships | `GET` | `/memberships/expiring` | FRONT_DESK, OWNER_ADMIN | [memberships.expiring](#membershipsexpiring) |
-| memberships | `POST` | `/memberships/run-expiry` | OWNER_ADMIN | [memberships.runExpiry](#membershipsrunExpiry) |
 | courts | `GET` | `/courts` | PUBLIC | [courts.list](#courtslist) |
 | courts | `GET` | `/courts/availability` | PUBLIC | [courts.availability](#courtsavailability) |
 | courts | `POST` | `/courts` | OWNER_ADMIN | [courts.create](#courtscreate) |
@@ -72,13 +71,6 @@ interface PageMeta { page: number; page_size: number; total: number; total_pages
 | bookings | `GET` | `/bookings` | MEMBER (own only), FRONT_DESK, OWNER_ADMIN | [bookings.list](#bookingslist) |
 | bookings | `GET` | `/bookings/:id` | MEMBER (own only), FRONT_DESK, OWNER_ADMIN | [bookings.get](#bookingsget) |
 | bookings | `POST` | `/bookings/:id/cancel` | MEMBER (own only), FRONT_DESK, OWNER_ADMIN | [bookings.cancel](#bookingscancel) |
-| bookings | `POST` | `/bookings/:id/complete` | FRONT_DESK, OWNER_ADMIN | [bookings.complete](#bookingscomplete) |
-| social | `GET` | `/social-play/sessions` | PUBLIC | [social.list](#sociallist) |
-| social | `GET` | `/social-play/sessions/:id` | MEMBER, FRONT_DESK, OWNER_ADMIN | [social.get](#socialget) |
-| social | `POST` | `/social-play/sessions` | FRONT_DESK, OWNER_ADMIN | [social.create](#socialcreate) |
-| social | `POST` | `/social-play/sessions/:id/join` | MEMBER, FRONT_DESK, OWNER_ADMIN | [social.join](#socialjoin) |
-| social | `POST` | `/social-play/sessions/:id/leave` | MEMBER (own only), FRONT_DESK, OWNER_ADMIN | [social.leave](#socialleave) |
-| social | `POST` | `/social-play/sessions/:id/cancel` | FRONT_DESK, OWNER_ADMIN | [social.cancel](#socialcancel) |
 | shop | `GET` | `/shop/products` | PUBLIC | [shop.products](#shopproducts) |
 | shop | `GET` | `/shop/products/:id` | PUBLIC | [shop.product](#shopproduct) |
 | shop | `POST` | `/shop/products` | OWNER_ADMIN | [shop.productCreate](#shopproductCreate) |
@@ -92,36 +84,21 @@ interface PageMeta { page: number; page_size: number; total: number; total_pages
 | inventory | `GET` | `/inventory` | FRONT_DESK, OWNER_ADMIN | [inventory.list](#inventorylist) |
 | inventory | `GET` | `/inventory/low-stock` | FRONT_DESK, OWNER_ADMIN | [inventory.lowStock](#inventorylowStock) |
 | inventory | `POST` | `/inventory/adjustments` | OWNER_ADMIN | [inventory.adjust](#inventoryadjust) |
-| inventory | `GET` | `/inventory/movements` | OWNER_ADMIN | [inventory.movements](#inventorymovements) |
 | bar | `GET` | `/bar/menu` | PUBLIC | [bar.menu](#barmenu) |
 | bar | `POST` | `/bar/menu-items` | OWNER_ADMIN | [bar.menuCreate](#barmenuCreate) |
 | bar | `PATCH` | `/bar/menu-items/:id` | OWNER_ADMIN | [bar.menuUpdate](#barmenuUpdate) |
-| bar | `GET` | `/bar/tables` | FRONT_DESK, KITCHEN_MANAGER, OWNER_ADMIN | [bar.tables](#bartables) |
-| bar | `POST` | `/bar/tables` | OWNER_ADMIN | [bar.tableCreate](#bartableCreate) |
-| bar | `PATCH` | `/bar/tables/:id` | FRONT_DESK, OWNER_ADMIN | [bar.tableUpdate](#bartableUpdate) |
 | bar | `POST` | `/bar/orders` | FRONT_DESK, OWNER_ADMIN | [bar.orderCreate](#barorderCreate) |
 | bar | `GET` | `/bar/orders` | MEMBER (own only), FRONT_DESK, OWNER_ADMIN | [bar.orderList](#barorderList) |
 | bar | `GET` | `/bar/orders/:id` | MEMBER (own only), FRONT_DESK, OWNER_ADMIN | [bar.orderGet](#barorderGet) |
 | bar | `POST` | `/bar/orders/:id/cancel` | FRONT_DESK, OWNER_ADMIN | [bar.orderCancel](#barorderCancel) |
-| bar | `POST` | `/bar/tabs` | FRONT_DESK, OWNER_ADMIN | [bar.tabOpen](#bartabOpen) |
-| bar | `GET` | `/bar/tabs` | MEMBER (own only), FRONT_DESK, OWNER_ADMIN | [bar.tabList](#bartabList) |
-| bar | `GET` | `/bar/tabs/:id` | MEMBER (own only), FRONT_DESK, OWNER_ADMIN | [bar.tabGet](#bartabGet) |
-| bar | `POST` | `/bar/tabs/:id/settle` | FRONT_DESK, OWNER_ADMIN | [bar.tabSettle](#bartabSettle) |
-| bar | `POST` | `/bar/tabs/:id/void` | OWNER_ADMIN | [bar.tabVoid](#bartabVoid) |
 | bar | `GET` | `/bar/daily-summary` | FRONT_DESK, OWNER_ADMIN | [bar.dailySummary](#bardailySummary) |
 | kitchen | `GET` | `/kitchen/orders` | KITCHEN_MANAGER, OWNER_ADMIN | [kitchen.list](#kitchenlist) |
 | kitchen | `GET` | `/kitchen/orders/:id` | KITCHEN_MANAGER, OWNER_ADMIN | [kitchen.get](#kitchenget) |
 | kitchen | `PATCH` | `/kitchen/orders/:id/status` | KITCHEN_MANAGER, OWNER_ADMIN | [kitchen.status](#kitchenstatus) |
 | enquiries | `POST` | `/enquiries` | PUBLIC, FRONT_DESK, OWNER_ADMIN | [enquiries.create](#enquiriescreate) |
-| enquiries | `GET` | `/enquiries/summary` | FRONT_DESK, OWNER_ADMIN | [enquiries.summary](#enquiriessummary) |
 | enquiries | `GET` | `/enquiries` | FRONT_DESK, OWNER_ADMIN | [enquiries.list](#enquirieslist) |
 | enquiries | `GET` | `/enquiries/:id` | FRONT_DESK, OWNER_ADMIN | [enquiries.get](#enquiriesget) |
 | enquiries | `PATCH` | `/enquiries/:id` | FRONT_DESK, OWNER_ADMIN | [enquiries.update](#enquiriesupdate) |
-| enquiries | `POST` | `/enquiries/:id/follow-ups` | FRONT_DESK, OWNER_ADMIN | [enquiries.followUp](#enquiriesfollowUp) |
-| enquiries | `POST` | `/enquiries/:id/quotes` | FRONT_DESK, OWNER_ADMIN | [enquiries.quoteCreate](#enquiriesquoteCreate) |
-| enquiries | `PATCH` | `/quotes/:id` | FRONT_DESK, OWNER_ADMIN | [enquiries.quoteUpdate](#enquiriesquoteUpdate) |
-| enquiries | `POST` | `/enquiries/:id/trial-booking` | FRONT_DESK, OWNER_ADMIN | [enquiries.trialBooking](#enquiriestrialBooking) |
-| enquiries | `POST` | `/enquiries/:id/convert` | FRONT_DESK, OWNER_ADMIN | [enquiries.convert](#enquiriesconvert) |
 | clients | `GET` | `/business-clients` | OWNER_ADMIN | [clients.list](#clientslist) |
 | clients | `POST` | `/business-clients` | OWNER_ADMIN | [clients.create](#clientscreate) |
 | clients | `GET` | `/business-clients/me` | BUSINESS_CLIENT | [clients.me](#clientsme) |
@@ -161,14 +138,10 @@ interface PageMeta { page: number; page_size: number; total: number; total_pages
 | reports | `GET` | `/reports/finance` | OWNER_ADMIN | [reports.finance](#reportsfinance) |
 | reports | `GET` | `/reports/tax` | OWNER_ADMIN | [reports.tax](#reportstax) |
 | reports | `GET` | `/reports/export` | OWNER_ADMIN | [reports.export](#reportsexport) |
-| notifications | `GET` | `/notifications` | MEMBER, FRONT_DESK, KITCHEN_MANAGER, BUSINESS_CLIENT, OWNER_ADMIN | [notifications.list](#notificationslist) |
-| notifications | `GET` | `/notifications/unread-count` | MEMBER, FRONT_DESK, KITCHEN_MANAGER, BUSINESS_CLIENT, OWNER_ADMIN | [notifications.unreadCount](#notificationsunreadCount) |
-| notifications | `PATCH` | `/notifications/:id/read` | MEMBER, FRONT_DESK, KITCHEN_MANAGER, BUSINESS_CLIENT, OWNER_ADMIN | [notifications.read](#notificationsread) |
-| notifications | `POST` | `/notifications/read-all` | MEMBER, FRONT_DESK, KITCHEN_MANAGER, BUSINESS_CLIENT, OWNER_ADMIN | [notifications.readAll](#notificationsreadAll) |
 | settings | `GET` | `/settings` | OWNER_ADMIN | [settings.list](#settingslist) |
 | settings | `PATCH` | `/settings/:key` | OWNER_ADMIN | [settings.update](#settingsupdate) |
 
-**127 endpoints** across 19 modules.
+**100 endpoints** across 17 modules.
 
 ## 3. Module ownership
 
@@ -180,18 +153,16 @@ interface PageMeta { page: number; page_size: number; total: number; total_pages
 | Membership plans & memberships (`memberships`) | Dev 2 — Membership, Courts & Front Desk | /memberships |
 | Courts & availability (`courts`) | Dev 2 — Membership, Courts & Front Desk | /courts |
 | Court bookings (`bookings`) | Dev 2 — Membership, Courts & Front Desk | /bookings |
-| Social play (`social`) | Dev 2 — Membership, Courts & Front Desk | /social-play |
-| Shop (`shop`) | Dev 3 — Commerce, Bar & Kitchen | /shop |
-| Inventory (`inventory`) | Dev 3 — Commerce, Bar & Kitchen | /inventory |
-| Bar / POS (`bar`) | Dev 3 — Commerce, Bar & Kitchen | /bar |
-| Kitchen (`kitchen`) | Dev 3 — Commerce, Bar & Kitchen | /kitchen |
-| Enquiries & CRM (`enquiries`) | Dev 1 — Platform, Identity & Public Experience | /enquiries, /quotes |
+| Shop (`shop`) | Dev 3 — Commerce, Cafe & Kitchen | /shop |
+| Inventory (`inventory`) | Dev 3 — Commerce, Cafe & Kitchen | /inventory |
+| Cafe (`bar`) | Dev 3 — Commerce, Cafe & Kitchen | /bar |
+| Kitchen (`kitchen`) | Dev 3 — Commerce, Cafe & Kitchen | /kitchen |
+| Enquiries (`enquiries`) | Dev 1 — Platform, Identity & Public Experience | /enquiries |
 | Business clients (`clients`) | Dev 4 — Owner, Finance & Reporting | /business-clients |
 | Invoices (`invoices`) | Dev 4 — Owner, Finance & Reporting | /invoices |
 | Payments (`payments`) | Dev 4 — Owner, Finance & Reporting | /payments |
 | Staff & HR (`staff`) | Dev 4 — Owner, Finance & Reporting | /staff |
 | Reports (`reports`) | Dev 4 — Owner, Finance & Reporting | /reports |
-| Notifications (`notifications`) | Dev 1 — Platform, Identity & Public Experience | /notifications |
 | Club settings (`settings`) | Dev 4 — Owner, Finance & Reporting | /settings |
 
 ## 4. Endpoints
@@ -264,7 +235,6 @@ POST /api/v1/auth/signup
       "phone": "+919820000001",
       "is_active": true,
       "must_change_password": false,
-      "last_login_at": "2026-10-02T03:30:00.000Z",
       "created_at": "2026-03-17T04:30:00.000Z",
       "updated_at": "2026-03-17T04:30:00.000Z"
     },
@@ -281,7 +251,7 @@ POST /api/v1/auth/signup
       "joined_on": "2026-10-03",
       "is_active": true,
       "active_membership": {
-        "membership_id": "06000000-0000-4000-8000-000000000001",
+        "membership_id": "00945666-0000-4000-8000-001224104603",
         "membership_plan_id": "05000000-0000-4000-8000-000000000001",
         "membership_type": "GOLD",
         "plan_name": "Aarav Kapoor",
@@ -294,18 +264,16 @@ POST /api/v1/auth/signup
     "staff": {
       "id": "03000000-0000-4000-8000-000000000001",
       "user_id": "01000000-0000-4000-8000-000000000001",
-      "employee_code": "EMP-0001",
       "designation": "Owner",
-      "default_area": null,
       "monthly_salary": "0.00",
       "joined_on": "2025-08-29",
-      "is_active": true,
       "created_at": "2026-03-17T04:30:00.000Z",
       "updated_at": "2026-03-17T04:30:00.000Z",
       "full_name": "Aarav Kapoor",
       "email": "name@example.com",
       "phone": "+919811100001",
-      "role": "MEMBER"
+      "role": "MEMBER",
+      "is_active": true
     },
     "business_client": {
       "id": "04000000-0000-4000-8000-000000000001",
@@ -358,7 +326,7 @@ Authenticate and receive a JWT plus the role-based landing route.
 | `email` | email | **yes** |  |
 | `password` | string | **yes** |  |
 
-**Rules / behaviour:** `redirect_to` = ROLE_HOME_ROUTE[user.role]. Never reveal whether the email exists (always AUTH_INVALID). Updates users.last_login_at.
+**Rules / behaviour:** `redirect_to` = ROLE_HOME_ROUTE[user.role]. Never reveal whether the email exists (always AUTH_INVALID).
 
 **Errors**
 
@@ -395,7 +363,6 @@ POST /api/v1/auth/login
       "phone": "+919811100001",
       "is_active": true,
       "must_change_password": false,
-      "last_login_at": "2026-10-03T11:45:00.000Z",
       "created_at": "…",
       "updated_at": "…"
     },
@@ -527,7 +494,6 @@ GET /api/v1/auth/me
       "phone": "+919820000001",
       "is_active": true,
       "must_change_password": false,
-      "last_login_at": "2026-10-02T03:30:00.000Z",
       "created_at": "2026-03-17T04:30:00.000Z",
       "updated_at": "2026-03-17T04:30:00.000Z"
     },
@@ -544,7 +510,7 @@ GET /api/v1/auth/me
       "joined_on": "2026-10-03",
       "is_active": true,
       "active_membership": {
-        "membership_id": "06000000-0000-4000-8000-000000000001",
+        "membership_id": "00945666-0000-4000-8000-001224104603",
         "membership_plan_id": "05000000-0000-4000-8000-000000000001",
         "membership_type": "GOLD",
         "plan_name": "Aarav Kapoor",
@@ -557,18 +523,16 @@ GET /api/v1/auth/me
     "staff": {
       "id": "03000000-0000-4000-8000-000000000001",
       "user_id": "01000000-0000-4000-8000-000000000001",
-      "employee_code": "EMP-0001",
       "designation": "Owner",
-      "default_area": null,
       "monthly_salary": "0.00",
       "joined_on": "2025-08-29",
-      "is_active": true,
       "created_at": "2026-03-17T04:30:00.000Z",
       "updated_at": "2026-03-17T04:30:00.000Z",
       "full_name": "Aarav Kapoor",
       "email": "name@example.com",
       "phone": "+919811100001",
-      "role": "MEMBER"
+      "role": "MEMBER",
+      "is_active": true
     },
     "business_client": {
       "id": "04000000-0000-4000-8000-000000000001",
@@ -670,7 +634,7 @@ POST /api/v1/auth/change-password
 <a id="publicclub"></a>
 #### `GET /api/v1/public/club` — public.club
 
-Club introduction, timings, contact, sports offered, social-play window.
+Club introduction, timings, contact and sports offered.
 
 | | |
 |---|---|
@@ -706,11 +670,6 @@ GET /api/v1/public/club
     "email": "name@example.com",
     "open_time": "18:00:00",
     "close_time": "18:00:00",
-    "social_play": {
-      "weekday": 3,
-      "start_time": "18:00:00",
-      "end_time": "18:00:00"
-    },
     "sports": [
       "TENNIS"
     ],
@@ -793,7 +752,7 @@ GET /api/v1/members
       "joined_on": "2026-10-03",
       "is_active": true,
       "active_membership": {
-        "membership_id": "06000000-0000-4000-8000-000000000001",
+        "membership_id": "00945666-0000-4000-8000-001224104603",
         "membership_plan_id": "05000000-0000-4000-8000-000000000001",
         "membership_type": "GOLD",
         "plan_name": "Aarav Kapoor",
@@ -897,7 +856,7 @@ POST /api/v1/members
     "joined_on": "2026-10-03",
     "is_active": true,
     "active_membership": {
-      "membership_id": "06000000-0000-4000-8000-000000000001",
+      "membership_id": "00945666-0000-4000-8000-001224104603",
       "membership_plan_id": "05000000-0000-4000-8000-000000000001",
       "membership_type": "GOLD",
       "plan_name": "Aarav Kapoor",
@@ -909,25 +868,22 @@ POST /api/v1/members
     "address": "12, Lake View Residency, Baner, Pune 411045",
     "emergency_contact_name": "Aarav Kapoor",
     "emergency_contact_phone": "+919811100001",
-    "notes": "Sample text",
     "plan": {
       "id": "05000000-0000-4000-8000-000000000001",
       "membership_type": "GOLD",
       "name": "Gold Membership",
-      "description": "Premium, full access to every court, best discounts at the shop and bar.",
+      "description": "Premium, full access to every court, best discounts at the shop and cafe.",
       "duration_months": 12,
       "price": "30000.00",
       "court_discount_percent": "100.00",
       "shop_discount_percent": "15.00",
       "bar_discount_percent": "15.00",
       "max_plays_per_day": 2,
-      "min_age": 18,
       "max_age": null,
       "benefits": [
         "Free court bookings (up to 2 plays per day)",
         "15% off at the gear shop",
         "15% off at the bar & cafeteria",
-        "Join Friday social play free",
         "Priority support from the front desk"
       ],
       "sort_order": 1,
@@ -996,7 +952,7 @@ GET /api/v1/members/me
     "joined_on": "2026-10-03",
     "is_active": true,
     "active_membership": {
-      "membership_id": "06000000-0000-4000-8000-000000000001",
+      "membership_id": "00945666-0000-4000-8000-001224104603",
       "membership_plan_id": "05000000-0000-4000-8000-000000000001",
       "membership_type": "GOLD",
       "plan_name": "Aarav Kapoor",
@@ -1008,25 +964,22 @@ GET /api/v1/members/me
     "address": "12, Lake View Residency, Baner, Pune 411045",
     "emergency_contact_name": "Aarav Kapoor",
     "emergency_contact_phone": "+919811100001",
-    "notes": "Sample text",
     "plan": {
       "id": "05000000-0000-4000-8000-000000000001",
       "membership_type": "GOLD",
       "name": "Gold Membership",
-      "description": "Premium, full access to every court, best discounts at the shop and bar.",
+      "description": "Premium, full access to every court, best discounts at the shop and cafe.",
       "duration_months": 12,
       "price": "30000.00",
       "court_discount_percent": "100.00",
       "shop_discount_percent": "15.00",
       "bar_discount_percent": "15.00",
       "max_plays_per_day": 2,
-      "min_age": 18,
       "max_age": null,
       "benefits": [
         "Free court bookings (up to 2 plays per day)",
         "15% off at the gear shop",
         "15% off at the bar & cafeteria",
-        "Join Friday social play free",
         "Priority support from the front desk"
       ],
       "sort_order": 1,
@@ -1097,7 +1050,7 @@ GET /api/v1/members/02000000-0000-4000-8000-000000000001
     "joined_on": "2026-10-03",
     "is_active": true,
     "active_membership": {
-      "membership_id": "06000000-0000-4000-8000-000000000001",
+      "membership_id": "00945666-0000-4000-8000-001224104603",
       "membership_plan_id": "05000000-0000-4000-8000-000000000001",
       "membership_type": "GOLD",
       "plan_name": "Aarav Kapoor",
@@ -1109,25 +1062,22 @@ GET /api/v1/members/02000000-0000-4000-8000-000000000001
     "address": "12, Lake View Residency, Baner, Pune 411045",
     "emergency_contact_name": "Aarav Kapoor",
     "emergency_contact_phone": "+919811100001",
-    "notes": "Sample text",
     "plan": {
       "id": "05000000-0000-4000-8000-000000000001",
       "membership_type": "GOLD",
       "name": "Gold Membership",
-      "description": "Premium, full access to every court, best discounts at the shop and bar.",
+      "description": "Premium, full access to every court, best discounts at the shop and cafe.",
       "duration_months": 12,
       "price": "30000.00",
       "court_discount_percent": "100.00",
       "shop_discount_percent": "15.00",
       "bar_discount_percent": "15.00",
       "max_plays_per_day": 2,
-      "min_age": 18,
       "max_age": null,
       "benefits": [
         "Free court bookings (up to 2 plays per day)",
         "15% off at the gear shop",
         "15% off at the bar & cafeteria",
-        "Join Friday social play free",
         "Priority support from the front desk"
       ],
       "sort_order": 1,
@@ -1179,7 +1129,6 @@ Update profile fields.
 | `emergency_contact_name` | string | no |  |
 | `emergency_contact_phone` | phone | no |  |
 | `photo_url` | url | no |  |
-| `notes` | text | no | staff only |
 | `is_active` | bool | no | OWNER_ADMIN only |
 
 **Errors**
@@ -1216,7 +1165,7 @@ PATCH /api/v1/members/02000000-0000-4000-8000-000000000001
     "joined_on": "2026-10-03",
     "is_active": true,
     "active_membership": {
-      "membership_id": "06000000-0000-4000-8000-000000000001",
+      "membership_id": "00945666-0000-4000-8000-001224104603",
       "membership_plan_id": "05000000-0000-4000-8000-000000000001",
       "membership_type": "GOLD",
       "plan_name": "Aarav Kapoor",
@@ -1228,25 +1177,22 @@ PATCH /api/v1/members/02000000-0000-4000-8000-000000000001
     "address": "12, Lake View Residency, Baner, Pune 411045",
     "emergency_contact_name": "Aarav Kapoor",
     "emergency_contact_phone": "+919811100001",
-    "notes": "Sample text",
     "plan": {
       "id": "05000000-0000-4000-8000-000000000001",
       "membership_type": "GOLD",
       "name": "Gold Membership",
-      "description": "Premium, full access to every court, best discounts at the shop and bar.",
+      "description": "Premium, full access to every court, best discounts at the shop and cafe.",
       "duration_months": 12,
       "price": "30000.00",
       "court_discount_percent": "100.00",
       "shop_discount_percent": "15.00",
       "bar_discount_percent": "15.00",
       "max_plays_per_day": 2,
-      "min_age": 18,
       "max_age": null,
       "benefits": [
         "Free court bookings (up to 2 plays per day)",
         "15% off at the gear shop",
         "15% off at the bar & cafeteria",
-        "Join Friday social play free",
         "Priority support from the front desk"
       ],
       "sort_order": 1,
@@ -1275,7 +1221,7 @@ PATCH /api/v1/members/02000000-0000-4000-8000-000000000001
 <a id="membershistory"></a>
 #### `GET /api/v1/members/:id/history` — members.history
 
-Unified timeline of everything the member did at the club (memberships, bookings, social play, shop, bar, payments).
+Unified timeline of everything the member did at the club (memberships, bookings, shop, cafe, payments).
 
 | | |
 |---|---|
@@ -1284,7 +1230,7 @@ Unified timeline of everything the member did at the club (memberships, bookings
 | **Success** | 200 · `data: MemberHistoryEvent[]` + `meta: PageMeta` |
 | **Requirements** | FR-MEM-004 |
 | **Governing rules** | — |
-| **Tables touched** | `memberships`, `court_bookings`, `social_session_participants`, `shop_orders`, `bar_orders`, `payments` |
+| **Tables touched** | `memberships`, `court_bookings`, `shop_orders`, `bar_orders`, `payments` |
 | **Path params** | `id` (uuid) |
 
 **Query parameters**
@@ -1387,34 +1333,30 @@ GET /api/v1/members/06000000-0000-4000-8000-000000000001/memberships
       "id": "06000000-0000-4000-8000-000000000001",
       "member_id": "02000000-0000-4000-8000-000000000001",
       "membership_plan_id": "05000000-0000-4000-8000-000000000001",
-      "status": "ACTIVE",
       "start_date": "2026-03-17",
       "end_date": "2027-03-16",
       "price_paid": "30000.00",
-      "previous_membership_id": null,
       "cancelled_at": null,
       "cancellation_reason": null,
-      "created_by_user_id": "01000000-0000-4000-8000-000000000002",
       "created_at": "2026-03-17T05:00:00.000Z",
       "updated_at": "2026-03-17T05:00:00.000Z",
+      "status": "ACTIVE",
       "plan": {
         "id": "05000000-0000-4000-8000-000000000001",
         "membership_type": "GOLD",
         "name": "Gold Membership",
-        "description": "Premium, full access to every court, best discounts at the shop and bar.",
+        "description": "Premium, full access to every court, best discounts at the shop and cafe.",
         "duration_months": 12,
         "price": "30000.00",
         "court_discount_percent": "100.00",
         "shop_discount_percent": "15.00",
         "bar_discount_percent": "15.00",
         "max_plays_per_day": 2,
-        "min_age": 18,
         "max_age": null,
         "benefits": [
           "Free court bookings (up to 2 plays per day)",
           "15% off at the gear shop",
           "15% off at the bar & cafeteria",
-          "Join Friday social play free",
           "Priority support from the front desk"
         ],
         "sort_order": 1,
@@ -1487,20 +1429,18 @@ GET /api/v1/memberships/plans
       "id": "05000000-0000-4000-8000-000000000001",
       "membership_type": "GOLD",
       "name": "Gold Membership",
-      "description": "Premium, full access to every court, best discounts at the shop and bar.",
+      "description": "Premium, full access to every court, best discounts at the shop and cafe.",
       "duration_months": 12,
       "price": "30000.00",
       "court_discount_percent": "100.00",
       "shop_discount_percent": "15.00",
       "bar_discount_percent": "15.00",
       "max_plays_per_day": 2,
-      "min_age": 18,
       "max_age": null,
       "benefits": [
         "Free court bookings (up to 2 plays per day)",
         "15% off at the gear shop",
         "15% off at the bar & cafeteria",
-        "Join Friday social play free",
         "Priority support from the front desk"
       ],
       "sort_order": 1,
@@ -1551,8 +1491,7 @@ Create a plan.
 | `shop_discount_percent` | percent | no |  |
 | `bar_discount_percent` | percent | no |  |
 | `max_plays_per_day` | int | no | default 2 |
-| `min_age` | int | no |  |
-| `max_age` | int | no |  |
+| `max_age` | int | no | Junior: 17 |
 | `benefits` | array:string | no |  |
 | `sort_order` | int | no |  |
 
@@ -1588,20 +1527,18 @@ POST /api/v1/memberships/plans
     "id": "05000000-0000-4000-8000-000000000001",
     "membership_type": "GOLD",
     "name": "Gold Membership",
-    "description": "Premium, full access to every court, best discounts at the shop and bar.",
+    "description": "Premium, full access to every court, best discounts at the shop and cafe.",
     "duration_months": 12,
     "price": "30000.00",
     "court_discount_percent": "100.00",
     "shop_discount_percent": "15.00",
     "bar_discount_percent": "15.00",
     "max_plays_per_day": 2,
-    "min_age": 18,
     "max_age": null,
     "benefits": [
       "Free court bookings (up to 2 plays per day)",
       "15% off at the gear shop",
       "15% off at the bar & cafeteria",
-      "Join Friday social play free",
       "Priority support from the front desk"
     ],
     "sort_order": 1,
@@ -1680,20 +1617,18 @@ PATCH /api/v1/memberships/plans/05000000-0000-4000-8000-000000000001
     "id": "05000000-0000-4000-8000-000000000001",
     "membership_type": "GOLD",
     "name": "Gold Membership",
-    "description": "Premium, full access to every court, best discounts at the shop and bar.",
+    "description": "Premium, full access to every court, best discounts at the shop and cafe.",
     "duration_months": 12,
     "price": "30000.00",
     "court_discount_percent": "100.00",
     "shop_discount_percent": "15.00",
     "bar_discount_percent": "15.00",
     "max_plays_per_day": 2,
-    "min_age": 18,
     "max_age": null,
     "benefits": [
       "Free court bookings (up to 2 plays per day)",
       "15% off at the gear shop",
       "15% off at the bar & cafeteria",
-      "Join Friday social play free",
       "Priority support from the front desk"
     ],
     "sort_order": 1,
@@ -1739,7 +1674,7 @@ Buy or renew a membership. Records the payment.
 | `payment_method` | enum PAYMENT_METHOD | **yes** | MEMBER callers must use ONLINE |
 | `gateway_reference` | string | no |  |
 
-**Rules / behaviour:** No current term: new ACTIVE membership starting today. Current term ends within `membership_expiry_warning_days`: new term is UPCOMING and starts the day after the current end_date. Otherwise MEMBERSHIP_ALREADY_ACTIVE. end_date = start_date + duration_months - 1 day.
+**Rules / behaviour:** No current term: new membership starting today (derived status ACTIVE). Current term ends within `membership_expiry_warning_days`: new term starts the day after the current end_date (derived status UPCOMING until then). Otherwise MEMBERSHIP_ALREADY_ACTIVE (the DB rejects overlapping live terms: memberships_no_overlap). end_date = start_date + duration_months - 1 day. A membership is only member + plan + start/end date + price_paid: its status is derived from the dates (view membership_terms), never stored.
 
 **Errors**
 
@@ -1775,34 +1710,30 @@ POST /api/v1/memberships
       "id": "06000000-0000-4000-8000-000000000001",
       "member_id": "02000000-0000-4000-8000-000000000001",
       "membership_plan_id": "05000000-0000-4000-8000-000000000001",
-      "status": "ACTIVE",
       "start_date": "2026-03-17",
       "end_date": "2027-03-16",
       "price_paid": "30000.00",
-      "previous_membership_id": null,
       "cancelled_at": null,
       "cancellation_reason": null,
-      "created_by_user_id": "01000000-0000-4000-8000-000000000002",
       "created_at": "2026-03-17T05:00:00.000Z",
       "updated_at": "2026-03-17T05:00:00.000Z",
+      "status": "ACTIVE",
       "plan": {
         "id": "05000000-0000-4000-8000-000000000001",
         "membership_type": "GOLD",
         "name": "Gold Membership",
-        "description": "Premium, full access to every court, best discounts at the shop and bar.",
+        "description": "Premium, full access to every court, best discounts at the shop and cafe.",
         "duration_months": 12,
         "price": "30000.00",
         "court_discount_percent": "100.00",
         "shop_discount_percent": "15.00",
         "bar_discount_percent": "15.00",
         "max_plays_per_day": 2,
-        "min_age": 18,
         "max_age": null,
         "benefits": [
           "Free court bookings (up to 2 plays per day)",
           "15% off at the gear shop",
           "15% off at the bar & cafeteria",
-          "Join Friday social play free",
           "Priority support from the front desk"
         ],
         "sort_order": 1,
@@ -1814,18 +1745,16 @@ POST /api/v1/memberships
       "member_code": "CCM-00001"
     },
     "payment": {
-      "id": "18000000-0000-4000-8000-000000000001",
+      "id": "10000000-0000-4000-8000-000000000001",
       "payment_number": "PAY-0000001",
       "source_type": "MEMBERSHIP",
       "source_id": "06000000-0000-4000-8000-000000000010",
-      "revenue_category": "MEMBERSHIP",
       "member_id": "02000000-0000-4000-8000-000000000010",
       "business_client_id": null,
       "payer_name": null,
       "amount": "15000.00",
       "tax_amount": "2288.14",
       "method": "CARD",
-      "status": "SUCCEEDED",
       "gateway_reference": "AUTH-7099",
       "received_by_user_id": "01000000-0000-4000-8000-000000000002",
       "paid_at": "2025-09-25T05:00:00.000Z",
@@ -1874,7 +1803,7 @@ Upgrade / downgrade: closes the current term and starts a new one on the new pla
 | `new_membership_plan_id` | uuid | **yes** |  |
 | `payment_method` | enum PAYMENT_METHOD | **yes** |  |
 
-**Rules / behaviour:** Only an ACTIVE term can be changed (an EXPIRED one => MEMBERSHIP_EXPIRED: buy a new membership instead). Old row -> status CHANGED, end_date = yesterday. New row: status ACTIVE, start_date = today, previous_membership_id = old.id, full new-plan price charged (no pro-rata; see ASSUMPTIONS A-07). Future bookings keep their already-snapshotted price.
+**Rules / behaviour:** Only an ACTIVE term can be changed (an EXPIRED one => MEMBERSHIP_EXPIRED: buy a new membership instead). Old row: end_date = yesterday (it simply ends; its derived status becomes EXPIRED). New row: start_date = today (derived status ACTIVE), full new-plan price charged (no pro-rata; see ASSUMPTIONS A-07). Future bookings keep their already-snapshotted price.
 
 **Errors**
 
@@ -1911,34 +1840,30 @@ POST /api/v1/memberships/06000000-0000-4000-8000-000000000001/change-plan
       "id": "06000000-0000-4000-8000-000000000001",
       "member_id": "02000000-0000-4000-8000-000000000001",
       "membership_plan_id": "05000000-0000-4000-8000-000000000001",
-      "status": "ACTIVE",
       "start_date": "2026-03-17",
       "end_date": "2027-03-16",
       "price_paid": "30000.00",
-      "previous_membership_id": null,
       "cancelled_at": null,
       "cancellation_reason": null,
-      "created_by_user_id": "01000000-0000-4000-8000-000000000002",
       "created_at": "2026-03-17T05:00:00.000Z",
       "updated_at": "2026-03-17T05:00:00.000Z",
+      "status": "ACTIVE",
       "plan": {
         "id": "05000000-0000-4000-8000-000000000001",
         "membership_type": "GOLD",
         "name": "Gold Membership",
-        "description": "Premium, full access to every court, best discounts at the shop and bar.",
+        "description": "Premium, full access to every court, best discounts at the shop and cafe.",
         "duration_months": 12,
         "price": "30000.00",
         "court_discount_percent": "100.00",
         "shop_discount_percent": "15.00",
         "bar_discount_percent": "15.00",
         "max_plays_per_day": 2,
-        "min_age": 18,
         "max_age": null,
         "benefits": [
           "Free court bookings (up to 2 plays per day)",
           "15% off at the gear shop",
           "15% off at the bar & cafeteria",
-          "Join Friday social play free",
           "Priority support from the front desk"
         ],
         "sort_order": 1,
@@ -1950,18 +1875,16 @@ POST /api/v1/memberships/06000000-0000-4000-8000-000000000001/change-plan
       "member_code": "CCM-00001"
     },
     "payment": {
-      "id": "18000000-0000-4000-8000-000000000001",
+      "id": "10000000-0000-4000-8000-000000000001",
       "payment_number": "PAY-0000001",
       "source_type": "MEMBERSHIP",
       "source_id": "06000000-0000-4000-8000-000000000010",
-      "revenue_category": "MEMBERSHIP",
       "member_id": "02000000-0000-4000-8000-000000000010",
       "business_client_id": null,
       "payer_name": null,
       "amount": "15000.00",
       "tax_amount": "2288.14",
       "method": "CARD",
-      "status": "SUCCEEDED",
       "gateway_reference": "AUTH-7099",
       "received_by_user_id": "01000000-0000-4000-8000-000000000002",
       "paid_at": "2025-09-25T05:00:00.000Z",
@@ -2009,6 +1932,8 @@ Cancel a membership (no automatic refund).
 |---|---|---|---|
 | `reason` | text | **yes** |  |
 
+**Rules / behaviour:** Sets cancelled_at and cancellation_reason (derived status CANCELLED); benefits stop immediately.
+
 **Errors**
 
 | Code | HTTP | Meaning here |
@@ -2038,34 +1963,30 @@ POST /api/v1/memberships/06000000-0000-4000-8000-000000000001/cancel
     "id": "06000000-0000-4000-8000-000000000001",
     "member_id": "02000000-0000-4000-8000-000000000001",
     "membership_plan_id": "05000000-0000-4000-8000-000000000001",
-    "status": "ACTIVE",
     "start_date": "2026-03-17",
     "end_date": "2027-03-16",
     "price_paid": "30000.00",
-    "previous_membership_id": null,
     "cancelled_at": null,
     "cancellation_reason": null,
-    "created_by_user_id": "01000000-0000-4000-8000-000000000002",
     "created_at": "2026-03-17T05:00:00.000Z",
     "updated_at": "2026-03-17T05:00:00.000Z",
+    "status": "ACTIVE",
     "plan": {
       "id": "05000000-0000-4000-8000-000000000001",
       "membership_type": "GOLD",
       "name": "Gold Membership",
-      "description": "Premium, full access to every court, best discounts at the shop and bar.",
+      "description": "Premium, full access to every court, best discounts at the shop and cafe.",
       "duration_months": 12,
       "price": "30000.00",
       "court_discount_percent": "100.00",
       "shop_discount_percent": "15.00",
       "bar_discount_percent": "15.00",
       "max_plays_per_day": 2,
-      "min_age": 18,
       "max_age": null,
       "benefits": [
         "Free court bookings (up to 2 plays per day)",
         "15% off at the gear shop",
         "15% off at the bar & cafeteria",
-        "Join Friday social play free",
         "Priority support from the front desk"
       ],
       "sort_order": 1,
@@ -2141,7 +2062,7 @@ GET /api/v1/memberships/expiring
       "joined_on": "2026-10-03",
       "is_active": true,
       "active_membership": {
-        "membership_id": "06000000-0000-4000-8000-000000000001",
+        "membership_id": "00945666-0000-4000-8000-001224104603",
         "membership_plan_id": "05000000-0000-4000-8000-000000000001",
         "membership_type": "GOLD",
         "plan_name": "Aarav Kapoor",
@@ -2163,56 +2084,6 @@ GET /api/v1/memberships/expiring
   "error": {
     "code": "VALIDATION_ERROR",
     "message": "Request validation failed."
-  }
-}
-```
-
-<a id="membershipsrunExpiry"></a>
-#### `POST /api/v1/memberships/run-expiry` — memberships.runExpiry
-
-Idempotent maintenance job: ACTIVE past end_date -> EXPIRED, UPCOMING reaching start_date -> ACTIVE, sends expiry notifications. Also called by a daily scheduler.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | OWNER_ADMIN |
-| **Success** | 200 · `data: ExpiryRunResult` |
-| **Requirements** | FR-MEM-010, FR-NOTIF-003 |
-| **Governing rules** | [R-MEM-10](../business-rules/BUSINESS_RULES.md), [R-INVC-03](../business-rules/BUSINESS_RULES.md), [R-COURT-09](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `memberships`, `notifications` |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-POST /api/v1/memberships/run-expiry
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "promoted_count": 3,
-    "expired_count": 3,
-    "notified_count": 3
-  }
-}
-```
-
-**Example error (HTTP 401)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "AUTH_UNAUTHORIZED",
-    "message": "Authentication required or token expired."
   }
 }
 ```
@@ -2261,7 +2132,7 @@ GET /api/v1/courts
   "success": true,
   "data": [
     {
-      "id": "0a000000-0000-4000-8000-000000000001",
+      "id": "08000000-0000-4000-8000-000000000001",
       "name": "Tennis Court 1",
       "sport_type": "TENNIS",
       "description": "Clay court, floodlit",
@@ -2301,7 +2172,7 @@ Slot grid per court for one day: a slot every 30 min, each a 1-hour session.
 | **Success** | 200 · `data: CourtAvailability[]` |
 | **Requirements** | FR-COURT-002, FR-COURT-003, FR-PUB-003 |
 | **Governing rules** | [R-COURT-01](../business-rules/BUSINESS_RULES.md), [R-COURT-03](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `courts`, `court_bookings`, `social_sessions` |
+| **Tables touched** | `courts`, `court_bookings` |
 
 **Query parameters**
 
@@ -2311,7 +2182,7 @@ Slot grid per court for one day: a slot every 30 min, each a 1-hour session.
 | `sport_type` | enum SPORT_TYPE | no |  |
 | `court_id` | uuid | no |  |
 
-**Rules / behaviour:** Slots: first start = club_open_time, last start = club_close_time - 1h, step 30 min. Status PAST for starts before now. SOCIAL slots expose spots_left. `booking_id` only for FRONT_DESK/OWNER_ADMIN; never expose who booked.
+**Rules / behaviour:** Slots: first start = club_open_time, last start = club_close_time - 1h, step 30 min. Status PAST for starts before now. `booking_id` only for FRONT_DESK/OWNER_ADMIN; never expose who booked.
 
 **Errors**
 
@@ -2331,7 +2202,7 @@ GET /api/v1/courts/availability?date=2026-10-07&sport_type=TENNIS
   "success": true,
   "data": [
     {
-      "court_id": "0a000000-0000-4000-8000-000000000001",
+      "court_id": "08000000-0000-4000-8000-000000000001",
       "court_name": "Tennis Court 1",
       "sport_type": "TENNIS",
       "date": "2026-10-07",
@@ -2341,8 +2212,6 @@ GET /api/v1/courts/availability?date=2026-10-07&sport_type=TENNIS
           "end_at": "…T01:30:00.000Z",
           "status": "AVAILABLE",
           "booking_id": null,
-          "social_session_id": null,
-          "spots_left": null,
           "walk_in_price": "800.00"
         },
         {
@@ -2350,8 +2219,6 @@ GET /api/v1/courts/availability?date=2026-10-07&sport_type=TENNIS
           "end_at": "2026-10-07T14:30:00.000Z",
           "status": "BOOKED",
           "booking_id": null,
-          "social_session_id": null,
-          "spots_left": null,
           "walk_in_price": "800.00"
         },
         "…"
@@ -2425,7 +2292,7 @@ POST /api/v1/courts
 {
   "success": true,
   "data": {
-    "id": "0a000000-0000-4000-8000-000000000001",
+    "id": "08000000-0000-4000-8000-000000000001",
     "name": "Tennis Court 1",
     "sport_type": "TENNIS",
     "description": "Clay court, floodlit",
@@ -2491,7 +2358,7 @@ Edit court / change rate / deactivate.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-PATCH /api/v1/courts/0a000000-0000-4000-8000-000000000001
+PATCH /api/v1/courts/08000000-0000-4000-8000-000000000001
 ```
 
 ```json
@@ -2502,7 +2369,7 @@ PATCH /api/v1/courts/0a000000-0000-4000-8000-000000000001
 {
   "success": true,
   "data": {
-    "id": "0a000000-0000-4000-8000-000000000001",
+    "id": "08000000-0000-4000-8000-000000000001",
     "name": "Tennis Court 1",
     "sport_type": "TENNIS",
     "description": "Clay court, floodlit",
@@ -2550,9 +2417,8 @@ Block a court for maintenance (creates 1-hour MAINTENANCE bookings covering the 
 |---|---|---|---|
 | `start_at` | datetime | **yes** | on a 30-min boundary |
 | `end_at` | datetime | **yes** | multiple of 1h after start_at |
-| `reason` | string | no |  |
 
-**Rules / behaviour:** Fails with BOOKING_CONFLICT (and creates nothing) if any hour overlaps a live booking.
+**Rules / behaviour:** Fails with BOOKING_CONFLICT (and creates nothing) if any hour overlaps a booking that stands.
 
 **Errors**
 
@@ -2568,7 +2434,7 @@ Block a court for maintenance (creates 1-hour MAINTENANCE bookings covering the 
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-POST /api/v1/courts/0b000000-0000-4000-8000-000000000001/blocks
+POST /api/v1/courts/09000000-0000-4000-8000-000000000001/blocks
 ```
 
 ```json
@@ -2583,36 +2449,28 @@ POST /api/v1/courts/0b000000-0000-4000-8000-000000000001/blocks
   "success": true,
   "data": [
     {
-      "id": "0b000000-0000-4000-8000-000000000001",
+      "id": "09000000-0000-4000-8000-000000000001",
       "booking_number": "BK-000001",
-      "court_id": "0a000000-0000-4000-8000-000000000001",
+      "court_id": "08000000-0000-4000-8000-000000000001",
       "booking_type": "REGULAR",
-      "status": "COMPLETED",
-      "customer_type": "MEMBER",
       "member_id": "02000000-0000-4000-8000-000000000003",
-      "membership_id": "06000000-0000-4000-8000-000000000003",
       "guest_name": null,
       "guest_phone": null,
-      "enquiry_id": null,
       "start_at": "2026-09-27T12:30:00.000Z",
       "end_at": "2026-09-27T13:30:00.000Z",
       "list_price": "800.00",
       "discount_amount": "400.00",
-      "amount_due": "400.00",
-      "tax_amount": "61.02",
-      "payment_status": "PAID",
-      "notes": null,
       "cancelled_at": null,
-      "cancelled_by_user_id": null,
-      "cancellation_reason": null,
-      "created_by_user_id": "01000000-0000-4000-8000-000000000003",
       "created_at": "2026-09-26T12:30:00.000Z",
       "updated_at": "2026-09-26T12:30:00.000Z",
+      "status": "CONFIRMED",
+      "amount_due": "1250.00",
+      "amount_paid": "1250.00",
+      "payment_status": "PENDING",
       "court_name": "Aarav Kapoor",
       "sport_type": "TENNIS",
       "member_name": "Aarav Kapoor",
-      "member_code": "CCM-00001",
-      "social_session_id": "0c000000-0000-4000-8000-000000000001"
+      "member_code": "CCM-00001"
     }
   ]
 }
@@ -2633,7 +2491,7 @@ POST /api/v1/courts/0b000000-0000-4000-8000-000000000001/blocks
 <a id="courtsunblock"></a>
 #### `DELETE /api/v1/courts/blocks/:booking_id` — courts.unblock
 
-Remove a maintenance block (sets the MAINTENANCE booking to CANCELLED).
+Remove a maintenance block (sets cancelled_at on the MAINTENANCE booking).
 
 | | |
 |---|---|
@@ -2657,43 +2515,35 @@ Remove a maintenance block (sets the MAINTENANCE booking to CANCELLED).
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-DELETE /api/v1/courts/blocks/0b000000-0000-4000-8000-000000000001
+DELETE /api/v1/courts/blocks/09000000-0000-4000-8000-000000000001
 ```
 
 ```json
 {
   "success": true,
   "data": {
-    "id": "0b000000-0000-4000-8000-000000000001",
+    "id": "09000000-0000-4000-8000-000000000001",
     "booking_number": "BK-000001",
-    "court_id": "0a000000-0000-4000-8000-000000000001",
+    "court_id": "08000000-0000-4000-8000-000000000001",
     "booking_type": "REGULAR",
-    "status": "COMPLETED",
-    "customer_type": "MEMBER",
     "member_id": "02000000-0000-4000-8000-000000000003",
-    "membership_id": "06000000-0000-4000-8000-000000000003",
     "guest_name": null,
     "guest_phone": null,
-    "enquiry_id": null,
     "start_at": "2026-09-27T12:30:00.000Z",
     "end_at": "2026-09-27T13:30:00.000Z",
     "list_price": "800.00",
     "discount_amount": "400.00",
-    "amount_due": "400.00",
-    "tax_amount": "61.02",
-    "payment_status": "PAID",
-    "notes": null,
     "cancelled_at": null,
-    "cancelled_by_user_id": null,
-    "cancellation_reason": null,
-    "created_by_user_id": "01000000-0000-4000-8000-000000000003",
     "created_at": "2026-09-26T12:30:00.000Z",
     "updated_at": "2026-09-26T12:30:00.000Z",
+    "status": "CONFIRMED",
+    "amount_due": "1250.00",
+    "amount_paid": "1250.00",
+    "payment_status": "PENDING",
     "court_name": "Aarav Kapoor",
     "sport_type": "TENNIS",
     "member_name": "Aarav Kapoor",
-    "member_code": "CCM-00001",
-    "social_session_id": "0c000000-0000-4000-8000-000000000001"
+    "member_code": "CCM-00001"
   }
 }
 ```
@@ -2752,17 +2602,16 @@ Price preview before confirming (applies the member plan discount and shows play
 **Example — Silver member (50% court discount)**
 
 ```http
-GET /api/v1/bookings/price?court_id=0a000000-0000-4000-8000-000000000001&start_at=2026-10-10T13:30:00.000Z&member_id=02000000-0000-4000-8000-000000000003
+GET /api/v1/bookings/price?court_id=08000000-0000-4000-8000-000000000001&start_at=2026-10-10T13:30:00.000Z&member_id=02000000-0000-4000-8000-000000000003
 ```
 
 ```json
 {
   "success": true,
   "data": {
-    "court_id": "0a000000-0000-4000-8000-000000000001",
+    "court_id": "08000000-0000-4000-8000-000000000001",
     "start_at": "2026-10-10T13:30:00.000Z",
     "end_at": "2026-10-10T14:30:00.000Z",
-    "customer_type": "MEMBER",
     "membership_type": "SILVER",
     "list_price": "800.00",
     "discount_percent": "50.00",
@@ -2801,7 +2650,7 @@ Book a court (member self-service, or staff for a member / walk-in / phone calle
 | **Success** | 201 · `data: BookingDetail` |
 | **Requirements** | FR-COURT-004, FR-COURT-005, FR-COURT-006, FR-COURT-007, FR-COURT-008, FR-COURT-009, FR-COURT-003 |
 | **Governing rules** | [R-COURT-01](../business-rules/BUSINESS_RULES.md), [R-COURT-02](../business-rules/BUSINESS_RULES.md), [R-COURT-03](../business-rules/BUSINESS_RULES.md), [R-COURT-04](../business-rules/BUSINESS_RULES.md), [R-COURT-05](../business-rules/BUSINESS_RULES.md), [R-COURT-06](../business-rules/BUSINESS_RULES.md), [R-COURT-08](../business-rules/BUSINESS_RULES.md), [R-MEM-05](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `court_bookings`, `payments`, `notifications` |
+| **Tables touched** | `court_bookings`, `payments` |
 
 **Request body** — type `BookingsCreateRequest`
 
@@ -2813,9 +2662,8 @@ Book a court (member self-service, or staff for a member / walk-in / phone calle
 | `guest_name` | string | no | Walk-in name. Staff only. Required when no member_id. |
 | `guest_phone` | string | no | Walk-in phone (E.164 or 10-digit). Staff only. |
 | `payment_method` | enum PAYMENT_METHOD | no | omit = pay later at the desk (payment_status PENDING). MEMBER callers pay ONLINE or later at desk. |
-| `notes` | text | no |  |
 
-**Rules / behaviour:** Transaction: lock member (advisory) -> check plays-per-day (REGULAR + joined social, IST day, max = plan.max_plays_per_day, default 2) -> compute price -> INSERT (DB exclusion constraint `court_bookings_no_overlap` is the final arbiter; map SQLSTATE 23P01 to BOOKING_CONFLICT) -> optional payment. Expired/no membership => customer_type MEMBER but walk-in price. Free (amount_due 0) => payment_status NOT_REQUIRED.
+**Rules / behaviour:** Transaction: lock member (advisory) -> check plays-per-day (REGULAR bookings that stand, IST day, max = plan.max_plays_per_day, default 2) -> compute price -> INSERT (DB exclusion constraint `court_bookings_no_overlap` is the final arbiter; map SQLSTATE 23P01 to BOOKING_CONFLICT) -> optional payment. list_price and discount_amount are stored (snapshot); the amount due and payment_status are derived (view court_booking_totals). Expired/no membership => walk-in price. Free (amount due 0) => payment_status NOT_REQUIRED.
 
 **Errors**
 
@@ -2840,7 +2688,7 @@ POST /api/v1/bookings
 
 ```json
 {
-  "court_id": "0a000000-0000-4000-8000-000000000001",
+  "court_id": "08000000-0000-4000-8000-000000000001",
   "start_at": "2026-10-10T13:30:00.000Z"
 }
 ```
@@ -2851,13 +2699,12 @@ POST /api/v1/bookings
   "message": "Booking confirmed.",
   "data": {
     "id": "…",
-    "booking_number": "BK-000045",
-    "court_id": "0a000000-0000-4000-8000-000000000001",
+    "booking_number": "BK-000041",
+    "court_id": "08000000-0000-4000-8000-000000000001",
     "court_name": "Tennis Court 1",
     "sport_type": "TENNIS",
     "booking_type": "REGULAR",
     "status": "CONFIRMED",
-    "customer_type": "MEMBER",
     "member_id": "02000000-0000-4000-8000-000000000001",
     "member_name": "Aarav Kapoor",
     "start_at": "2026-10-10T13:30:00.000Z",
@@ -2865,8 +2712,9 @@ POST /api/v1/bookings
     "list_price": "800.00",
     "discount_amount": "800.00",
     "amount_due": "0.00",
-    "tax_amount": "0.00",
+    "amount_paid": "0.00",
     "payment_status": "NOT_REQUIRED",
+    "cancelled_at": null,
     "…": "…"
   }
 }
@@ -2880,7 +2728,7 @@ POST /api/v1/bookings
 
 ```json
 {
-  "court_id": "0a000000-0000-4000-8000-000000000001",
+  "court_id": "08000000-0000-4000-8000-000000000001",
   "start_at": "2026-10-10T13:30:00.000Z",
   "guest_name": "Deepak Chawla",
   "guest_phone": "+919844455667",
@@ -2892,13 +2740,12 @@ POST /api/v1/bookings
 {
   "success": true,
   "data": {
-    "booking_number": "BK-000046",
-    "customer_type": "WALK_IN",
+    "booking_number": "BK-000042",
     "guest_name": "Deepak Chawla",
     "list_price": "800.00",
     "discount_amount": "0.00",
     "amount_due": "800.00",
-    "tax_amount": "122.03",
+    "amount_paid": "800.00",
     "payment_status": "PAID",
     "status": "CONFIRMED",
     "…": "…"
@@ -2914,7 +2761,7 @@ POST /api/v1/bookings
 
 ```json
 {
-  "court_id": "0a000000-0000-4000-8000-000000000001",
+  "court_id": "08000000-0000-4000-8000-000000000001",
   "start_at": "2026-10-07T13:30:00.000Z"
 }
 ```
@@ -2926,7 +2773,7 @@ POST /api/v1/bookings
     "code": "BOOKING_CONFLICT",
     "message": "This court is already booked for that time.",
     "details": {
-      "court_id": "0a000000-0000-4000-8000-000000000001",
+      "court_id": "08000000-0000-4000-8000-000000000001",
       "start_at": "2026-10-07T13:30:00.000Z"
     }
   }
@@ -2941,7 +2788,7 @@ POST /api/v1/bookings
 
 ```json
 {
-  "court_id": "0a000000-0000-4000-8000-000000000001",
+  "court_id": "08000000-0000-4000-8000-000000000001",
   "start_at": "2026-10-10T13:30:00.000Z"
 }
 ```
@@ -3008,36 +2855,28 @@ GET /api/v1/bookings
   "success": true,
   "data": [
     {
-      "id": "0b000000-0000-4000-8000-000000000001",
+      "id": "09000000-0000-4000-8000-000000000001",
       "booking_number": "BK-000001",
-      "court_id": "0a000000-0000-4000-8000-000000000001",
+      "court_id": "08000000-0000-4000-8000-000000000001",
       "booking_type": "REGULAR",
-      "status": "COMPLETED",
-      "customer_type": "MEMBER",
       "member_id": "02000000-0000-4000-8000-000000000003",
-      "membership_id": "06000000-0000-4000-8000-000000000003",
       "guest_name": null,
       "guest_phone": null,
-      "enquiry_id": null,
       "start_at": "2026-09-27T12:30:00.000Z",
       "end_at": "2026-09-27T13:30:00.000Z",
       "list_price": "800.00",
       "discount_amount": "400.00",
-      "amount_due": "400.00",
-      "tax_amount": "61.02",
-      "payment_status": "PAID",
-      "notes": null,
       "cancelled_at": null,
-      "cancelled_by_user_id": null,
-      "cancellation_reason": null,
-      "created_by_user_id": "01000000-0000-4000-8000-000000000003",
       "created_at": "2026-09-26T12:30:00.000Z",
       "updated_at": "2026-09-26T12:30:00.000Z",
+      "status": "CONFIRMED",
+      "amount_due": "1250.00",
+      "amount_paid": "1250.00",
+      "payment_status": "PENDING",
       "court_name": "Aarav Kapoor",
       "sport_type": "TENNIS",
       "member_name": "Aarav Kapoor",
-      "member_code": "CCM-00001",
-      "social_session_id": "0c000000-0000-4000-8000-000000000001"
+      "member_code": "CCM-00001"
     }
   ],
   "meta": {
@@ -3088,43 +2927,35 @@ Booking detail.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-GET /api/v1/bookings/0b000000-0000-4000-8000-000000000001
+GET /api/v1/bookings/09000000-0000-4000-8000-000000000001
 ```
 
 ```json
 {
   "success": true,
   "data": {
-    "id": "0b000000-0000-4000-8000-000000000001",
+    "id": "09000000-0000-4000-8000-000000000001",
     "booking_number": "BK-000001",
-    "court_id": "0a000000-0000-4000-8000-000000000001",
+    "court_id": "08000000-0000-4000-8000-000000000001",
     "booking_type": "REGULAR",
-    "status": "COMPLETED",
-    "customer_type": "MEMBER",
     "member_id": "02000000-0000-4000-8000-000000000003",
-    "membership_id": "06000000-0000-4000-8000-000000000003",
     "guest_name": null,
     "guest_phone": null,
-    "enquiry_id": null,
     "start_at": "2026-09-27T12:30:00.000Z",
     "end_at": "2026-09-27T13:30:00.000Z",
     "list_price": "800.00",
     "discount_amount": "400.00",
-    "amount_due": "400.00",
-    "tax_amount": "61.02",
-    "payment_status": "PAID",
-    "notes": null,
     "cancelled_at": null,
-    "cancelled_by_user_id": null,
-    "cancellation_reason": null,
-    "created_by_user_id": "01000000-0000-4000-8000-000000000003",
     "created_at": "2026-09-26T12:30:00.000Z",
     "updated_at": "2026-09-26T12:30:00.000Z",
+    "status": "CONFIRMED",
+    "amount_due": "1250.00",
+    "amount_paid": "1250.00",
+    "payment_status": "PENDING",
     "court_name": "Aarav Kapoor",
     "sport_type": "TENNIS",
     "member_name": "Aarav Kapoor",
-    "member_code": "CCM-00001",
-    "social_session_id": "0c000000-0000-4000-8000-000000000001"
+    "member_code": "CCM-00001"
   }
 }
 ```
@@ -3152,18 +2983,17 @@ Cancel a booking before it starts; frees the slot and refunds per policy.
 | **Roles** | MEMBER (own only), FRONT_DESK, OWNER_ADMIN |
 | **Success** | 200 · `data: BookingCancelResult` |
 | **Requirements** | FR-COURT-010 |
-| **Governing rules** | [R-COURT-07](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `court_bookings`, `payments`, `notifications` |
+| **Governing rules** | [R-COURT-07](../business-rules/BUSINESS_RULES.md), [R-COURT-09](../business-rules/BUSINESS_RULES.md) |
+| **Tables touched** | `court_bookings`, `payments` |
 | **Path params** | `id` (uuid) |
 
 **Request body** — type `BookingsCancelRequest`
 
 | Field | Type | Required | Rules |
 |---|---|---|---|
-| `reason` | text | no |  |
 | `refund` | bool | no | staff only: override policy (default: refund if start_at - now >= cancellation_cutoff_hours) |
 
-**Rules / behaviour:** Only CONFIRMED/PENDING and start_at in the future. Member callers: own bookings only, and policy decides the refund. Refund = SUCCEEDED payment refunded in full (payments.status REFUNDED) and booking.payment_status REFUNDED.
+**Rules / behaviour:** Only a booking that stands and starts in the future. Sets cancelled_at (derived status CANCELLED). Member callers: own bookings only, and policy decides the refund. A refund is recorded on the payment (refunded_amount, refunded_at); the booking then reports payment_status REFUNDED.
 
 **Errors**
 
@@ -3179,7 +3009,7 @@ Cancel a booking before it starts; frees the slot and refunds per policy.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-POST /api/v1/bookings/0b000000-0000-4000-8000-000000000001/cancel
+POST /api/v1/bookings/09000000-0000-4000-8000-000000000001/cancel
 ```
 
 ```json
@@ -3191,36 +3021,28 @@ POST /api/v1/bookings/0b000000-0000-4000-8000-000000000001/cancel
   "success": true,
   "data": {
     "booking": {
-      "id": "0b000000-0000-4000-8000-000000000001",
+      "id": "09000000-0000-4000-8000-000000000001",
       "booking_number": "BK-000001",
-      "court_id": "0a000000-0000-4000-8000-000000000001",
+      "court_id": "08000000-0000-4000-8000-000000000001",
       "booking_type": "REGULAR",
-      "status": "COMPLETED",
-      "customer_type": "MEMBER",
       "member_id": "02000000-0000-4000-8000-000000000003",
-      "membership_id": "06000000-0000-4000-8000-000000000003",
       "guest_name": null,
       "guest_phone": null,
-      "enquiry_id": null,
       "start_at": "2026-09-27T12:30:00.000Z",
       "end_at": "2026-09-27T13:30:00.000Z",
       "list_price": "800.00",
       "discount_amount": "400.00",
-      "amount_due": "400.00",
-      "tax_amount": "61.02",
-      "payment_status": "PAID",
-      "notes": null,
       "cancelled_at": null,
-      "cancelled_by_user_id": null,
-      "cancellation_reason": null,
-      "created_by_user_id": "01000000-0000-4000-8000-000000000003",
       "created_at": "2026-09-26T12:30:00.000Z",
       "updated_at": "2026-09-26T12:30:00.000Z",
+      "status": "CONFIRMED",
+      "amount_due": "1250.00",
+      "amount_paid": "1250.00",
+      "payment_status": "PENDING",
       "court_name": "Aarav Kapoor",
       "sport_type": "TENNIS",
       "member_name": "Aarav Kapoor",
-      "member_code": "CCM-00001",
-      "social_session_id": "0c000000-0000-4000-8000-000000000001"
+      "member_code": "CCM-00001"
     },
     "refund_amount": "1250.00",
     "refund_payment_id": "00aa8464-0000-4000-8000-002762341124"
@@ -3240,644 +3062,11 @@ POST /api/v1/bookings/0b000000-0000-4000-8000-000000000001/cancel
 }
 ```
 
-<a id="bookingscomplete"></a>
-#### `POST /api/v1/bookings/:id/complete` — bookings.complete
-
-Mark a booking COMPLETED (also done automatically by the daily job after end_at).
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK, OWNER_ADMIN |
-| **Success** | 200 · `data: BookingDetail` |
-| **Requirements** | FR-COURT-014 |
-| **Governing rules** | [R-COURT-09](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `court_bookings` |
-| **Path params** | `id` (uuid) |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-| `BOOKING_NOT_FOUND` | 404 | Booking not found. |
-| `INVALID_STATUS_TRANSITION` | 409 | This status change is not allowed. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-POST /api/v1/bookings/0b000000-0000-4000-8000-000000000001/complete
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "0b000000-0000-4000-8000-000000000001",
-    "booking_number": "BK-000001",
-    "court_id": "0a000000-0000-4000-8000-000000000001",
-    "booking_type": "REGULAR",
-    "status": "COMPLETED",
-    "customer_type": "MEMBER",
-    "member_id": "02000000-0000-4000-8000-000000000003",
-    "membership_id": "06000000-0000-4000-8000-000000000003",
-    "guest_name": null,
-    "guest_phone": null,
-    "enquiry_id": null,
-    "start_at": "2026-09-27T12:30:00.000Z",
-    "end_at": "2026-09-27T13:30:00.000Z",
-    "list_price": "800.00",
-    "discount_amount": "400.00",
-    "amount_due": "400.00",
-    "tax_amount": "61.02",
-    "payment_status": "PAID",
-    "notes": null,
-    "cancelled_at": null,
-    "cancelled_by_user_id": null,
-    "cancellation_reason": null,
-    "created_by_user_id": "01000000-0000-4000-8000-000000000003",
-    "created_at": "2026-09-26T12:30:00.000Z",
-    "updated_at": "2026-09-26T12:30:00.000Z",
-    "court_name": "Aarav Kapoor",
-    "sport_type": "TENNIS",
-    "member_name": "Aarav Kapoor",
-    "member_code": "CCM-00001",
-    "social_session_id": "0c000000-0000-4000-8000-000000000001"
-  }
-}
-```
-
-**Example error (HTTP 409)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "INVALID_STATUS_TRANSITION",
-    "message": "This status change is not allowed."
-  }
-}
-```
-
----
-
-### Module: Social play
-
-*Owner: Dev 2 (Membership, Courts & Front Desk)*
-
-<a id="sociallist"></a>
-#### `GET /api/v1/social-play/sessions` — social.list
-
-Upcoming Friday social-play sessions with spots left.
-
-| | |
-|---|---|
-| **Auth** | None (PUBLIC) |
-| **Roles** | PUBLIC |
-| **Success** | 200 · `data: SocialSessionView[]` |
-| **Requirements** | FR-SOC-002, FR-PUB-008 |
-| **Governing rules** | [R-SOC-01](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `social_sessions`, `court_bookings`, `social_session_participants` |
-
-**Query parameters**
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `from` | date | no |  |
-| `to` | date | no |  |
-| `status` | enum SOCIAL_SESSION_STATUS | no |  |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-GET /api/v1/social-play/sessions
-```
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "0c000000-0000-4000-8000-000000000001",
-      "court_booking_id": "0b000000-0000-4000-8000-000000000041",
-      "title": "Friday Social Doubles",
-      "description": "Open play — rotate partners, all levels welcome.",
-      "capacity": 8,
-      "fee_per_person": "300.00",
-      "status": "COMPLETED",
-      "created_by_user_id": "01000000-0000-4000-8000-000000000002",
-      "created_at": "2026-09-25T06:30:00.000Z",
-      "updated_at": "2026-09-25T06:30:00.000Z",
-      "court_id": "0a000000-0000-4000-8000-000000000001",
-      "court_name": "Aarav Kapoor",
-      "sport_type": "TENNIS",
-      "start_at": "2026-10-03T12:30:00.000Z",
-      "end_at": "2026-10-03T12:30:00.000Z",
-      "participant_count": 3,
-      "spots_left": 3,
-      "participants": [
-        {
-          "id": "0d000000-0000-4000-8000-000000000001",
-          "social_session_id": "0c000000-0000-4000-8000-000000000001",
-          "member_id": "02000000-0000-4000-8000-000000000001",
-          "guest_name": null,
-          "guest_phone": null,
-          "status": "JOINED",
-          "fee_amount": "0.00",
-          "tax_amount": "0.00",
-          "payment_status": "NOT_REQUIRED",
-          "joined_at": "2026-09-30T13:30:00.000Z",
-          "cancelled_at": null,
-          "created_at": "2026-09-30T13:30:00.000Z",
-          "updated_at": "2026-09-30T13:30:00.000Z",
-          "display_name": "Aarav Kapoor",
-          "member_code": "CCM-00001"
-        }
-      ]
-    }
-  ]
-}
-```
-
-**Example error (HTTP 400)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Request validation failed."
-  }
-}
-```
-
-<a id="socialget"></a>
-#### `GET /api/v1/social-play/sessions/:id` — social.get
-
-Session detail including participants.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | MEMBER, FRONT_DESK, OWNER_ADMIN |
-| **Success** | 200 · `data: SocialSessionView` |
-| **Requirements** | FR-SOC-002 |
-| **Governing rules** | — |
-| **Tables touched** | `social_sessions`, `social_session_participants` |
-| **Path params** | `id` (uuid) |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-| `SOCIAL_SESSION_NOT_FOUND` | 404 | Social session not found. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-GET /api/v1/social-play/sessions/0c000000-0000-4000-8000-000000000001
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "0c000000-0000-4000-8000-000000000001",
-    "court_booking_id": "0b000000-0000-4000-8000-000000000041",
-    "title": "Friday Social Doubles",
-    "description": "Open play — rotate partners, all levels welcome.",
-    "capacity": 8,
-    "fee_per_person": "300.00",
-    "status": "COMPLETED",
-    "created_by_user_id": "01000000-0000-4000-8000-000000000002",
-    "created_at": "2026-09-25T06:30:00.000Z",
-    "updated_at": "2026-09-25T06:30:00.000Z",
-    "court_id": "0a000000-0000-4000-8000-000000000001",
-    "court_name": "Aarav Kapoor",
-    "sport_type": "TENNIS",
-    "start_at": "2026-10-03T12:30:00.000Z",
-    "end_at": "2026-10-03T12:30:00.000Z",
-    "participant_count": 3,
-    "spots_left": 3,
-    "participants": [
-      {
-        "id": "0d000000-0000-4000-8000-000000000001",
-        "social_session_id": "0c000000-0000-4000-8000-000000000001",
-        "member_id": "02000000-0000-4000-8000-000000000001",
-        "guest_name": null,
-        "guest_phone": null,
-        "status": "JOINED",
-        "fee_amount": "0.00",
-        "tax_amount": "0.00",
-        "payment_status": "NOT_REQUIRED",
-        "joined_at": "2026-09-30T13:30:00.000Z",
-        "cancelled_at": null,
-        "created_at": "2026-09-30T13:30:00.000Z",
-        "updated_at": "2026-09-30T13:30:00.000Z",
-        "display_name": "Aarav Kapoor",
-        "member_code": "CCM-00001"
-      }
-    ]
-  }
-}
-```
-
-**Example error (HTTP 404)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "SOCIAL_SESSION_NOT_FOUND",
-    "message": "Social session not found."
-  }
-}
-```
-
-<a id="socialcreate"></a>
-#### `POST /api/v1/social-play/sessions` — social.create
-
-Open a court for social play (holds the court via a SOCIAL_SESSION booking).
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK, OWNER_ADMIN |
-| **Success** | 201 · `data: SocialSessionView` |
-| **Requirements** | FR-SOC-001, FR-SOC-005 |
-| **Governing rules** | [R-SOC-01](../business-rules/BUSINESS_RULES.md), [R-COURT-03](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `social_sessions`, `court_bookings` |
-
-**Request body** — type `SocialCreateRequest`
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `court_id` | uuid | **yes** |  |
-| `start_at` | datetime | **yes** | must fall on social_play_weekday (IST) inside the social-play window |
-| `title` | string | **yes** |  |
-| `description` | text | no |  |
-| `capacity` | int | **yes** | >=2 |
-| `fee_per_person` | money | **yes** | >=0; tax-inclusive guest fee |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-| `COURT_NOT_FOUND` | 404 | Court not found. |
-| `SOCIAL_PLAY_NOT_ALLOWED` | 422 | Social sessions can only be created in the configured social-play window. |
-| `BOOKING_CONFLICT` | 409 | This court is already booked for that time. |
-| `INVALID_SLOT` | 422 | Start time must be on a 30-minute boundary, in the future, within opening hours. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-POST /api/v1/social-play/sessions
-```
-
-```json
-{
-  "court_id": "0a000000-0000-4000-8000-000000000001",
-  "start_at": "2026-10-10T12:30:00.000Z",
-  "title": "Friday Social Doubles",
-  "capacity": 1,
-  "fee_per_person": "100.00"
-}
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "0c000000-0000-4000-8000-000000000001",
-    "court_booking_id": "0b000000-0000-4000-8000-000000000041",
-    "title": "Friday Social Doubles",
-    "description": "Open play — rotate partners, all levels welcome.",
-    "capacity": 8,
-    "fee_per_person": "300.00",
-    "status": "COMPLETED",
-    "created_by_user_id": "01000000-0000-4000-8000-000000000002",
-    "created_at": "2026-09-25T06:30:00.000Z",
-    "updated_at": "2026-09-25T06:30:00.000Z",
-    "court_id": "0a000000-0000-4000-8000-000000000001",
-    "court_name": "Aarav Kapoor",
-    "sport_type": "TENNIS",
-    "start_at": "2026-10-03T12:30:00.000Z",
-    "end_at": "2026-10-03T12:30:00.000Z",
-    "participant_count": 3,
-    "spots_left": 3,
-    "participants": [
-      {
-        "id": "0d000000-0000-4000-8000-000000000001",
-        "social_session_id": "0c000000-0000-4000-8000-000000000001",
-        "member_id": "02000000-0000-4000-8000-000000000001",
-        "guest_name": null,
-        "guest_phone": null,
-        "status": "JOINED",
-        "fee_amount": "0.00",
-        "tax_amount": "0.00",
-        "payment_status": "NOT_REQUIRED",
-        "joined_at": "2026-09-30T13:30:00.000Z",
-        "cancelled_at": null,
-        "created_at": "2026-09-30T13:30:00.000Z",
-        "updated_at": "2026-09-30T13:30:00.000Z",
-        "display_name": "Aarav Kapoor",
-        "member_code": "CCM-00001"
-      }
-    ]
-  }
-}
-```
-
-**Example error (HTTP 422)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "SOCIAL_PLAY_NOT_ALLOWED",
-    "message": "Social sessions can only be created in the configured social-play window."
-  }
-}
-```
-
-<a id="socialjoin"></a>
-#### `POST /api/v1/social-play/sessions/:id/join` — social.join
-
-Join a session (member self-service, or staff for a member / guest).
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | MEMBER, FRONT_DESK, OWNER_ADMIN |
-| **Success** | 201 · `data: ParticipantView` |
-| **Requirements** | FR-SOC-003, FR-SOC-005, FR-SOC-007, FR-COURT-008 |
-| **Governing rules** | [R-SOC-02](../business-rules/BUSINESS_RULES.md), [R-SOC-03](../business-rules/BUSINESS_RULES.md), [R-SOC-04](../business-rules/BUSINESS_RULES.md), [R-SOC-06](../business-rules/BUSINESS_RULES.md), [R-COURT-04](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `social_session_participants`, `payments` |
-| **Path params** | `id` (uuid) |
-
-**Request body** — type `SocialJoinRequest`
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `member_id` | uuid | no | Staff only: book/order on behalf of this member. MEMBER callers: omit (implied = self). |
-| `guest_name` | string | no | Walk-in name. Staff only. Required when no member_id. |
-| `guest_phone` | string | no | Walk-in phone (E.164 or 10-digit). Staff only. |
-| `payment_method` | enum PAYMENT_METHOD | no | omit = pay later at desk |
-
-**Rules / behaviour:** Fee = fee_per_person minus the member plan court_discount_percent (expired/no plan: full fee). Capacity check and insert in one transaction with a row lock on the session. Counts toward the member daily plays limit.
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-| `SOCIAL_SESSION_NOT_FOUND` | 404 | Social session not found. |
-| `SOCIAL_SESSION_FULL` | 409 | This social session is full. |
-| `ALREADY_JOINED` | 409 | Already joined this social session. |
-| `DAILY_BOOKING_LIMIT` | 409 | Member has reached the maximum plays allowed per day. |
-| `MEMBER_NOT_FOUND` | 404 | Member not found. |
-| `PAYMENT_FAILED` | 402 | Payment could not be completed. |
-
-**Example — Silver member joins a Friday session (pays member fee)**
-
-```http
-POST /api/v1/social-play/sessions/:id/join
-```
-
-```json
-{
-  "payment_method": "ONLINE"
-}
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "…",
-    "social_session_id": "0c000000-0000-4000-8000-000000000003",
-    "member_id": "02000000-0000-4000-8000-000000000003",
-    "display_name": "Rohan Desai",
-    "status": "JOINED",
-    "fee_amount": "150.00",
-    "tax_amount": "22.88",
-    "payment_status": "PAID",
-    "…": "…"
-  }
-}
-```
-
-**Example — Session full** (HTTP 409)
-
-```http
-POST /api/v1/social-play/sessions/:id/join
-```
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "SOCIAL_SESSION_FULL",
-    "message": "This social session is full."
-  }
-}
-```
-
-<a id="socialleave"></a>
-#### `POST /api/v1/social-play/sessions/:id/leave` — social.leave
-
-Leave a session (refund per cancellation policy).
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | MEMBER (own only), FRONT_DESK, OWNER_ADMIN |
-| **Success** | 200 · `data: ParticipantView` |
-| **Requirements** | FR-SOC-004 |
-| **Governing rules** | [R-SOC-05](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `social_session_participants`, `payments` |
-| **Path params** | `id` (uuid) |
-
-**Request body** — type `SocialLeaveRequest`
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `participant_id` | uuid | no | staff only; required for staff callers |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-| `SOCIAL_SESSION_NOT_FOUND` | 404 | Social session not found. |
-| `NOT_A_PARTICIPANT` | 404 | Participant not found in this session. |
-| `BOOKING_NOT_CANCELLABLE` | 409 | This booking can no longer be cancelled. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-POST /api/v1/social-play/sessions/0d000000-0000-4000-8000-000000000001/leave
-```
-
-```json
-{}
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "0d000000-0000-4000-8000-000000000001",
-    "social_session_id": "0c000000-0000-4000-8000-000000000001",
-    "member_id": "02000000-0000-4000-8000-000000000001",
-    "guest_name": null,
-    "guest_phone": null,
-    "status": "JOINED",
-    "fee_amount": "0.00",
-    "tax_amount": "0.00",
-    "payment_status": "NOT_REQUIRED",
-    "joined_at": "2026-09-30T13:30:00.000Z",
-    "cancelled_at": null,
-    "created_at": "2026-09-30T13:30:00.000Z",
-    "updated_at": "2026-09-30T13:30:00.000Z",
-    "display_name": "Aarav Kapoor",
-    "member_code": "CCM-00001"
-  }
-}
-```
-
-**Example error (HTTP 404)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "NOT_A_PARTICIPANT",
-    "message": "Participant not found in this session."
-  }
-}
-```
-
-<a id="socialcancel"></a>
-#### `POST /api/v1/social-play/sessions/:id/cancel` — social.cancel
-
-Cancel the whole session; releases the court and refunds all participants.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK, OWNER_ADMIN |
-| **Success** | 200 · `data: SocialSessionView` |
-| **Requirements** | FR-SOC-006 |
-| **Governing rules** | [R-SOC-05](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `social_sessions`, `court_bookings`, `social_session_participants`, `payments` |
-| **Path params** | `id` (uuid) |
-
-**Request body** — type `SocialCancelRequest`
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `reason` | text | no |  |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-| `SOCIAL_SESSION_NOT_FOUND` | 404 | Social session not found. |
-| `INVALID_STATUS_TRANSITION` | 409 | This status change is not allowed. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-POST /api/v1/social-play/sessions/0c000000-0000-4000-8000-000000000001/cancel
-```
-
-```json
-{}
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "0c000000-0000-4000-8000-000000000001",
-    "court_booking_id": "0b000000-0000-4000-8000-000000000041",
-    "title": "Friday Social Doubles",
-    "description": "Open play — rotate partners, all levels welcome.",
-    "capacity": 8,
-    "fee_per_person": "300.00",
-    "status": "COMPLETED",
-    "created_by_user_id": "01000000-0000-4000-8000-000000000002",
-    "created_at": "2026-09-25T06:30:00.000Z",
-    "updated_at": "2026-09-25T06:30:00.000Z",
-    "court_id": "0a000000-0000-4000-8000-000000000001",
-    "court_name": "Aarav Kapoor",
-    "sport_type": "TENNIS",
-    "start_at": "2026-10-03T12:30:00.000Z",
-    "end_at": "2026-10-03T12:30:00.000Z",
-    "participant_count": 3,
-    "spots_left": 3,
-    "participants": [
-      {
-        "id": "0d000000-0000-4000-8000-000000000001",
-        "social_session_id": "0c000000-0000-4000-8000-000000000001",
-        "member_id": "02000000-0000-4000-8000-000000000001",
-        "guest_name": null,
-        "guest_phone": null,
-        "status": "JOINED",
-        "fee_amount": "0.00",
-        "tax_amount": "0.00",
-        "payment_status": "NOT_REQUIRED",
-        "joined_at": "2026-09-30T13:30:00.000Z",
-        "cancelled_at": null,
-        "created_at": "2026-09-30T13:30:00.000Z",
-        "updated_at": "2026-09-30T13:30:00.000Z",
-        "display_name": "Aarav Kapoor",
-        "member_code": "CCM-00001"
-      }
-    ]
-  }
-}
-```
-
-**Example error (HTTP 409)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "INVALID_STATUS_TRANSITION",
-    "message": "This status change is not allowed."
-  }
-}
-```
-
 ---
 
 ### Module: Shop
 
-*Owner: Dev 3 (Commerce, Bar & Kitchen)*
+*Owner: Dev 3 (Commerce, Cafe & Kitchen)*
 
 <a id="shopproducts"></a>
 #### `GET /api/v1/shop/products` — shop.products
@@ -3984,7 +3173,7 @@ Product detail.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-GET /api/v1/shop/products/0e000000-0000-4000-8000-000000000001
+GET /api/v1/shop/products/0a000000-0000-4000-8000-000000000001
 ```
 
 ```json
@@ -4032,7 +3221,7 @@ Create a product (optionally with opening stock).
 | **Success** | 201 · `data: ProductView` |
 | **Requirements** | FR-SHOP-002, FR-INV-003 |
 | **Governing rules** | [R-SHOP-09](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `products`, `inventory_movements` |
+| **Tables touched** | `products` |
 
 **Request body** — type `ShopProductCreateRequest`
 
@@ -4045,7 +3234,7 @@ Create a product (optionally with opening stock).
 | `description` | text | no |  |
 | `price` | money | **yes** | tax-inclusive |
 | `image_url` | url | no |  |
-| `initial_stock` | int | no | >=0; creates an OPENING inventory movement |
+| `initial_stock` | int | no | >=0; the starting stock_quantity |
 | `low_stock_threshold` | int | no | default = setting low_stock_default_threshold |
 
 **Errors**
@@ -4145,7 +3334,7 @@ Edit a product. Stock is NEVER edited here: use /inventory/adjustments.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-PATCH /api/v1/shop/products/0e000000-0000-4000-8000-000000000001
+PATCH /api/v1/shop/products/0a000000-0000-4000-8000-000000000001
 ```
 
 ```json
@@ -4212,7 +3401,7 @@ Retire a product (soft delete: is_active = false; order history stays intact).
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-DELETE /api/v1/shop/products/0e000000-0000-4000-8000-000000000001
+DELETE /api/v1/shop/products/0a000000-0000-4000-8000-000000000001
 ```
 
 ```json
@@ -4260,7 +3449,7 @@ Place a shop order: member online order (pickup/delivery) or staff counter sale.
 | **Success** | 201 · `data: ShopOrderDetail` |
 | **Requirements** | FR-SHOP-003, FR-SHOP-004, FR-SHOP-005, FR-SHOP-006, FR-SHOP-007, FR-SHOP-008, FR-INV-001, FR-FIN-001 |
 | **Governing rules** | [R-SHOP-01](../business-rules/BUSINESS_RULES.md), [R-SHOP-02](../business-rules/BUSINESS_RULES.md), [R-SHOP-04](../business-rules/BUSINESS_RULES.md), [R-SHOP-05](../business-rules/BUSINESS_RULES.md), [R-SHOP-06](../business-rules/BUSINESS_RULES.md), [R-FIN-11](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `shop_orders`, `shop_order_items`, `products`, `inventory_movements`, `payments` |
+| **Tables touched** | `shop_orders`, `shop_order_items`, `products`, `payments` |
 
 **Request body** — type `ShopOrderCreateRequest`
 
@@ -4275,9 +3464,8 @@ Place a shop order: member online order (pickup/delivery) or staff counter sale.
 | `guest_name` | string | no | Walk-in name. Staff only. Required when no member_id. |
 | `guest_phone` | string | no | Walk-in phone (E.164 or 10-digit). Staff only. |
 | `payment_method` | enum PAYMENT_METHOD | no | MEMBER: ONLINE. Staff counter sale: CASH\|CARD\|UPI (required for IN_STORE) |
-| `notes` | text | no |  |
 
-**Rules / behaviour:** channel = ONLINE for MEMBER callers, PHYSICAL for staff (server-derived, not sent). One transaction: `UPDATE products SET stock_quantity = stock_quantity - :q WHERE id = :id AND stock_quantity >= :q` per line (0 rows => OUT_OF_STOCK, rollback) + inventory_movements(SALE) + snapshot unit_price + discount = subtotal x shop_discount_percent + delivery_fee (unless free_delivery_above) + payment. Raising stock below threshold creates LOW_STOCK notifications. IN_STORE orders are created COMPLETED; ONLINE start PLACED.
+**Rules / behaviour:** IN_STORE = a counter sale made by staff; PICKUP / DELIVERY = placed online by a member (no separate channel column: it follows from fulfillment). One transaction: `UPDATE products SET stock_quantity = stock_quantity - :q WHERE id = :id AND stock_quantity >= :q` per line (0 rows => OUT_OF_STOCK, rollback) + snapshot unit_price + discount_amount = subtotal x shop_discount_percent + delivery_fee (unless free_delivery_above) + payment. Totals and payment_status are derived (view shop_order_totals). IN_STORE orders are created COMPLETED; online orders start PLACED.
 
 **Errors**
 
@@ -4302,7 +3490,7 @@ POST /api/v1/shop/orders
 {
   "items": [
     {
-      "product_id": "0e000000-0000-4000-8000-000000000010",
+      "product_id": "0a000000-0000-4000-8000-000000000010",
       "quantity": 1
     }
   ],
@@ -4316,21 +3504,19 @@ POST /api/v1/shop/orders
   "success": true,
   "data": {
     "order_number": "SO-000011",
-    "channel": "ONLINE",
     "fulfillment": "PICKUP",
     "status": "PLACED",
     "subtotal": "9495.00",
     "discount_amount": "949.50",
     "delivery_fee": "0.00",
-    "tax_amount": "1303.55",
     "total_amount": "8545.50",
+    "amount_paid": "8545.50",
     "payment_status": "PAID",
     "items": [
       {
         "product_name": "Nike Court Air Zoom Vapor Shoes",
         "unit_price": "9495.00",
-        "quantity": 1,
-        "line_total": "9495.00"
+        "quantity": 1
       }
     ],
     "…": "…"
@@ -4348,7 +3534,7 @@ POST /api/v1/shop/orders
 {
   "items": [
     {
-      "product_id": "0e000000-0000-4000-8000-000000000009",
+      "product_id": "0a000000-0000-4000-8000-000000000009",
       "quantity": 1
     }
   ],
@@ -4366,7 +3552,7 @@ POST /api/v1/shop/orders
     "details": {
       "items": [
         {
-          "product_id": "0e000000-0000-4000-8000-000000000009",
+          "product_id": "0a000000-0000-4000-8000-000000000009",
           "requested": 1,
           "available": 0
         }
@@ -4395,7 +3581,6 @@ List shop orders (members see their own).
 | Field | Type | Required | Rules |
 |---|---|---|---|
 | `status` | enum SHOP_ORDER_STATUS | no |  |
-| `channel` | enum ORDER_CHANNEL | no |  |
 | `fulfillment` | enum ORDER_FULFILLMENT | no |  |
 | `member_id` | uuid | no | staff only |
 | `from` | date | no |  |
@@ -4422,38 +3607,30 @@ GET /api/v1/shop/orders
   "success": true,
   "data": [
     {
-      "id": "0f000000-0000-4000-8000-000000000001",
+      "id": "0b000000-0000-4000-8000-000000000001",
       "order_number": "SO-000001",
-      "channel": "PHYSICAL",
       "fulfillment": "IN_STORE",
       "status": "COMPLETED",
       "member_id": "02000000-0000-4000-8000-000000000003",
-      "membership_id": "06000000-0000-4000-8000-000000000003",
       "guest_name": null,
       "guest_phone": null,
       "delivery_address": null,
-      "subtotal": "2198.00",
       "discount_amount": "219.80",
       "delivery_fee": "0.00",
-      "tax_amount": "301.76",
-      "total_amount": "1978.20",
-      "payment_status": "PAID",
-      "notes": null,
-      "placed_by_user_id": "01000000-0000-4000-8000-000000000003",
-      "completed_at": "2026-09-28T11:50:00.000Z",
-      "cancelled_at": null,
-      "cancellation_reason": null,
       "created_at": "2026-09-28T11:50:00.000Z",
       "updated_at": "2026-09-28T12:50:00.000Z",
+      "subtotal": "1250.00",
+      "total_amount": "1250.00",
+      "amount_paid": "1250.00",
+      "payment_status": "PENDING",
       "items": [
         {
-          "id": "10000000-0000-4000-8000-000000000001",
-          "shop_order_id": "0f000000-0000-4000-8000-000000000001",
-          "product_id": "0e000000-0000-4000-8000-000000000012",
+          "id": "0c000000-0000-4000-8000-000000000001",
+          "shop_order_id": "0b000000-0000-4000-8000-000000000001",
+          "product_id": "0a000000-0000-4000-8000-000000000012",
           "product_name": "Babolat RPM Blast Racket String (12m)",
           "unit_price": "1200.00",
           "quantity": 1,
-          "line_total": "1200.00",
           "created_at": "2026-09-28T11:50:00.000Z"
         }
       ],
@@ -4509,45 +3686,37 @@ Order detail with lines.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-GET /api/v1/shop/orders/0f000000-0000-4000-8000-000000000001
+GET /api/v1/shop/orders/0b000000-0000-4000-8000-000000000001
 ```
 
 ```json
 {
   "success": true,
   "data": {
-    "id": "0f000000-0000-4000-8000-000000000001",
+    "id": "0b000000-0000-4000-8000-000000000001",
     "order_number": "SO-000001",
-    "channel": "PHYSICAL",
     "fulfillment": "IN_STORE",
     "status": "COMPLETED",
     "member_id": "02000000-0000-4000-8000-000000000003",
-    "membership_id": "06000000-0000-4000-8000-000000000003",
     "guest_name": null,
     "guest_phone": null,
     "delivery_address": null,
-    "subtotal": "2198.00",
     "discount_amount": "219.80",
     "delivery_fee": "0.00",
-    "tax_amount": "301.76",
-    "total_amount": "1978.20",
-    "payment_status": "PAID",
-    "notes": null,
-    "placed_by_user_id": "01000000-0000-4000-8000-000000000003",
-    "completed_at": "2026-09-28T11:50:00.000Z",
-    "cancelled_at": null,
-    "cancellation_reason": null,
     "created_at": "2026-09-28T11:50:00.000Z",
     "updated_at": "2026-09-28T12:50:00.000Z",
+    "subtotal": "1250.00",
+    "total_amount": "1250.00",
+    "amount_paid": "1250.00",
+    "payment_status": "PENDING",
     "items": [
       {
-        "id": "10000000-0000-4000-8000-000000000001",
-        "shop_order_id": "0f000000-0000-4000-8000-000000000001",
-        "product_id": "0e000000-0000-4000-8000-000000000012",
+        "id": "0c000000-0000-4000-8000-000000000001",
+        "shop_order_id": "0b000000-0000-4000-8000-000000000001",
+        "product_id": "0a000000-0000-4000-8000-000000000012",
         "product_name": "Babolat RPM Blast Racket String (12m)",
         "unit_price": "1200.00",
         "quantity": 1,
-        "line_total": "1200.00",
         "created_at": "2026-09-28T11:50:00.000Z"
       }
     ],
@@ -4581,7 +3750,7 @@ Advance an order: PLACED -> CONFIRMED -> READY_FOR_PICKUP | OUT_FOR_DELIVERY -> 
 | **Success** | 200 · `data: ShopOrderDetail` |
 | **Requirements** | FR-SHOP-009, FR-SHOP-005, FR-SHOP-006 |
 | **Governing rules** | [R-SHOP-07](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `shop_orders`, `notifications` |
+| **Tables touched** | `shop_orders` |
 | **Path params** | `id` (uuid) |
 
 **Request body** — type `ShopOrderStatusRequest`
@@ -4590,7 +3759,7 @@ Advance an order: PLACED -> CONFIRMED -> READY_FOR_PICKUP | OUT_FOR_DELIVERY -> 
 |---|---|---|---|
 | `status` | enum SHOP_ORDER_STATUS | **yes** | must be allowed by SHOP_ORDER_TRANSITIONS; READY_FOR_PICKUP only for PICKUP orders, OUT_FOR_DELIVERY only for DELIVERY orders |
 
-**Rules / behaviour:** Use /shop/orders/:id/cancel for cancellations. Notifies the member (SHOP_ORDER_UPDATE).
+**Rules / behaviour:** Use /shop/orders/:id/cancel for cancellations.
 
 **Errors**
 
@@ -4605,7 +3774,7 @@ Advance an order: PLACED -> CONFIRMED -> READY_FOR_PICKUP | OUT_FOR_DELIVERY -> 
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-PATCH /api/v1/shop/orders/0f000000-0000-4000-8000-000000000001/status
+PATCH /api/v1/shop/orders/0b000000-0000-4000-8000-000000000001/status
 ```
 
 ```json
@@ -4618,38 +3787,30 @@ PATCH /api/v1/shop/orders/0f000000-0000-4000-8000-000000000001/status
 {
   "success": true,
   "data": {
-    "id": "0f000000-0000-4000-8000-000000000001",
+    "id": "0b000000-0000-4000-8000-000000000001",
     "order_number": "SO-000001",
-    "channel": "PHYSICAL",
     "fulfillment": "IN_STORE",
     "status": "COMPLETED",
     "member_id": "02000000-0000-4000-8000-000000000003",
-    "membership_id": "06000000-0000-4000-8000-000000000003",
     "guest_name": null,
     "guest_phone": null,
     "delivery_address": null,
-    "subtotal": "2198.00",
     "discount_amount": "219.80",
     "delivery_fee": "0.00",
-    "tax_amount": "301.76",
-    "total_amount": "1978.20",
-    "payment_status": "PAID",
-    "notes": null,
-    "placed_by_user_id": "01000000-0000-4000-8000-000000000003",
-    "completed_at": "2026-09-28T11:50:00.000Z",
-    "cancelled_at": null,
-    "cancellation_reason": null,
     "created_at": "2026-09-28T11:50:00.000Z",
     "updated_at": "2026-09-28T12:50:00.000Z",
+    "subtotal": "1250.00",
+    "total_amount": "1250.00",
+    "amount_paid": "1250.00",
+    "payment_status": "PENDING",
     "items": [
       {
-        "id": "10000000-0000-4000-8000-000000000001",
-        "shop_order_id": "0f000000-0000-4000-8000-000000000001",
-        "product_id": "0e000000-0000-4000-8000-000000000012",
+        "id": "0c000000-0000-4000-8000-000000000001",
+        "shop_order_id": "0b000000-0000-4000-8000-000000000001",
+        "product_id": "0a000000-0000-4000-8000-000000000012",
         "product_name": "Babolat RPM Blast Racket String (12m)",
         "unit_price": "1200.00",
         "quantity": 1,
-        "line_total": "1200.00",
         "created_at": "2026-09-28T11:50:00.000Z"
       }
     ],
@@ -4683,16 +3844,10 @@ Cancel an order: restores stock and refunds.
 | **Success** | 200 · `data: ShopOrderDetail` |
 | **Requirements** | FR-SHOP-010, FR-INV-001 |
 | **Governing rules** | [R-SHOP-08](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `shop_orders`, `products`, `inventory_movements`, `payments` |
+| **Tables touched** | `shop_orders`, `products`, `payments` |
 | **Path params** | `id` (uuid) |
 
-**Request body** — type `ShopOrderCancelRequest`
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `reason` | text | no |  |
-
-**Rules / behaviour:** MEMBER may cancel only own order while PLACED. Staff while not COMPLETED/CANCELLED. Inserts inventory_movements(CANCELLATION), refunds payment, payment_status REFUNDED.
+**Rules / behaviour:** MEMBER may cancel only own order while PLACED. Staff while not COMPLETED/CANCELLED. Adds the quantities back to products.stock_quantity and refunds the payment in full (the order then reports payment_status REFUNDED).
 
 **Errors**
 
@@ -4707,49 +3862,37 @@ Cancel an order: restores stock and refunds.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-POST /api/v1/shop/orders/0f000000-0000-4000-8000-000000000001/cancel
-```
-
-```json
-{}
+POST /api/v1/shop/orders/0b000000-0000-4000-8000-000000000001/cancel
 ```
 
 ```json
 {
   "success": true,
   "data": {
-    "id": "0f000000-0000-4000-8000-000000000001",
+    "id": "0b000000-0000-4000-8000-000000000001",
     "order_number": "SO-000001",
-    "channel": "PHYSICAL",
     "fulfillment": "IN_STORE",
     "status": "COMPLETED",
     "member_id": "02000000-0000-4000-8000-000000000003",
-    "membership_id": "06000000-0000-4000-8000-000000000003",
     "guest_name": null,
     "guest_phone": null,
     "delivery_address": null,
-    "subtotal": "2198.00",
     "discount_amount": "219.80",
     "delivery_fee": "0.00",
-    "tax_amount": "301.76",
-    "total_amount": "1978.20",
-    "payment_status": "PAID",
-    "notes": null,
-    "placed_by_user_id": "01000000-0000-4000-8000-000000000003",
-    "completed_at": "2026-09-28T11:50:00.000Z",
-    "cancelled_at": null,
-    "cancellation_reason": null,
     "created_at": "2026-09-28T11:50:00.000Z",
     "updated_at": "2026-09-28T12:50:00.000Z",
+    "subtotal": "1250.00",
+    "total_amount": "1250.00",
+    "amount_paid": "1250.00",
+    "payment_status": "PENDING",
     "items": [
       {
-        "id": "10000000-0000-4000-8000-000000000001",
-        "shop_order_id": "0f000000-0000-4000-8000-000000000001",
-        "product_id": "0e000000-0000-4000-8000-000000000012",
+        "id": "0c000000-0000-4000-8000-000000000001",
+        "shop_order_id": "0b000000-0000-4000-8000-000000000001",
+        "product_id": "0a000000-0000-4000-8000-000000000012",
         "product_name": "Babolat RPM Blast Racket String (12m)",
         "unit_price": "1200.00",
         "quantity": 1,
-        "line_total": "1200.00",
         "created_at": "2026-09-28T11:50:00.000Z"
       }
     ],
@@ -4775,7 +3918,7 @@ POST /api/v1/shop/orders/0f000000-0000-4000-8000-000000000001/cancel
 
 ### Module: Inventory
 
-*Owner: Dev 3 (Commerce, Bar & Kitchen)*
+*Owner: Dev 3 (Commerce, Cafe & Kitchen)*
 
 <a id="inventorylist"></a>
 #### `GET /api/v1/inventory` — inventory.list
@@ -4820,15 +3963,14 @@ GET /api/v1/inventory
   "success": true,
   "data": [
     {
-      "product_id": "0e000000-0000-4000-8000-000000000001",
+      "product_id": "0a000000-0000-4000-8000-000000000001",
       "sku": "RKT-WIL-CLASH100",
       "name": "Wilson Clash 100 v2 Tennis Racket",
       "category": "RACKET",
       "stock_quantity": 3,
       "low_stock_threshold": 3,
       "stock_status": "IN_STOCK",
-      "is_active": true,
-      "last_movement_at": "2026-10-03T12:30:00.000Z"
+      "is_active": true
     }
   ],
   "meta": {
@@ -4886,15 +4028,14 @@ GET /api/v1/inventory/low-stock
   "success": true,
   "data": [
     {
-      "product_id": "0e000000-0000-4000-8000-000000000001",
+      "product_id": "0a000000-0000-4000-8000-000000000001",
       "sku": "RKT-WIL-CLASH100",
       "name": "Wilson Clash 100 v2 Tennis Racket",
       "category": "RACKET",
       "stock_quantity": 3,
       "low_stock_threshold": 3,
       "stock_status": "IN_STOCK",
-      "is_active": true,
-      "last_movement_at": "2026-10-03T12:30:00.000Z"
+      "is_active": true
     }
   ]
 }
@@ -4915,25 +4056,25 @@ GET /api/v1/inventory/low-stock
 <a id="inventoryadjust"></a>
 #### `POST /api/v1/inventory/adjustments` — inventory.adjust
 
-Restock or correct stock; always writes a ledger row.
+Restock or correct the stock of a product.
 
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
 | **Roles** | OWNER_ADMIN |
-| **Success** | 201 · `data: StockAdjustmentResult` |
-| **Requirements** | FR-INV-003, FR-INV-005 |
+| **Success** | 201 · `data: InventoryItem` |
+| **Requirements** | FR-INV-003 |
 | **Governing rules** | [R-SHOP-02](../business-rules/BUSINESS_RULES.md), [R-SHOP-03](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `products`, `inventory_movements`, `notifications` |
+| **Tables touched** | `products` |
 
 **Request body** — type `InventoryAdjustRequest`
 
 | Field | Type | Required | Rules |
 |---|---|---|---|
 | `product_id` | uuid | **yes** |  |
-| `quantity_change` | int | **yes** | non-zero; negative allowed only if result stays >= 0 (else VALIDATION_ERROR) |
-| `reason` | enum INVENTORY_REASON | **yes** | RESTOCK \| ADJUSTMENT \| DAMAGE \| RETURN only |
-| `notes` | text | no |  |
+| `quantity_change` | int | **yes** | non-zero; negative allowed only if the result stays >= 0 (else VALIDATION_ERROR) |
+
+**Rules / behaviour:** `UPDATE products SET stock_quantity = stock_quantity + :change WHERE id = :id AND stock_quantity + :change >= 0`. products.stock_quantity is the stock: there is no separate ledger (ADR-016).
 
 **Errors**
 
@@ -4952,9 +4093,8 @@ POST /api/v1/inventory/adjustments
 
 ```json
 {
-  "product_id": "0e000000-0000-4000-8000-000000000001",
-  "quantity_change": 1,
-  "reason": "RESTOCK"
+  "product_id": "0a000000-0000-4000-8000-000000000001",
+  "quantity_change": 1
 }
 ```
 
@@ -4962,28 +4102,14 @@ POST /api/v1/inventory/adjustments
 {
   "success": true,
   "data": {
-    "item": {
-      "product_id": "0e000000-0000-4000-8000-000000000001",
-      "sku": "RKT-WIL-CLASH100",
-      "name": "Wilson Clash 100 v2 Tennis Racket",
-      "category": "RACKET",
-      "stock_quantity": 3,
-      "low_stock_threshold": 3,
-      "stock_status": "IN_STOCK",
-      "is_active": true,
-      "last_movement_at": "2026-10-03T12:30:00.000Z"
-    },
-    "movement": {
-      "id": "11000000-0000-4000-8000-000000000001",
-      "product_id": "0e000000-0000-4000-8000-000000000001",
-      "quantity_change": 6,
-      "quantity_after": 6,
-      "reason": "OPENING",
-      "shop_order_id": null,
-      "notes": "Opening stock",
-      "created_by_user_id": "01000000-0000-4000-8000-000000000001",
-      "created_at": "2026-09-03T03:30:00.000Z"
-    }
+    "product_id": "0a000000-0000-4000-8000-000000000001",
+    "sku": "RKT-WIL-CLASH100",
+    "name": "Wilson Clash 100 v2 Tennis Racket",
+    "category": "RACKET",
+    "stock_quantity": 3,
+    "low_stock_threshold": 3,
+    "stock_status": "IN_STOCK",
+    "is_active": true
   }
 }
 ```
@@ -5000,89 +4126,11 @@ POST /api/v1/inventory/adjustments
 }
 ```
 
-<a id="inventorymovements"></a>
-#### `GET /api/v1/inventory/movements` — inventory.movements
-
-Stock ledger.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | OWNER_ADMIN |
-| **Success** | 200 · `data: InventoryMovementView[]` + `meta: PageMeta` |
-| **Requirements** | FR-INV-004 |
-| **Governing rules** | [R-SHOP-02](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `inventory_movements`, `products` |
-
-**Query parameters**
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `product_id` | uuid | no |  |
-| `reason` | enum INVENTORY_REASON | no |  |
-| `from` | date | no |  |
-| `to` | date | no |  |
-| `page` | int | no | default 1 |
-| `page_size` | int | no | default 20, max 100 |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-GET /api/v1/inventory/movements
-```
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "11000000-0000-4000-8000-000000000001",
-      "product_id": "0e000000-0000-4000-8000-000000000001",
-      "quantity_change": 6,
-      "quantity_after": 6,
-      "reason": "OPENING",
-      "shop_order_id": null,
-      "notes": "Opening stock",
-      "created_by_user_id": "01000000-0000-4000-8000-000000000001",
-      "created_at": "2026-09-03T03:30:00.000Z",
-      "sku": "RKT-WIL-CLASH100",
-      "product_name": "Wilson Clash 100 v2 Tennis Racket"
-    }
-  ],
-  "meta": {
-    "page": 1,
-    "page_size": 20,
-    "total": 1,
-    "total_pages": 1
-  }
-}
-```
-
-**Example error (HTTP 400)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Request validation failed."
-  }
-}
-```
-
 ---
 
-### Module: Bar / POS
+### Module: Cafe
 
-*Owner: Dev 3 (Commerce, Bar & Kitchen)*
+*Owner: Dev 3 (Commerce, Cafe & Kitchen)*
 
 <a id="barmenu"></a>
 #### `GET /api/v1/bar/menu` — bar.menu
@@ -5122,7 +4170,7 @@ GET /api/v1/bar/menu
   "success": true,
   "data": [
     {
-      "id": "12000000-0000-4000-8000-000000000001",
+      "id": "0d000000-0000-4000-8000-000000000001",
       "name": "Filter Coffee",
       "category": "DRINK",
       "description": "South-Indian style filter coffee",
@@ -5198,7 +4246,7 @@ POST /api/v1/bar/menu-items
 {
   "success": true,
   "data": {
-    "id": "12000000-0000-4000-8000-000000000001",
+    "id": "0d000000-0000-4000-8000-000000000001",
     "name": "Filter Coffee",
     "category": "DRINK",
     "description": "South-Indian style filter coffee",
@@ -5261,7 +4309,7 @@ Edit a menu item / mark unavailable.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-PATCH /api/v1/bar/menu-items/12000000-0000-4000-8000-000000000001
+PATCH /api/v1/bar/menu-items/0d000000-0000-4000-8000-000000000001
 ```
 
 ```json
@@ -5272,7 +4320,7 @@ PATCH /api/v1/bar/menu-items/12000000-0000-4000-8000-000000000001
 {
   "success": true,
   "data": {
-    "id": "12000000-0000-4000-8000-000000000001",
+    "id": "0d000000-0000-4000-8000-000000000001",
     "name": "Filter Coffee",
     "category": "DRINK",
     "description": "South-Indian style filter coffee",
@@ -5297,206 +4345,10 @@ PATCH /api/v1/bar/menu-items/12000000-0000-4000-8000-000000000001
 }
 ```
 
-<a id="bartables"></a>
-#### `GET /api/v1/bar/tables` — bar.tables
-
-Tables with live status, open tab and active order count.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK, KITCHEN_MANAGER, OWNER_ADMIN |
-| **Success** | 200 · `data: BarTableView[]` |
-| **Requirements** | FR-BAR-002 |
-| **Governing rules** | — |
-| **Tables touched** | `bar_tables`, `bar_tabs`, `bar_orders` |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-GET /api/v1/bar/tables
-```
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "13000000-0000-4000-8000-000000000001",
-      "label": "Table 1",
-      "capacity": 2,
-      "status": "OCCUPIED",
-      "created_at": "2026-03-17T04:30:00.000Z",
-      "updated_at": "2026-10-03T11:30:00.000Z",
-      "current_tab_id": "00eacb71-0000-4000-8000-003715014502",
-      "active_order_count": 3
-    }
-  ]
-}
-```
-
-**Example error (HTTP 401)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "AUTH_UNAUTHORIZED",
-    "message": "Authentication required or token expired."
-  }
-}
-```
-
-<a id="bartableCreate"></a>
-#### `POST /api/v1/bar/tables` — bar.tableCreate
-
-Add a table.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | OWNER_ADMIN |
-| **Success** | 201 · `data: BarTable` |
-| **Requirements** | FR-BAR-002 |
-| **Governing rules** | — |
-| **Tables touched** | `bar_tables` |
-
-**Request body** — type `BarTableCreateRequest`
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `label` | string | **yes** | unique |
-| `capacity` | int | **yes** | >0 |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-POST /api/v1/bar/tables
-```
-
-```json
-{
-  "label": "Aarav Kapoor",
-  "capacity": 1
-}
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "13000000-0000-4000-8000-000000000001",
-    "label": "Table 1",
-    "capacity": 2,
-    "status": "OCCUPIED",
-    "created_at": "2026-03-17T04:30:00.000Z",
-    "updated_at": "2026-10-03T11:30:00.000Z"
-  }
-}
-```
-
-**Example error (HTTP 400)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Request validation failed."
-  }
-}
-```
-
-<a id="bartableUpdate"></a>
-#### `PATCH /api/v1/bar/tables/:id` — bar.tableUpdate
-
-Set table status (e.g. free it, mark out of service).
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK, OWNER_ADMIN |
-| **Success** | 200 · `data: BarTable` |
-| **Requirements** | FR-BAR-002 |
-| **Governing rules** | [R-BAR-06](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `bar_tables` |
-| **Path params** | `id` (uuid) |
-
-**Request body** — type `BarTableUpdateRequest`
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `status` | enum TABLE_STATUS | no |  |
-| `label` | string | no | OWNER_ADMIN only |
-| `capacity` | int | no | OWNER_ADMIN only |
-
-**Rules / behaviour:** Cannot set AVAILABLE while the table has an OPEN tab or an active order.
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-| `TABLE_NOT_FOUND` | 404 | Table not found. |
-| `TABLE_OCCUPIED` | 409 | Table is already occupied or out of service. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-PATCH /api/v1/bar/tables/13000000-0000-4000-8000-000000000001
-```
-
-```json
-{}
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "13000000-0000-4000-8000-000000000001",
-    "label": "Table 1",
-    "capacity": 2,
-    "status": "OCCUPIED",
-    "created_at": "2026-03-17T04:30:00.000Z",
-    "updated_at": "2026-10-03T11:30:00.000Z"
-  }
-}
-```
-
-**Example error (HTTP 409)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "TABLE_OCCUPIED",
-    "message": "Table is already occupied or out of service."
-  }
-}
-```
-
 <a id="barorderCreate"></a>
 #### `POST /api/v1/bar/orders` — bar.orderCreate
 
-Take a bar/cafeteria order at a table (or counter). Appears instantly on the kitchen board.
+Take a cafe order for a table label, member or guest. Appears instantly on the kitchen board.
 
 | | |
 |---|---|
@@ -5504,25 +4356,24 @@ Take a bar/cafeteria order at a table (or counter). Appears instantly on the kit
 | **Roles** | FRONT_DESK, OWNER_ADMIN |
 | **Success** | 201 · `data: BarOrderDetail` |
 | **Requirements** | FR-BAR-003, FR-BAR-004, FR-BAR-005, FR-BAR-008, FR-BAR-013, FR-KIT-001 |
-| **Governing rules** | [R-BAR-01](../business-rules/BUSINESS_RULES.md), [R-BAR-02](../business-rules/BUSINESS_RULES.md), [R-BAR-03](../business-rules/BUSINESS_RULES.md), [R-BAR-05](../business-rules/BUSINESS_RULES.md), [R-BAR-06](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `bar_orders`, `bar_order_items`, `order_status_events`, `bar_tables`, `payments` |
+| **Governing rules** | [R-BAR-01](../business-rules/BUSINESS_RULES.md), [R-BAR-02](../business-rules/BUSINESS_RULES.md), [R-BAR-03](../business-rules/BUSINESS_RULES.md), [R-BAR-04](../business-rules/BUSINESS_RULES.md), [R-BAR-05](../business-rules/BUSINESS_RULES.md) |
+| **Tables touched** | `bar_orders`, `bar_order_items`, `payments` |
 
 **Request body** — type `BarOrderCreateRequest`
 
 | Field | Type | Required | Rules |
 |---|---|---|---|
-| `bar_table_id` | uuid | no |  |
-| `bar_tab_id` | uuid | no | add to an OPEN tab; member/guest then inherited from the tab |
+| `table_label` | string | no | free text, e.g. "T3" or "Court side" |
 | `member_id` | uuid | no | Staff only: book/order on behalf of this member. MEMBER callers: omit (implied = self). |
 | `guest_name` | string | no |  |
 | `items` | object[] | **yes** | 1-50 lines |
 | &nbsp;&nbsp;↳ `bar_menu_item_id` | uuid | **yes** |  |
 | &nbsp;&nbsp;↳ `quantity` | int | **yes** | 1-50 |
 | &nbsp;&nbsp;↳ `notes` | string | no |  |
-| `payment_method` | enum PAYMENT_METHOD | no | pay now (CASH\|CARD\|UPI); omit to leave PENDING or put on a tab |
+| `payment_method` | enum PAYMENT_METHOD | no | pay now (CASH\|CARD\|UPI); omit to pay later at the desk |
 | `notes` | text | no |  |
 
-**Rules / behaviour:** At least one of bar_table_id, member_id, guest_name, bar_tab_id. Member discount = subtotal x bar_discount_percent of the member's CURRENT plan (automatic; never asked). Guests pay list price. Snapshot unit_price + item_name. Writes order_status_events(null -> NEW). Table -> OCCUPIED. payment_method with a bar_tab_id is a VALIDATION_ERROR (tab payments happen at settlement).
+**Rules / behaviour:** At least one of table_label, member_id, guest_name. Member discount = subtotal x bar_discount_percent of the member's CURRENT plan, stored as discount_amount (automatic; never asked). Guests pay list price. Snapshot unit_price + item_name. The order starts NEW. Totals and payment_status are derived (view bar_order_totals).
 
 **Errors**
 
@@ -5531,16 +4382,12 @@ Take a bar/cafeteria order at a table (or counter). Appears instantly on the kit
 | `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
 | `VALIDATION_ERROR` | 400 | Request validation failed. |
 | `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-| `TABLE_NOT_FOUND` | 404 | Table not found. |
-| `TABLE_OCCUPIED` | 409 | Table is already occupied or out of service. |
-| `TAB_NOT_FOUND` | 404 | Tab not found. |
-| `TAB_NOT_OPEN` | 409 | Tab is not open. |
 | `MENU_ITEM_NOT_FOUND` | 404 | Menu item not found. |
 | `MENU_ITEM_UNAVAILABLE` | 409 | Menu item is currently unavailable. |
 | `MEMBER_NOT_FOUND` | 404 | Member not found. |
 | `PAYMENT_FAILED` | 402 | Payment could not be completed. |
 
-**Example — Front desk takes an order for a Gold member on an open tab (15% auto-discount)**
+**Example — Front desk takes an order for a Gold member at a table (15% auto-discount)**
 
 ```http
 POST /api/v1/bar/orders
@@ -5548,14 +4395,15 @@ POST /api/v1/bar/orders
 
 ```json
 {
-  "bar_tab_id": "14000000-0000-4000-8000-000000000003",
+  "table_label": "Table 3",
+  "member_id": "02000000-0000-4000-8000-000000000002",
   "items": [
     {
-      "bar_menu_item_id": "12000000-0000-4000-8000-000000000006",
+      "bar_menu_item_id": "0d000000-0000-4000-8000-000000000006",
       "quantity": 2
     },
     {
-      "bar_menu_item_id": "12000000-0000-4000-8000-000000000010",
+      "bar_menu_item_id": "0d000000-0000-4000-8000-000000000010",
       "quantity": 1,
       "notes": "extra salt"
     }
@@ -5570,25 +4418,22 @@ POST /api/v1/bar/orders
     "order_number": "BO-000023",
     "status": "NEW",
     "table_label": "Table 3",
-    "tab_number": "TAB-000003",
     "member_name": "Priya Nair",
     "subtotal": "570.00",
     "discount_amount": "85.50",
-    "tax_amount": "23.07",
     "total_amount": "484.50",
+    "amount_paid": "0.00",
     "payment_status": "PENDING",
     "items": [
       {
         "item_name": "Protein Shake",
         "unit_price": "220.00",
-        "quantity": 2,
-        "line_total": "440.00"
+        "quantity": 2
       },
       {
         "item_name": "French Fries",
         "unit_price": "130.00",
         "quantity": 1,
-        "line_total": "130.00",
         "notes": "extra salt"
       }
     ],
@@ -5603,8 +4448,8 @@ POST /api/v1/bar/orders
 {
   "success": false,
   "error": {
-    "code": "TABLE_OCCUPIED",
-    "message": "Table is already occupied or out of service."
+    "code": "MENU_ITEM_UNAVAILABLE",
+    "message": "Menu item is currently unavailable."
   }
 }
 ```
@@ -5612,7 +4457,7 @@ POST /api/v1/bar/orders
 <a id="barorderList"></a>
 #### `GET /api/v1/bar/orders` — bar.orderList
 
-List bar orders (members see their own).
+List cafe orders (members see their own).
 
 | | |
 |---|---|
@@ -5629,8 +4474,7 @@ List bar orders (members see their own).
 |---|---|---|---|
 | `status` | enum ORDER_STATUS | no |  |
 | `payment_status` | enum PAYMENT_STATUS | no |  |
-| `bar_table_id` | uuid | no |  |
-| `bar_tab_id` | uuid | no |  |
+| `table_label` | string | no |  |
 | `member_id` | uuid | no | staff only |
 | `from` | date | no |  |
 | `to` | date | no |  |
@@ -5656,42 +4500,32 @@ GET /api/v1/bar/orders
   "success": true,
   "data": [
     {
-      "id": "15000000-0000-4000-8000-000000000001",
+      "id": "0e000000-0000-4000-8000-000000000001",
       "order_number": "BO-000001",
-      "bar_table_id": "13000000-0000-4000-8000-000000000004",
-      "bar_tab_id": null,
       "member_id": null,
-      "membership_id": null,
       "guest_name": "Group of 4",
       "status": "SERVED",
-      "subtotal": "820.00",
       "discount_amount": "0.00",
-      "tax_amount": "39.05",
-      "total_amount": "820.00",
-      "payment_status": "PAID",
       "notes": null,
-      "taken_by_user_id": "01000000-0000-4000-8000-000000000004",
-      "ready_at": "2026-09-28T14:15:00.000Z",
-      "served_at": "2026-09-28T14:22:00.000Z",
-      "cancelled_at": null,
-      "cancellation_reason": null,
       "created_at": "2026-09-28T14:00:00.000Z",
       "updated_at": "2026-09-28T14:22:00.000Z",
+      "table_label": "Table 4",
+      "subtotal": "1250.00",
+      "total_amount": "1250.00",
+      "amount_paid": "1250.00",
+      "payment_status": "PENDING",
       "items": [
         {
-          "id": "16000000-0000-4000-8000-000000000001",
-          "bar_order_id": "15000000-0000-4000-8000-000000000001",
-          "bar_menu_item_id": "12000000-0000-4000-8000-000000000011",
+          "id": "0f000000-0000-4000-8000-000000000001",
+          "bar_order_id": "0e000000-0000-4000-8000-000000000001",
+          "bar_menu_item_id": "0d000000-0000-4000-8000-000000000011",
           "item_name": "Chicken Wings (6 pcs)",
           "unit_price": "320.00",
           "quantity": 1,
-          "line_total": "320.00",
           "notes": null,
           "created_at": "2026-09-28T14:00:00.000Z"
         }
       ],
-      "table_label": "string",
-      "tab_number": "BK-000001",
       "member_name": "Aarav Kapoor",
       "member_code": "CCM-00001"
     }
@@ -5720,7 +4554,7 @@ GET /api/v1/bar/orders
 <a id="barorderGet"></a>
 #### `GET /api/v1/bar/orders/:id` — bar.orderGet
 
-Bar order detail.
+Cafe order detail.
 
 | | |
 |---|---|
@@ -5744,49 +4578,39 @@ Bar order detail.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-GET /api/v1/bar/orders/15000000-0000-4000-8000-000000000001
+GET /api/v1/bar/orders/0e000000-0000-4000-8000-000000000001
 ```
 
 ```json
 {
   "success": true,
   "data": {
-    "id": "15000000-0000-4000-8000-000000000001",
+    "id": "0e000000-0000-4000-8000-000000000001",
     "order_number": "BO-000001",
-    "bar_table_id": "13000000-0000-4000-8000-000000000004",
-    "bar_tab_id": null,
     "member_id": null,
-    "membership_id": null,
     "guest_name": "Group of 4",
     "status": "SERVED",
-    "subtotal": "820.00",
     "discount_amount": "0.00",
-    "tax_amount": "39.05",
-    "total_amount": "820.00",
-    "payment_status": "PAID",
     "notes": null,
-    "taken_by_user_id": "01000000-0000-4000-8000-000000000004",
-    "ready_at": "2026-09-28T14:15:00.000Z",
-    "served_at": "2026-09-28T14:22:00.000Z",
-    "cancelled_at": null,
-    "cancellation_reason": null,
     "created_at": "2026-09-28T14:00:00.000Z",
     "updated_at": "2026-09-28T14:22:00.000Z",
+    "table_label": "Table 4",
+    "subtotal": "1250.00",
+    "total_amount": "1250.00",
+    "amount_paid": "1250.00",
+    "payment_status": "PENDING",
     "items": [
       {
-        "id": "16000000-0000-4000-8000-000000000001",
-        "bar_order_id": "15000000-0000-4000-8000-000000000001",
-        "bar_menu_item_id": "12000000-0000-4000-8000-000000000011",
+        "id": "0f000000-0000-4000-8000-000000000001",
+        "bar_order_id": "0e000000-0000-4000-8000-000000000001",
+        "bar_menu_item_id": "0d000000-0000-4000-8000-000000000011",
         "item_name": "Chicken Wings (6 pcs)",
         "unit_price": "320.00",
         "quantity": 1,
-        "line_total": "320.00",
         "notes": null,
         "created_at": "2026-09-28T14:00:00.000Z"
       }
     ],
-    "table_label": "string",
-    "tab_number": "BK-000001",
     "member_name": "Aarav Kapoor",
     "member_code": "CCM-00001"
   }
@@ -5808,7 +4632,7 @@ GET /api/v1/bar/orders/15000000-0000-4000-8000-000000000001
 <a id="barorderCancel"></a>
 #### `POST /api/v1/bar/orders/:id/cancel` — bar.orderCancel
 
-Cancel a bar order while it is NEW or ACCEPTED.
+Cancel a cafe order while it is still NEW.
 
 | | |
 |---|---|
@@ -5817,16 +4641,10 @@ Cancel a bar order while it is NEW or ACCEPTED.
 | **Success** | 200 · `data: BarOrderDetail` |
 | **Requirements** | FR-BAR-010 |
 | **Governing rules** | [R-BAR-08](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `bar_orders`, `order_status_events`, `payments` |
+| **Tables touched** | `bar_orders`, `payments` |
 | **Path params** | `id` (uuid) |
 
-**Request body** — type `BarOrderCancelRequest`
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `reason` | text | **yes** |  |
-
-**Rules / behaviour:** Refunds a payment if the order was already paid. Frees the table if it was the last active order.
+**Rules / behaviour:** Refunds the payment if the order was already paid.
 
 **Errors**
 
@@ -5841,55 +4659,39 @@ Cancel a bar order while it is NEW or ACCEPTED.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-POST /api/v1/bar/orders/15000000-0000-4000-8000-000000000001/cancel
-```
-
-```json
-{
-  "reason": "Sample text"
-}
+POST /api/v1/bar/orders/0e000000-0000-4000-8000-000000000001/cancel
 ```
 
 ```json
 {
   "success": true,
   "data": {
-    "id": "15000000-0000-4000-8000-000000000001",
+    "id": "0e000000-0000-4000-8000-000000000001",
     "order_number": "BO-000001",
-    "bar_table_id": "13000000-0000-4000-8000-000000000004",
-    "bar_tab_id": null,
     "member_id": null,
-    "membership_id": null,
     "guest_name": "Group of 4",
     "status": "SERVED",
-    "subtotal": "820.00",
     "discount_amount": "0.00",
-    "tax_amount": "39.05",
-    "total_amount": "820.00",
-    "payment_status": "PAID",
     "notes": null,
-    "taken_by_user_id": "01000000-0000-4000-8000-000000000004",
-    "ready_at": "2026-09-28T14:15:00.000Z",
-    "served_at": "2026-09-28T14:22:00.000Z",
-    "cancelled_at": null,
-    "cancellation_reason": null,
     "created_at": "2026-09-28T14:00:00.000Z",
     "updated_at": "2026-09-28T14:22:00.000Z",
+    "table_label": "Table 4",
+    "subtotal": "1250.00",
+    "total_amount": "1250.00",
+    "amount_paid": "1250.00",
+    "payment_status": "PENDING",
     "items": [
       {
-        "id": "16000000-0000-4000-8000-000000000001",
-        "bar_order_id": "15000000-0000-4000-8000-000000000001",
-        "bar_menu_item_id": "12000000-0000-4000-8000-000000000011",
+        "id": "0f000000-0000-4000-8000-000000000001",
+        "bar_order_id": "0e000000-0000-4000-8000-000000000001",
+        "bar_menu_item_id": "0d000000-0000-4000-8000-000000000011",
         "item_name": "Chicken Wings (6 pcs)",
         "unit_price": "320.00",
         "quantity": 1,
-        "line_total": "320.00",
         "notes": null,
         "created_at": "2026-09-28T14:00:00.000Z"
       }
     ],
-    "table_label": "string",
-    "tab_number": "BK-000001",
     "member_name": "Aarav Kapoor",
     "member_code": "CCM-00001"
   }
@@ -5908,593 +4710,10 @@ POST /api/v1/bar/orders/15000000-0000-4000-8000-000000000001/cancel
 }
 ```
 
-<a id="bartabOpen"></a>
-#### `POST /api/v1/bar/tabs` — bar.tabOpen
-
-Open a tab for a member or guest so they can order now and settle before leaving.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK, OWNER_ADMIN |
-| **Success** | 201 · `data: BarTabDetail` |
-| **Requirements** | FR-BAR-006, FR-BAR-013 |
-| **Governing rules** | [R-BAR-03](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `bar_tabs`, `bar_tables` |
-
-**Request body** — type `BarTabOpenRequest`
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `bar_table_id` | uuid | no |  |
-| `member_id` | uuid | no | Staff only: book/order on behalf of this member. MEMBER callers: omit (implied = self). |
-| `guest_name` | string | no | required when no member_id |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-| `TABLE_NOT_FOUND` | 404 | Table not found. |
-| `TABLE_OCCUPIED` | 409 | Table is already occupied or out of service. |
-| `MEMBER_NOT_FOUND` | 404 | Member not found. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-POST /api/v1/bar/tabs
-```
-
-```json
-{}
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "14000000-0000-4000-8000-000000000001",
-    "tab_number": "TAB-000001",
-    "bar_table_id": "13000000-0000-4000-8000-000000000002",
-    "member_id": "02000000-0000-4000-8000-000000000001",
-    "guest_name": null,
-    "status": "SETTLED",
-    "opened_at": "2026-10-02T13:30:00.000Z",
-    "settled_at": "2026-10-02T15:10:00.000Z",
-    "opened_by_user_id": "01000000-0000-4000-8000-000000000004",
-    "settled_by_user_id": "01000000-0000-4000-8000-000000000004",
-    "subtotal": "840.00",
-    "discount_amount": "126.00",
-    "tax_amount": "34.00",
-    "total_amount": "714.00",
-    "payment_status": "PAID",
-    "created_at": "2026-10-02T13:30:00.000Z",
-    "updated_at": "2026-10-02T15:10:00.000Z",
-    "table_label": "string",
-    "member_name": "Aarav Kapoor",
-    "member_code": "CCM-00001",
-    "orders": [
-      {
-        "id": "15000000-0000-4000-8000-000000000001",
-        "order_number": "BO-000001",
-        "bar_table_id": "13000000-0000-4000-8000-000000000004",
-        "bar_tab_id": null,
-        "member_id": null,
-        "membership_id": null,
-        "guest_name": "Group of 4",
-        "status": "SERVED",
-        "subtotal": "820.00",
-        "discount_amount": "0.00",
-        "tax_amount": "39.05",
-        "total_amount": "820.00",
-        "payment_status": "PAID",
-        "notes": null,
-        "taken_by_user_id": "01000000-0000-4000-8000-000000000004",
-        "ready_at": "2026-09-28T14:15:00.000Z",
-        "served_at": "2026-09-28T14:22:00.000Z",
-        "cancelled_at": null,
-        "cancellation_reason": null,
-        "created_at": "2026-09-28T14:00:00.000Z",
-        "updated_at": "2026-09-28T14:22:00.000Z",
-        "items": [
-          {
-            "id": "16000000-0000-4000-8000-000000000001",
-            "bar_order_id": "15000000-0000-4000-8000-000000000001",
-            "bar_menu_item_id": "12000000-0000-4000-8000-000000000011",
-            "item_name": "Chicken Wings (6 pcs)",
-            "unit_price": "320.00",
-            "quantity": 1,
-            "line_total": "320.00",
-            "notes": null,
-            "created_at": "2026-09-28T14:00:00.000Z"
-          }
-        ],
-        "table_label": "string",
-        "tab_number": "BK-000001",
-        "member_name": "Aarav Kapoor",
-        "member_code": "CCM-00001"
-      }
-    ],
-    "running_total": "1250.00"
-  }
-}
-```
-
-**Example error (HTTP 409)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "TABLE_OCCUPIED",
-    "message": "Table is already occupied or out of service."
-  }
-}
-```
-
-<a id="bartabList"></a>
-#### `GET /api/v1/bar/tabs` — bar.tabList
-
-List tabs.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | MEMBER (own only), FRONT_DESK, OWNER_ADMIN |
-| **Success** | 200 · `data: BarTabDetail[]` + `meta: PageMeta` |
-| **Requirements** | FR-BAR-006, FR-BAR-012 |
-| **Governing rules** | — |
-| **Tables touched** | `bar_tabs` |
-
-**Query parameters**
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `status` | enum TAB_STATUS | no |  |
-| `member_id` | uuid | no | staff only |
-| `from` | date | no |  |
-| `to` | date | no |  |
-| `page` | int | no | default 1 |
-| `page_size` | int | no | default 20, max 100 |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-GET /api/v1/bar/tabs
-```
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "14000000-0000-4000-8000-000000000001",
-      "tab_number": "TAB-000001",
-      "bar_table_id": "13000000-0000-4000-8000-000000000002",
-      "member_id": "02000000-0000-4000-8000-000000000001",
-      "guest_name": null,
-      "status": "SETTLED",
-      "opened_at": "2026-10-02T13:30:00.000Z",
-      "settled_at": "2026-10-02T15:10:00.000Z",
-      "opened_by_user_id": "01000000-0000-4000-8000-000000000004",
-      "settled_by_user_id": "01000000-0000-4000-8000-000000000004",
-      "subtotal": "840.00",
-      "discount_amount": "126.00",
-      "tax_amount": "34.00",
-      "total_amount": "714.00",
-      "payment_status": "PAID",
-      "created_at": "2026-10-02T13:30:00.000Z",
-      "updated_at": "2026-10-02T15:10:00.000Z",
-      "table_label": "string",
-      "member_name": "Aarav Kapoor",
-      "member_code": "CCM-00001",
-      "orders": [
-        {
-          "id": "15000000-0000-4000-8000-000000000001",
-          "order_number": "BO-000001",
-          "bar_table_id": "13000000-0000-4000-8000-000000000004",
-          "bar_tab_id": null,
-          "member_id": null,
-          "membership_id": null,
-          "guest_name": "Group of 4",
-          "status": "SERVED",
-          "subtotal": "820.00",
-          "discount_amount": "0.00",
-          "tax_amount": "39.05",
-          "total_amount": "820.00",
-          "payment_status": "PAID",
-          "notes": null,
-          "taken_by_user_id": "01000000-0000-4000-8000-000000000004",
-          "ready_at": "2026-09-28T14:15:00.000Z",
-          "served_at": "2026-09-28T14:22:00.000Z",
-          "cancelled_at": null,
-          "cancellation_reason": null,
-          "created_at": "2026-09-28T14:00:00.000Z",
-          "updated_at": "2026-09-28T14:22:00.000Z",
-          "items": [
-            {
-              "id": "16000000-0000-4000-8000-000000000001",
-              "bar_order_id": "15000000-0000-4000-8000-000000000001",
-              "bar_menu_item_id": "12000000-0000-4000-8000-000000000011",
-              "item_name": "Chicken Wings (6 pcs)",
-              "unit_price": "320.00",
-              "quantity": 1,
-              "line_total": "320.00",
-              "notes": null,
-              "created_at": "2026-09-28T14:00:00.000Z"
-            }
-          ],
-          "table_label": "string",
-          "tab_number": "BK-000001",
-          "member_name": "Aarav Kapoor",
-          "member_code": "CCM-00001"
-        }
-      ],
-      "running_total": "1250.00"
-    }
-  ],
-  "meta": {
-    "page": 1,
-    "page_size": 20,
-    "total": 1,
-    "total_pages": 1
-  }
-}
-```
-
-**Example error (HTTP 400)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Request validation failed."
-  }
-}
-```
-
-<a id="bartabGet"></a>
-#### `GET /api/v1/bar/tabs/:id` — bar.tabGet
-
-Tab with its orders and live running total.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | MEMBER (own only), FRONT_DESK, OWNER_ADMIN |
-| **Success** | 200 · `data: BarTabDetail` |
-| **Requirements** | FR-BAR-006, FR-BAR-012 |
-| **Governing rules** | — |
-| **Tables touched** | `bar_tabs`, `bar_orders` |
-| **Path params** | `id` (uuid) |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-| `TAB_NOT_FOUND` | 404 | Tab not found. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-GET /api/v1/bar/tabs/14000000-0000-4000-8000-000000000001
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "14000000-0000-4000-8000-000000000001",
-    "tab_number": "TAB-000001",
-    "bar_table_id": "13000000-0000-4000-8000-000000000002",
-    "member_id": "02000000-0000-4000-8000-000000000001",
-    "guest_name": null,
-    "status": "SETTLED",
-    "opened_at": "2026-10-02T13:30:00.000Z",
-    "settled_at": "2026-10-02T15:10:00.000Z",
-    "opened_by_user_id": "01000000-0000-4000-8000-000000000004",
-    "settled_by_user_id": "01000000-0000-4000-8000-000000000004",
-    "subtotal": "840.00",
-    "discount_amount": "126.00",
-    "tax_amount": "34.00",
-    "total_amount": "714.00",
-    "payment_status": "PAID",
-    "created_at": "2026-10-02T13:30:00.000Z",
-    "updated_at": "2026-10-02T15:10:00.000Z",
-    "table_label": "string",
-    "member_name": "Aarav Kapoor",
-    "member_code": "CCM-00001",
-    "orders": [
-      {
-        "id": "15000000-0000-4000-8000-000000000001",
-        "order_number": "BO-000001",
-        "bar_table_id": "13000000-0000-4000-8000-000000000004",
-        "bar_tab_id": null,
-        "member_id": null,
-        "membership_id": null,
-        "guest_name": "Group of 4",
-        "status": "SERVED",
-        "subtotal": "820.00",
-        "discount_amount": "0.00",
-        "tax_amount": "39.05",
-        "total_amount": "820.00",
-        "payment_status": "PAID",
-        "notes": null,
-        "taken_by_user_id": "01000000-0000-4000-8000-000000000004",
-        "ready_at": "2026-09-28T14:15:00.000Z",
-        "served_at": "2026-09-28T14:22:00.000Z",
-        "cancelled_at": null,
-        "cancellation_reason": null,
-        "created_at": "2026-09-28T14:00:00.000Z",
-        "updated_at": "2026-09-28T14:22:00.000Z",
-        "items": [
-          {
-            "id": "16000000-0000-4000-8000-000000000001",
-            "bar_order_id": "15000000-0000-4000-8000-000000000001",
-            "bar_menu_item_id": "12000000-0000-4000-8000-000000000011",
-            "item_name": "Chicken Wings (6 pcs)",
-            "unit_price": "320.00",
-            "quantity": 1,
-            "line_total": "320.00",
-            "notes": null,
-            "created_at": "2026-09-28T14:00:00.000Z"
-          }
-        ],
-        "table_label": "string",
-        "tab_number": "BK-000001",
-        "member_name": "Aarav Kapoor",
-        "member_code": "CCM-00001"
-      }
-    ],
-    "running_total": "1250.00"
-  }
-}
-```
-
-**Example error (HTTP 404)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "TAB_NOT_FOUND",
-    "message": "Tab not found."
-  }
-}
-```
-
-<a id="bartabSettle"></a>
-#### `POST /api/v1/bar/tabs/:id/settle` — bar.tabSettle
-
-Settle a tab: one payment for the whole tab, orders marked PAID, table freed.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK, OWNER_ADMIN |
-| **Success** | 200 · `data: BarSettleResult` |
-| **Requirements** | FR-BAR-007, FR-BAR-008, FR-FIN-001 |
-| **Governing rules** | [R-BAR-04](../business-rules/BUSINESS_RULES.md), [R-BAR-05](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `bar_tabs`, `bar_orders`, `payments`, `bar_tables` |
-| **Path params** | `id` (uuid) |
-
-**Request body** — type `BarTabSettleRequest`
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `payment_method` | enum PAYMENT_METHOD | **yes** | CASH \| CARD \| UPI |
-
-**Rules / behaviour:** Allowed only when every non-cancelled order is SERVED (else TAB_HAS_ACTIVE_ORDERS). Writes subtotal/discount/tax/total to bar_tabs, payment (source_type TAB, category BAR), tab SETTLED. Amount = sum of order totals; client cannot override it.
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-| `TAB_NOT_FOUND` | 404 | Tab not found. |
-| `TAB_NOT_OPEN` | 409 | Tab is not open. |
-| `TAB_HAS_ACTIVE_ORDERS` | 409 | Tab has orders that are not yet served or cancelled. |
-| `PAYMENT_FAILED` | 402 | Payment could not be completed. |
-
-**Example — Settle a tab by card**
-
-```http
-POST /api/v1/bar/tabs/:id/settle
-```
-
-```json
-{
-  "payment_method": "CARD"
-}
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "tab": {
-      "tab_number": "TAB-000003",
-      "status": "SETTLED",
-      "subtotal": "…",
-      "discount_amount": "…",
-      "total_amount": "…",
-      "payment_status": "PAID",
-      "…": "…"
-    },
-    "payment": {
-      "payment_number": "PAY-0000067",
-      "source_type": "TAB",
-      "revenue_category": "BAR",
-      "method": "CARD",
-      "status": "SUCCEEDED",
-      "…": "…"
-    }
-  }
-}
-```
-
-**Example — Food still in the kitchen** (HTTP 409)
-
-```http
-POST /api/v1/bar/tabs/:id/settle
-```
-
-```json
-{
-  "payment_method": "CARD"
-}
-```
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "TAB_HAS_ACTIVE_ORDERS",
-    "message": "Tab has orders that are not yet served or cancelled.",
-    "details": {
-      "order_numbers": [
-        "BO-000020"
-      ]
-    }
-  }
-}
-```
-
-<a id="bartabVoid"></a>
-#### `POST /api/v1/bar/tabs/:id/void` — bar.tabVoid
-
-Void a tab that has no billable orders.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | OWNER_ADMIN |
-| **Success** | 200 · `data: BarTabDetail` |
-| **Requirements** | FR-BAR-006 |
-| **Governing rules** | [R-BAR-04](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `bar_tabs` |
-| **Path params** | `id` (uuid) |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-| `TAB_NOT_FOUND` | 404 | Tab not found. |
-| `TAB_NOT_OPEN` | 409 | Tab is not open. |
-| `TAB_HAS_ACTIVE_ORDERS` | 409 | Tab has orders that are not yet served or cancelled. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-POST /api/v1/bar/tabs/14000000-0000-4000-8000-000000000001/void
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "14000000-0000-4000-8000-000000000001",
-    "tab_number": "TAB-000001",
-    "bar_table_id": "13000000-0000-4000-8000-000000000002",
-    "member_id": "02000000-0000-4000-8000-000000000001",
-    "guest_name": null,
-    "status": "SETTLED",
-    "opened_at": "2026-10-02T13:30:00.000Z",
-    "settled_at": "2026-10-02T15:10:00.000Z",
-    "opened_by_user_id": "01000000-0000-4000-8000-000000000004",
-    "settled_by_user_id": "01000000-0000-4000-8000-000000000004",
-    "subtotal": "840.00",
-    "discount_amount": "126.00",
-    "tax_amount": "34.00",
-    "total_amount": "714.00",
-    "payment_status": "PAID",
-    "created_at": "2026-10-02T13:30:00.000Z",
-    "updated_at": "2026-10-02T15:10:00.000Z",
-    "table_label": "string",
-    "member_name": "Aarav Kapoor",
-    "member_code": "CCM-00001",
-    "orders": [
-      {
-        "id": "15000000-0000-4000-8000-000000000001",
-        "order_number": "BO-000001",
-        "bar_table_id": "13000000-0000-4000-8000-000000000004",
-        "bar_tab_id": null,
-        "member_id": null,
-        "membership_id": null,
-        "guest_name": "Group of 4",
-        "status": "SERVED",
-        "subtotal": "820.00",
-        "discount_amount": "0.00",
-        "tax_amount": "39.05",
-        "total_amount": "820.00",
-        "payment_status": "PAID",
-        "notes": null,
-        "taken_by_user_id": "01000000-0000-4000-8000-000000000004",
-        "ready_at": "2026-09-28T14:15:00.000Z",
-        "served_at": "2026-09-28T14:22:00.000Z",
-        "cancelled_at": null,
-        "cancellation_reason": null,
-        "created_at": "2026-09-28T14:00:00.000Z",
-        "updated_at": "2026-09-28T14:22:00.000Z",
-        "items": [
-          {
-            "id": "16000000-0000-4000-8000-000000000001",
-            "bar_order_id": "15000000-0000-4000-8000-000000000001",
-            "bar_menu_item_id": "12000000-0000-4000-8000-000000000011",
-            "item_name": "Chicken Wings (6 pcs)",
-            "unit_price": "320.00",
-            "quantity": 1,
-            "line_total": "320.00",
-            "notes": null,
-            "created_at": "2026-09-28T14:00:00.000Z"
-          }
-        ],
-        "table_label": "string",
-        "tab_number": "BK-000001",
-        "member_name": "Aarav Kapoor",
-        "member_code": "CCM-00001"
-      }
-    ],
-    "running_total": "1250.00"
-  }
-}
-```
-
-**Example error (HTTP 409)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "TAB_NOT_OPEN",
-    "message": "Tab is not open."
-  }
-}
-```
-
 <a id="bardailySummary"></a>
 #### `GET /api/v1/bar/daily-summary` — bar.dailySummary
 
-What the bar earned on a day: revenue by method, discounts, open tabs, who was on shift.
+What the cafe earned on a day: revenue by method, discounts, who was on shift.
 
 | | |
 |---|---|
@@ -6503,7 +4722,7 @@ What the bar earned on a day: revenue by method, discounts, open tabs, who was o
 | **Success** | 200 · `data: BarDailySummary` |
 | **Requirements** | FR-BAR-009 |
 | **Governing rules** | [R-BAR-09](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `payments`, `bar_orders`, `bar_tabs`, `staff_shifts` |
+| **Tables touched** | `payments`, `bar_orders`, `staff_shifts` |
 
 **Query parameters**
 
@@ -6543,8 +4762,6 @@ GET /api/v1/bar/daily-summary
         "count": 3
       }
     ],
-    "open_tabs_count": 3,
-    "open_tabs_amount": "1250.00",
     "shifts": [
       {
         "staff_id": "03000000-0000-4000-8000-000000000001",
@@ -6573,7 +4790,7 @@ GET /api/v1/bar/daily-summary
 
 ### Module: Kitchen
 
-*Owner: Dev 3 (Commerce, Bar & Kitchen)*
+*Owner: Dev 3 (Commerce, Cafe & Kitchen)*
 
 <a id="kitchenlist"></a>
 #### `GET /api/v1/kitchen/orders` — kitchen.list
@@ -6587,13 +4804,13 @@ Kitchen board: incoming and in-progress orders (oldest first). No prices, no pay
 | **Success** | 200 · `data: KitchenOrder[]` |
 | **Requirements** | FR-KIT-001, FR-KIT-002, FR-KIT-004 |
 | **Governing rules** | [R-BAR-07](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `bar_orders`, `bar_order_items`, `bar_tables` |
+| **Tables touched** | `bar_orders`, `bar_order_items` |
 
 **Query parameters**
 
 | Field | Type | Required | Rules |
 |---|---|---|---|
-| `status` | array:enum:ORDER_STATUS | no | default NEW,ACCEPTED,PREPARING,READY |
+| `status` | array:enum:ORDER_STATUS | no | default NEW,PREPARING,READY |
 | `date` | date | no | default today |
 
 **Rules / behaviour:** Client polls every 5 s (see ADR-010). Projection only: never include unit_price, totals, member discount or payment fields.
@@ -6609,7 +4826,7 @@ Kitchen board: incoming and in-progress orders (oldest first). No prices, no pay
 **Example — Kitchen board (abridged) — no prices, no payment data**
 
 ```http
-GET /api/v1/kitchen/orders?status=NEW,ACCEPTED,PREPARING,READY
+GET /api/v1/kitchen/orders?status=NEW,PREPARING,READY
 ```
 
 ```json
@@ -6617,15 +4834,13 @@ GET /api/v1/kitchen/orders?status=NEW,ACCEPTED,PREPARING,READY
   "success": true,
   "data": [
     {
-      "id": "15000000-0000-4000-8000-000000000020",
+      "id": "0e000000-0000-4000-8000-000000000020",
       "order_number": "BO-000020",
       "status": "PREPARING",
       "table_label": "Table 5",
-      "tab_number": "TAB-000004",
       "customer_label": "Imran Qureshi",
       "notes": "Extra spicy",
       "created_at": "…",
-      "ready_at": null,
       "minutes_waiting": 10,
       "items": [
         {
@@ -6684,7 +4899,7 @@ One kitchen order.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-GET /api/v1/kitchen/orders/15000000-0000-4000-8000-000000000001
+GET /api/v1/kitchen/orders/0e000000-0000-4000-8000-000000000001
 ```
 
 ```json
@@ -6695,11 +4910,9 @@ GET /api/v1/kitchen/orders/15000000-0000-4000-8000-000000000001
     "order_number": "BK-000001",
     "status": "NEW",
     "table_label": "string",
-    "tab_number": "BK-000001",
     "customer_label": "string",
     "notes": "Sample text",
     "created_at": "2026-10-03T12:30:00.000Z",
-    "ready_at": "2026-10-03T12:30:00.000Z",
     "minutes_waiting": 3,
     "items": [
       {
@@ -6727,16 +4940,16 @@ GET /api/v1/kitchen/orders/15000000-0000-4000-8000-000000000001
 <a id="kitchenstatus"></a>
 #### `PATCH /api/v1/kitchen/orders/:id/status` — kitchen.status
 
-Move an order forward: NEW -> ACCEPTED -> PREPARING -> READY -> SERVED (or reject NEW/ACCEPTED with CANCELLED).
+Move an order forward: NEW -> PREPARING -> READY -> SERVED (or reject a NEW order with CANCELLED).
 
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
 | **Roles** | KITCHEN_MANAGER, OWNER_ADMIN |
 | **Success** | 200 · `data: KitchenOrder` |
-| **Requirements** | FR-KIT-003, FR-KIT-005, FR-KIT-006, FR-NOTIF-003 |
-| **Governing rules** | [R-BAR-07](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `bar_orders`, `order_status_events`, `notifications`, `bar_tables` |
+| **Requirements** | FR-KIT-003, FR-KIT-005 |
+| **Governing rules** | [R-BAR-07](../business-rules/BUSINESS_RULES.md), [R-BAR-08](../business-rules/BUSINESS_RULES.md) |
+| **Tables touched** | `bar_orders` |
 | **Path params** | `id` (uuid) |
 
 **Request body** — type `KitchenStatusRequest`
@@ -6744,9 +4957,8 @@ Move an order forward: NEW -> ACCEPTED -> PREPARING -> READY -> SERVED (or rejec
 | Field | Type | Required | Rules |
 |---|---|---|---|
 | `status` | enum ORDER_STATUS | **yes** | next status per ORDER_TRANSITIONS |
-| `note` | string | no | required when status = CANCELLED (reason) |
 
-**Rules / behaviour:** Writes order_status_events. READY sets ready_at and notifies the staff member who took the order (ORDER_READY); SERVED sets served_at. CANCELLED sets cancelled_at/cancellation_reason.
+**Rules / behaviour:** bar_orders.status is the only record of progress: there is no separate status history.
 
 **Errors**
 
@@ -6776,7 +4988,6 @@ PATCH /api/v1/kitchen/orders/:id/status
   "data": {
     "order_number": "BO-000020",
     "status": "READY",
-    "ready_at": "2026-10-03T11:45:00.000Z",
     "…": "…"
   }
 }
@@ -6804,7 +5015,7 @@ PATCH /api/v1/kitchen/orders/:id/status
       "from": "NEW",
       "to": "SERVED",
       "allowed": [
-        "ACCEPTED",
+        "PREPARING",
         "CANCELLED"
       ]
     }
@@ -6814,23 +5025,23 @@ PATCH /api/v1/kitchen/orders/:id/status
 
 ---
 
-### Module: Enquiries & CRM
+### Module: Enquiries
 
 *Owner: Dev 1 (Platform, Identity & Public Experience)*
 
 <a id="enquiriescreate"></a>
 #### `POST /api/v1/enquiries` — enquiries.create
 
-Submit an enquiry or trial-session request. Public callers are forced to source WEBSITE; staff log PHONE / WALK_IN enquiries.
+Submit an enquiry or trial-session request. Staff use the same endpoint to log phone and walk-in enquiries.
 
 | | |
 |---|---|
 | **Auth** | Optional for PUBLIC callers; staff send Bearer JWT |
 | **Roles** | PUBLIC, FRONT_DESK, OWNER_ADMIN |
 | **Success** | 201 · `data: EnquiryView` |
-| **Requirements** | FR-ENQ-001, FR-ENQ-002, FR-ENQ-003, FR-ENQ-008, FR-PUB-006 |
+| **Requirements** | FR-ENQ-001, FR-ENQ-002, FR-ENQ-003, FR-PUB-006 |
 | **Governing rules** | [R-ENQ-01](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `enquiries`, `notifications` |
+| **Tables touched** | `enquiries` |
 
 **Request body** — type `EnquiriesCreateRequest`
 
@@ -6844,9 +5055,8 @@ Submit an enquiry or trial-session request. Public callers are forced to source 
 | `membership_plan_id` | uuid | no |  |
 | `sport_type` | enum SPORT_TYPE | no | TRIAL |
 | `preferred_start_at` | datetime | no | TRIAL: must be in the future |
-| `source` | enum ENQUIRY_SOURCE | no | staff only: PHONE \| WALK_IN |
 
-**Rules / behaviour:** Creates status NEW and a NEW_ENQUIRY notification for every active FRONT_DESK and OWNER_ADMIN user. Rate-limit public submissions (5/hour/IP).
+**Rules / behaviour:** Stored with handled_at NULL: it waits in the front desk inbox until somebody handles it. Rate-limit public submissions (5/hour/IP).
 
 **Errors**
 
@@ -6882,9 +5092,8 @@ POST /api/v1/enquiries
   "data": {
     "id": "…",
     "enquiry_type": "TRIAL",
-    "source": "WEBSITE",
-    "status": "NEW",
     "name": "Siddharth Rao",
+    "handled_at": null,
     "…": "…"
   }
 }
@@ -6902,95 +5111,26 @@ POST /api/v1/enquiries
 }
 ```
 
-<a id="enquiriessummary"></a>
-#### `GET /api/v1/enquiries/summary` — enquiries.summary
-
-Funnel counts by status, conversion rate, follow-ups due.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK, OWNER_ADMIN |
-| **Success** | 200 · `data: EnquiryFunnel` |
-| **Requirements** | FR-ENQ-010 |
-| **Governing rules** | [R-ENQ-06](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `enquiries` |
-
-**Query parameters**
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `from` | date | no |  |
-| `to` | date | no |  |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-GET /api/v1/enquiries/summary
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "counts": {
-      "NEW": 0,
-      "CONTACTED": 0,
-      "QUOTE_SENT": 0,
-      "FOLLOW_UP": 0,
-      "CONVERTED": 0,
-      "LOST": 0
-    },
-    "total": 3,
-    "conversion_rate_percent": "18.00",
-    "follow_ups_due": 3
-  }
-}
-```
-
-**Example error (HTTP 400)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Request validation failed."
-  }
-}
-```
-
 <a id="enquirieslist"></a>
 #### `GET /api/v1/enquiries` — enquiries.list
 
-List and filter enquiries.
+The enquiry inbox: list and filter enquiries.
 
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
 | **Roles** | FRONT_DESK, OWNER_ADMIN |
 | **Success** | 200 · `data: EnquiryView[]` + `meta: PageMeta` |
-| **Requirements** | FR-ENQ-004 |
-| **Governing rules** | [R-ENQ-06](../business-rules/BUSINESS_RULES.md) |
+| **Requirements** | FR-ENQ-004, FR-ENQ-008 |
+| **Governing rules** | [R-ENQ-02](../business-rules/BUSINESS_RULES.md) |
 | **Tables touched** | `enquiries` |
 
 **Query parameters**
 
 | Field | Type | Required | Rules |
 |---|---|---|---|
-| `status` | enum ENQUIRY_STATUS | no |  |
+| `handled` | bool | no | false = still waiting (handled_at IS NULL) |
 | `enquiry_type` | enum ENQUIRY_TYPE | no |  |
-| `source` | enum ENQUIRY_SOURCE | no |  |
-| `assigned_to_user_id` | uuid | no |  |
-| `follow_up_due` | bool | no | next_follow_up_at <= now and status open |
 | `q` | string | no |  |
 | `page` | int | no | default 1 |
 | `page_size` | int | no | default 20, max 100 |
@@ -7016,8 +5156,6 @@ GET /api/v1/enquiries
     {
       "id": "07000000-0000-4000-8000-000000000001",
       "enquiry_type": "GENERAL",
-      "source": "WEBSITE",
-      "status": "NEW",
       "name": "Anita Deshmukh",
       "email": "anita.d@example.com",
       "phone": "+919900100001",
@@ -7025,15 +5163,10 @@ GET /api/v1/enquiries
       "membership_plan_id": null,
       "sport_type": null,
       "preferred_start_at": null,
-      "assigned_to_user_id": null,
-      "next_follow_up_at": null,
-      "converted_member_id": null,
-      "lost_reason": null,
-      "created_by_user_id": null,
       "created_at": "2026-10-03T04:10:00.000Z",
       "updated_at": "2026-10-03T04:10:00.000Z",
-      "plan_name": "Aarav Kapoor",
-      "assigned_to_name": "Aarav Kapoor"
+      "handled_at": null,
+      "plan_name": "Aarav Kapoor"
     }
   ],
   "meta": {
@@ -7060,16 +5193,16 @@ GET /api/v1/enquiries
 <a id="enquiriesget"></a>
 #### `GET /api/v1/enquiries/:id` — enquiries.get
 
-Enquiry with follow-ups and quotes.
+One enquiry.
 
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
 | **Roles** | FRONT_DESK, OWNER_ADMIN |
-| **Success** | 200 · `data: EnquiryDetail` |
-| **Requirements** | FR-ENQ-004, FR-ENQ-005 |
+| **Success** | 200 · `data: EnquiryView` |
+| **Requirements** | FR-ENQ-004 |
 | **Governing rules** | — |
-| **Tables touched** | `enquiries`, `enquiry_follow_ups`, `quotes` |
+| **Tables touched** | `enquiries` |
 | **Path params** | `id` (uuid) |
 
 **Errors**
@@ -7093,8 +5226,6 @@ GET /api/v1/enquiries/07000000-0000-4000-8000-000000000001
   "data": {
     "id": "07000000-0000-4000-8000-000000000001",
     "enquiry_type": "GENERAL",
-    "source": "WEBSITE",
-    "status": "NEW",
     "name": "Anita Deshmukh",
     "email": "anita.d@example.com",
     "phone": "+919900100001",
@@ -7102,43 +5233,10 @@ GET /api/v1/enquiries/07000000-0000-4000-8000-000000000001
     "membership_plan_id": null,
     "sport_type": null,
     "preferred_start_at": null,
-    "assigned_to_user_id": null,
-    "next_follow_up_at": null,
-    "converted_member_id": null,
-    "lost_reason": null,
-    "created_by_user_id": null,
     "created_at": "2026-10-03T04:10:00.000Z",
     "updated_at": "2026-10-03T04:10:00.000Z",
-    "plan_name": "Aarav Kapoor",
-    "assigned_to_name": "Aarav Kapoor",
-    "follow_ups": [
-      {
-        "id": "08000000-0000-4000-8000-000000000001",
-        "enquiry_id": "07000000-0000-4000-8000-000000000002",
-        "done_by_user_id": "01000000-0000-4000-8000-000000000002",
-        "method": "CALL",
-        "note": "Confirmed tennis trial slot with the visitor. Trial court booked.",
-        "followed_up_at": "2026-10-03T04:30:00.000Z",
-        "next_follow_up_at": null,
-        "created_at": "2026-10-03T04:30:00.000Z"
-      }
-    ],
-    "quotes": [
-      {
-        "id": "09000000-0000-4000-8000-000000000001",
-        "quote_number": "QT-00001",
-        "enquiry_id": "07000000-0000-4000-8000-000000000004",
-        "membership_plan_id": "05000000-0000-4000-8000-000000000002",
-        "description": "Silver Membership — 12 months",
-        "amount": "15000.00",
-        "valid_until": "2026-10-08",
-        "status": "SENT",
-        "sent_at": "2026-10-01T09:30:00.000Z",
-        "created_by_user_id": "01000000-0000-4000-8000-000000000003",
-        "created_at": "2026-10-01T09:30:00.000Z",
-        "updated_at": "2026-10-01T09:30:00.000Z"
-      }
-    ]
+    "handled_at": null,
+    "plan_name": "Aarav Kapoor"
   }
 }
 ```
@@ -7158,14 +5256,14 @@ GET /api/v1/enquiries/07000000-0000-4000-8000-000000000001
 <a id="enquiriesupdate"></a>
 #### `PATCH /api/v1/enquiries/:id` — enquiries.update
 
-Assign, reschedule follow-up, change status. (CONVERTED only via /convert.)
+Mark an enquiry handled (or reopen it) and correct its details.
 
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
 | **Roles** | FRONT_DESK, OWNER_ADMIN |
 | **Success** | 200 · `data: EnquiryView` |
-| **Requirements** | FR-ENQ-004, FR-ENQ-005 |
+| **Requirements** | FR-ENQ-004, FR-ENQ-008 |
 | **Governing rules** | [R-ENQ-02](../business-rules/BUSINESS_RULES.md) |
 | **Tables touched** | `enquiries` |
 | **Path params** | `id` (uuid) |
@@ -7174,10 +5272,7 @@ Assign, reschedule follow-up, change status. (CONVERTED only via /convert.)
 
 | Field | Type | Required | Rules |
 |---|---|---|---|
-| `status` | enum ENQUIRY_STATUS | no | per ENQUIRY_TRANSITIONS; not CONVERTED |
-| `assigned_to_user_id` | uuid | no |  |
-| `next_follow_up_at` | datetime | no |  |
-| `lost_reason` | text | no | required when status = LOST |
+| `handled` | bool | no | true sets handled_at = now, false clears it |
 | `name` | string | no |  |
 | `phone` | phone | no |  |
 | `email` | email | no |  |
@@ -7191,7 +5286,6 @@ Assign, reschedule follow-up, change status. (CONVERTED only via /convert.)
 | `VALIDATION_ERROR` | 400 | Request validation failed. |
 | `FORBIDDEN` | 403 | You do not have permission to perform this action. |
 | `ENQUIRY_NOT_FOUND` | 404 | Enquiry not found. |
-| `INVALID_STATUS_TRANSITION` | 409 | This status change is not allowed. |
 
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
@@ -7209,8 +5303,6 @@ PATCH /api/v1/enquiries/07000000-0000-4000-8000-000000000001
   "data": {
     "id": "07000000-0000-4000-8000-000000000001",
     "enquiry_type": "GENERAL",
-    "source": "WEBSITE",
-    "status": "NEW",
     "name": "Anita Deshmukh",
     "email": "anita.d@example.com",
     "phone": "+919900100001",
@@ -7218,211 +5310,10 @@ PATCH /api/v1/enquiries/07000000-0000-4000-8000-000000000001
     "membership_plan_id": null,
     "sport_type": null,
     "preferred_start_at": null,
-    "assigned_to_user_id": null,
-    "next_follow_up_at": null,
-    "converted_member_id": null,
-    "lost_reason": null,
-    "created_by_user_id": null,
     "created_at": "2026-10-03T04:10:00.000Z",
     "updated_at": "2026-10-03T04:10:00.000Z",
-    "plan_name": "Aarav Kapoor",
-    "assigned_to_name": "Aarav Kapoor"
-  }
-}
-```
-
-**Example error (HTTP 409)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "INVALID_STATUS_TRANSITION",
-    "message": "This status change is not allowed."
-  }
-}
-```
-
-<a id="enquiriesfollowUp"></a>
-#### `POST /api/v1/enquiries/:id/follow-ups` — enquiries.followUp
-
-Log a follow-up contact; optionally move the status and set the next follow-up.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK, OWNER_ADMIN |
-| **Success** | 201 · `data: EnquiryDetail` |
-| **Requirements** | FR-ENQ-005 |
-| **Governing rules** | [R-ENQ-02](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `enquiry_follow_ups`, `enquiries` |
-| **Path params** | `id` (uuid) |
-
-**Request body** — type `EnquiriesFollowUpRequest`
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `method` | enum FOLLOW_UP_METHOD | **yes** |  |
-| `note` | text | **yes** |  |
-| `next_follow_up_at` | datetime | no |  |
-| `new_status` | enum ENQUIRY_STATUS | no | default: NEW -> CONTACTED |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-| `ENQUIRY_NOT_FOUND` | 404 | Enquiry not found. |
-| `INVALID_STATUS_TRANSITION` | 409 | This status change is not allowed. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-POST /api/v1/enquiries/08000000-0000-4000-8000-000000000001/follow-ups
-```
-
-```json
-{
-  "method": "CALL",
-  "note": "Sample text"
-}
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "07000000-0000-4000-8000-000000000001",
-    "enquiry_type": "GENERAL",
-    "source": "WEBSITE",
-    "status": "NEW",
-    "name": "Anita Deshmukh",
-    "email": "anita.d@example.com",
-    "phone": "+919900100001",
-    "message": "What are your timings and do you offer coaching for beginners?",
-    "membership_plan_id": null,
-    "sport_type": null,
-    "preferred_start_at": null,
-    "assigned_to_user_id": null,
-    "next_follow_up_at": null,
-    "converted_member_id": null,
-    "lost_reason": null,
-    "created_by_user_id": null,
-    "created_at": "2026-10-03T04:10:00.000Z",
-    "updated_at": "2026-10-03T04:10:00.000Z",
-    "plan_name": "Aarav Kapoor",
-    "assigned_to_name": "Aarav Kapoor",
-    "follow_ups": [
-      {
-        "id": "08000000-0000-4000-8000-000000000001",
-        "enquiry_id": "07000000-0000-4000-8000-000000000002",
-        "done_by_user_id": "01000000-0000-4000-8000-000000000002",
-        "method": "CALL",
-        "note": "Confirmed tennis trial slot with the visitor. Trial court booked.",
-        "followed_up_at": "2026-10-03T04:30:00.000Z",
-        "next_follow_up_at": null,
-        "created_at": "2026-10-03T04:30:00.000Z"
-      }
-    ],
-    "quotes": [
-      {
-        "id": "09000000-0000-4000-8000-000000000001",
-        "quote_number": "QT-00001",
-        "enquiry_id": "07000000-0000-4000-8000-000000000004",
-        "membership_plan_id": "05000000-0000-4000-8000-000000000002",
-        "description": "Silver Membership — 12 months",
-        "amount": "15000.00",
-        "valid_until": "2026-10-08",
-        "status": "SENT",
-        "sent_at": "2026-10-01T09:30:00.000Z",
-        "created_by_user_id": "01000000-0000-4000-8000-000000000003",
-        "created_at": "2026-10-01T09:30:00.000Z",
-        "updated_at": "2026-10-01T09:30:00.000Z"
-      }
-    ]
-  }
-}
-```
-
-**Example error (HTTP 409)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "INVALID_STATUS_TRANSITION",
-    "message": "This status change is not allowed."
-  }
-}
-```
-
-<a id="enquiriesquoteCreate"></a>
-#### `POST /api/v1/enquiries/:id/quotes` — enquiries.quoteCreate
-
-Create (and optionally send) a quote.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK, OWNER_ADMIN |
-| **Success** | 201 · `data: Quote` |
-| **Requirements** | FR-ENQ-006 |
-| **Governing rules** | [R-ENQ-03](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `quotes`, `enquiries` |
-| **Path params** | `id` (uuid) |
-
-**Request body** — type `EnquiriesQuoteCreateRequest`
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `membership_plan_id` | uuid | no |  |
-| `description` | text | **yes** |  |
-| `amount` | money | **yes** |  |
-| `valid_until` | date | **yes** |  |
-| `send_now` | bool | no | true => status SENT and enquiry -> QUOTE_SENT |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-| `ENQUIRY_NOT_FOUND` | 404 | Enquiry not found. |
-| `MEMBERSHIP_PLAN_NOT_FOUND` | 404 | Membership plan not found. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-POST /api/v1/enquiries/09000000-0000-4000-8000-000000000001/quotes
-```
-
-```json
-{
-  "description": "Sample text",
-  "amount": "100.00",
-  "valid_until": "2026-10-10"
-}
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "09000000-0000-4000-8000-000000000001",
-    "quote_number": "QT-00001",
-    "enquiry_id": "07000000-0000-4000-8000-000000000004",
-    "membership_plan_id": "05000000-0000-4000-8000-000000000002",
-    "description": "Silver Membership — 12 months",
-    "amount": "15000.00",
-    "valid_until": "2026-10-08",
-    "status": "SENT",
-    "sent_at": "2026-10-01T09:30:00.000Z",
-    "created_by_user_id": "01000000-0000-4000-8000-000000000003",
-    "created_at": "2026-10-01T09:30:00.000Z",
-    "updated_at": "2026-10-01T09:30:00.000Z"
+    "handled_at": null,
+    "plan_name": "Aarav Kapoor"
   }
 }
 ```
@@ -7435,335 +5326,6 @@ POST /api/v1/enquiries/09000000-0000-4000-8000-000000000001/quotes
   "error": {
     "code": "ENQUIRY_NOT_FOUND",
     "message": "Enquiry not found."
-  }
-}
-```
-
-<a id="enquiriesquoteUpdate"></a>
-#### `PATCH /api/v1/quotes/:id` — enquiries.quoteUpdate
-
-Mark a quote SENT / ACCEPTED / REJECTED / EXPIRED.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK, OWNER_ADMIN |
-| **Success** | 200 · `data: Quote` |
-| **Requirements** | FR-ENQ-006 |
-| **Governing rules** | [R-ENQ-03](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `quotes` |
-| **Path params** | `id` (uuid) |
-
-**Request body** — type `EnquiriesQuoteUpdateRequest`
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `status` | enum QUOTE_STATUS | **yes** |  |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-| `QUOTE_NOT_FOUND` | 404 | Quote not found. |
-| `INVALID_STATUS_TRANSITION` | 409 | This status change is not allowed. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-PATCH /api/v1/quotes/09000000-0000-4000-8000-000000000001
-```
-
-```json
-{
-  "status": "DRAFT"
-}
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "09000000-0000-4000-8000-000000000001",
-    "quote_number": "QT-00001",
-    "enquiry_id": "07000000-0000-4000-8000-000000000004",
-    "membership_plan_id": "05000000-0000-4000-8000-000000000002",
-    "description": "Silver Membership — 12 months",
-    "amount": "15000.00",
-    "valid_until": "2026-10-08",
-    "status": "SENT",
-    "sent_at": "2026-10-01T09:30:00.000Z",
-    "created_by_user_id": "01000000-0000-4000-8000-000000000003",
-    "created_at": "2026-10-01T09:30:00.000Z",
-    "updated_at": "2026-10-01T09:30:00.000Z"
-  }
-}
-```
-
-**Example error (HTTP 409)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "INVALID_STATUS_TRANSITION",
-    "message": "This status change is not allowed."
-  }
-}
-```
-
-<a id="enquiriestrialBooking"></a>
-#### `POST /api/v1/enquiries/:id/trial-booking` — enquiries.trialBooking
-
-Book the trial session on a court for this enquiry (booking_type TRIAL, free).
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK, OWNER_ADMIN |
-| **Success** | 201 · `data: BookingDetail` |
-| **Requirements** | FR-ENQ-009, FR-ENQ-002 |
-| **Governing rules** | [R-ENQ-05](../business-rules/BUSINESS_RULES.md), [R-COURT-03](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `court_bookings`, `enquiries` |
-| **Path params** | `id` (uuid) |
-
-**Request body** — type `EnquiriesTrialBookingRequest`
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `court_id` | uuid | **yes** |  |
-| `start_at` | datetime | **yes** |  |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-| `ENQUIRY_NOT_FOUND` | 404 | Enquiry not found. |
-| `COURT_NOT_FOUND` | 404 | Court not found. |
-| `INVALID_SLOT` | 422 | Start time must be on a 30-minute boundary, in the future, within opening hours. |
-| `BOOKING_CONFLICT` | 409 | This court is already booked for that time. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-POST /api/v1/enquiries/0b000000-0000-4000-8000-000000000001/trial-booking
-```
-
-```json
-{
-  "court_id": "0a000000-0000-4000-8000-000000000001",
-  "start_at": "2026-10-10T12:30:00.000Z"
-}
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "0b000000-0000-4000-8000-000000000001",
-    "booking_number": "BK-000001",
-    "court_id": "0a000000-0000-4000-8000-000000000001",
-    "booking_type": "REGULAR",
-    "status": "COMPLETED",
-    "customer_type": "MEMBER",
-    "member_id": "02000000-0000-4000-8000-000000000003",
-    "membership_id": "06000000-0000-4000-8000-000000000003",
-    "guest_name": null,
-    "guest_phone": null,
-    "enquiry_id": null,
-    "start_at": "2026-09-27T12:30:00.000Z",
-    "end_at": "2026-09-27T13:30:00.000Z",
-    "list_price": "800.00",
-    "discount_amount": "400.00",
-    "amount_due": "400.00",
-    "tax_amount": "61.02",
-    "payment_status": "PAID",
-    "notes": null,
-    "cancelled_at": null,
-    "cancelled_by_user_id": null,
-    "cancellation_reason": null,
-    "created_by_user_id": "01000000-0000-4000-8000-000000000003",
-    "created_at": "2026-09-26T12:30:00.000Z",
-    "updated_at": "2026-09-26T12:30:00.000Z",
-    "court_name": "Aarav Kapoor",
-    "sport_type": "TENNIS",
-    "member_name": "Aarav Kapoor",
-    "member_code": "CCM-00001",
-    "social_session_id": "0c000000-0000-4000-8000-000000000001"
-  }
-}
-```
-
-**Example error (HTTP 422)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "INVALID_SLOT",
-    "message": "Start time must be on a 30-minute boundary, in the future, within opening hours."
-  }
-}
-```
-
-<a id="enquiriesconvert"></a>
-#### `POST /api/v1/enquiries/:id/convert` — enquiries.convert
-
-Convert an enquiry into a registered member with a membership.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK, OWNER_ADMIN |
-| **Success** | 201 · `data: EnquiryConvertResult` |
-| **Requirements** | FR-ENQ-007, FR-MEM-001, FR-FIN-001 |
-| **Governing rules** | [R-ENQ-04](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `enquiries`, `users`, `members`, `memberships`, `payments` |
-| **Path params** | `id` (uuid) |
-
-**Request body** — type `EnquiriesConvertRequest`
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `email` | email | no | required if the enquiry has no email |
-| `date_of_birth` | date | no |  |
-| `address` | text | no |  |
-| `initial_password` | string | no |  |
-| `membership_plan_id` | uuid | **yes** |  |
-| `payment_method` | enum PAYMENT_METHOD | **yes** |  |
-
-**Rules / behaviour:** One transaction: member + membership + payment; enquiry.status = CONVERTED, converted_member_id set; accepted quote (if any) -> ACCEPTED.
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-| `ENQUIRY_NOT_FOUND` | 404 | Enquiry not found. |
-| `ENQUIRY_ALREADY_CONVERTED` | 409 | Enquiry has already been converted. |
-| `EMAIL_TAKEN` | 409 | An account with this email already exists. |
-| `MEMBERSHIP_PLAN_NOT_FOUND` | 404 | Membership plan not found. |
-| `JUNIOR_AGE_INVALID` | 422 | Junior plan requires the member to be under 18. |
-| `PAYMENT_FAILED` | 402 | Payment could not be completed. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-POST /api/v1/enquiries/07000000-0000-4000-8000-000000000001/convert
-```
-
-```json
-{
-  "membership_plan_id": "05000000-0000-4000-8000-000000000001",
-  "payment_method": "CASH"
-}
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "enquiry": {
-      "id": "07000000-0000-4000-8000-000000000001",
-      "enquiry_type": "GENERAL",
-      "source": "WEBSITE",
-      "status": "NEW",
-      "name": "Anita Deshmukh",
-      "email": "anita.d@example.com",
-      "phone": "+919900100001",
-      "message": "What are your timings and do you offer coaching for beginners?",
-      "membership_plan_id": null,
-      "sport_type": null,
-      "preferred_start_at": null,
-      "assigned_to_user_id": null,
-      "next_follow_up_at": null,
-      "converted_member_id": null,
-      "lost_reason": null,
-      "created_by_user_id": null,
-      "created_at": "2026-10-03T04:10:00.000Z",
-      "updated_at": "2026-10-03T04:10:00.000Z",
-      "plan_name": "Aarav Kapoor",
-      "assigned_to_name": "Aarav Kapoor"
-    },
-    "member": {
-      "id": "00002762-0000-4000-8000-000000312662",
-      "user_id": "01000000-0000-4000-8000-000000000001",
-      "member_code": "CCM-00001",
-      "full_name": "Aarav Kapoor",
-      "email": "name@example.com",
-      "phone": "+919811100001",
-      "date_of_birth": "2026-10-03",
-      "photo_url": "https://example.com/image.jpg",
-      "joined_on": "2026-10-03",
-      "is_active": true,
-      "active_membership": {
-        "membership_id": "06000000-0000-4000-8000-000000000001",
-        "membership_plan_id": "05000000-0000-4000-8000-000000000001",
-        "membership_type": "GOLD",
-        "plan_name": "Aarav Kapoor",
-        "status": "UPCOMING",
-        "start_date": "2026-10-03",
-        "end_date": "2026-10-03",
-        "days_remaining": 3
-      }
-    },
-    "membership": {
-      "id": "06000000-0000-4000-8000-000000000001",
-      "member_id": "02000000-0000-4000-8000-000000000001",
-      "membership_plan_id": "05000000-0000-4000-8000-000000000001",
-      "status": "ACTIVE",
-      "start_date": "2026-03-17",
-      "end_date": "2027-03-16",
-      "price_paid": "30000.00",
-      "previous_membership_id": null,
-      "cancelled_at": null,
-      "cancellation_reason": null,
-      "created_by_user_id": "01000000-0000-4000-8000-000000000002",
-      "created_at": "2026-03-17T05:00:00.000Z",
-      "updated_at": "2026-03-17T05:00:00.000Z"
-    },
-    "payment": {
-      "id": "18000000-0000-4000-8000-000000000001",
-      "payment_number": "PAY-0000001",
-      "source_type": "MEMBERSHIP",
-      "source_id": "06000000-0000-4000-8000-000000000010",
-      "revenue_category": "MEMBERSHIP",
-      "member_id": "02000000-0000-4000-8000-000000000010",
-      "business_client_id": null,
-      "payer_name": null,
-      "amount": "15000.00",
-      "tax_amount": "2288.14",
-      "method": "CARD",
-      "status": "SUCCEEDED",
-      "gateway_reference": "AUTH-7099",
-      "received_by_user_id": "01000000-0000-4000-8000-000000000002",
-      "paid_at": "2025-09-25T05:00:00.000Z",
-      "refunded_amount": "0.00",
-      "refund_reason": null,
-      "refunded_at": null,
-      "notes": null,
-      "created_at": "2025-09-25T05:00:00.000Z",
-      "updated_at": "2025-09-25T05:00:00.000Z"
-    }
-  }
-}
-```
-
-**Example error (HTTP 409)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "ENQUIRY_ALREADY_CONVERTED",
-    "message": "Enquiry has already been converted."
   }
 }
 ```
@@ -8173,13 +5735,14 @@ List invoices (a business client sees only theirs; a member only their membershi
 | **Success** | 200 · `data: InvoiceView[]` + `meta: PageMeta` |
 | **Requirements** | FR-INVC-005, FR-INVC-008, FR-FIN-006, FR-INVC-009 |
 | **Governing rules** | [R-INVC-03](../business-rules/BUSINESS_RULES.md), [R-FIN-08](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `invoices` |
+| **Tables touched** | `invoices`, `invoice_items`, `payments` |
 
 **Query parameters**
 
 | Field | Type | Required | Rules |
 |---|---|---|---|
 | `status` | enum INVOICE_STATUS | no |  |
+| `payment_state` | enum INVOICE_PAYMENT_STATE | no |  |
 | `invoice_type` | enum INVOICE_TYPE | no |  |
 | `business_client_id` | uuid | no | OWNER_ADMIN only |
 | `member_id` | uuid | no | OWNER_ADMIN only |
@@ -8189,7 +5752,7 @@ List invoices (a business client sees only theirs; a member only their membershi
 | `page` | int | no | default 1 |
 | `page_size` | int | no | default 20, max 100 |
 
-**Rules / behaviour:** OVERDUE is derived: due_date < today (IST) and amount_paid < total_amount and status in (SENT, PARTIALLY_PAID); the daily job persists it.
+**Rules / behaviour:** Paid / partially paid / overdue are DERIVED by the view invoice_totals (payment_state): OVERDUE = a SENT invoice whose due_date is before today (IST) and that is not fully paid. Nothing is persisted by a job.
 
 **Errors**
 
@@ -8210,27 +5773,25 @@ GET /api/v1/invoices
   "success": true,
   "data": [
     {
-      "id": "19000000-0000-4000-8000-000000000001",
+      "id": "11000000-0000-4000-8000-000000000001",
       "invoice_number": "INV-00001",
-      "invoice_type": "BUSINESS",
       "business_client_id": "04000000-0000-4000-8000-000000000001",
       "member_id": null,
-      "status": "PAID",
+      "status": "SENT",
       "issue_date": "2026-09-13",
       "due_date": "2026-09-27",
-      "subtotal": "22800.00",
       "tax_rate": "18.00",
-      "tax_amount": "4104.00",
-      "total_amount": "26904.00",
-      "amount_paid": "26904.00",
       "notes": "Corporate sports day",
-      "sent_at": "2026-09-13T04:30:00.000Z",
-      "voided_at": null,
-      "created_by_user_id": "01000000-0000-4000-8000-000000000001",
       "created_at": "2026-09-13T04:00:00.000Z",
       "updated_at": "2026-09-13T04:30:00.000Z",
-      "client_name": "Aarav Kapoor",
-      "amount_outstanding": "1250.00"
+      "invoice_type": "BUSINESS",
+      "subtotal": "1250.00",
+      "tax_amount": "1250.00",
+      "total_amount": "1250.00",
+      "amount_paid": "1250.00",
+      "amount_outstanding": "1250.00",
+      "payment_state": "UNPAID",
+      "client_name": "Aarav Kapoor"
     }
   ],
   "meta": {
@@ -8272,9 +5833,8 @@ Create a business-client or membership invoice.
 
 | Field | Type | Required | Rules |
 |---|---|---|---|
-| `invoice_type` | enum INVOICE_TYPE | **yes** |  |
-| `business_client_id` | uuid | no | required for BUSINESS |
-| `member_id` | uuid | no | required for MEMBERSHIP |
+| `business_client_id` | uuid | no | addressed to a business client (exactly one of business_client_id / member_id) |
+| `member_id` | uuid | no | addressed to a member (membership invoice) |
 | `issue_date` | date | no | default today |
 | `due_date` | date | **yes** | >= issue_date |
 | `items` | object[] | **yes** | >=1 line |
@@ -8285,7 +5845,7 @@ Create a business-client or membership invoice.
 | `notes` | text | no |  |
 | `send_now` | bool | no |  |
 
-**Rules / behaviour:** Invoices are tax-EXCLUSIVE: subtotal = sum(line_total); tax_amount = round(subtotal x tax_rate / 100, 2); total_amount = subtotal + tax_amount.
+**Rules / behaviour:** Invoices are tax-EXCLUSIVE: subtotal = sum(quantity x unit_price); tax_amount = round(subtotal x tax_rate / 100, 2); total_amount = subtotal + tax_amount. Only the lines and tax_rate are stored; the totals are derived (view invoice_totals).
 
 **Errors**
 
@@ -8305,7 +5865,6 @@ POST /api/v1/invoices
 
 ```json
 {
-  "invoice_type": "BUSINESS",
   "business_client_id": "04000000-0000-4000-8000-000000000001",
   "due_date": "2026-10-17",
   "items": [
@@ -8324,7 +5883,9 @@ POST /api/v1/invoices
   "success": true,
   "data": {
     "invoice_number": "INV-00007",
+    "invoice_type": "BUSINESS",
     "status": "SENT",
+    "payment_state": "UNPAID",
     "subtotal": "8000.00",
     "tax_rate": "18.00",
     "tax_amount": "1440.00",
@@ -8375,59 +5936,54 @@ Invoice with lines, payments and outstanding amount.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-GET /api/v1/invoices/19000000-0000-4000-8000-000000000001
+GET /api/v1/invoices/11000000-0000-4000-8000-000000000001
 ```
 
 ```json
 {
   "success": true,
   "data": {
-    "id": "19000000-0000-4000-8000-000000000001",
+    "id": "11000000-0000-4000-8000-000000000001",
     "invoice_number": "INV-00001",
-    "invoice_type": "BUSINESS",
     "business_client_id": "04000000-0000-4000-8000-000000000001",
     "member_id": null,
-    "status": "PAID",
+    "status": "SENT",
     "issue_date": "2026-09-13",
     "due_date": "2026-09-27",
-    "subtotal": "22800.00",
     "tax_rate": "18.00",
-    "tax_amount": "4104.00",
-    "total_amount": "26904.00",
-    "amount_paid": "26904.00",
     "notes": "Corporate sports day",
-    "sent_at": "2026-09-13T04:30:00.000Z",
-    "voided_at": null,
-    "created_by_user_id": "01000000-0000-4000-8000-000000000001",
     "created_at": "2026-09-13T04:00:00.000Z",
     "updated_at": "2026-09-13T04:30:00.000Z",
-    "client_name": "Aarav Kapoor",
+    "invoice_type": "BUSINESS",
+    "subtotal": "1250.00",
+    "tax_amount": "1250.00",
+    "total_amount": "1250.00",
+    "amount_paid": "1250.00",
     "amount_outstanding": "1250.00",
+    "payment_state": "UNPAID",
+    "client_name": "Aarav Kapoor",
     "items": [
       {
-        "id": "1a000000-0000-4000-8000-000000000001",
-        "invoice_id": "19000000-0000-4000-8000-000000000001",
+        "id": "12000000-0000-4000-8000-000000000001",
+        "invoice_id": "11000000-0000-4000-8000-000000000001",
         "description": "Corporate tennis day — court hire (4 courts x 4 hrs)",
         "quantity": 16,
         "unit_price": "800.00",
-        "line_total": "12800.00",
         "created_at": "2026-09-13T04:00:00.000Z"
       }
     ],
     "payments": [
       {
-        "id": "18000000-0000-4000-8000-000000000001",
+        "id": "10000000-0000-4000-8000-000000000001",
         "payment_number": "PAY-0000001",
         "source_type": "MEMBERSHIP",
         "source_id": "06000000-0000-4000-8000-000000000010",
-        "revenue_category": "MEMBERSHIP",
         "member_id": "02000000-0000-4000-8000-000000000010",
         "business_client_id": null,
         "payer_name": null,
         "amount": "15000.00",
         "tax_amount": "2288.14",
         "method": "CARD",
-        "status": "SUCCEEDED",
         "gateway_reference": "AUTH-7099",
         "received_by_user_id": "01000000-0000-4000-8000-000000000002",
         "paid_at": "2025-09-25T05:00:00.000Z",
@@ -8509,7 +6065,7 @@ Edit a DRAFT invoice.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-PATCH /api/v1/invoices/19000000-0000-4000-8000-000000000001
+PATCH /api/v1/invoices/11000000-0000-4000-8000-000000000001
 ```
 
 ```json
@@ -8520,52 +6076,47 @@ PATCH /api/v1/invoices/19000000-0000-4000-8000-000000000001
 {
   "success": true,
   "data": {
-    "id": "19000000-0000-4000-8000-000000000001",
+    "id": "11000000-0000-4000-8000-000000000001",
     "invoice_number": "INV-00001",
-    "invoice_type": "BUSINESS",
     "business_client_id": "04000000-0000-4000-8000-000000000001",
     "member_id": null,
-    "status": "PAID",
+    "status": "SENT",
     "issue_date": "2026-09-13",
     "due_date": "2026-09-27",
-    "subtotal": "22800.00",
     "tax_rate": "18.00",
-    "tax_amount": "4104.00",
-    "total_amount": "26904.00",
-    "amount_paid": "26904.00",
     "notes": "Corporate sports day",
-    "sent_at": "2026-09-13T04:30:00.000Z",
-    "voided_at": null,
-    "created_by_user_id": "01000000-0000-4000-8000-000000000001",
     "created_at": "2026-09-13T04:00:00.000Z",
     "updated_at": "2026-09-13T04:30:00.000Z",
-    "client_name": "Aarav Kapoor",
+    "invoice_type": "BUSINESS",
+    "subtotal": "1250.00",
+    "tax_amount": "1250.00",
+    "total_amount": "1250.00",
+    "amount_paid": "1250.00",
     "amount_outstanding": "1250.00",
+    "payment_state": "UNPAID",
+    "client_name": "Aarav Kapoor",
     "items": [
       {
-        "id": "1a000000-0000-4000-8000-000000000001",
-        "invoice_id": "19000000-0000-4000-8000-000000000001",
+        "id": "12000000-0000-4000-8000-000000000001",
+        "invoice_id": "11000000-0000-4000-8000-000000000001",
         "description": "Corporate tennis day — court hire (4 courts x 4 hrs)",
         "quantity": 16,
         "unit_price": "800.00",
-        "line_total": "12800.00",
         "created_at": "2026-09-13T04:00:00.000Z"
       }
     ],
     "payments": [
       {
-        "id": "18000000-0000-4000-8000-000000000001",
+        "id": "10000000-0000-4000-8000-000000000001",
         "payment_number": "PAY-0000001",
         "source_type": "MEMBERSHIP",
         "source_id": "06000000-0000-4000-8000-000000000010",
-        "revenue_category": "MEMBERSHIP",
         "member_id": "02000000-0000-4000-8000-000000000010",
         "business_client_id": null,
         "payer_name": null,
         "amount": "15000.00",
         "tax_amount": "2288.14",
         "method": "CARD",
-        "status": "SUCCEEDED",
         "gateway_reference": "AUTH-7099",
         "received_by_user_id": "01000000-0000-4000-8000-000000000002",
         "paid_at": "2025-09-25T05:00:00.000Z",
@@ -8610,16 +6161,16 @@ PATCH /api/v1/invoices/19000000-0000-4000-8000-000000000001
 <a id="invoicessend"></a>
 #### `POST /api/v1/invoices/:id/send` — invoices.send
 
-Issue the invoice to the client (DRAFT -> SENT) and notify them.
+Issue the invoice to the client (DRAFT -> SENT).
 
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
 | **Roles** | OWNER_ADMIN |
 | **Success** | 200 · `data: InvoiceDetail` |
-| **Requirements** | FR-INVC-003, FR-NOTIF-003 |
+| **Requirements** | FR-INVC-003 |
 | **Governing rules** | [R-INVC-01](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `invoices`, `notifications` |
+| **Tables touched** | `invoices` |
 | **Path params** | `id` (uuid) |
 
 **Errors**
@@ -8635,59 +6186,54 @@ Issue the invoice to the client (DRAFT -> SENT) and notify them.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-POST /api/v1/invoices/19000000-0000-4000-8000-000000000001/send
+POST /api/v1/invoices/11000000-0000-4000-8000-000000000001/send
 ```
 
 ```json
 {
   "success": true,
   "data": {
-    "id": "19000000-0000-4000-8000-000000000001",
+    "id": "11000000-0000-4000-8000-000000000001",
     "invoice_number": "INV-00001",
-    "invoice_type": "BUSINESS",
     "business_client_id": "04000000-0000-4000-8000-000000000001",
     "member_id": null,
-    "status": "PAID",
+    "status": "SENT",
     "issue_date": "2026-09-13",
     "due_date": "2026-09-27",
-    "subtotal": "22800.00",
     "tax_rate": "18.00",
-    "tax_amount": "4104.00",
-    "total_amount": "26904.00",
-    "amount_paid": "26904.00",
     "notes": "Corporate sports day",
-    "sent_at": "2026-09-13T04:30:00.000Z",
-    "voided_at": null,
-    "created_by_user_id": "01000000-0000-4000-8000-000000000001",
     "created_at": "2026-09-13T04:00:00.000Z",
     "updated_at": "2026-09-13T04:30:00.000Z",
-    "client_name": "Aarav Kapoor",
+    "invoice_type": "BUSINESS",
+    "subtotal": "1250.00",
+    "tax_amount": "1250.00",
+    "total_amount": "1250.00",
+    "amount_paid": "1250.00",
     "amount_outstanding": "1250.00",
+    "payment_state": "UNPAID",
+    "client_name": "Aarav Kapoor",
     "items": [
       {
-        "id": "1a000000-0000-4000-8000-000000000001",
-        "invoice_id": "19000000-0000-4000-8000-000000000001",
+        "id": "12000000-0000-4000-8000-000000000001",
+        "invoice_id": "11000000-0000-4000-8000-000000000001",
         "description": "Corporate tennis day — court hire (4 courts x 4 hrs)",
         "quantity": 16,
         "unit_price": "800.00",
-        "line_total": "12800.00",
         "created_at": "2026-09-13T04:00:00.000Z"
       }
     ],
     "payments": [
       {
-        "id": "18000000-0000-4000-8000-000000000001",
+        "id": "10000000-0000-4000-8000-000000000001",
         "payment_number": "PAY-0000001",
         "source_type": "MEMBERSHIP",
         "source_id": "06000000-0000-4000-8000-000000000010",
-        "revenue_category": "MEMBERSHIP",
         "member_id": "02000000-0000-4000-8000-000000000010",
         "business_client_id": null,
         "payer_name": null,
         "amount": "15000.00",
         "tax_amount": "2288.14",
         "method": "CARD",
-        "status": "SUCCEEDED",
         "gateway_reference": "AUTH-7099",
         "received_by_user_id": "01000000-0000-4000-8000-000000000002",
         "paid_at": "2025-09-25T05:00:00.000Z",
@@ -8741,7 +6287,7 @@ Void an invoice that has no payments.
 | **Success** | 200 · `data: InvoiceDetail` |
 | **Requirements** | FR-INVC-007 |
 | **Governing rules** | [R-INVC-04](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `invoices` |
+| **Tables touched** | `invoices`, `payments` |
 | **Path params** | `id` (uuid) |
 
 **Errors**
@@ -8757,59 +6303,54 @@ Void an invoice that has no payments.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-POST /api/v1/invoices/19000000-0000-4000-8000-000000000001/void
+POST /api/v1/invoices/11000000-0000-4000-8000-000000000001/void
 ```
 
 ```json
 {
   "success": true,
   "data": {
-    "id": "19000000-0000-4000-8000-000000000001",
+    "id": "11000000-0000-4000-8000-000000000001",
     "invoice_number": "INV-00001",
-    "invoice_type": "BUSINESS",
     "business_client_id": "04000000-0000-4000-8000-000000000001",
     "member_id": null,
-    "status": "PAID",
+    "status": "SENT",
     "issue_date": "2026-09-13",
     "due_date": "2026-09-27",
-    "subtotal": "22800.00",
     "tax_rate": "18.00",
-    "tax_amount": "4104.00",
-    "total_amount": "26904.00",
-    "amount_paid": "26904.00",
     "notes": "Corporate sports day",
-    "sent_at": "2026-09-13T04:30:00.000Z",
-    "voided_at": null,
-    "created_by_user_id": "01000000-0000-4000-8000-000000000001",
     "created_at": "2026-09-13T04:00:00.000Z",
     "updated_at": "2026-09-13T04:30:00.000Z",
-    "client_name": "Aarav Kapoor",
+    "invoice_type": "BUSINESS",
+    "subtotal": "1250.00",
+    "tax_amount": "1250.00",
+    "total_amount": "1250.00",
+    "amount_paid": "1250.00",
     "amount_outstanding": "1250.00",
+    "payment_state": "UNPAID",
+    "client_name": "Aarav Kapoor",
     "items": [
       {
-        "id": "1a000000-0000-4000-8000-000000000001",
-        "invoice_id": "19000000-0000-4000-8000-000000000001",
+        "id": "12000000-0000-4000-8000-000000000001",
+        "invoice_id": "11000000-0000-4000-8000-000000000001",
         "description": "Corporate tennis day — court hire (4 courts x 4 hrs)",
         "quantity": 16,
         "unit_price": "800.00",
-        "line_total": "12800.00",
         "created_at": "2026-09-13T04:00:00.000Z"
       }
     ],
     "payments": [
       {
-        "id": "18000000-0000-4000-8000-000000000001",
+        "id": "10000000-0000-4000-8000-000000000001",
         "payment_number": "PAY-0000001",
         "source_type": "MEMBERSHIP",
         "source_id": "06000000-0000-4000-8000-000000000010",
-        "revenue_category": "MEMBERSHIP",
         "member_id": "02000000-0000-4000-8000-000000000010",
         "business_client_id": null,
         "payer_name": null,
         "amount": "15000.00",
         "tax_amount": "2288.14",
         "method": "CARD",
-        "status": "SUCCEEDED",
         "gateway_reference": "AUTH-7099",
         "received_by_user_id": "01000000-0000-4000-8000-000000000002",
         "paid_at": "2025-09-25T05:00:00.000Z",
@@ -8860,7 +6401,7 @@ POST /api/v1/invoices/19000000-0000-4000-8000-000000000001/void
 <a id="paymentscreate"></a>
 #### `POST /api/v1/payments` — payments.create
 
-Record a payment against a booking, social participation, membership, shop order, bar order, tab or invoice.
+Record a payment against a court booking, membership, shop order, cafe order or invoice.
 
 | | |
 |---|---|
@@ -8869,7 +6410,7 @@ Record a payment against a booking, social participation, membership, shop order
 | **Success** | 201 · `data: PaymentView` |
 | **Requirements** | FR-FIN-001, FR-FIN-002, FR-INVC-004, FR-FIN-010 |
 | **Governing rules** | [R-FIN-01](../business-rules/BUSINESS_RULES.md), [R-FIN-02](../business-rules/BUSINESS_RULES.md), [R-FIN-04](../business-rules/BUSINESS_RULES.md), [R-FIN-05](../business-rules/BUSINESS_RULES.md), [R-FIN-11](../business-rules/BUSINESS_RULES.md), [R-INVC-02](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `payments`, `court_bookings`, `social_session_participants`, `shop_orders`, `bar_orders`, `bar_tabs`, `invoices` |
+| **Tables touched** | `payments`, `court_bookings`, `shop_orders`, `bar_orders`, `invoices` |
 
 **Request body** — type `PaymentsCreateRequest`
 
@@ -8882,7 +6423,7 @@ Record a payment against a booking, social participation, membership, shop order
 | `gateway_reference` | string | no |  |
 | `notes` | text | no |  |
 
-**Rules / behaviour:** revenue_category derived from source_type (INVOICE: BUSINESS or MEMBERSHIP from invoice_type). tax_amount derived (tax-inclusive sources) or proportional (invoices). Updates the source payment_status (invoices: amount_paid + status PARTIALLY_PAID/PAID) in the same transaction. BAR_ORDER sources that belong to a tab are rejected (settle the tab). ONLINE goes through the mock gateway of the hackathon build (ADR-011): an amount whose paise are .13 (e.g. 100.13) returns PAYMENT_FAILED.
+**Rules / behaviour:** The revenue category is derived from source_type (INVOICE: BUSINESS or MEMBERSHIP by the invoice recipient) by the view payment_ledger. tax_amount is computed at payment time (tax-inclusive sources) or pro rata (invoices). No status is written on the thing being paid: its payment status is derived from its payments. ONLINE goes through the mock gateway of the hackathon build (ADR-011): an amount whose paise are .13 (e.g. 100.13) returns PAYMENT_FAILED.
 
 **Errors**
 
@@ -8895,9 +6436,7 @@ Record a payment against a booking, social participation, membership, shop order
 | `PAYMENT_AMOUNT_MISMATCH` | 422 | Payment amount does not match the amount due. |
 | `ALREADY_PAID` | 409 | This item is already fully paid. |
 | `BOOKING_NOT_FOUND` | 404 | Booking not found. |
-| `NOT_A_PARTICIPANT` | 404 | Participant not found in this session. |
 | `ORDER_NOT_FOUND` | 404 | Order not found. |
-| `TAB_NOT_FOUND` | 404 | Tab not found. |
 | `INVOICE_NOT_FOUND` | 404 | Invoice not found. |
 | `MEMBERSHIP_NOT_FOUND` | 404 | Membership not found. |
 
@@ -8910,7 +6449,7 @@ POST /api/v1/payments
 ```json
 {
   "source_type": "INVOICE",
-  "source_id": "19000000-0000-4000-8000-000000000002",
+  "source_id": "11000000-0000-4000-8000-000000000002",
   "amount": "5000.00",
   "payment_method": "ONLINE"
 }
@@ -8920,9 +6459,9 @@ POST /api/v1/payments
 {
   "success": true,
   "data": {
-    "payment_number": "PAY-0000067",
+    "payment_number": "PAY-0000058",
     "source_type": "INVOICE",
-    "source_id": "19000000-0000-4000-8000-000000000002",
+    "source_id": "11000000-0000-4000-8000-000000000002",
     "revenue_category": "BUSINESS",
     "amount": "5000.00",
     "tax_amount": "762.71",
@@ -9009,18 +6548,16 @@ GET /api/v1/payments
   "success": true,
   "data": [
     {
-      "id": "18000000-0000-4000-8000-000000000001",
+      "id": "10000000-0000-4000-8000-000000000001",
       "payment_number": "PAY-0000001",
       "source_type": "MEMBERSHIP",
       "source_id": "06000000-0000-4000-8000-000000000010",
-      "revenue_category": "MEMBERSHIP",
       "member_id": "02000000-0000-4000-8000-000000000010",
       "business_client_id": null,
       "payer_name": null,
       "amount": "15000.00",
       "tax_amount": "2288.14",
       "method": "CARD",
-      "status": "SUCCEEDED",
       "gateway_reference": "AUTH-7099",
       "received_by_user_id": "01000000-0000-4000-8000-000000000002",
       "paid_at": "2025-09-25T05:00:00.000Z",
@@ -9030,6 +6567,8 @@ GET /api/v1/payments
       "notes": null,
       "created_at": "2025-09-25T05:00:00.000Z",
       "updated_at": "2025-09-25T05:00:00.000Z",
+      "revenue_category": "COURT",
+      "status": "SUCCEEDED",
       "payer_label": "string",
       "source_label": "string",
       "received_by_name": "Aarav Kapoor"
@@ -9083,25 +6622,23 @@ One payment = the receipt.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-GET /api/v1/payments/18000000-0000-4000-8000-000000000001
+GET /api/v1/payments/10000000-0000-4000-8000-000000000001
 ```
 
 ```json
 {
   "success": true,
   "data": {
-    "id": "18000000-0000-4000-8000-000000000001",
+    "id": "10000000-0000-4000-8000-000000000001",
     "payment_number": "PAY-0000001",
     "source_type": "MEMBERSHIP",
     "source_id": "06000000-0000-4000-8000-000000000010",
-    "revenue_category": "MEMBERSHIP",
     "member_id": "02000000-0000-4000-8000-000000000010",
     "business_client_id": null,
     "payer_name": null,
     "amount": "15000.00",
     "tax_amount": "2288.14",
     "method": "CARD",
-    "status": "SUCCEEDED",
     "gateway_reference": "AUTH-7099",
     "received_by_user_id": "01000000-0000-4000-8000-000000000002",
     "paid_at": "2025-09-25T05:00:00.000Z",
@@ -9111,6 +6648,8 @@ GET /api/v1/payments/18000000-0000-4000-8000-000000000001
     "notes": null,
     "created_at": "2025-09-25T05:00:00.000Z",
     "updated_at": "2025-09-25T05:00:00.000Z",
+    "revenue_category": "COURT",
+    "status": "SUCCEEDED",
     "payer_label": "string",
     "source_label": "string",
     "received_by_name": "Aarav Kapoor"
@@ -9165,7 +6704,7 @@ Refund (fully or partly) a payment. Cancellation flows refund automatically; thi
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-POST /api/v1/payments/18000000-0000-4000-8000-000000000001/refund
+POST /api/v1/payments/10000000-0000-4000-8000-000000000001/refund
 ```
 
 ```json
@@ -9179,18 +6718,16 @@ POST /api/v1/payments/18000000-0000-4000-8000-000000000001/refund
 {
   "success": true,
   "data": {
-    "id": "18000000-0000-4000-8000-000000000001",
+    "id": "10000000-0000-4000-8000-000000000001",
     "payment_number": "PAY-0000001",
     "source_type": "MEMBERSHIP",
     "source_id": "06000000-0000-4000-8000-000000000010",
-    "revenue_category": "MEMBERSHIP",
     "member_id": "02000000-0000-4000-8000-000000000010",
     "business_client_id": null,
     "payer_name": null,
     "amount": "15000.00",
     "tax_amount": "2288.14",
     "method": "CARD",
-    "status": "SUCCEEDED",
     "gateway_reference": "AUTH-7099",
     "received_by_user_id": "01000000-0000-4000-8000-000000000002",
     "paid_at": "2025-09-25T05:00:00.000Z",
@@ -9200,6 +6737,8 @@ POST /api/v1/payments/18000000-0000-4000-8000-000000000001/refund
     "notes": null,
     "created_at": "2025-09-25T05:00:00.000Z",
     "updated_at": "2025-09-25T05:00:00.000Z",
+    "revenue_category": "COURT",
+    "status": "SUCCEEDED",
     "payer_label": "string",
     "source_label": "string",
     "received_by_name": "Aarav Kapoor"
@@ -9270,18 +6809,16 @@ GET /api/v1/staff
     {
       "id": "03000000-0000-4000-8000-000000000001",
       "user_id": "01000000-0000-4000-8000-000000000001",
-      "employee_code": "EMP-0001",
       "designation": "Owner",
-      "default_area": null,
       "monthly_salary": "0.00",
       "joined_on": "2025-08-29",
-      "is_active": true,
       "created_at": "2026-03-17T04:30:00.000Z",
       "updated_at": "2026-03-17T04:30:00.000Z",
       "full_name": "Aarav Kapoor",
       "email": "name@example.com",
       "phone": "+919811100001",
-      "role": "MEMBER"
+      "role": "MEMBER",
+      "is_active": true
     }
   ],
   "meta": {
@@ -9329,7 +6866,6 @@ Create a staff account (front desk, kitchen manager or another owner) and employ
 | `role` | enum USER_ROLE | **yes** | FRONT_DESK \| KITCHEN_MANAGER \| OWNER_ADMIN only |
 | `password` | string | **yes** |  |
 | `designation` | string | **yes** |  |
-| `default_area` | enum SHIFT_AREA | no |  |
 | `monthly_salary` | money | **yes** |  |
 | `joined_on` | date | no |  |
 
@@ -9365,18 +6901,16 @@ POST /api/v1/staff
   "data": {
     "id": "03000000-0000-4000-8000-000000000001",
     "user_id": "01000000-0000-4000-8000-000000000001",
-    "employee_code": "EMP-0001",
     "designation": "Owner",
-    "default_area": null,
     "monthly_salary": "0.00",
     "joined_on": "2025-08-29",
-    "is_active": true,
     "created_at": "2026-03-17T04:30:00.000Z",
     "updated_at": "2026-03-17T04:30:00.000Z",
     "full_name": "Aarav Kapoor",
     "email": "name@example.com",
     "phone": "+919811100001",
-    "role": "MEMBER"
+    "role": "MEMBER",
+    "is_active": true
   }
 }
 ```
@@ -9429,18 +6963,16 @@ GET /api/v1/staff/03000000-0000-4000-8000-000000000001
   "data": {
     "id": "03000000-0000-4000-8000-000000000001",
     "user_id": "01000000-0000-4000-8000-000000000001",
-    "employee_code": "EMP-0001",
     "designation": "Owner",
-    "default_area": null,
     "monthly_salary": "0.00",
     "joined_on": "2025-08-29",
-    "is_active": true,
     "created_at": "2026-03-17T04:30:00.000Z",
     "updated_at": "2026-03-17T04:30:00.000Z",
     "full_name": "Aarav Kapoor",
     "email": "name@example.com",
     "phone": "+919811100001",
-    "role": "MEMBER"
+    "role": "MEMBER",
+    "is_active": true
   }
 }
 ```
@@ -9460,7 +6992,7 @@ GET /api/v1/staff/03000000-0000-4000-8000-000000000001
 <a id="staffupdate"></a>
 #### `PATCH /api/v1/staff/:id` — staff.update
 
-Edit an employee / deactivate (also disables login).
+Edit an employee / deactivate (is_active lives on the login: users.is_active).
 
 | | |
 |---|---|
@@ -9479,7 +7011,6 @@ Edit an employee / deactivate (also disables login).
 | `full_name` | string | no |  |
 | `phone` | phone | no |  |
 | `designation` | string | no |  |
-| `default_area` | enum SHIFT_AREA | no |  |
 | `monthly_salary` | money | no |  |
 | `is_active` | bool | no |  |
 
@@ -9508,18 +7039,16 @@ PATCH /api/v1/staff/03000000-0000-4000-8000-000000000001
   "data": {
     "id": "03000000-0000-4000-8000-000000000001",
     "user_id": "01000000-0000-4000-8000-000000000001",
-    "employee_code": "EMP-0001",
     "designation": "Owner",
-    "default_area": null,
     "monthly_salary": "0.00",
     "joined_on": "2025-08-29",
-    "is_active": true,
     "created_at": "2026-03-17T04:30:00.000Z",
     "updated_at": "2026-03-17T04:30:00.000Z",
     "full_name": "Aarav Kapoor",
     "email": "name@example.com",
     "phone": "+919811100001",
-    "role": "MEMBER"
+    "role": "MEMBER",
+    "is_active": true
   }
 }
 ```
@@ -9578,18 +7107,15 @@ GET /api/v1/staff/shifts?from=2026-10-10&to=2026-10-10
   "success": true,
   "data": [
     {
-      "id": "1b000000-0000-4000-8000-000000000001",
+      "id": "13000000-0000-4000-8000-000000000001",
       "staff_id": "03000000-0000-4000-8000-000000000002",
       "shift_date": "2026-09-30",
       "start_time": "06:00:00",
       "end_time": "14:00:00",
       "area": "FRONT_DESK",
-      "notes": null,
-      "created_by_user_id": "01000000-0000-4000-8000-000000000001",
       "created_at": "2026-09-28T04:30:00.000Z",
       "updated_at": "2026-09-28T04:30:00.000Z",
-      "staff_name": "Aarav Kapoor",
-      "employee_code": "CCM-00001"
+      "staff_name": "Aarav Kapoor"
     }
   ]
 }
@@ -9619,7 +7145,7 @@ Assign a shift.
 | **Success** | 201 · `data: ShiftView` |
 | **Requirements** | FR-STAFF-002 |
 | **Governing rules** | [R-HR-01](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `staff_shifts`, `notifications` |
+| **Tables touched** | `staff_shifts` |
 
 **Request body** — type `StaffShiftCreateRequest`
 
@@ -9630,7 +7156,6 @@ Assign a shift.
 | `start_time` | time | **yes** |  |
 | `end_time` | time | **yes** | > start_time (same day) |
 | `area` | enum SHIFT_AREA | **yes** |  |
-| `notes` | text | no |  |
 
 **Rules / behaviour:** Rejects overlaps for the same staff/date and dates inside an APPROVED leave (SHIFT_OVERLAP).
 
@@ -9664,18 +7189,15 @@ POST /api/v1/staff/shifts
 {
   "success": true,
   "data": {
-    "id": "1b000000-0000-4000-8000-000000000001",
+    "id": "13000000-0000-4000-8000-000000000001",
     "staff_id": "03000000-0000-4000-8000-000000000002",
     "shift_date": "2026-09-30",
     "start_time": "06:00:00",
     "end_time": "14:00:00",
     "area": "FRONT_DESK",
-    "notes": null,
-    "created_by_user_id": "01000000-0000-4000-8000-000000000001",
     "created_at": "2026-09-28T04:30:00.000Z",
     "updated_at": "2026-09-28T04:30:00.000Z",
-    "staff_name": "Aarav Kapoor",
-    "employee_code": "CCM-00001"
+    "staff_name": "Aarav Kapoor"
   }
 }
 ```
@@ -9715,7 +7237,6 @@ Edit a shift.
 | `start_time` | time | no |  |
 | `end_time` | time | no |  |
 | `area` | enum SHIFT_AREA | no |  |
-| `notes` | text | no |  |
 
 **Errors**
 
@@ -9730,7 +7251,7 @@ Edit a shift.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-PATCH /api/v1/staff/shifts/1b000000-0000-4000-8000-000000000001
+PATCH /api/v1/staff/shifts/13000000-0000-4000-8000-000000000001
 ```
 
 ```json
@@ -9741,18 +7262,15 @@ PATCH /api/v1/staff/shifts/1b000000-0000-4000-8000-000000000001
 {
   "success": true,
   "data": {
-    "id": "1b000000-0000-4000-8000-000000000001",
+    "id": "13000000-0000-4000-8000-000000000001",
     "staff_id": "03000000-0000-4000-8000-000000000002",
     "shift_date": "2026-09-30",
     "start_time": "06:00:00",
     "end_time": "14:00:00",
     "area": "FRONT_DESK",
-    "notes": null,
-    "created_by_user_id": "01000000-0000-4000-8000-000000000001",
     "created_at": "2026-09-28T04:30:00.000Z",
     "updated_at": "2026-09-28T04:30:00.000Z",
-    "staff_name": "Aarav Kapoor",
-    "employee_code": "CCM-00001"
+    "staff_name": "Aarav Kapoor"
   }
 }
 ```
@@ -9796,7 +7314,7 @@ Remove a shift.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-DELETE /api/v1/staff/shifts/1b000000-0000-4000-8000-000000000001
+DELETE /api/v1/staff/shifts/13000000-0000-4000-8000-000000000001
 ```
 
 ```json
@@ -9862,20 +7380,16 @@ GET /api/v1/staff/leave-requests
   "success": true,
   "data": [
     {
-      "id": "1c000000-0000-4000-8000-000000000001",
+      "id": "14000000-0000-4000-8000-000000000001",
       "staff_id": "03000000-0000-4000-8000-000000000003",
-      "leave_type": "CASUAL",
       "start_date": "2026-10-13",
       "end_date": "2026-10-14",
       "reason": "Family function",
       "status": "PENDING",
-      "decided_by_user_id": null,
-      "decided_at": null,
       "decision_note": null,
       "created_at": "2026-09-29T03:30:00.000Z",
       "updated_at": "2026-10-02T04:30:00.000Z",
-      "staff_name": "Aarav Kapoor",
-      "employee_code": "CCM-00001"
+      "staff_name": "Aarav Kapoor"
     }
   ],
   "meta": {
@@ -9902,22 +7416,21 @@ GET /api/v1/staff/leave-requests
 <a id="staffleaveCreate"></a>
 #### `POST /api/v1/staff/leave-requests` — staff.leaveCreate
 
-Request leave (status PENDING); notifies the owner.
+Request leave (status PENDING).
 
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
 | **Roles** | FRONT_DESK, KITCHEN_MANAGER |
 | **Success** | 201 · `data: LeaveView` |
-| **Requirements** | FR-STAFF-003, FR-NOTIF-003 |
+| **Requirements** | FR-STAFF-003 |
 | **Governing rules** | [R-HR-02](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `leave_requests`, `notifications` |
+| **Tables touched** | `leave_requests` |
 
 **Request body** — type `StaffLeaveCreateRequest`
 
 | Field | Type | Required | Rules |
 |---|---|---|---|
-| `leave_type` | enum LEAVE_TYPE | **yes** |  |
 | `start_date` | date | **yes** |  |
 | `end_date` | date | **yes** | >= start_date |
 | `reason` | text | no |  |
@@ -9939,7 +7452,6 @@ POST /api/v1/staff/leave-requests
 
 ```json
 {
-  "leave_type": "CASUAL",
   "start_date": "2026-10-10",
   "end_date": "2026-10-10"
 }
@@ -9949,20 +7461,16 @@ POST /api/v1/staff/leave-requests
 {
   "success": true,
   "data": {
-    "id": "1c000000-0000-4000-8000-000000000001",
+    "id": "14000000-0000-4000-8000-000000000001",
     "staff_id": "03000000-0000-4000-8000-000000000003",
-    "leave_type": "CASUAL",
     "start_date": "2026-10-13",
     "end_date": "2026-10-14",
     "reason": "Family function",
     "status": "PENDING",
-    "decided_by_user_id": null,
-    "decided_at": null,
     "decision_note": null,
     "created_at": "2026-09-29T03:30:00.000Z",
     "updated_at": "2026-10-02T04:30:00.000Z",
-    "staff_name": "Aarav Kapoor",
-    "employee_code": "CCM-00001"
+    "staff_name": "Aarav Kapoor"
   }
 }
 ```
@@ -9989,9 +7497,9 @@ Approve or reject a PENDING leave request.
 | **Auth** | Bearer JWT |
 | **Roles** | OWNER_ADMIN |
 | **Success** | 200 · `data: LeaveView` |
-| **Requirements** | FR-STAFF-004, FR-NOTIF-003 |
+| **Requirements** | FR-STAFF-004 |
 | **Governing rules** | [R-HR-02](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `leave_requests`, `notifications` |
+| **Tables touched** | `leave_requests` |
 | **Path params** | `id` (uuid) |
 
 **Request body** — type `StaffLeaveDecideRequest`
@@ -10014,7 +7522,7 @@ Approve or reject a PENDING leave request.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-POST /api/v1/staff/leave-requests/1c000000-0000-4000-8000-000000000001/decision
+POST /api/v1/staff/leave-requests/14000000-0000-4000-8000-000000000001/decision
 ```
 
 ```json
@@ -10027,20 +7535,16 @@ POST /api/v1/staff/leave-requests/1c000000-0000-4000-8000-000000000001/decision
 {
   "success": true,
   "data": {
-    "id": "1c000000-0000-4000-8000-000000000001",
+    "id": "14000000-0000-4000-8000-000000000001",
     "staff_id": "03000000-0000-4000-8000-000000000003",
-    "leave_type": "CASUAL",
     "start_date": "2026-10-13",
     "end_date": "2026-10-14",
     "reason": "Family function",
     "status": "PENDING",
-    "decided_by_user_id": null,
-    "decided_at": null,
     "decision_note": null,
     "created_at": "2026-09-29T03:30:00.000Z",
     "updated_at": "2026-10-02T04:30:00.000Z",
-    "staff_name": "Aarav Kapoor",
-    "employee_code": "CCM-00001"
+    "staff_name": "Aarav Kapoor"
   }
 }
 ```
@@ -10085,27 +7589,23 @@ Cancel a PENDING or future APPROVED leave request.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-POST /api/v1/staff/leave-requests/1c000000-0000-4000-8000-000000000001/cancel
+POST /api/v1/staff/leave-requests/14000000-0000-4000-8000-000000000001/cancel
 ```
 
 ```json
 {
   "success": true,
   "data": {
-    "id": "1c000000-0000-4000-8000-000000000001",
+    "id": "14000000-0000-4000-8000-000000000001",
     "staff_id": "03000000-0000-4000-8000-000000000003",
-    "leave_type": "CASUAL",
     "start_date": "2026-10-13",
     "end_date": "2026-10-14",
     "reason": "Family function",
     "status": "PENDING",
-    "decided_by_user_id": null,
-    "decided_at": null,
     "decision_note": null,
     "created_at": "2026-09-29T03:30:00.000Z",
     "updated_at": "2026-10-02T04:30:00.000Z",
-    "staff_name": "Aarav Kapoor",
-    "employee_code": "CCM-00001"
+    "staff_name": "Aarav Kapoor"
   }
 }
 ```
@@ -10142,7 +7642,7 @@ Salary payments (staff: own history).
 |---|---|---|---|
 | `staff_id` | uuid | no | OWNER_ADMIN only |
 | `pay_period` | date | no | first day of month |
-| `status` | enum PAYROLL_STATUS | no |  |
+| `paid` | bool | no | true = paid_on is set, false = still pending |
 | `page` | int | no | default 1 |
 | `page_size` | int | no | default 20, max 100 |
 
@@ -10165,19 +7665,16 @@ GET /api/v1/staff/payroll
   "success": true,
   "data": [
     {
-      "id": "1d000000-0000-4000-8000-000000000001",
+      "id": "15000000-0000-4000-8000-000000000001",
       "staff_id": "03000000-0000-4000-8000-000000000002",
       "pay_period": "2026-09-01",
       "amount": "28000.00",
       "method": "UPI",
-      "status": "PAID",
       "paid_on": "2026-10-02",
-      "paid_by_user_id": "01000000-0000-4000-8000-000000000001",
-      "notes": "Monthly salary",
       "created_at": "2026-10-02T04:30:00.000Z",
       "updated_at": "2026-10-02T04:30:00.000Z",
       "staff_name": "Aarav Kapoor",
-      "employee_code": "CCM-00001"
+      "is_paid": true
     }
   ],
   "meta": {
@@ -10223,8 +7720,7 @@ Create (and optionally pay) a salary record for a month.
 | `pay_period` | date | **yes** | first day of month |
 | `amount` | money | no | default staff.monthly_salary |
 | `payment_method` | enum PAYMENT_METHOD | **yes** |  |
-| `mark_paid` | bool | no |  |
-| `notes` | text | no |  |
+| `mark_paid` | bool | no | true sets paid_on = today |
 
 **Errors**
 
@@ -10254,19 +7750,16 @@ POST /api/v1/staff/payroll
 {
   "success": true,
   "data": {
-    "id": "1d000000-0000-4000-8000-000000000001",
+    "id": "15000000-0000-4000-8000-000000000001",
     "staff_id": "03000000-0000-4000-8000-000000000002",
     "pay_period": "2026-09-01",
     "amount": "28000.00",
     "method": "UPI",
-    "status": "PAID",
     "paid_on": "2026-10-02",
-    "paid_by_user_id": "01000000-0000-4000-8000-000000000001",
-    "notes": "Monthly salary",
     "created_at": "2026-10-02T04:30:00.000Z",
     "updated_at": "2026-10-02T04:30:00.000Z",
     "staff_name": "Aarav Kapoor",
-    "employee_code": "CCM-00001"
+    "is_paid": true
   }
 }
 ```
@@ -10286,7 +7779,7 @@ POST /api/v1/staff/payroll
 <a id="staffpayrollPay"></a>
 #### `POST /api/v1/staff/payroll/:id/pay` — staff.payrollPay
 
-Mark a PENDING salary as PAID.
+Mark a pending salary as paid (sets paid_on).
 
 | | |
 |---|---|
@@ -10318,7 +7811,7 @@ Mark a PENDING salary as PAID.
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
 ```http
-POST /api/v1/staff/payroll/1d000000-0000-4000-8000-000000000001/pay
+POST /api/v1/staff/payroll/15000000-0000-4000-8000-000000000001/pay
 ```
 
 ```json
@@ -10329,19 +7822,16 @@ POST /api/v1/staff/payroll/1d000000-0000-4000-8000-000000000001/pay
 {
   "success": true,
   "data": {
-    "id": "1d000000-0000-4000-8000-000000000001",
+    "id": "15000000-0000-4000-8000-000000000001",
     "staff_id": "03000000-0000-4000-8000-000000000002",
     "pay_period": "2026-09-01",
     "amount": "28000.00",
     "method": "UPI",
-    "status": "PAID",
     "paid_on": "2026-10-02",
-    "paid_by_user_id": "01000000-0000-4000-8000-000000000001",
-    "notes": "Monthly salary",
     "created_at": "2026-10-02T04:30:00.000Z",
     "updated_at": "2026-10-02T04:30:00.000Z",
     "staff_name": "Aarav Kapoor",
-    "employee_code": "CCM-00001"
+    "is_paid": true
   }
 }
 ```
@@ -10384,7 +7874,7 @@ Owner dashboard KPIs for today / this week / this month across every module.
 |---|---|---|---|
 | `period` | enum REPORT_PERIOD | **yes** | TODAY = IST today; WEEK = Monday..today; MONTH = 1st..today |
 
-**Rules / behaviour:** Revenue = SUM(payments.amount - refunded_amount) where status in (SUCCEEDED, PARTIALLY_REFUNDED), by paid_at in the range (IST).
+**Rules / behaviour:** Revenue = SUM(payments.amount - refunded_amount) by paid_at in the range (IST), grouped by the derived revenue_category (view payment_ledger).
 
 **Errors**
 
@@ -10448,7 +7938,7 @@ GET /api/v1/reports/dashboard?period=MONTH
       "…": "…"
     },
     "enquiries": {
-      "…": "…"
+      "unhandled_count": 3
     },
     "finance": {
       "…": "…"
@@ -10585,7 +8075,7 @@ GET /api/v1/reports/courts?from=2026-10-10&to=2026-10-10
     },
     "rows": [
       {
-        "court_id": "0a000000-0000-4000-8000-000000000001",
+        "court_id": "08000000-0000-4000-8000-000000000001",
         "court_name": "Aarav Kapoor",
         "booked_hours": 3,
         "available_hours": 3,
@@ -10677,7 +8167,7 @@ GET /api/v1/reports/memberships?from=2026-10-10&to=2026-10-10
         "joined_on": "2026-10-03",
         "is_active": true,
         "active_membership": {
-          "membership_id": "06000000-0000-4000-8000-000000000001",
+          "membership_id": "00945666-0000-4000-8000-001224104603",
           "membership_plan_id": "05000000-0000-4000-8000-000000000001",
           "membership_type": "GOLD",
           "plan_name": "Aarav Kapoor",
@@ -10707,7 +8197,7 @@ GET /api/v1/reports/memberships?from=2026-10-10&to=2026-10-10
 <a id="reportsshop"></a>
 #### `GET /api/v1/reports/shop` — reports.shop
 
-Shop sales, channel split, top products, low stock.
+Shop sales, fulfillment split, top products, low stock.
 
 | | |
 |---|---|
@@ -10749,7 +8239,7 @@ GET /api/v1/reports/shop?from=2026-10-10&to=2026-10-10
     },
     "sales_amount": "1250.00",
     "orders_count": 3,
-    "by_channel": [
+    "by_fulfillment": [
       {
         "key": "club_name",
         "label": "Aarav Kapoor",
@@ -10759,7 +8249,7 @@ GET /api/v1/reports/shop?from=2026-10-10&to=2026-10-10
     ],
     "top_products": [
       {
-        "product_id": "0e000000-0000-4000-8000-000000000001",
+        "product_id": "0a000000-0000-4000-8000-000000000001",
         "name": "Aarav Kapoor",
         "quantity": 3,
         "amount": "1250.00"
@@ -10767,15 +8257,14 @@ GET /api/v1/reports/shop?from=2026-10-10&to=2026-10-10
     ],
     "low_stock": [
       {
-        "product_id": "0e000000-0000-4000-8000-000000000001",
+        "product_id": "0a000000-0000-4000-8000-000000000001",
         "sku": "RKT-WIL-CLASH100",
         "name": "Wilson Clash 100 v2 Tennis Racket",
         "category": "RACKET",
         "stock_quantity": 3,
         "low_stock_threshold": 3,
         "stock_status": "IN_STOCK",
-        "is_active": true,
-        "last_movement_at": "2026-10-03T12:30:00.000Z"
+        "is_active": true
       }
     ]
   }
@@ -10797,7 +8286,7 @@ GET /api/v1/reports/shop?from=2026-10-10&to=2026-10-10
 <a id="reportsbar"></a>
 #### `GET /api/v1/reports/bar` — reports.bar
 
-Bar revenue per day (what the bar earned), by method, with open tabs.
+Cafe revenue per day (what the cafe earned), by method.
 
 | | |
 |---|---|
@@ -10806,7 +8295,7 @@ Bar revenue per day (what the bar earned), by method, with open tabs.
 | **Success** | 200 · `data: BarDailySummary[]` |
 | **Requirements** | FR-REP-006, FR-BAR-009 |
 | **Governing rules** | [R-BAR-09](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `payments`, `bar_orders`, `bar_tabs` |
+| **Tables touched** | `payments`, `bar_orders` |
 
 **Query parameters**
 
@@ -10848,8 +8337,6 @@ GET /api/v1/reports/bar?from=2026-10-10&to=2026-10-10
           "count": 3
         }
       ],
-      "open_tabs_count": 3,
-      "open_tabs_amount": "1250.00",
       "shifts": [
         {
           "staff_id": "03000000-0000-4000-8000-000000000001",
@@ -10984,7 +8471,7 @@ Tax collected (GST) by revenue category for filing.
 | `from` | date | **yes** | Inclusive IST business date. |
 | `to` | date | **yes** | Inclusive IST business date; to >= from; max 366 days. |
 
-**Rules / behaviour:** Sum of payments.tax_amount net of refunds (pro-rata), grouped by revenue_category.
+**Rules / behaviour:** Sum of payments.tax_amount net of refunds (pro-rata), grouped by the derived revenue_category.
 
 **Errors**
 
@@ -11083,238 +8570,6 @@ date,category,method,amount,tax_amount
   "error": {
     "code": "VALIDATION_ERROR",
     "message": "Request validation failed."
-  }
-}
-```
-
----
-
-### Module: Notifications
-
-*Owner: Dev 1 (Platform, Identity & Public Experience)*
-
-<a id="notificationslist"></a>
-#### `GET /api/v1/notifications` — notifications.list
-
-Own notifications, newest first.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | MEMBER, FRONT_DESK, KITCHEN_MANAGER, BUSINESS_CLIENT, OWNER_ADMIN |
-| **Success** | 200 · `data: Notification[]` + `meta: PageMeta` |
-| **Requirements** | FR-NOTIF-001 |
-| **Governing rules** | — |
-| **Tables touched** | `notifications` |
-
-**Query parameters**
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `unread_only` | bool | no |  |
-| `page` | int | no | default 1 |
-| `page_size` | int | no | default 20, max 100 |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-GET /api/v1/notifications
-```
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "1e000000-0000-4000-8000-000000000001",
-      "user_id": "01000000-0000-4000-8000-000000000012",
-      "type": "MEMBERSHIP_EXPIRING",
-      "title": "Your Silver membership expires soon",
-      "body": "Your membership ends on 2026-10-12. Renew at the front desk or online to keep member rates.",
-      "entity_type": "memberships",
-      "entity_id": "06000000-0000-4000-8000-000000000006",
-      "is_read": false,
-      "read_at": null,
-      "created_at": "2026-10-03T03:30:00.000Z"
-    }
-  ],
-  "meta": {
-    "page": 1,
-    "page_size": 20,
-    "total": 1,
-    "total_pages": 1
-  }
-}
-```
-
-**Example error (HTTP 400)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Request validation failed."
-  }
-}
-```
-
-<a id="notificationsunreadCount"></a>
-#### `GET /api/v1/notifications/unread-count` — notifications.unreadCount
-
-Badge count.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | MEMBER, FRONT_DESK, KITCHEN_MANAGER, BUSINESS_CLIENT, OWNER_ADMIN |
-| **Success** | 200 · `data: CountResult` |
-| **Requirements** | FR-NOTIF-001 |
-| **Governing rules** | — |
-| **Tables touched** | `notifications` |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-GET /api/v1/notifications/unread-count
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "count": 3
-  }
-}
-```
-
-**Example error (HTTP 401)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "AUTH_UNAUTHORIZED",
-    "message": "Authentication required or token expired."
-  }
-}
-```
-
-<a id="notificationsread"></a>
-#### `PATCH /api/v1/notifications/:id/read` — notifications.read
-
-Mark one notification read.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | MEMBER, FRONT_DESK, KITCHEN_MANAGER, BUSINESS_CLIENT, OWNER_ADMIN |
-| **Success** | 200 · `data: Notification` |
-| **Requirements** | FR-NOTIF-002 |
-| **Governing rules** | — |
-| **Tables touched** | `notifications` |
-| **Path params** | `id` (uuid) |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `NOTIFICATION_NOT_FOUND` | 404 | Notification not found. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-PATCH /api/v1/notifications/1e000000-0000-4000-8000-000000000001/read
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "1e000000-0000-4000-8000-000000000001",
-    "user_id": "01000000-0000-4000-8000-000000000012",
-    "type": "MEMBERSHIP_EXPIRING",
-    "title": "Your Silver membership expires soon",
-    "body": "Your membership ends on 2026-10-12. Renew at the front desk or online to keep member rates.",
-    "entity_type": "memberships",
-    "entity_id": "06000000-0000-4000-8000-000000000006",
-    "is_read": false,
-    "read_at": null,
-    "created_at": "2026-10-03T03:30:00.000Z"
-  }
-}
-```
-
-**Example error (HTTP 404)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "NOTIFICATION_NOT_FOUND",
-    "message": "Notification not found."
-  }
-}
-```
-
-<a id="notificationsreadAll"></a>
-#### `POST /api/v1/notifications/read-all` — notifications.readAll
-
-Mark all own notifications read.
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | MEMBER, FRONT_DESK, KITCHEN_MANAGER, BUSINESS_CLIENT, OWNER_ADMIN |
-| **Success** | 200 · `data: CountResult` |
-| **Requirements** | FR-NOTIF-002 |
-| **Governing rules** | — |
-| **Tables touched** | `notifications` |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-POST /api/v1/notifications/read-all
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "count": 3
-  }
-}
-```
-
-**Example error (HTTP 401)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "AUTH_UNAUTHORIZED",
-    "message": "Authentication required or token expired."
   }
 }
 ```

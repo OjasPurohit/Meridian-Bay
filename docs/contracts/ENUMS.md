@@ -6,87 +6,39 @@ Source of truth: [shared/constants/enums.ts](../../shared/constants/enums.ts) (v
 
 | Constant | Stored in DB? | Values |
 |---|---|---|
-| `BOOKING_STATUS` | `booking_status` | `PENDING`, `CONFIRMED`, `CANCELLED`, `COMPLETED` |
-| `BOOKING_TYPE` | `booking_type` | `REGULAR`, `SOCIAL_SESSION`, `TRIAL`, `MAINTENANCE` |
-| `CUSTOMER_TYPE` | `customer_type` | `MEMBER`, `WALK_IN` |
-| `ENQUIRY_SOURCE` | `enquiry_source` | `WEBSITE`, `PHONE`, `WALK_IN` |
-| `ENQUIRY_STATUS` | `enquiry_status` | `NEW`, `CONTACTED`, `QUOTE_SENT`, `FOLLOW_UP`, `CONVERTED`, `LOST` |
+| `BOOKING_STATUS` | `booking_status` | `CONFIRMED`, `CANCELLED`, `COMPLETED` |
+| `BOOKING_TYPE` | `booking_type` | `REGULAR`, `MAINTENANCE` |
 | `ENQUIRY_TYPE` | `enquiry_type` | `GENERAL`, `TRIAL`, `MEMBERSHIP`, `BUSINESS` |
 | `EXPORT_REPORT` | API only | `REVENUE`, `MEMBERS`, `BOOKINGS`, `SHOP_SALES`, `BAR_SALES`, `TAX` |
-| `FOLLOW_UP_METHOD` | `follow_up_method` | `CALL`, `WHATSAPP`, `EMAIL`, `IN_PERSON` |
-| `HISTORY_EVENT_TYPE` | API only | `MEMBERSHIP`, `COURT_BOOKING`, `SOCIAL_SESSION`, `SHOP_ORDER`, `BAR_ORDER`, `PAYMENT` |
-| `INVENTORY_REASON` | `inventory_reason` | `OPENING`, `RESTOCK`, `SALE`, `RETURN`, `ADJUSTMENT`, `DAMAGE`, `CANCELLATION` |
-| `INVOICE_STATUS` | `invoice_status` | `DRAFT`, `SENT`, `PARTIALLY_PAID`, `PAID`, `OVERDUE`, `VOID` |
+| `HISTORY_EVENT_TYPE` | API only | `MEMBERSHIP`, `COURT_BOOKING`, `SHOP_ORDER`, `BAR_ORDER`, `PAYMENT` |
+| `INVOICE_PAYMENT_STATE` | `invoice_payment_state` | `UNPAID`, `PARTIALLY_PAID`, `PAID`, `OVERDUE` |
+| `INVOICE_STATUS` | `invoice_status` | `DRAFT`, `SENT`, `VOID` |
 | `INVOICE_TYPE` | `invoice_type` | `BUSINESS`, `MEMBERSHIP` |
 | `LEAVE_DECISION` | API only | `APPROVE`, `REJECT` |
 | `LEAVE_STATUS` | `leave_status` | `PENDING`, `APPROVED`, `REJECTED`, `CANCELLED` |
-| `LEAVE_TYPE` | `leave_type` | `CASUAL`, `SICK`, `PAID`, `UNPAID` |
-| `MEMBERSHIP_STATUS` | `membership_status` | `UPCOMING`, `ACTIVE`, `EXPIRED`, `CANCELLED`, `CHANGED` |
+| `MEMBERSHIP_STATUS` | `membership_status` | `UPCOMING`, `ACTIVE`, `EXPIRED`, `CANCELLED` |
 | `MEMBERSHIP_TYPE` | `membership_type` | `GOLD`, `SILVER`, `JUNIOR` |
 | `MENU_CATEGORY` | `menu_category` | `FOOD`, `SNACK`, `DRINK` |
-| `NOTIFICATION_TYPE` | `notification_type` | `MEMBERSHIP_EXPIRING`, `MEMBERSHIP_EXPIRED`, `BOOKING_CONFIRMED`, `BOOKING_CANCELLED`, `SOCIAL_SESSION_JOINED`, `LOW_STOCK`, `SHOP_ORDER_UPDATE`, `ORDER_READY`, `NEW_ENQUIRY`, `INVOICE_ISSUED`, `PAYMENT_RECEIVED`, `LEAVE_REQUESTED`, `LEAVE_DECIDED`, `SHIFT_ASSIGNED`, `SYSTEM` |
-| `ORDER_CHANNEL` | `order_channel` | `PHYSICAL`, `ONLINE` |
 | `ORDER_FULFILLMENT` | `order_fulfillment` | `PICKUP`, `DELIVERY`, `IN_STORE` |
-| `ORDER_STATUS` | `order_status` | `NEW`, `ACCEPTED`, `PREPARING`, `READY`, `SERVED`, `CANCELLED` |
-| `PARTICIPANT_STATUS` | `participant_status` | `JOINED`, `CANCELLED` |
+| `ORDER_STATUS` | `order_status` | `NEW`, `PREPARING`, `READY`, `SERVED`, `CANCELLED` |
 | `PAYMENT_METHOD` | `payment_method` | `CASH`, `CARD`, `UPI`, `ONLINE` |
-| `PAYMENT_SOURCE_TYPE` | `payment_source_type` | `COURT_BOOKING`, `SOCIAL_PARTICIPANT`, `MEMBERSHIP`, `SHOP_ORDER`, `BAR_ORDER`, `TAB`, `INVOICE` |
-| `PAYMENT_STATUS` | `payment_status` | `PENDING`, `PARTIALLY_PAID`, `PAID`, `REFUNDED`, `FAILED`, `NOT_REQUIRED` |
-| `PAYMENT_TXN_STATUS` | `payment_txn_status` | `SUCCEEDED`, `FAILED`, `PARTIALLY_REFUNDED`, `REFUNDED` |
-| `PAYROLL_STATUS` | `payroll_status` | `PENDING`, `PAID` |
+| `PAYMENT_SOURCE_TYPE` | `payment_source_type` | `COURT_BOOKING`, `MEMBERSHIP`, `SHOP_ORDER`, `BAR_ORDER`, `INVOICE` |
+| `PAYMENT_STATUS` | `payment_status` | `PENDING`, `PARTIALLY_PAID`, `PAID`, `REFUNDED`, `NOT_REQUIRED` |
+| `PAYMENT_TXN_STATUS` | `payment_txn_status` | `SUCCEEDED`, `PARTIALLY_REFUNDED`, `REFUNDED` |
 | `PRODUCT_CATEGORY` | `product_category` | `RACKET`, `BALL`, `SHOES`, `ACCESSORY`, `APPAREL` |
-| `QUOTE_STATUS` | `quote_status` | `DRAFT`, `SENT`, `ACCEPTED`, `REJECTED`, `EXPIRED` |
 | `REPORT_GROUP_BY` | API only | `DAY`, `CATEGORY`, `METHOD` |
 | `REPORT_PERIOD` | API only | `TODAY`, `WEEK`, `MONTH` |
 | `REVENUE_CATEGORY` | `revenue_category` | `COURT`, `MEMBERSHIP`, `SHOP`, `BAR`, `BUSINESS` |
 | `SHIFT_AREA` | `shift_area` | `FRONT_DESK`, `BAR`, `KITCHEN`, `SHOP`, `COURTS` |
 | `SHOP_ORDER_STATUS` | `shop_order_status` | `PLACED`, `CONFIRMED`, `READY_FOR_PICKUP`, `OUT_FOR_DELIVERY`, `COMPLETED`, `CANCELLED` |
-| `SLOT_STATUS` | API only | `AVAILABLE`, `BOOKED`, `SOCIAL`, `BLOCKED`, `PAST` |
-| `SOCIAL_SESSION_STATUS` | `social_session_status` | `OPEN`, `CANCELLED`, `COMPLETED` |
+| `SLOT_STATUS` | API only | `AVAILABLE`, `BOOKED`, `BLOCKED`, `PAST` |
 | `SPORT_TYPE` | `sport_type` | `TENNIS`, `CRICKET`, `PADEL`, `BADMINTON` |
 | `STOCK_STATUS` | API only | `IN_STOCK`, `LOW_STOCK`, `OUT_OF_STOCK` |
-| `TABLE_STATUS` | `table_status` | `AVAILABLE`, `OCCUPIED`, `OUT_OF_SERVICE` |
-| `TAB_STATUS` | `tab_status` | `OPEN`, `SETTLED`, `VOID` |
 | `USER_ROLE` | `user_role` | `MEMBER`, `FRONT_DESK`, `KITCHEN_MANAGER`, `BUSINESS_CLIENT`, `OWNER_ADMIN` |
 
 ## State machines
 
 Defined in `rules.ts` (`*_TRANSITIONS`). The server rejects any other move with `409 INVALID_STATUS_TRANSITION` (`details: { from, to, allowed }`).
-
-**BOOKING_TRANSITIONS**
-
-```mermaid
-stateDiagram-v2
-  [*] --> PENDING
-  PENDING --> CONFIRMED
-  PENDING --> CANCELLED
-  CONFIRMED --> COMPLETED
-  CONFIRMED --> CANCELLED
-```
-
-**ENQUIRY_TRANSITIONS**
-
-```mermaid
-stateDiagram-v2
-  [*] --> NEW
-  NEW --> CONTACTED
-  NEW --> FOLLOW_UP
-  NEW --> QUOTE_SENT
-  NEW --> CONVERTED
-  NEW --> LOST
-  CONTACTED --> FOLLOW_UP
-  CONTACTED --> QUOTE_SENT
-  CONTACTED --> CONVERTED
-  CONTACTED --> LOST
-  FOLLOW_UP --> CONTACTED
-  FOLLOW_UP --> QUOTE_SENT
-  FOLLOW_UP --> CONVERTED
-  FOLLOW_UP --> LOST
-  QUOTE_SENT --> FOLLOW_UP
-  QUOTE_SENT --> CONVERTED
-  QUOTE_SENT --> LOST
-  LOST --> FOLLOW_UP
-```
 
 **INVOICE_TRANSITIONS**
 
@@ -95,16 +47,7 @@ stateDiagram-v2
   [*] --> DRAFT
   DRAFT --> SENT
   DRAFT --> VOID
-  SENT --> PARTIALLY_PAID
-  SENT --> PAID
-  SENT --> OVERDUE
   SENT --> VOID
-  PARTIALLY_PAID --> PAID
-  PARTIALLY_PAID --> OVERDUE
-  PARTIALLY_PAID --> VOID
-  OVERDUE --> PARTIALLY_PAID
-  OVERDUE --> PAID
-  OVERDUE --> VOID
 ```
 
 **LEAVE_TRANSITIONS**
@@ -123,23 +66,10 @@ stateDiagram-v2
 ```mermaid
 stateDiagram-v2
   [*] --> NEW
-  NEW --> ACCEPTED
+  NEW --> PREPARING
   NEW --> CANCELLED
-  ACCEPTED --> PREPARING
-  ACCEPTED --> CANCELLED
   PREPARING --> READY
   READY --> SERVED
-```
-
-**QUOTE_TRANSITIONS**
-
-```mermaid
-stateDiagram-v2
-  [*] --> DRAFT
-  DRAFT --> SENT
-  SENT --> ACCEPTED
-  SENT --> REJECTED
-  SENT --> EXPIRED
 ```
 
 **SHOP_ORDER_TRANSITIONS**
@@ -156,14 +86,5 @@ stateDiagram-v2
   READY_FOR_PICKUP --> CANCELLED
   OUT_FOR_DELIVERY --> COMPLETED
   OUT_FOR_DELIVERY --> CANCELLED
-```
-
-**TAB_TRANSITIONS**
-
-```mermaid
-stateDiagram-v2
-  [*] --> OPEN
-  OPEN --> SETTLED
-  OPEN --> VOID
 ```
 

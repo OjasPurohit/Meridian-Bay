@@ -77,10 +77,6 @@ components:
           type: boolean
         must_change_password:
           type: boolean
-        last_login_at:
-          type: string
-          format: date-time
-          nullable: true
         created_at:
           type: string
           format: date-time
@@ -96,7 +92,6 @@ components:
         - phone
         - is_active
         - must_change_password
-        - last_login_at
         - created_at
         - updated_at
     Member:
@@ -126,16 +121,9 @@ components:
         photo_url:
           type: string
           nullable: true
-        notes:
-          type: string
-          nullable: true
         joined_on:
           type: string
           format: date
-        created_by_user_id:
-          type: string
-          format: uuid
-          nullable: true
         created_at:
           type: string
           format: date-time
@@ -151,9 +139,7 @@ components:
         - emergency_contact_name
         - emergency_contact_phone
         - photo_url
-        - notes
         - joined_on
-        - created_by_user_id
         - created_at
         - updated_at
     Staff:
@@ -165,19 +151,8 @@ components:
         user_id:
           type: string
           format: uuid
-        employee_code:
-          type: string
         designation:
           type: string
-        default_area:
-          type: string
-          enum:
-            - FRONT_DESK
-            - BAR
-            - KITCHEN
-            - SHOP
-            - COURTS
-          nullable: true
         monthly_salary:
           type: string
           pattern: ^\d+\.\d{2}$
@@ -185,8 +160,6 @@ components:
         joined_on:
           type: string
           format: date
-        is_active:
-          type: boolean
         created_at:
           type: string
           format: date-time
@@ -196,12 +169,9 @@ components:
       required:
         - id
         - user_id
-        - employee_code
         - designation
-        - default_area
         - monthly_salary
         - joined_on
-        - is_active
         - created_at
         - updated_at
     BusinessClient:
@@ -290,9 +260,6 @@ components:
           example: "18.00"
         max_plays_per_day:
           type: number
-        min_age:
-          type: number
-          nullable: true
         max_age:
           type: number
           nullable: true
@@ -321,7 +288,6 @@ components:
         - shop_discount_percent
         - bar_discount_percent
         - max_plays_per_day
-        - min_age
         - max_age
         - benefits
         - sort_order
@@ -340,14 +306,6 @@ components:
         membership_plan_id:
           type: string
           format: uuid
-        status:
-          type: string
-          enum:
-            - UPCOMING
-            - ACTIVE
-            - EXPIRED
-            - CANCELLED
-            - CHANGED
         start_date:
           type: string
           format: date
@@ -358,20 +316,12 @@ components:
           type: string
           pattern: ^\d+\.\d{2}$
           example: "1250.00"
-        previous_membership_id:
-          type: string
-          format: uuid
-          nullable: true
         cancelled_at:
           type: string
           format: date-time
           nullable: true
         cancellation_reason:
           type: string
-          nullable: true
-        created_by_user_id:
-          type: string
-          format: uuid
           nullable: true
         created_at:
           type: string
@@ -383,14 +333,11 @@ components:
         - id
         - member_id
         - membership_plan_id
-        - status
         - start_date
         - end_date
         - price_paid
-        - previous_membership_id
         - cancelled_at
         - cancellation_reason
-        - created_by_user_id
         - created_at
         - updated_at
     Enquiry:
@@ -406,21 +353,6 @@ components:
             - TRIAL
             - MEMBERSHIP
             - BUSINESS
-        source:
-          type: string
-          enum:
-            - WEBSITE
-            - PHONE
-            - WALK_IN
-        status:
-          type: string
-          enum:
-            - NEW
-            - CONTACTED
-            - QUOTE_SENT
-            - FOLLOW_UP
-            - CONVERTED
-            - LOST
         name:
           type: string
         email:
@@ -447,36 +379,19 @@ components:
           type: string
           format: date-time
           nullable: true
-        assigned_to_user_id:
-          type: string
-          format: uuid
-          nullable: true
-        next_follow_up_at:
-          type: string
-          format: date-time
-          nullable: true
-        converted_member_id:
-          type: string
-          format: uuid
-          nullable: true
-        lost_reason:
-          type: string
-          nullable: true
-        created_by_user_id:
-          type: string
-          format: uuid
-          nullable: true
         created_at:
           type: string
           format: date-time
         updated_at:
           type: string
           format: date-time
+        handled_at:
+          type: string
+          format: date-time
+          nullable: true
       required:
         - id
         - enquiry_type
-        - source
-        - status
         - name
         - email
         - phone
@@ -484,111 +399,9 @@ components:
         - membership_plan_id
         - sport_type
         - preferred_start_at
-        - assigned_to_user_id
-        - next_follow_up_at
-        - converted_member_id
-        - lost_reason
-        - created_by_user_id
         - created_at
         - updated_at
-    EnquiryFollowUp:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        enquiry_id:
-          type: string
-          format: uuid
-        done_by_user_id:
-          type: string
-          format: uuid
-        method:
-          type: string
-          enum:
-            - CALL
-            - WHATSAPP
-            - EMAIL
-            - IN_PERSON
-        note:
-          type: string
-        followed_up_at:
-          type: string
-          format: date-time
-        next_follow_up_at:
-          type: string
-          format: date-time
-          nullable: true
-        created_at:
-          type: string
-          format: date-time
-      required:
-        - id
-        - enquiry_id
-        - done_by_user_id
-        - method
-        - note
-        - followed_up_at
-        - next_follow_up_at
-        - created_at
-    Quote:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        quote_number:
-          type: string
-        enquiry_id:
-          type: string
-          format: uuid
-        membership_plan_id:
-          type: string
-          format: uuid
-          nullable: true
-        description:
-          type: string
-        amount:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
-        valid_until:
-          type: string
-          format: date
-        status:
-          type: string
-          enum:
-            - DRAFT
-            - SENT
-            - ACCEPTED
-            - REJECTED
-            - EXPIRED
-        sent_at:
-          type: string
-          format: date-time
-          nullable: true
-        created_by_user_id:
-          type: string
-          format: uuid
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-      required:
-        - id
-        - quote_number
-        - enquiry_id
-        - membership_plan_id
-        - description
-        - amount
-        - valid_until
-        - status
-        - sent_at
-        - created_by_user_id
-        - created_at
-        - updated_at
+        - handled_at
     Court:
       type: object
       properties:
@@ -654,27 +467,8 @@ components:
           type: string
           enum:
             - REGULAR
-            - SOCIAL_SESSION
-            - TRIAL
             - MAINTENANCE
-        status:
-          type: string
-          enum:
-            - PENDING
-            - CONFIRMED
-            - CANCELLED
-            - COMPLETED
-        customer_type:
-          type: string
-          enum:
-            - MEMBER
-            - WALK_IN
-          nullable: true
         member_id:
-          type: string
-          format: uuid
-          nullable: true
-        membership_id:
           type: string
           format: uuid
           nullable: true
@@ -683,10 +477,6 @@ components:
           nullable: true
         guest_phone:
           type: string
-          nullable: true
-        enquiry_id:
-          type: string
-          format: uuid
           nullable: true
         start_at:
           type: string
@@ -702,40 +492,9 @@ components:
           type: string
           pattern: ^\d+\.\d{2}$
           example: "1250.00"
-        amount_due:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
-        tax_amount:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
-        payment_status:
-          type: string
-          enum:
-            - PENDING
-            - PARTIALLY_PAID
-            - PAID
-            - REFUNDED
-            - FAILED
-            - NOT_REQUIRED
-        notes:
-          type: string
-          nullable: true
         cancelled_at:
           type: string
           format: date-time
-          nullable: true
-        cancelled_by_user_id:
-          type: string
-          format: uuid
-          nullable: true
-        cancellation_reason:
-          type: string
-          nullable: true
-        created_by_user_id:
-          type: string
-          format: uuid
           nullable: true
         created_at:
           type: string
@@ -748,139 +507,13 @@ components:
         - booking_number
         - court_id
         - booking_type
-        - status
-        - customer_type
         - member_id
-        - membership_id
         - guest_name
         - guest_phone
-        - enquiry_id
         - start_at
         - end_at
         - list_price
         - discount_amount
-        - amount_due
-        - tax_amount
-        - payment_status
-        - notes
-        - cancelled_at
-        - cancelled_by_user_id
-        - cancellation_reason
-        - created_by_user_id
-        - created_at
-        - updated_at
-    SocialSession:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        court_booking_id:
-          type: string
-          format: uuid
-        title:
-          type: string
-        description:
-          type: string
-          nullable: true
-        capacity:
-          type: number
-        fee_per_person:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
-        status:
-          type: string
-          enum:
-            - OPEN
-            - CANCELLED
-            - COMPLETED
-        created_by_user_id:
-          type: string
-          format: uuid
-          nullable: true
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-      required:
-        - id
-        - court_booking_id
-        - title
-        - description
-        - capacity
-        - fee_per_person
-        - status
-        - created_by_user_id
-        - created_at
-        - updated_at
-    SocialSessionParticipant:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        social_session_id:
-          type: string
-          format: uuid
-        member_id:
-          type: string
-          format: uuid
-          nullable: true
-        guest_name:
-          type: string
-          nullable: true
-        guest_phone:
-          type: string
-          nullable: true
-        status:
-          type: string
-          enum:
-            - JOINED
-            - CANCELLED
-        fee_amount:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
-        tax_amount:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
-        payment_status:
-          type: string
-          enum:
-            - PENDING
-            - PARTIALLY_PAID
-            - PAID
-            - REFUNDED
-            - FAILED
-            - NOT_REQUIRED
-        joined_at:
-          type: string
-          format: date-time
-        cancelled_at:
-          type: string
-          format: date-time
-          nullable: true
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-      required:
-        - id
-        - social_session_id
-        - member_id
-        - guest_name
-        - guest_phone
-        - status
-        - fee_amount
-        - tax_amount
-        - payment_status
-        - joined_at
         - cancelled_at
         - created_at
         - updated_at
@@ -949,11 +582,6 @@ components:
           format: uuid
         order_number:
           type: string
-        channel:
-          type: string
-          enum:
-            - PHYSICAL
-            - ONLINE
         fulfillment:
           type: string
           enum:
@@ -973,10 +601,6 @@ components:
           type: string
           format: uuid
           nullable: true
-        membership_id:
-          type: string
-          format: uuid
-          nullable: true
         guest_name:
           type: string
           nullable: true
@@ -986,10 +610,6 @@ components:
         delivery_address:
           type: string
           nullable: true
-        subtotal:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
         discount_amount:
           type: string
           pattern: ^\d+\.\d{2}$
@@ -998,41 +618,6 @@ components:
           type: string
           pattern: ^\d+\.\d{2}$
           example: "1250.00"
-        tax_amount:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
-        total_amount:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
-        payment_status:
-          type: string
-          enum:
-            - PENDING
-            - PARTIALLY_PAID
-            - PAID
-            - REFUNDED
-            - FAILED
-            - NOT_REQUIRED
-        notes:
-          type: string
-          nullable: true
-        placed_by_user_id:
-          type: string
-          format: uuid
-          nullable: true
-        completed_at:
-          type: string
-          format: date-time
-          nullable: true
-        cancelled_at:
-          type: string
-          format: date-time
-          nullable: true
-        cancellation_reason:
-          type: string
-          nullable: true
         created_at:
           type: string
           format: date-time
@@ -1042,25 +627,14 @@ components:
       required:
         - id
         - order_number
-        - channel
         - fulfillment
         - status
         - member_id
-        - membership_id
         - guest_name
         - guest_phone
         - delivery_address
-        - subtotal
         - discount_amount
         - delivery_fee
-        - tax_amount
-        - total_amount
-        - payment_status
-        - notes
-        - placed_by_user_id
-        - completed_at
-        - cancelled_at
-        - cancellation_reason
         - created_at
         - updated_at
     ShopOrderItem:
@@ -1083,10 +657,6 @@ components:
           example: "1250.00"
         quantity:
           type: number
-        line_total:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
         created_at:
           type: string
           format: date-time
@@ -1097,54 +667,6 @@ components:
         - product_name
         - unit_price
         - quantity
-        - line_total
-        - created_at
-    InventoryMovement:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        product_id:
-          type: string
-          format: uuid
-        quantity_change:
-          type: number
-        quantity_after:
-          type: number
-        reason:
-          type: string
-          enum:
-            - OPENING
-            - RESTOCK
-            - SALE
-            - RETURN
-            - ADJUSTMENT
-            - DAMAGE
-            - CANCELLATION
-        shop_order_id:
-          type: string
-          format: uuid
-          nullable: true
-        notes:
-          type: string
-          nullable: true
-        created_by_user_id:
-          type: string
-          format: uuid
-          nullable: true
-        created_at:
-          type: string
-          format: date-time
-      required:
-        - id
-        - product_id
-        - quantity_change
-        - quantity_after
-        - reason
-        - shop_order_id
-        - notes
-        - created_by_user_id
         - created_at
     BarMenuItem:
       type: object
@@ -1187,124 +709,6 @@ components:
         - sort_order
         - created_at
         - updated_at
-    BarTable:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        label:
-          type: string
-        capacity:
-          type: number
-        status:
-          type: string
-          enum:
-            - AVAILABLE
-            - OCCUPIED
-            - OUT_OF_SERVICE
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-      required:
-        - id
-        - label
-        - capacity
-        - status
-        - created_at
-        - updated_at
-    BarTab:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        tab_number:
-          type: string
-        bar_table_id:
-          type: string
-          format: uuid
-          nullable: true
-        member_id:
-          type: string
-          format: uuid
-          nullable: true
-        guest_name:
-          type: string
-          nullable: true
-        status:
-          type: string
-          enum:
-            - OPEN
-            - SETTLED
-            - VOID
-        opened_at:
-          type: string
-          format: date-time
-        settled_at:
-          type: string
-          format: date-time
-          nullable: true
-        opened_by_user_id:
-          type: string
-          format: uuid
-          nullable: true
-        settled_by_user_id:
-          type: string
-          format: uuid
-          nullable: true
-        subtotal:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
-        discount_amount:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
-        tax_amount:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
-        total_amount:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
-        payment_status:
-          type: string
-          enum:
-            - PENDING
-            - PARTIALLY_PAID
-            - PAID
-            - REFUNDED
-            - FAILED
-            - NOT_REQUIRED
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-      required:
-        - id
-        - tab_number
-        - bar_table_id
-        - member_id
-        - guest_name
-        - status
-        - opened_at
-        - settled_at
-        - opened_by_user_id
-        - settled_by_user_id
-        - subtotal
-        - discount_amount
-        - tax_amount
-        - total_amount
-        - payment_status
-        - created_at
-        - updated_at
     BarOrder:
       type: object
       properties:
@@ -1313,19 +717,7 @@ components:
           format: uuid
         order_number:
           type: string
-        bar_table_id:
-          type: string
-          format: uuid
-          nullable: true
-        bar_tab_id:
-          type: string
-          format: uuid
-          nullable: true
         member_id:
-          type: string
-          format: uuid
-          nullable: true
-        membership_id:
           type: string
           format: uuid
           nullable: true
@@ -1336,56 +728,15 @@ components:
           type: string
           enum:
             - NEW
-            - ACCEPTED
             - PREPARING
             - READY
             - SERVED
             - CANCELLED
-        subtotal:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
         discount_amount:
           type: string
           pattern: ^\d+\.\d{2}$
           example: "1250.00"
-        tax_amount:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
-        total_amount:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
-        payment_status:
-          type: string
-          enum:
-            - PENDING
-            - PARTIALLY_PAID
-            - PAID
-            - REFUNDED
-            - FAILED
-            - NOT_REQUIRED
         notes:
-          type: string
-          nullable: true
-        taken_by_user_id:
-          type: string
-          format: uuid
-          nullable: true
-        ready_at:
-          type: string
-          format: date-time
-          nullable: true
-        served_at:
-          type: string
-          format: date-time
-          nullable: true
-        cancelled_at:
-          type: string
-          format: date-time
-          nullable: true
-        cancellation_reason:
           type: string
           nullable: true
         created_at:
@@ -1394,28 +745,20 @@ components:
         updated_at:
           type: string
           format: date-time
+        table_label:
+          type: string
+          nullable: true
       required:
         - id
         - order_number
-        - bar_table_id
-        - bar_tab_id
         - member_id
-        - membership_id
         - guest_name
         - status
-        - subtotal
         - discount_amount
-        - tax_amount
-        - total_amount
-        - payment_status
         - notes
-        - taken_by_user_id
-        - ready_at
-        - served_at
-        - cancelled_at
-        - cancellation_reason
         - created_at
         - updated_at
+        - table_label
     BarOrderItem:
       type: object
       properties:
@@ -1436,10 +779,6 @@ components:
           example: "1250.00"
         quantity:
           type: number
-        line_total:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
         notes:
           type: string
           nullable: true
@@ -1453,54 +792,7 @@ components:
         - item_name
         - unit_price
         - quantity
-        - line_total
         - notes
-        - created_at
-    OrderStatusEvent:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        bar_order_id:
-          type: string
-          format: uuid
-        from_status:
-          type: string
-          enum:
-            - NEW
-            - ACCEPTED
-            - PREPARING
-            - READY
-            - SERVED
-            - CANCELLED
-          nullable: true
-        to_status:
-          type: string
-          enum:
-            - NEW
-            - ACCEPTED
-            - PREPARING
-            - READY
-            - SERVED
-            - CANCELLED
-        changed_by_user_id:
-          type: string
-          format: uuid
-          nullable: true
-        note:
-          type: string
-          nullable: true
-        created_at:
-          type: string
-          format: date-time
-      required:
-        - id
-        - bar_order_id
-        - from_status
-        - to_status
-        - changed_by_user_id
-        - note
         - created_at
     Payment:
       type: object
@@ -1514,23 +806,13 @@ components:
           type: string
           enum:
             - COURT_BOOKING
-            - SOCIAL_PARTICIPANT
             - MEMBERSHIP
             - SHOP_ORDER
             - BAR_ORDER
-            - TAB
             - INVOICE
         source_id:
           type: string
           format: uuid
-        revenue_category:
-          type: string
-          enum:
-            - COURT
-            - MEMBERSHIP
-            - SHOP
-            - BAR
-            - BUSINESS
         member_id:
           type: string
           format: uuid
@@ -1557,13 +839,6 @@ components:
             - CARD
             - UPI
             - ONLINE
-        status:
-          type: string
-          enum:
-            - SUCCEEDED
-            - FAILED
-            - PARTIALLY_REFUNDED
-            - REFUNDED
         gateway_reference:
           type: string
           nullable: true
@@ -1599,14 +874,12 @@ components:
         - payment_number
         - source_type
         - source_id
-        - revenue_category
         - member_id
         - business_client_id
         - payer_name
         - amount
         - tax_amount
         - method
-        - status
         - gateway_reference
         - received_by_user_id
         - paid_at
@@ -1624,11 +897,6 @@ components:
           format: uuid
         invoice_number:
           type: string
-        invoice_type:
-          type: string
-          enum:
-            - BUSINESS
-            - MEMBERSHIP
         business_client_id:
           type: string
           format: uuid
@@ -1642,9 +910,6 @@ components:
           enum:
             - DRAFT
             - SENT
-            - PARTIALLY_PAID
-            - PAID
-            - OVERDUE
             - VOID
         issue_date:
           type: string
@@ -1652,40 +917,12 @@ components:
         due_date:
           type: string
           format: date
-        subtotal:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
         tax_rate:
           type: string
           pattern: ^\d+\.\d{2}$
           example: "18.00"
-        tax_amount:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
-        total_amount:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
-        amount_paid:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
         notes:
           type: string
-          nullable: true
-        sent_at:
-          type: string
-          format: date-time
-          nullable: true
-        voided_at:
-          type: string
-          format: date-time
-          nullable: true
-        created_by_user_id:
-          type: string
-          format: uuid
           nullable: true
         created_at:
           type: string
@@ -1696,21 +933,13 @@ components:
       required:
         - id
         - invoice_number
-        - invoice_type
         - business_client_id
         - member_id
         - status
         - issue_date
         - due_date
-        - subtotal
         - tax_rate
-        - tax_amount
-        - total_amount
-        - amount_paid
         - notes
-        - sent_at
-        - voided_at
-        - created_by_user_id
         - created_at
         - updated_at
     InvoiceItem:
@@ -1730,10 +959,6 @@ components:
           type: string
           pattern: ^\d+\.\d{2}$
           example: "1250.00"
-        line_total:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
         created_at:
           type: string
           format: date-time
@@ -1743,7 +968,6 @@ components:
         - description
         - quantity
         - unit_price
-        - line_total
         - created_at
     StaffShift:
       type: object
@@ -1773,13 +997,6 @@ components:
             - KITCHEN
             - SHOP
             - COURTS
-        notes:
-          type: string
-          nullable: true
-        created_by_user_id:
-          type: string
-          format: uuid
-          nullable: true
         created_at:
           type: string
           format: date-time
@@ -1793,8 +1010,6 @@ components:
         - start_time
         - end_time
         - area
-        - notes
-        - created_by_user_id
         - created_at
         - updated_at
     LeaveRequest:
@@ -1806,13 +1021,6 @@ components:
         staff_id:
           type: string
           format: uuid
-        leave_type:
-          type: string
-          enum:
-            - CASUAL
-            - SICK
-            - PAID
-            - UNPAID
         start_date:
           type: string
           format: date
@@ -1829,14 +1037,6 @@ components:
             - APPROVED
             - REJECTED
             - CANCELLED
-        decided_by_user_id:
-          type: string
-          format: uuid
-          nullable: true
-        decided_at:
-          type: string
-          format: date-time
-          nullable: true
         decision_note:
           type: string
           nullable: true
@@ -1849,13 +1049,10 @@ components:
       required:
         - id
         - staff_id
-        - leave_type
         - start_date
         - end_date
         - reason
         - status
-        - decided_by_user_id
-        - decided_at
         - decision_note
         - created_at
         - updated_at
@@ -1882,21 +1079,9 @@ components:
             - CARD
             - UPI
             - ONLINE
-        status:
-          type: string
-          enum:
-            - PENDING
-            - PAID
         paid_on:
           type: string
           format: date
-          nullable: true
-        paid_by_user_id:
-          type: string
-          format: uuid
-          nullable: true
-        notes:
-          type: string
           nullable: true
         created_at:
           type: string
@@ -1910,71 +1095,9 @@ components:
         - pay_period
         - amount
         - method
-        - status
         - paid_on
-        - paid_by_user_id
-        - notes
         - created_at
         - updated_at
-    Notification:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        user_id:
-          type: string
-          format: uuid
-        type:
-          type: string
-          enum:
-            - MEMBERSHIP_EXPIRING
-            - MEMBERSHIP_EXPIRED
-            - BOOKING_CONFIRMED
-            - BOOKING_CANCELLED
-            - SOCIAL_SESSION_JOINED
-            - LOW_STOCK
-            - SHOP_ORDER_UPDATE
-            - ORDER_READY
-            - NEW_ENQUIRY
-            - INVOICE_ISSUED
-            - PAYMENT_RECEIVED
-            - LEAVE_REQUESTED
-            - LEAVE_DECIDED
-            - SHIFT_ASSIGNED
-            - SYSTEM
-        title:
-          type: string
-        body:
-          type: string
-          nullable: true
-        entity_type:
-          type: string
-          nullable: true
-        entity_id:
-          type: string
-          format: uuid
-          nullable: true
-        is_read:
-          type: boolean
-        read_at:
-          type: string
-          format: date-time
-          nullable: true
-        created_at:
-          type: string
-          format: date-time
-      required:
-        - id
-        - user_id
-        - type
-        - title
-        - body
-        - entity_type
-        - entity_id
-        - is_read
-        - read_at
-        - created_at
     ClubSetting:
       type: object
       properties:
@@ -1989,10 +1112,6 @@ components:
           nullable: true
         is_public:
           type: boolean
-        updated_by_user_id:
-          type: string
-          format: uuid
-          nullable: true
         created_at:
           type: string
           format: date-time
@@ -2005,7 +1124,6 @@ components:
         - value
         - description
         - is_public
-        - updated_by_user_id
         - created_at
         - updated_at
     ApiSuccess:
@@ -2075,7 +1193,6 @@ components:
             - ACTIVE
             - EXPIRED
             - CANCELLED
-            - CHANGED
         start_date:
           type: string
           format: date
@@ -2152,9 +1269,6 @@ components:
             emergency_contact_phone:
               type: string
               nullable: true
-            notes:
-              type: string
-              nullable: true
             plan:
               $ref: "#/components/schemas/MembershipPlan"
               nullable: true
@@ -2166,7 +1280,6 @@ components:
             - address
             - emergency_contact_name
             - emergency_contact_phone
-            - notes
             - plan
             - plays_used_today
             - plays_allowed_per_day
@@ -2175,6 +1288,13 @@ components:
         - $ref: "#/components/schemas/Membership"
         - type: object
           properties:
+            status:
+              type: string
+              enum:
+                - UPCOMING
+                - ACTIVE
+                - EXPIRED
+                - CANCELLED
             plan:
               $ref: "#/components/schemas/MembershipPlan"
             member_name:
@@ -2182,6 +1302,7 @@ components:
             member_code:
               type: string
           required:
+            - status
             - plan
             - member_name
             - member_code
@@ -2193,7 +1314,6 @@ components:
           enum:
             - MEMBERSHIP
             - COURT_BOOKING
-            - SOCIAL_SESSION
             - SHOP_ORDER
             - BAR_ORDER
             - PAYMENT
@@ -2237,19 +1357,11 @@ components:
           enum:
             - AVAILABLE
             - BOOKED
-            - SOCIAL
             - BLOCKED
             - PAST
         booking_id:
           type: string
           format: uuid
-          nullable: true
-        social_session_id:
-          type: string
-          format: uuid
-          nullable: true
-        spots_left:
-          type: number
           nullable: true
         walk_in_price:
           type: string
@@ -2260,8 +1372,6 @@ components:
         - end_at
         - status
         - booking_id
-        - social_session_id
-        - spots_left
         - walk_in_price
     CourtAvailability:
       type: object
@@ -2303,11 +1413,6 @@ components:
         end_at:
           type: string
           format: date-time
-        customer_type:
-          type: string
-          enum:
-            - MEMBER
-            - WALK_IN
         membership_type:
           type: string
           enum:
@@ -2351,7 +1456,6 @@ components:
         - court_id
         - start_at
         - end_at
-        - customer_type
         - membership_type
         - list_price
         - discount_percent
@@ -2367,6 +1471,28 @@ components:
         - $ref: "#/components/schemas/CourtBooking"
         - type: object
           properties:
+            status:
+              type: string
+              enum:
+                - CONFIRMED
+                - CANCELLED
+                - COMPLETED
+            amount_due:
+              type: string
+              pattern: ^\d+\.\d{2}$
+              example: "1250.00"
+            amount_paid:
+              type: string
+              pattern: ^\d+\.\d{2}$
+              example: "1250.00"
+            payment_status:
+              type: string
+              enum:
+                - PENDING
+                - PARTIALLY_PAID
+                - PAID
+                - REFUNDED
+                - NOT_REQUIRED
             court_name:
               type: string
             sport_type:
@@ -2382,16 +1508,15 @@ components:
             member_code:
               type: string
               nullable: true
-            social_session_id:
-              type: string
-              format: uuid
-              nullable: true
           required:
+            - status
+            - amount_due
+            - amount_paid
+            - payment_status
             - court_name
             - sport_type
             - member_name
             - member_code
-            - social_session_id
     BookingCancelResult:
       type: object
       properties:
@@ -2409,58 +1534,6 @@ components:
         - booking
         - refund_amount
         - refund_payment_id
-    ParticipantView:
-      allOf:
-        - $ref: "#/components/schemas/SocialSessionParticipant"
-        - type: object
-          properties:
-            display_name:
-              type: string
-            member_code:
-              type: string
-              nullable: true
-          required:
-            - display_name
-            - member_code
-    SocialSessionView:
-      allOf:
-        - $ref: "#/components/schemas/SocialSession"
-        - type: object
-          properties:
-            court_id:
-              type: string
-              format: uuid
-            court_name:
-              type: string
-            sport_type:
-              type: string
-              enum:
-                - TENNIS
-                - CRICKET
-                - PADEL
-                - BADMINTON
-            start_at:
-              type: string
-              format: date-time
-            end_at:
-              type: string
-              format: date-time
-            participant_count:
-              type: number
-            spots_left:
-              type: number
-            participants:
-              type: array
-              items:
-                $ref: "#/components/schemas/ParticipantView"
-          required:
-            - court_id
-            - court_name
-            - sport_type
-            - start_at
-            - end_at
-            - participant_count
-            - spots_left
     ProductView:
       type: object
       properties:
@@ -2549,10 +1622,6 @@ components:
             - OUT_OF_STOCK
         is_active:
           type: boolean
-        last_movement_at:
-          type: string
-          format: date-time
-          nullable: true
       required:
         - product_id
         - sku
@@ -2562,34 +1631,31 @@ components:
         - low_stock_threshold
         - stock_status
         - is_active
-        - last_movement_at
-    InventoryMovementView:
-      allOf:
-        - $ref: "#/components/schemas/InventoryMovement"
-        - type: object
-          properties:
-            sku:
-              type: string
-            product_name:
-              type: string
-          required:
-            - sku
-            - product_name
-    StockAdjustmentResult:
-      type: object
-      properties:
-        item:
-          $ref: "#/components/schemas/InventoryItem"
-        movement:
-          $ref: "#/components/schemas/InventoryMovement"
-      required:
-        - item
-        - movement
     ShopOrderDetail:
       allOf:
         - $ref: "#/components/schemas/ShopOrder"
         - type: object
           properties:
+            subtotal:
+              type: string
+              pattern: ^\d+\.\d{2}$
+              example: "1250.00"
+            total_amount:
+              type: string
+              pattern: ^\d+\.\d{2}$
+              example: "1250.00"
+            amount_paid:
+              type: string
+              pattern: ^\d+\.\d{2}$
+              example: "1250.00"
+            payment_status:
+              type: string
+              enum:
+                - PENDING
+                - PARTIALLY_PAID
+                - PAID
+                - REFUNDED
+                - NOT_REQUIRED
             items:
               type: array
               items:
@@ -2601,38 +1667,42 @@ components:
               type: string
               nullable: true
           required:
+            - subtotal
+            - total_amount
+            - amount_paid
+            - payment_status
             - items
             - member_name
             - member_code
-    BarTableView:
-      allOf:
-        - $ref: "#/components/schemas/BarTable"
-        - type: object
-          properties:
-            current_tab_id:
-              type: string
-              format: uuid
-              nullable: true
-            active_order_count:
-              type: number
-          required:
-            - current_tab_id
-            - active_order_count
     BarOrderDetail:
       allOf:
         - $ref: "#/components/schemas/BarOrder"
         - type: object
           properties:
+            subtotal:
+              type: string
+              pattern: ^\d+\.\d{2}$
+              example: "1250.00"
+            total_amount:
+              type: string
+              pattern: ^\d+\.\d{2}$
+              example: "1250.00"
+            amount_paid:
+              type: string
+              pattern: ^\d+\.\d{2}$
+              example: "1250.00"
+            payment_status:
+              type: string
+              enum:
+                - PENDING
+                - PARTIALLY_PAID
+                - PAID
+                - REFUNDED
+                - NOT_REQUIRED
             items:
               type: array
               items:
                 $ref: "#/components/schemas/BarOrderItem"
-            table_label:
-              type: string
-              nullable: true
-            tab_number:
-              type: string
-              nullable: true
             member_name:
               type: string
               nullable: true
@@ -2640,49 +1710,13 @@ components:
               type: string
               nullable: true
           required:
+            - subtotal
+            - total_amount
+            - amount_paid
+            - payment_status
             - items
-            - table_label
-            - tab_number
             - member_name
             - member_code
-    BarTabDetail:
-      allOf:
-        - $ref: "#/components/schemas/BarTab"
-        - type: object
-          properties:
-            table_label:
-              type: string
-              nullable: true
-            member_name:
-              type: string
-              nullable: true
-            member_code:
-              type: string
-              nullable: true
-            orders:
-              type: array
-              items:
-                $ref: "#/components/schemas/BarOrderDetail"
-            running_total:
-              type: string
-              pattern: ^\d+\.\d{2}$
-              example: "1250.00"
-          required:
-            - table_label
-            - member_name
-            - member_code
-            - orders
-            - running_total
-    BarSettleResult:
-      type: object
-      properties:
-        tab:
-          $ref: "#/components/schemas/BarTabDetail"
-        payment:
-          $ref: "#/components/schemas/Payment"
-      required:
-        - tab
-        - payment
     KitchenOrderItem:
       type: object
       properties:
@@ -2709,15 +1743,11 @@ components:
           type: string
           enum:
             - NEW
-            - ACCEPTED
             - PREPARING
             - READY
             - SERVED
             - CANCELLED
         table_label:
-          type: string
-          nullable: true
-        tab_number:
           type: string
           nullable: true
         customer_label:
@@ -2728,10 +1758,6 @@ components:
         created_at:
           type: string
           format: date-time
-        ready_at:
-          type: string
-          format: date-time
-          nullable: true
         minutes_waiting:
           type: number
         items:
@@ -2743,11 +1769,9 @@ components:
         - order_number
         - status
         - table_label
-        - tab_number
         - customer_label
         - notes
         - created_at
-        - ready_at
         - minutes_waiting
         - items
     BarDailySummary:
@@ -2796,12 +1820,6 @@ components:
               - method
               - amount
               - count
-        open_tabs_count:
-          type: number
-        open_tabs_amount:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "1250.00"
         shifts:
           type: array
           items:
@@ -2834,8 +1852,6 @@ components:
         - discount_total
         - tax_total
         - by_method
-        - open_tabs_count
-        - open_tabs_amount
         - shifts
     EnquiryView:
       allOf:
@@ -2845,71 +1861,27 @@ components:
             plan_name:
               type: string
               nullable: true
-            assigned_to_name:
-              type: string
-              nullable: true
           required:
             - plan_name
-            - assigned_to_name
-    EnquiryDetail:
-      allOf:
-        - $ref: "#/components/schemas/EnquiryView"
-        - type: object
-          properties:
-            follow_ups:
-              type: array
-              items:
-                $ref: "#/components/schemas/EnquiryFollowUp"
-            quotes:
-              type: array
-              items:
-                $ref: "#/components/schemas/Quote"
-          required:
-            - follow_ups
-            - quotes
-    EnquiryFunnel:
-      type: object
-      properties:
-        counts:
-          type: object
-          additionalProperties:
-            type: number
-        total:
-          type: number
-        conversion_rate_percent:
-          type: string
-          pattern: ^\d+\.\d{2}$
-          example: "18.00"
-        follow_ups_due:
-          type: number
-      required:
-        - counts
-        - total
-        - conversion_rate_percent
-        - follow_ups_due
-    EnquiryConvertResult:
-      type: object
-      properties:
-        enquiry:
-          $ref: "#/components/schemas/EnquiryView"
-        member:
-          $ref: "#/components/schemas/MemberSummary"
-        membership:
-          $ref: "#/components/schemas/Membership"
-          nullable: true
-        payment:
-          $ref: "#/components/schemas/Payment"
-          nullable: true
-      required:
-        - enquiry
-        - member
-        - membership
-        - payment
     PaymentView:
       allOf:
         - $ref: "#/components/schemas/Payment"
         - type: object
           properties:
+            revenue_category:
+              type: string
+              enum:
+                - COURT
+                - MEMBERSHIP
+                - SHOP
+                - BAR
+                - BUSINESS
+            status:
+              type: string
+              enum:
+                - SUCCEEDED
+                - PARTIALLY_REFUNDED
+                - REFUNDED
             payer_label:
               type: string
             source_label:
@@ -2918,6 +1890,8 @@ components:
               type: string
               nullable: true
           required:
+            - revenue_category
+            - status
             - payer_label
             - source_label
             - received_by_name
@@ -2926,16 +1900,51 @@ components:
         - $ref: "#/components/schemas/Invoice"
         - type: object
           properties:
-            client_name:
+            invoice_type:
               type: string
-              nullable: true
+              enum:
+                - BUSINESS
+                - MEMBERSHIP
+            subtotal:
+              type: string
+              pattern: ^\d+\.\d{2}$
+              example: "1250.00"
+            tax_amount:
+              type: string
+              pattern: ^\d+\.\d{2}$
+              example: "1250.00"
+            total_amount:
+              type: string
+              pattern: ^\d+\.\d{2}$
+              example: "1250.00"
+            amount_paid:
+              type: string
+              pattern: ^\d+\.\d{2}$
+              example: "1250.00"
             amount_outstanding:
               type: string
               pattern: ^\d+\.\d{2}$
               example: "1250.00"
+            payment_state:
+              type: string
+              enum:
+                - UNPAID
+                - PARTIALLY_PAID
+                - PAID
+                - OVERDUE
+              nullable: true
+            client_name:
+              type: string
+              nullable: true
           required:
-            - client_name
+            - invoice_type
+            - subtotal
+            - tax_amount
+            - total_amount
+            - amount_paid
             - amount_outstanding
+            - payment_state
+            - client_name
     InvoiceDetail:
       allOf:
         - $ref: "#/components/schemas/InvoiceView"
@@ -3011,11 +2020,14 @@ components:
                 - KITCHEN_MANAGER
                 - BUSINESS_CLIENT
                 - OWNER_ADMIN
+            is_active:
+              type: boolean
           required:
             - full_name
             - email
             - phone
             - role
+            - is_active
     ShiftView:
       allOf:
         - $ref: "#/components/schemas/StaffShift"
@@ -3023,11 +2035,8 @@ components:
           properties:
             staff_name:
               type: string
-            employee_code:
-              type: string
           required:
             - staff_name
-            - employee_code
     LeaveView:
       allOf:
         - $ref: "#/components/schemas/LeaveRequest"
@@ -3035,11 +2044,8 @@ components:
           properties:
             staff_name:
               type: string
-            employee_code:
-              type: string
           required:
             - staff_name
-            - employee_code
     PayrollView:
       allOf:
         - $ref: "#/components/schemas/PayrollPayment"
@@ -3047,11 +2053,11 @@ components:
           properties:
             staff_name:
               type: string
-            employee_code:
-              type: string
+            is_paid:
+              type: boolean
           required:
             - staff_name
-            - employee_code
+            - is_paid
     PublicClubInfo:
       type: object
       properties:
@@ -3080,23 +2086,6 @@ components:
           type: string
           pattern: ^\d{2}:\d{2}:\d{2}$
           example: 18:00:00
-        social_play:
-          type: object
-          properties:
-            weekday:
-              type: number
-            start_time:
-              type: string
-              pattern: ^\d{2}:\d{2}:\d{2}$
-              example: 18:00:00
-            end_time:
-              type: string
-              pattern: ^\d{2}:\d{2}:\d{2}$
-              example: 18:00:00
-          required:
-            - weekday
-            - start_time
-            - end_time
         sports:
           type: array
           items:
@@ -3117,7 +2106,6 @@ components:
         - email
         - open_time
         - close_time
-        - social_play
         - sports
         - court_count
     SettingView:
@@ -3267,25 +2255,16 @@ components:
               type: string
               pattern: ^\d+\.\d{2}$
               example: "1250.00"
-            open_tabs_count:
-              type: number
           required:
             - orders_count
             - sales_amount
-            - open_tabs_count
         enquiries:
           type: object
           properties:
-            new_count:
-              type: number
-            follow_ups_due:
-              type: number
-            converted_in_period:
+            unhandled_count:
               type: number
           required:
-            - new_count
-            - follow_ups_due
-            - converted_in_period
+            - unhandled_count
         finance:
           type: object
           properties:
@@ -3431,7 +2410,7 @@ components:
           example: "1250.00"
         orders_count:
           type: number
-        by_channel:
+        by_fulfillment:
           type: array
           items:
             $ref: "#/components/schemas/AmountByKey"
@@ -3464,7 +2443,7 @@ components:
         - range
         - sales_amount
         - orders_count
-        - by_channel
+        - by_fulfillment
         - top_products
         - low_stock
     FinanceReport:
@@ -3583,26 +2562,6 @@ components:
         - range
         - rows
         - total_tax
-    CountResult:
-      type: object
-      properties:
-        count:
-          type: number
-      required:
-        - count
-    ExpiryRunResult:
-      type: object
-      properties:
-        promoted_count:
-          type: number
-        expired_count:
-          type: number
-        notified_count:
-          type: number
-      required:
-        - promoted_count
-        - expired_count
-        - notified_count
     UserPublic:
       type: object
       properties:
@@ -3628,10 +2587,6 @@ components:
           type: boolean
         must_change_password:
           type: boolean
-        last_login_at:
-          type: string
-          format: date-time
-          nullable: true
         created_at:
           type: string
           format: date-time
@@ -3646,7 +2601,6 @@ components:
         - phone
         - is_active
         - must_change_password
-        - last_login_at
         - created_at
         - updated_at
 paths:
@@ -3735,7 +2689,7 @@ paths:
         - Authentication
       summary: Authenticate and receive a JWT plus the role-based landing route.
       description: |-
-        `redirect_to` = ROLE_HOME_ROUTE[user.role]. Never reveal whether the email exists (always AUTH_INVALID). Updates users.last_login_at.
+        `redirect_to` = ROLE_HOME_ROUTE[user.role]. Never reveal whether the email exists (always AUTH_INVALID).
 
         Requirements: FR-AUTH-002, FR-AUTH-003
       x-roles:
@@ -3962,7 +2916,7 @@ paths:
       operationId: public.club
       tags:
         - Public website
-      summary: Club introduction, timings, contact, sports offered, social-play window.
+      summary: Club introduction, timings, contact and sports offered.
       description: |-
         Built from club_settings where is_public = true plus distinct sport_type of active courts.
 
@@ -4043,7 +2997,6 @@ paths:
               - ACTIVE
               - EXPIRED
               - CANCELLED
-              - CHANGED
         - name: no_plan
           in: query
           required: false
@@ -4412,9 +3365,6 @@ paths:
                 photo_url:
                   type: string
                   format: uri
-                notes:
-                  type: string
-                  description: staff only
                 is_active:
                   type: boolean
                   description: OWNER_ADMIN only
@@ -4466,7 +3416,7 @@ paths:
       operationId: members.history
       tags:
         - Members
-      summary: Unified timeline of everything the member did at the club (memberships, bookings, social play, shop, bar, payments).
+      summary: Unified timeline of everything the member did at the club (memberships, bookings, shop, cafe, payments).
       description: |-
         Newest first. Assembled server-side (UNION of the listed tables).
 
@@ -4481,7 +3431,6 @@ paths:
       x-tables:
         - memberships
         - court_bookings
-        - social_session_participants
         - shop_orders
         - bar_orders
         - payments
@@ -4502,7 +3451,6 @@ paths:
             enum:
               - MEMBERSHIP
               - COURT_BOOKING
-              - SOCIAL_SESSION
               - SHOP_ORDER
               - BAR_ORDER
               - PAYMENT
@@ -4754,10 +3702,9 @@ paths:
                 max_plays_per_day:
                   type: integer
                   description: default 2
-                min_age:
-                  type: integer
                 max_age:
                   type: integer
+                  description: "Junior: 17"
                 benefits:
                   type: array
                   items:
@@ -4912,7 +3859,7 @@ paths:
         - Membership plans & memberships
       summary: Buy or renew a membership. Records the payment.
       description: |-
-        No current term: new ACTIVE membership starting today. Current term ends within `membership_expiry_warning_days`: new term is UPCOMING and starts the day after the current end_date. Otherwise MEMBERSHIP_ALREADY_ACTIVE. end_date = start_date + duration_months - 1 day.
+        No current term: new membership starting today (derived status ACTIVE). Current term ends within `membership_expiry_warning_days`: new term starts the day after the current end_date (derived status UPCOMING until then). Otherwise MEMBERSHIP_ALREADY_ACTIVE (the DB rejects overlapping live terms: memberships_no_overlap). end_date = start_date + duration_months - 1 day. A membership is only member + plan + start/end date + price_paid: its status is derived from the dates (view membership_terms), never stored.
 
         Requirements: FR-MEM-007, FR-MEM-012, FR-FIN-001
       x-roles:
@@ -5024,7 +3971,7 @@ paths:
         - Membership plans & memberships
       summary: "Upgrade / downgrade: closes the current term and starts a new one on the new plan."
       description: |-
-        Only an ACTIVE term can be changed (an EXPIRED one => MEMBERSHIP_EXPIRED: buy a new membership instead). Old row -> status CHANGED, end_date = yesterday. New row: status ACTIVE, start_date = today, previous_membership_id = old.id, full new-plan price charged (no pro-rata; see ASSUMPTIONS A-07). Future bookings keep their already-snapshotted price.
+        Only an ACTIVE term can be changed (an EXPIRED one => MEMBERSHIP_EXPIRED: buy a new membership instead). Old row: end_date = yesterday (it simply ends; its derived status becomes EXPIRED). New row: start_date = today (derived status ACTIVE), full new-plan price charged (no pro-rata; see ASSUMPTIONS A-07). Future bookings keep their already-snapshotted price.
 
         Requirements: FR-MEM-008, FR-MEM-012, FR-FIN-001
       x-roles:
@@ -5134,7 +4081,10 @@ paths:
       tags:
         - Membership plans & memberships
       summary: Cancel a membership (no automatic refund).
-      description: "Requirements: FR-MEM-009"
+      description: |-
+        Sets cancelled_at and cancellation_reason (derived status CANCELLED); benefits stop immediately.
+
+        Requirements: FR-MEM-009
       x-roles:
         - OWNER_ADMIN
       x-owner: Dev 2
@@ -5264,55 +4214,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /memberships/run-expiry:
-    post:
-      operationId: memberships.runExpiry
-      tags:
-        - Membership plans & memberships
-      summary: "Idempotent maintenance job: ACTIVE past end_date -> EXPIRED, UPCOMING reaching start_date -> ACTIVE, sends expiry notifications. Also called by a daily scheduler."
-      description: "Requirements: FR-MEM-010, FR-NOTIF-003"
-      x-roles:
-        - OWNER_ADMIN
-      x-owner: Dev 2
-      x-requirements:
-        - FR-MEM-010
-        - FR-NOTIF-003
-      x-tables:
-        - memberships
-        - notifications
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/ExpiryRunResult"
-                  message:
-                    type: string
         "401":
           description: AUTH_UNAUTHORIZED
           content:
@@ -5477,7 +4378,7 @@ paths:
         - Courts & availability
       summary: "Slot grid per court for one day: a slot every 30 min, each a 1-hour session."
       description: |-
-        Slots: first start = club_open_time, last start = club_close_time - 1h, step 30 min. Status PAST for starts before now. SOCIAL slots expose spots_left. `booking_id` only for FRONT_DESK/OWNER_ADMIN; never expose who booked.
+        Slots: first start = club_open_time, last start = club_close_time - 1h, step 30 min. Status PAST for starts before now. `booking_id` only for FRONT_DESK/OWNER_ADMIN; never expose who booked.
 
         Requirements: FR-COURT-002, FR-COURT-003, FR-PUB-003
       x-roles:
@@ -5490,7 +4391,6 @@ paths:
       x-tables:
         - courts
         - court_bookings
-        - social_sessions
       security: []
       parameters:
         - name: date
@@ -5645,7 +4545,7 @@ paths:
         - Courts & availability
       summary: Block a court for maintenance (creates 1-hour MAINTENANCE bookings covering the range).
       description: |-
-        Fails with BOOKING_CONFLICT (and creates nothing) if any hour overlaps a live booking.
+        Fails with BOOKING_CONFLICT (and creates nothing) if any hour overlaps a booking that stands.
 
         Requirements: FR-COURT-013
       x-roles:
@@ -5679,8 +4579,6 @@ paths:
                   type: string
                   format: date-time
                   description: multiple of 1h after start_at
-                reason:
-                  type: string
               required:
                 - start_at
                 - end_at
@@ -5746,7 +4644,7 @@ paths:
       operationId: courts.unblock
       tags:
         - Courts & availability
-      summary: Remove a maintenance block (sets the MAINTENANCE booking to CANCELLED).
+      summary: Remove a maintenance block (sets cancelled_at on the MAINTENANCE booking).
       description: "Requirements: FR-COURT-013"
       x-roles:
         - OWNER_ADMIN
@@ -5904,7 +4802,7 @@ paths:
         - Court bookings
       summary: Book a court (member self-service, or staff for a member / walk-in / phone caller).
       description: |-
-        Transaction: lock member (advisory) -> check plays-per-day (REGULAR + joined social, IST day, max = plan.max_plays_per_day, default 2) -> compute price -> INSERT (DB exclusion constraint `court_bookings_no_overlap` is the final arbiter; map SQLSTATE 23P01 to BOOKING_CONFLICT) -> optional payment. Expired/no membership => customer_type MEMBER but walk-in price. Free (amount_due 0) => payment_status NOT_REQUIRED.
+        Transaction: lock member (advisory) -> check plays-per-day (REGULAR bookings that stand, IST day, max = plan.max_plays_per_day, default 2) -> compute price -> INSERT (DB exclusion constraint `court_bookings_no_overlap` is the final arbiter; map SQLSTATE 23P01 to BOOKING_CONFLICT) -> optional payment. list_price and discount_amount are stored (snapshot); the amount due and payment_status are derived (view court_booking_totals). Expired/no membership => walk-in price. Free (amount due 0) => payment_status NOT_REQUIRED.
 
         Requirements: FR-COURT-004, FR-COURT-005, FR-COURT-006, FR-COURT-007, FR-COURT-008, FR-COURT-009, FR-COURT-003
       x-roles:
@@ -5923,7 +4821,6 @@ paths:
       x-tables:
         - court_bookings
         - payments
-        - notifications
       security:
         - bearerAuth: []
       requestBody:
@@ -5958,8 +4855,6 @@ paths:
                     - UPI
                     - ONLINE
                   description: omit = pay later at the desk (payment_status PENDING). MEMBER callers pay ONLINE or later at desk.
-                notes:
-                  type: string
               required:
                 - court_id
                 - start_at
@@ -6076,7 +4971,6 @@ paths:
           schema:
             type: string
             enum:
-              - PENDING
               - CONFIRMED
               - CANCELLED
               - COMPLETED
@@ -6087,8 +4981,6 @@ paths:
             type: string
             enum:
               - REGULAR
-              - SOCIAL_SESSION
-              - TRIAL
               - MAINTENANCE
         - name: upcoming
           in: query
@@ -6226,7 +5118,7 @@ paths:
         - Court bookings
       summary: Cancel a booking before it starts; frees the slot and refunds per policy.
       description: |-
-        Only CONFIRMED/PENDING and start_at in the future. Member callers: own bookings only, and policy decides the refund. Refund = SUCCEEDED payment refunded in full (payments.status REFUNDED) and booking.payment_status REFUNDED.
+        Only a booking that stands and starts in the future. Sets cancelled_at (derived status CANCELLED). Member callers: own bookings only, and policy decides the refund. A refund is recorded on the payment (refunded_amount, refunded_at); the booking then reports payment_status REFUNDED.
 
         Requirements: FR-COURT-010
       x-roles:
@@ -6239,7 +5131,6 @@ paths:
       x-tables:
         - court_bookings
         - payments
-        - notifications
       security:
         - bearerAuth: []
       parameters:
@@ -6256,8 +5147,6 @@ paths:
             schema:
               type: object
               properties:
-                reason:
-                  type: string
                 refund:
                   type: boolean
                   description: "staff only: override policy (default: refund if start_at - now >= cancellation_cutoff_hours)"
@@ -6306,602 +5195,6 @@ paths:
                 $ref: "#/components/schemas/ApiError"
         "409":
           description: BOOKING_NOT_CANCELLABLE | INVALID_STATUS_TRANSITION
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /bookings/{id}/complete:
-    post:
-      operationId: bookings.complete
-      tags:
-        - Court bookings
-      summary: Mark a booking COMPLETED (also done automatically by the daily job after end_at).
-      description: "Requirements: FR-COURT-014"
-      x-roles:
-        - FRONT_DESK
-        - OWNER_ADMIN
-      x-owner: Dev 2
-      x-requirements:
-        - FR-COURT-014
-      x-tables:
-        - court_bookings
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/BookingDetail"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "404":
-          description: BOOKING_NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "409":
-          description: INVALID_STATUS_TRANSITION
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /social-play/sessions:
-    get:
-      operationId: social.list
-      tags:
-        - Social play
-      summary: Upcoming Friday social-play sessions with spots left.
-      description: "Requirements: FR-SOC-002, FR-PUB-008"
-      x-roles:
-        - PUBLIC
-      x-owner: Dev 2
-      x-requirements:
-        - FR-SOC-002
-        - FR-PUB-008
-      x-tables:
-        - social_sessions
-        - court_bookings
-        - social_session_participants
-      security: []
-      parameters:
-        - name: from
-          in: query
-          required: false
-          schema:
-            type: string
-            format: date
-        - name: to
-          in: query
-          required: false
-          schema:
-            type: string
-            format: date
-        - name: status
-          in: query
-          required: false
-          schema:
-            type: string
-            enum:
-              - OPEN
-              - CANCELLED
-              - COMPLETED
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/SocialSessionView"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-    post:
-      operationId: social.create
-      tags:
-        - Social play
-      summary: Open a court for social play (holds the court via a SOCIAL_SESSION booking).
-      description: "Requirements: FR-SOC-001, FR-SOC-005"
-      x-roles:
-        - FRONT_DESK
-        - OWNER_ADMIN
-      x-owner: Dev 2
-      x-requirements:
-        - FR-SOC-001
-        - FR-SOC-005
-      x-tables:
-        - social_sessions
-        - court_bookings
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                court_id:
-                  type: string
-                  format: uuid
-                start_at:
-                  type: string
-                  format: date-time
-                  description: must fall on social_play_weekday (IST) inside the social-play window
-                title:
-                  type: string
-                description:
-                  type: string
-                capacity:
-                  type: integer
-                  description: ">=2"
-                fee_per_person:
-                  type: string
-                  pattern: ^\d+\.\d{2}$
-                  description: ">=0; tax-inclusive guest fee"
-              required:
-                - court_id
-                - start_at
-                - title
-                - capacity
-                - fee_per_person
-      responses:
-        "201":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/SocialSessionView"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "404":
-          description: COURT_NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "409":
-          description: BOOKING_CONFLICT
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "422":
-          description: SOCIAL_PLAY_NOT_ALLOWED | INVALID_SLOT
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /social-play/sessions/{id}:
-    get:
-      operationId: social.get
-      tags:
-        - Social play
-      summary: Session detail including participants.
-      description: "Requirements: FR-SOC-002"
-      x-roles:
-        - MEMBER
-        - FRONT_DESK
-        - OWNER_ADMIN
-      x-owner: Dev 2
-      x-requirements:
-        - FR-SOC-002
-      x-tables:
-        - social_sessions
-        - social_session_participants
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/SocialSessionView"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "404":
-          description: SOCIAL_SESSION_NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /social-play/sessions/{id}/join:
-    post:
-      operationId: social.join
-      tags:
-        - Social play
-      summary: Join a session (member self-service, or staff for a member / guest).
-      description: |-
-        Fee = fee_per_person minus the member plan court_discount_percent (expired/no plan: full fee). Capacity check and insert in one transaction with a row lock on the session. Counts toward the member daily plays limit.
-
-        Requirements: FR-SOC-003, FR-SOC-005, FR-SOC-007, FR-COURT-008
-      x-roles:
-        - MEMBER
-        - FRONT_DESK
-        - OWNER_ADMIN
-      x-owner: Dev 2
-      x-requirements:
-        - FR-SOC-003
-        - FR-SOC-005
-        - FR-SOC-007
-        - FR-COURT-008
-      x-tables:
-        - social_session_participants
-        - payments
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                member_id:
-                  type: string
-                  format: uuid
-                  description: "Staff only: book/order on behalf of this member. MEMBER callers: omit (implied = self)."
-                guest_name:
-                  type: string
-                  description: Walk-in name. Staff only. Required when no member_id.
-                guest_phone:
-                  type: string
-                  description: Walk-in phone (E.164 or 10-digit). Staff only.
-                payment_method:
-                  type: string
-                  enum:
-                    - CASH
-                    - CARD
-                    - UPI
-                    - ONLINE
-                  description: omit = pay later at desk
-      responses:
-        "201":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/ParticipantView"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "402":
-          description: PAYMENT_FAILED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "404":
-          description: SOCIAL_SESSION_NOT_FOUND | MEMBER_NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "409":
-          description: SOCIAL_SESSION_FULL | ALREADY_JOINED | DAILY_BOOKING_LIMIT
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /social-play/sessions/{id}/leave:
-    post:
-      operationId: social.leave
-      tags:
-        - Social play
-      summary: Leave a session (refund per cancellation policy).
-      description: "Requirements: FR-SOC-004"
-      x-roles:
-        - MEMBER:own
-        - FRONT_DESK
-        - OWNER_ADMIN
-      x-owner: Dev 2
-      x-requirements:
-        - FR-SOC-004
-      x-tables:
-        - social_session_participants
-        - payments
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                participant_id:
-                  type: string
-                  format: uuid
-                  description: staff only; required for staff callers
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/ParticipantView"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "404":
-          description: SOCIAL_SESSION_NOT_FOUND | NOT_A_PARTICIPANT
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "409":
-          description: BOOKING_NOT_CANCELLABLE
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /social-play/sessions/{id}/cancel:
-    post:
-      operationId: social.cancel
-      tags:
-        - Social play
-      summary: Cancel the whole session; releases the court and refunds all participants.
-      description: "Requirements: FR-SOC-006"
-      x-roles:
-        - FRONT_DESK
-        - OWNER_ADMIN
-      x-owner: Dev 2
-      x-requirements:
-        - FR-SOC-006
-      x-tables:
-        - social_sessions
-        - court_bookings
-        - social_session_participants
-        - payments
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                reason:
-                  type: string
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/SocialSessionView"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "404":
-          description: SOCIAL_SESSION_NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "409":
-          description: INVALID_STATUS_TRANSITION
           content:
             application/json:
               schema:
@@ -7010,7 +5303,6 @@ paths:
         - FR-INV-003
       x-tables:
         - products
-        - inventory_movements
       security:
         - bearerAuth: []
       requestBody:
@@ -7046,7 +5338,7 @@ paths:
                   format: uri
                 initial_stock:
                   type: integer
-                  description: ">=0; creates an OPENING inventory movement"
+                  description: ">=0; the starting stock_quantity"
                 low_stock_threshold:
                   type: integer
                   description: default = setting low_stock_default_threshold
@@ -7319,7 +5611,7 @@ paths:
         - Shop
       summary: "Place a shop order: member online order (pickup/delivery) or staff counter sale."
       description: |-
-        channel = ONLINE for MEMBER callers, PHYSICAL for staff (server-derived, not sent). One transaction: `UPDATE products SET stock_quantity = stock_quantity - :q WHERE id = :id AND stock_quantity >= :q` per line (0 rows => OUT_OF_STOCK, rollback) + inventory_movements(SALE) + snapshot unit_price + discount = subtotal x shop_discount_percent + delivery_fee (unless free_delivery_above) + payment. Raising stock below threshold creates LOW_STOCK notifications. IN_STORE orders are created COMPLETED; ONLINE start PLACED.
+        IN_STORE = a counter sale made by staff; PICKUP / DELIVERY = placed online by a member (no separate channel column: it follows from fulfillment). One transaction: `UPDATE products SET stock_quantity = stock_quantity - :q WHERE id = :id AND stock_quantity >= :q` per line (0 rows => OUT_OF_STOCK, rollback) + snapshot unit_price + discount_amount = subtotal x shop_discount_percent + delivery_fee (unless free_delivery_above) + payment. Totals and payment_status are derived (view shop_order_totals). IN_STORE orders are created COMPLETED; online orders start PLACED.
 
         Requirements: FR-SHOP-003, FR-SHOP-004, FR-SHOP-005, FR-SHOP-006, FR-SHOP-007, FR-SHOP-008, FR-INV-001, FR-FIN-001
       x-roles:
@@ -7340,7 +5632,6 @@ paths:
         - shop_orders
         - shop_order_items
         - products
-        - inventory_movements
         - payments
       security:
         - bearerAuth: []
@@ -7394,8 +5685,6 @@ paths:
                     - UPI
                     - ONLINE
                   description: "MEMBER: ONLINE. Staff counter sale: CASH|CARD|UPI (required for IN_STORE)"
-                notes:
-                  type: string
               required:
                 - items
                 - fulfillment
@@ -7492,14 +5781,6 @@ paths:
               - OUT_FOR_DELIVERY
               - COMPLETED
               - CANCELLED
-        - name: channel
-          in: query
-          required: false
-          schema:
-            type: string
-            enum:
-              - PHYSICAL
-              - ONLINE
         - name: fulfillment
           in: query
           required: false
@@ -7658,7 +5939,7 @@ paths:
         - Shop
       summary: "Advance an order: PLACED -> CONFIRMED -> READY_FOR_PICKUP | OUT_FOR_DELIVERY -> COMPLETED."
       description: |-
-        Use /shop/orders/:id/cancel for cancellations. Notifies the member (SHOP_ORDER_UPDATE).
+        Use /shop/orders/:id/cancel for cancellations.
 
         Requirements: FR-SHOP-009, FR-SHOP-005, FR-SHOP-006
       x-roles:
@@ -7671,7 +5952,6 @@ paths:
         - FR-SHOP-006
       x-tables:
         - shop_orders
-        - notifications
       security:
         - bearerAuth: []
       parameters:
@@ -7756,7 +6036,7 @@ paths:
         - Shop
       summary: "Cancel an order: restores stock and refunds."
       description: |-
-        MEMBER may cancel only own order while PLACED. Staff while not COMPLETED/CANCELLED. Inserts inventory_movements(CANCELLATION), refunds payment, payment_status REFUNDED.
+        MEMBER may cancel only own order while PLACED. Staff while not COMPLETED/CANCELLED. Adds the quantities back to products.stock_quantity and refunds the payment in full (the order then reports payment_status REFUNDED).
 
         Requirements: FR-SHOP-010, FR-INV-001
       x-roles:
@@ -7770,7 +6050,6 @@ paths:
       x-tables:
         - shop_orders
         - products
-        - inventory_movements
         - payments
       security:
         - bearerAuth: []
@@ -7781,15 +6060,6 @@ paths:
           schema:
             type: string
             format: uuid
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                reason:
-                  type: string
       responses:
         "200":
           description: Success
@@ -7991,18 +6261,18 @@ paths:
       operationId: inventory.adjust
       tags:
         - Inventory
-      summary: Restock or correct stock; always writes a ledger row.
-      description: "Requirements: FR-INV-003, FR-INV-005"
+      summary: Restock or correct the stock of a product.
+      description: |-
+        `UPDATE products SET stock_quantity = stock_quantity + :change WHERE id = :id AND stock_quantity + :change >= 0`. products.stock_quantity is the stock: there is no separate ledger (ADR-016).
+
+        Requirements: FR-INV-003
       x-roles:
         - OWNER_ADMIN
       x-owner: Dev 3
       x-requirements:
         - FR-INV-003
-        - FR-INV-005
       x-tables:
         - products
-        - inventory_movements
-        - notifications
       security:
         - bearerAuth: []
       requestBody:
@@ -8017,24 +6287,10 @@ paths:
                   format: uuid
                 quantity_change:
                   type: integer
-                  description: non-zero; negative allowed only if result stays >= 0 (else VALIDATION_ERROR)
-                reason:
-                  type: string
-                  enum:
-                    - OPENING
-                    - RESTOCK
-                    - SALE
-                    - RETURN
-                    - ADJUSTMENT
-                    - DAMAGE
-                    - CANCELLATION
-                  description: RESTOCK | ADJUSTMENT | DAMAGE | RETURN only
-                notes:
-                  type: string
+                  description: non-zero; negative allowed only if the result stays >= 0 (else VALIDATION_ERROR)
               required:
                 - product_id
                 - quantity_change
-                - reason
       responses:
         "201":
           description: Success
@@ -8051,7 +6307,7 @@ paths:
                     enum:
                       - true
                   data:
-                    $ref: "#/components/schemas/StockAdjustmentResult"
+                    $ref: "#/components/schemas/InventoryItem"
                   message:
                     type: string
         "400":
@@ -8078,114 +6334,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-  /inventory/movements:
-    get:
-      operationId: inventory.movements
-      tags:
-        - Inventory
-      summary: Stock ledger.
-      description: "Requirements: FR-INV-004"
-      x-roles:
-        - OWNER_ADMIN
-      x-owner: Dev 3
-      x-requirements:
-        - FR-INV-004
-      x-tables:
-        - inventory_movements
-        - products
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: product_id
-          in: query
-          required: false
-          schema:
-            type: string
-            format: uuid
-        - name: reason
-          in: query
-          required: false
-          schema:
-            type: string
-            enum:
-              - OPENING
-              - RESTOCK
-              - SALE
-              - RETURN
-              - ADJUSTMENT
-              - DAMAGE
-              - CANCELLATION
-        - name: from
-          in: query
-          required: false
-          schema:
-            type: string
-            format: date
-        - name: to
-          in: query
-          required: false
-          schema:
-            type: string
-            format: date
-        - name: page
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-            default: 1
-        - name: page_size
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 20
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/InventoryMovementView"
-                  message:
-                    type: string
-                  meta:
-                    $ref: "#/components/schemas/PageMeta"
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
   /bar/menu:
     get:
       operationId: bar.menu
       tags:
-        - Bar / POS
+        - Cafe
       summary: Bar & cafeteria menu.
       description: "Requirements: FR-BAR-001, FR-PUB-005"
       x-roles:
@@ -8244,7 +6397,7 @@ paths:
     post:
       operationId: bar.menuCreate
       tags:
-        - Bar / POS
+        - Cafe
       summary: Add a menu item.
       description: "Requirements: FR-BAR-011"
       x-roles:
@@ -8325,7 +6478,7 @@ paths:
     patch:
       operationId: bar.menuUpdate
       tags:
-        - Bar / POS
+        - Cafe
       summary: Edit a menu item / mark unavailable.
       description: "Requirements: FR-BAR-011"
       x-roles:
@@ -8411,230 +6564,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-  /bar/tables:
-    get:
-      operationId: bar.tables
-      tags:
-        - Bar / POS
-      summary: Tables with live status, open tab and active order count.
-      description: "Requirements: FR-BAR-002"
-      x-roles:
-        - FRONT_DESK
-        - KITCHEN_MANAGER
-        - OWNER_ADMIN
-      x-owner: Dev 3
-      x-requirements:
-        - FR-BAR-002
-      x-tables:
-        - bar_tables
-        - bar_tabs
-        - bar_orders
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/BarTableView"
-                  message:
-                    type: string
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-    post:
-      operationId: bar.tableCreate
-      tags:
-        - Bar / POS
-      summary: Add a table.
-      description: "Requirements: FR-BAR-002"
-      x-roles:
-        - OWNER_ADMIN
-      x-owner: Dev 3
-      x-requirements:
-        - FR-BAR-002
-      x-tables:
-        - bar_tables
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                label:
-                  type: string
-                  description: unique
-                capacity:
-                  type: integer
-                  description: ">0"
-              required:
-                - label
-                - capacity
-      responses:
-        "201":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/BarTable"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /bar/tables/{id}:
-    patch:
-      operationId: bar.tableUpdate
-      tags:
-        - Bar / POS
-      summary: Set table status (e.g. free it, mark out of service).
-      description: |-
-        Cannot set AVAILABLE while the table has an OPEN tab or an active order.
-
-        Requirements: FR-BAR-002
-      x-roles:
-        - FRONT_DESK
-        - OWNER_ADMIN
-      x-owner: Dev 3
-      x-requirements:
-        - FR-BAR-002
-      x-tables:
-        - bar_tables
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                status:
-                  type: string
-                  enum:
-                    - AVAILABLE
-                    - OCCUPIED
-                    - OUT_OF_SERVICE
-                label:
-                  type: string
-                  description: OWNER_ADMIN only
-                capacity:
-                  type: integer
-                  description: OWNER_ADMIN only
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/BarTable"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "404":
-          description: TABLE_NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "409":
-          description: TABLE_OCCUPIED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
   /bar/orders:
     post:
       operationId: bar.orderCreate
       tags:
-        - Bar / POS
-      summary: Take a bar/cafeteria order at a table (or counter). Appears instantly on the kitchen board.
+        - Cafe
+      summary: Take a cafe order for a table label, member or guest. Appears instantly on the kitchen board.
       description: |-
-        At least one of bar_table_id, member_id, guest_name, bar_tab_id. Member discount = subtotal x bar_discount_percent of the member's CURRENT plan (automatic; never asked). Guests pay list price. Snapshot unit_price + item_name. Writes order_status_events(null -> NEW). Table -> OCCUPIED. payment_method with a bar_tab_id is a VALIDATION_ERROR (tab payments happen at settlement).
+        At least one of table_label, member_id, guest_name. Member discount = subtotal x bar_discount_percent of the member's CURRENT plan, stored as discount_amount (automatic; never asked). Guests pay list price. Snapshot unit_price + item_name. The order starts NEW. Totals and payment_status are derived (view bar_order_totals).
 
         Requirements: FR-BAR-003, FR-BAR-004, FR-BAR-005, FR-BAR-008, FR-BAR-013, FR-KIT-001
       x-roles:
@@ -8651,8 +6588,6 @@ paths:
       x-tables:
         - bar_orders
         - bar_order_items
-        - order_status_events
-        - bar_tables
         - payments
       security:
         - bearerAuth: []
@@ -8663,13 +6598,9 @@ paths:
             schema:
               type: object
               properties:
-                bar_table_id:
+                table_label:
                   type: string
-                  format: uuid
-                bar_tab_id:
-                  type: string
-                  format: uuid
-                  description: add to an OPEN tab; member/guest then inherited from the tab
+                  description: free text, e.g. "T3" or "Court side"
                 member_id:
                   type: string
                   format: uuid
@@ -8700,7 +6631,7 @@ paths:
                     - CARD
                     - UPI
                     - ONLINE
-                  description: pay now (CASH|CARD|UPI); omit to leave PENDING or put on a tab
+                  description: pay now (CASH|CARD|UPI); omit to pay later at the desk
                 notes:
                   type: string
               required:
@@ -8749,13 +6680,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiError"
         "404":
-          description: TABLE_NOT_FOUND | TAB_NOT_FOUND | MENU_ITEM_NOT_FOUND | MEMBER_NOT_FOUND
+          description: MENU_ITEM_NOT_FOUND | MEMBER_NOT_FOUND
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
         "409":
-          description: TABLE_OCCUPIED | TAB_NOT_OPEN | MENU_ITEM_UNAVAILABLE
+          description: MENU_ITEM_UNAVAILABLE
           content:
             application/json:
               schema:
@@ -8763,8 +6694,8 @@ paths:
     get:
       operationId: bar.orderList
       tags:
-        - Bar / POS
-      summary: List bar orders (members see their own).
+        - Cafe
+      summary: List cafe orders (members see their own).
       description: "Requirements: FR-BAR-012, FR-BAR-009"
       x-roles:
         - MEMBER:own
@@ -8787,7 +6718,6 @@ paths:
             type: string
             enum:
               - NEW
-              - ACCEPTED
               - PREPARING
               - READY
               - SERVED
@@ -8802,20 +6732,12 @@ paths:
               - PARTIALLY_PAID
               - PAID
               - REFUNDED
-              - FAILED
               - NOT_REQUIRED
-        - name: bar_table_id
+        - name: table_label
           in: query
           required: false
           schema:
             type: string
-            format: uuid
-        - name: bar_tab_id
-          in: query
-          required: false
-          schema:
-            type: string
-            format: uuid
         - name: member_id
           in: query
           required: false
@@ -8893,8 +6815,8 @@ paths:
     get:
       operationId: bar.orderGet
       tags:
-        - Bar / POS
-      summary: Bar order detail.
+        - Cafe
+      summary: Cafe order detail.
       description: "Requirements: FR-BAR-012"
       x-roles:
         - MEMBER:own
@@ -8961,10 +6883,10 @@ paths:
     post:
       operationId: bar.orderCancel
       tags:
-        - Bar / POS
-      summary: Cancel a bar order while it is NEW or ACCEPTED.
+        - Cafe
+      summary: Cancel a cafe order while it is still NEW.
       description: |-
-        Refunds a payment if the order was already paid. Frees the table if it was the last active order.
+        Refunds the payment if the order was already paid.
 
         Requirements: FR-BAR-010
       x-roles:
@@ -8975,7 +6897,6 @@ paths:
         - FR-BAR-010
       x-tables:
         - bar_orders
-        - order_status_events
         - payments
       security:
         - bearerAuth: []
@@ -8986,17 +6907,6 @@ paths:
           schema:
             type: string
             format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                reason:
-                  type: string
-              required:
-                - reason
       responses:
         "200":
           description: Success
@@ -9046,444 +6956,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-  /bar/tabs:
-    post:
-      operationId: bar.tabOpen
-      tags:
-        - Bar / POS
-      summary: Open a tab for a member or guest so they can order now and settle before leaving.
-      description: "Requirements: FR-BAR-006, FR-BAR-013"
-      x-roles:
-        - FRONT_DESK
-        - OWNER_ADMIN
-      x-owner: Dev 3
-      x-requirements:
-        - FR-BAR-006
-        - FR-BAR-013
-      x-tables:
-        - bar_tabs
-        - bar_tables
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                bar_table_id:
-                  type: string
-                  format: uuid
-                member_id:
-                  type: string
-                  format: uuid
-                  description: "Staff only: book/order on behalf of this member. MEMBER callers: omit (implied = self)."
-                guest_name:
-                  type: string
-                  description: required when no member_id
-      responses:
-        "201":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/BarTabDetail"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "404":
-          description: TABLE_NOT_FOUND | MEMBER_NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "409":
-          description: TABLE_OCCUPIED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-    get:
-      operationId: bar.tabList
-      tags:
-        - Bar / POS
-      summary: List tabs.
-      description: "Requirements: FR-BAR-006, FR-BAR-012"
-      x-roles:
-        - MEMBER:own
-        - FRONT_DESK
-        - OWNER_ADMIN
-      x-owner: Dev 3
-      x-requirements:
-        - FR-BAR-006
-        - FR-BAR-012
-      x-tables:
-        - bar_tabs
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: status
-          in: query
-          required: false
-          schema:
-            type: string
-            enum:
-              - OPEN
-              - SETTLED
-              - VOID
-        - name: member_id
-          in: query
-          required: false
-          description: staff only
-          schema:
-            type: string
-            format: uuid
-        - name: from
-          in: query
-          required: false
-          schema:
-            type: string
-            format: date
-        - name: to
-          in: query
-          required: false
-          schema:
-            type: string
-            format: date
-        - name: page
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-            default: 1
-        - name: page_size
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 20
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/BarTabDetail"
-                  message:
-                    type: string
-                  meta:
-                    $ref: "#/components/schemas/PageMeta"
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /bar/tabs/{id}:
-    get:
-      operationId: bar.tabGet
-      tags:
-        - Bar / POS
-      summary: Tab with its orders and live running total.
-      description: "Requirements: FR-BAR-006, FR-BAR-012"
-      x-roles:
-        - MEMBER:own
-        - FRONT_DESK
-        - OWNER_ADMIN
-      x-owner: Dev 3
-      x-requirements:
-        - FR-BAR-006
-        - FR-BAR-012
-      x-tables:
-        - bar_tabs
-        - bar_orders
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/BarTabDetail"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "404":
-          description: TAB_NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /bar/tabs/{id}/settle:
-    post:
-      operationId: bar.tabSettle
-      tags:
-        - Bar / POS
-      summary: "Settle a tab: one payment for the whole tab, orders marked PAID, table freed."
-      description: |-
-        Allowed only when every non-cancelled order is SERVED (else TAB_HAS_ACTIVE_ORDERS). Writes subtotal/discount/tax/total to bar_tabs, payment (source_type TAB, category BAR), tab SETTLED. Amount = sum of order totals; client cannot override it.
-
-        Requirements: FR-BAR-007, FR-BAR-008, FR-FIN-001
-      x-roles:
-        - FRONT_DESK
-        - OWNER_ADMIN
-      x-owner: Dev 3
-      x-requirements:
-        - FR-BAR-007
-        - FR-BAR-008
-        - FR-FIN-001
-      x-tables:
-        - bar_tabs
-        - bar_orders
-        - payments
-        - bar_tables
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                payment_method:
-                  type: string
-                  enum:
-                    - CASH
-                    - CARD
-                    - UPI
-                    - ONLINE
-                  description: CASH | CARD | UPI
-              required:
-                - payment_method
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/BarSettleResult"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "402":
-          description: PAYMENT_FAILED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "404":
-          description: TAB_NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "409":
-          description: TAB_NOT_OPEN | TAB_HAS_ACTIVE_ORDERS
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /bar/tabs/{id}/void:
-    post:
-      operationId: bar.tabVoid
-      tags:
-        - Bar / POS
-      summary: Void a tab that has no billable orders.
-      description: "Requirements: FR-BAR-006"
-      x-roles:
-        - OWNER_ADMIN
-      x-owner: Dev 3
-      x-requirements:
-        - FR-BAR-006
-      x-tables:
-        - bar_tabs
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/BarTabDetail"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "404":
-          description: TAB_NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "409":
-          description: TAB_NOT_OPEN | TAB_HAS_ACTIVE_ORDERS
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
   /bar/daily-summary:
     get:
       operationId: bar.dailySummary
       tags:
-        - Bar / POS
-      summary: "What the bar earned on a day: revenue by method, discounts, open tabs, who was on shift."
+        - Cafe
+      summary: "What the cafe earned on a day: revenue by method, discounts, who was on shift."
       description: "Requirements: FR-BAR-009"
       x-roles:
         - FRONT_DESK
@@ -9494,7 +6972,6 @@ paths:
       x-tables:
         - payments
         - bar_orders
-        - bar_tabs
         - staff_shifts
       security:
         - bearerAuth: []
@@ -9564,21 +7041,19 @@ paths:
       x-tables:
         - bar_orders
         - bar_order_items
-        - bar_tables
       security:
         - bearerAuth: []
       parameters:
         - name: status
           in: query
           required: false
-          description: default NEW,ACCEPTED,PREPARING,READY
+          description: default NEW,PREPARING,READY
           schema:
             type: array
             items:
               type: string
               enum:
                 - NEW
-                - ACCEPTED
                 - PREPARING
                 - READY
                 - SERVED
@@ -9701,11 +7176,11 @@ paths:
       operationId: kitchen.status
       tags:
         - Kitchen
-      summary: "Move an order forward: NEW -> ACCEPTED -> PREPARING -> READY -> SERVED (or reject NEW/ACCEPTED with CANCELLED)."
+      summary: "Move an order forward: NEW -> PREPARING -> READY -> SERVED (or reject a NEW order with CANCELLED)."
       description: |-
-        Writes order_status_events. READY sets ready_at and notifies the staff member who took the order (ORDER_READY); SERVED sets served_at. CANCELLED sets cancelled_at/cancellation_reason.
+        bar_orders.status is the only record of progress: there is no separate status history.
 
-        Requirements: FR-KIT-003, FR-KIT-005, FR-KIT-006, FR-NOTIF-003
+        Requirements: FR-KIT-003, FR-KIT-005
       x-roles:
         - KITCHEN_MANAGER
         - OWNER_ADMIN
@@ -9713,13 +7188,8 @@ paths:
       x-requirements:
         - FR-KIT-003
         - FR-KIT-005
-        - FR-KIT-006
-        - FR-NOTIF-003
       x-tables:
         - bar_orders
-        - order_status_events
-        - notifications
-        - bar_tables
       security:
         - bearerAuth: []
       parameters:
@@ -9740,15 +7210,11 @@ paths:
                   type: string
                   enum:
                     - NEW
-                    - ACCEPTED
                     - PREPARING
                     - READY
                     - SERVED
                     - CANCELLED
                   description: next status per ORDER_TRANSITIONS
-                note:
-                  type: string
-                  description: required when status = CANCELLED (reason)
               required:
                 - status
       responses:
@@ -9804,12 +7270,12 @@ paths:
     post:
       operationId: enquiries.create
       tags:
-        - Enquiries & CRM
-      summary: Submit an enquiry or trial-session request. Public callers are forced to source WEBSITE; staff log PHONE / WALK_IN enquiries.
+        - Enquiries
+      summary: Submit an enquiry or trial-session request. Staff use the same endpoint to log phone and walk-in enquiries.
       description: |-
-        Creates status NEW and a NEW_ENQUIRY notification for every active FRONT_DESK and OWNER_ADMIN user. Rate-limit public submissions (5/hour/IP).
+        Stored with handled_at NULL: it waits in the front desk inbox until somebody handles it. Rate-limit public submissions (5/hour/IP).
 
-        Requirements: FR-ENQ-001, FR-ENQ-002, FR-ENQ-003, FR-ENQ-008, FR-PUB-006
+        Requirements: FR-ENQ-001, FR-ENQ-002, FR-ENQ-003, FR-PUB-006
       x-roles:
         - PUBLIC
         - FRONT_DESK
@@ -9819,11 +7285,9 @@ paths:
         - FR-ENQ-001
         - FR-ENQ-002
         - FR-ENQ-003
-        - FR-ENQ-008
         - FR-PUB-006
       x-tables:
         - enquiries
-        - notifications
       security:
         - bearerAuth: []
       requestBody:
@@ -9865,13 +7329,6 @@ paths:
                   type: string
                   format: date-time
                   description: "TRIAL: must be in the future"
-                source:
-                  type: string
-                  enum:
-                    - WEBSITE
-                    - PHONE
-                    - WALK_IN
-                  description: "staff only: PHONE | WALK_IN"
               required:
                 - name
                 - phone
@@ -9921,32 +7378,27 @@ paths:
     get:
       operationId: enquiries.list
       tags:
-        - Enquiries & CRM
-      summary: List and filter enquiries.
-      description: "Requirements: FR-ENQ-004"
+        - Enquiries
+      summary: "The enquiry inbox: list and filter enquiries."
+      description: "Requirements: FR-ENQ-004, FR-ENQ-008"
       x-roles:
         - FRONT_DESK
         - OWNER_ADMIN
       x-owner: Dev 1
       x-requirements:
         - FR-ENQ-004
+        - FR-ENQ-008
       x-tables:
         - enquiries
       security:
         - bearerAuth: []
       parameters:
-        - name: status
+        - name: handled
           in: query
           required: false
+          description: false = still waiting (handled_at IS NULL)
           schema:
-            type: string
-            enum:
-              - NEW
-              - CONTACTED
-              - QUOTE_SENT
-              - FOLLOW_UP
-              - CONVERTED
-              - LOST
+            type: boolean
         - name: enquiry_type
           in: query
           required: false
@@ -9957,27 +7409,6 @@ paths:
               - TRIAL
               - MEMBERSHIP
               - BUSINESS
-        - name: source
-          in: query
-          required: false
-          schema:
-            type: string
-            enum:
-              - WEBSITE
-              - PHONE
-              - WALK_IN
-        - name: assigned_to_user_id
-          in: query
-          required: false
-          schema:
-            type: string
-            format: uuid
-        - name: follow_up_due
-          in: query
-          required: false
-          description: next_follow_up_at <= now and status open
-          schema:
-            type: boolean
         - name: q
           in: query
           required: false
@@ -10037,91 +7468,21 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-  /enquiries/summary:
-    get:
-      operationId: enquiries.summary
-      tags:
-        - Enquiries & CRM
-      summary: Funnel counts by status, conversion rate, follow-ups due.
-      description: "Requirements: FR-ENQ-010"
-      x-roles:
-        - FRONT_DESK
-        - OWNER_ADMIN
-      x-owner: Dev 1
-      x-requirements:
-        - FR-ENQ-010
-      x-tables:
-        - enquiries
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: from
-          in: query
-          required: false
-          schema:
-            type: string
-            format: date
-        - name: to
-          in: query
-          required: false
-          schema:
-            type: string
-            format: date
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/EnquiryFunnel"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
   /enquiries/{id}:
     get:
       operationId: enquiries.get
       tags:
-        - Enquiries & CRM
-      summary: Enquiry with follow-ups and quotes.
-      description: "Requirements: FR-ENQ-004, FR-ENQ-005"
+        - Enquiries
+      summary: One enquiry.
+      description: "Requirements: FR-ENQ-004"
       x-roles:
         - FRONT_DESK
         - OWNER_ADMIN
       x-owner: Dev 1
       x-requirements:
         - FR-ENQ-004
-        - FR-ENQ-005
       x-tables:
         - enquiries
-        - enquiry_follow_ups
-        - quotes
       security:
         - bearerAuth: []
       parameters:
@@ -10147,7 +7508,7 @@ paths:
                     enum:
                       - true
                   data:
-                    $ref: "#/components/schemas/EnquiryDetail"
+                    $ref: "#/components/schemas/EnquiryView"
                   message:
                     type: string
         "400":
@@ -10177,16 +7538,16 @@ paths:
     patch:
       operationId: enquiries.update
       tags:
-        - Enquiries & CRM
-      summary: Assign, reschedule follow-up, change status. (CONVERTED only via /convert.)
-      description: "Requirements: FR-ENQ-004, FR-ENQ-005"
+        - Enquiries
+      summary: Mark an enquiry handled (or reopen it) and correct its details.
+      description: "Requirements: FR-ENQ-004, FR-ENQ-008"
       x-roles:
         - FRONT_DESK
         - OWNER_ADMIN
       x-owner: Dev 1
       x-requirements:
         - FR-ENQ-004
-        - FR-ENQ-005
+        - FR-ENQ-008
       x-tables:
         - enquiries
       security:
@@ -10205,25 +7566,9 @@ paths:
             schema:
               type: object
               properties:
-                status:
-                  type: string
-                  enum:
-                    - NEW
-                    - CONTACTED
-                    - QUOTE_SENT
-                    - FOLLOW_UP
-                    - CONVERTED
-                    - LOST
-                  description: per ENQUIRY_TRANSITIONS; not CONVERTED
-                assigned_to_user_id:
-                  type: string
-                  format: uuid
-                next_follow_up_at:
-                  type: string
-                  format: date-time
-                lost_reason:
-                  type: string
-                  description: required when status = LOST
+                handled:
+                  type: boolean
+                  description: true sets handled_at = now, false clears it
                 name:
                   type: string
                 phone:
@@ -10272,523 +7617,6 @@ paths:
                 $ref: "#/components/schemas/ApiError"
         "404":
           description: ENQUIRY_NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "409":
-          description: INVALID_STATUS_TRANSITION
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /enquiries/{id}/follow-ups:
-    post:
-      operationId: enquiries.followUp
-      tags:
-        - Enquiries & CRM
-      summary: Log a follow-up contact; optionally move the status and set the next follow-up.
-      description: "Requirements: FR-ENQ-005"
-      x-roles:
-        - FRONT_DESK
-        - OWNER_ADMIN
-      x-owner: Dev 1
-      x-requirements:
-        - FR-ENQ-005
-      x-tables:
-        - enquiry_follow_ups
-        - enquiries
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                method:
-                  type: string
-                  enum:
-                    - CALL
-                    - WHATSAPP
-                    - EMAIL
-                    - IN_PERSON
-                note:
-                  type: string
-                next_follow_up_at:
-                  type: string
-                  format: date-time
-                new_status:
-                  type: string
-                  enum:
-                    - NEW
-                    - CONTACTED
-                    - QUOTE_SENT
-                    - FOLLOW_UP
-                    - CONVERTED
-                    - LOST
-                  description: "default: NEW -> CONTACTED"
-              required:
-                - method
-                - note
-      responses:
-        "201":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/EnquiryDetail"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "404":
-          description: ENQUIRY_NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "409":
-          description: INVALID_STATUS_TRANSITION
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /enquiries/{id}/quotes:
-    post:
-      operationId: enquiries.quoteCreate
-      tags:
-        - Enquiries & CRM
-      summary: Create (and optionally send) a quote.
-      description: "Requirements: FR-ENQ-006"
-      x-roles:
-        - FRONT_DESK
-        - OWNER_ADMIN
-      x-owner: Dev 1
-      x-requirements:
-        - FR-ENQ-006
-      x-tables:
-        - quotes
-        - enquiries
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                membership_plan_id:
-                  type: string
-                  format: uuid
-                description:
-                  type: string
-                amount:
-                  type: string
-                  pattern: ^\d+\.\d{2}$
-                valid_until:
-                  type: string
-                  format: date
-                send_now:
-                  type: boolean
-                  description: true => status SENT and enquiry -> QUOTE_SENT
-              required:
-                - description
-                - amount
-                - valid_until
-      responses:
-        "201":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/Quote"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "404":
-          description: ENQUIRY_NOT_FOUND | MEMBERSHIP_PLAN_NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /quotes/{id}:
-    patch:
-      operationId: enquiries.quoteUpdate
-      tags:
-        - Enquiries & CRM
-      summary: Mark a quote SENT / ACCEPTED / REJECTED / EXPIRED.
-      description: "Requirements: FR-ENQ-006"
-      x-roles:
-        - FRONT_DESK
-        - OWNER_ADMIN
-      x-owner: Dev 1
-      x-requirements:
-        - FR-ENQ-006
-      x-tables:
-        - quotes
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                status:
-                  type: string
-                  enum:
-                    - DRAFT
-                    - SENT
-                    - ACCEPTED
-                    - REJECTED
-                    - EXPIRED
-              required:
-                - status
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/Quote"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "404":
-          description: QUOTE_NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "409":
-          description: INVALID_STATUS_TRANSITION
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /enquiries/{id}/trial-booking:
-    post:
-      operationId: enquiries.trialBooking
-      tags:
-        - Enquiries & CRM
-      summary: Book the trial session on a court for this enquiry (booking_type TRIAL, free).
-      description: "Requirements: FR-ENQ-009, FR-ENQ-002"
-      x-roles:
-        - FRONT_DESK
-        - OWNER_ADMIN
-      x-owner: Dev 1
-      x-requirements:
-        - FR-ENQ-009
-        - FR-ENQ-002
-      x-tables:
-        - court_bookings
-        - enquiries
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                court_id:
-                  type: string
-                  format: uuid
-                start_at:
-                  type: string
-                  format: date-time
-              required:
-                - court_id
-                - start_at
-      responses:
-        "201":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/BookingDetail"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "404":
-          description: ENQUIRY_NOT_FOUND | COURT_NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "409":
-          description: BOOKING_CONFLICT
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "422":
-          description: INVALID_SLOT
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /enquiries/{id}/convert:
-    post:
-      operationId: enquiries.convert
-      tags:
-        - Enquiries & CRM
-      summary: Convert an enquiry into a registered member with a membership.
-      description: |-
-        One transaction: member + membership + payment; enquiry.status = CONVERTED, converted_member_id set; accepted quote (if any) -> ACCEPTED.
-
-        Requirements: FR-ENQ-007, FR-MEM-001, FR-FIN-001
-      x-roles:
-        - FRONT_DESK
-        - OWNER_ADMIN
-      x-owner: Dev 1
-      x-requirements:
-        - FR-ENQ-007
-        - FR-MEM-001
-        - FR-FIN-001
-      x-tables:
-        - enquiries
-        - users
-        - members
-        - memberships
-        - payments
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  format: email
-                  description: required if the enquiry has no email
-                date_of_birth:
-                  type: string
-                  format: date
-                address:
-                  type: string
-                initial_password:
-                  type: string
-                membership_plan_id:
-                  type: string
-                  format: uuid
-                payment_method:
-                  type: string
-                  enum:
-                    - CASH
-                    - CARD
-                    - UPI
-                    - ONLINE
-              required:
-                - membership_plan_id
-                - payment_method
-      responses:
-        "201":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/EnquiryConvertResult"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "402":
-          description: PAYMENT_FAILED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "404":
-          description: ENQUIRY_NOT_FOUND | MEMBERSHIP_PLAN_NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "409":
-          description: ENQUIRY_ALREADY_CONVERTED | EMAIL_TAKEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "422":
-          description: JUNIOR_AGE_INVALID
           content:
             application/json:
               schema:
@@ -11184,7 +8012,7 @@ paths:
         - Invoices
       summary: List invoices (a business client sees only theirs; a member only their membership invoices).
       description: |-
-        OVERDUE is derived: due_date < today (IST) and amount_paid < total_amount and status in (SENT, PARTIALLY_PAID); the daily job persists it.
+        Paid / partially paid / overdue are DERIVED by the view invoice_totals (payment_state): OVERDUE = a SENT invoice whose due_date is before today (IST) and that is not fully paid. Nothing is persisted by a job.
 
         Requirements: FR-INVC-005, FR-INVC-008, FR-FIN-006, FR-INVC-009
       x-roles:
@@ -11199,6 +8027,8 @@ paths:
         - FR-INVC-009
       x-tables:
         - invoices
+        - invoice_items
+        - payments
       security:
         - bearerAuth: []
       parameters:
@@ -11210,10 +8040,17 @@ paths:
             enum:
               - DRAFT
               - SENT
+              - VOID
+        - name: payment_state
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - UNPAID
               - PARTIALLY_PAID
               - PAID
               - OVERDUE
-              - VOID
         - name: invoice_type
           in: query
           required: false
@@ -11313,7 +8150,7 @@ paths:
         - Invoices
       summary: Create a business-client or membership invoice.
       description: |-
-        Invoices are tax-EXCLUSIVE: subtotal = sum(line_total); tax_amount = round(subtotal x tax_rate / 100, 2); total_amount = subtotal + tax_amount.
+        Invoices are tax-EXCLUSIVE: subtotal = sum(quantity x unit_price); tax_amount = round(subtotal x tax_rate / 100, 2); total_amount = subtotal + tax_amount. Only the lines and tax_rate are stored; the totals are derived (view invoice_totals).
 
         Requirements: FR-INVC-002, FR-INVC-006, FR-INVC-003
       x-roles:
@@ -11335,19 +8172,14 @@ paths:
             schema:
               type: object
               properties:
-                invoice_type:
-                  type: string
-                  enum:
-                    - BUSINESS
-                    - MEMBERSHIP
                 business_client_id:
                   type: string
                   format: uuid
-                  description: required for BUSINESS
+                  description: addressed to a business client (exactly one of business_client_id / member_id)
                 member_id:
                   type: string
                   format: uuid
-                  description: required for MEMBERSHIP
+                  description: addressed to a member (membership invoice)
                 issue_date:
                   type: string
                   format: date
@@ -11383,7 +8215,6 @@ paths:
                 send_now:
                   type: boolean
               required:
-                - invoice_type
                 - due_date
                 - items
       responses:
@@ -11609,17 +8440,15 @@ paths:
       operationId: invoices.send
       tags:
         - Invoices
-      summary: Issue the invoice to the client (DRAFT -> SENT) and notify them.
-      description: "Requirements: FR-INVC-003, FR-NOTIF-003"
+      summary: Issue the invoice to the client (DRAFT -> SENT).
+      description: "Requirements: FR-INVC-003"
       x-roles:
         - OWNER_ADMIN
       x-owner: Dev 4
       x-requirements:
         - FR-INVC-003
-        - FR-NOTIF-003
       x-tables:
         - invoices
-        - notifications
       security:
         - bearerAuth: []
       parameters:
@@ -11692,6 +8521,7 @@ paths:
         - FR-INVC-007
       x-tables:
         - invoices
+        - payments
       security:
         - bearerAuth: []
       parameters:
@@ -11755,9 +8585,9 @@ paths:
       operationId: payments.create
       tags:
         - Payments
-      summary: Record a payment against a booking, social participation, membership, shop order, bar order, tab or invoice.
+      summary: Record a payment against a court booking, membership, shop order, cafe order or invoice.
       description: |-
-        revenue_category derived from source_type (INVOICE: BUSINESS or MEMBERSHIP from invoice_type). tax_amount derived (tax-inclusive sources) or proportional (invoices). Updates the source payment_status (invoices: amount_paid + status PARTIALLY_PAID/PAID) in the same transaction. BAR_ORDER sources that belong to a tab are rejected (settle the tab). ONLINE goes through the mock gateway of the hackathon build (ADR-011): an amount whose paise are .13 (e.g. 100.13) returns PAYMENT_FAILED.
+        The revenue category is derived from source_type (INVOICE: BUSINESS or MEMBERSHIP by the invoice recipient) by the view payment_ledger. tax_amount is computed at payment time (tax-inclusive sources) or pro rata (invoices). No status is written on the thing being paid: its payment status is derived from its payments. ONLINE goes through the mock gateway of the hackathon build (ADR-011): an amount whose paise are .13 (e.g. 100.13) returns PAYMENT_FAILED.
 
         Requirements: FR-FIN-001, FR-FIN-002, FR-INVC-004, FR-FIN-010
       x-roles:
@@ -11774,10 +8604,8 @@ paths:
       x-tables:
         - payments
         - court_bookings
-        - social_session_participants
         - shop_orders
         - bar_orders
-        - bar_tabs
         - invoices
       security:
         - bearerAuth: []
@@ -11792,11 +8620,9 @@ paths:
                   type: string
                   enum:
                     - COURT_BOOKING
-                    - SOCIAL_PARTICIPANT
                     - MEMBERSHIP
                     - SHOP_ORDER
                     - BAR_ORDER
-                    - TAB
                     - INVOICE
                 source_id:
                   type: string
@@ -11865,7 +8691,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiError"
         "404":
-          description: BOOKING_NOT_FOUND | NOT_A_PARTICIPANT | ORDER_NOT_FOUND | TAB_NOT_FOUND | INVOICE_NOT_FOUND | MEMBERSHIP_NOT_FOUND
+          description: BOOKING_NOT_FOUND | ORDER_NOT_FOUND | INVOICE_NOT_FOUND | MEMBERSHIP_NOT_FOUND
           content:
             application/json:
               schema:
@@ -11910,11 +8736,9 @@ paths:
             type: string
             enum:
               - COURT_BOOKING
-              - SOCIAL_PARTICIPANT
               - MEMBERSHIP
               - SHOP_ORDER
               - BAR_ORDER
-              - TAB
               - INVOICE
         - name: revenue_category
           in: query
@@ -11944,7 +8768,6 @@ paths:
             type: string
             enum:
               - SUCCEEDED
-              - FAILED
               - PARTIALLY_REFUNDED
               - REFUNDED
         - name: member_id
@@ -12321,14 +9144,6 @@ paths:
                   type: string
                 designation:
                   type: string
-                default_area:
-                  type: string
-                  enum:
-                    - FRONT_DESK
-                    - BAR
-                    - KITCHEN
-                    - SHOP
-                    - COURTS
                 monthly_salary:
                   type: string
                   pattern: ^\d+\.\d{2}$
@@ -12458,7 +9273,7 @@ paths:
       operationId: staff.update
       tags:
         - Staff & HR
-      summary: Edit an employee / deactivate (also disables login).
+      summary: "Edit an employee / deactivate (is_active lives on the login: users.is_active)."
       description: "Requirements: FR-STAFF-001"
       x-roles:
         - OWNER_ADMIN
@@ -12490,14 +9305,6 @@ paths:
                   type: string
                 designation:
                   type: string
-                default_area:
-                  type: string
-                  enum:
-                    - FRONT_DESK
-                    - BAR
-                    - KITCHEN
-                    - SHOP
-                    - COURTS
                 monthly_salary:
                   type: string
                   pattern: ^\d+\.\d{2}$
@@ -12653,7 +9460,6 @@ paths:
         - FR-STAFF-002
       x-tables:
         - staff_shifts
-        - notifications
       security:
         - bearerAuth: []
       requestBody:
@@ -12684,8 +9490,6 @@ paths:
                     - KITCHEN
                     - SHOP
                     - COURTS
-                notes:
-                  type: string
               required:
                 - staff_id
                 - shift_date
@@ -12788,8 +9592,6 @@ paths:
                     - KITCHEN
                     - SHOP
                     - COURTS
-                notes:
-                  type: string
       responses:
         "200":
           description: Success
@@ -13012,18 +9814,16 @@ paths:
       operationId: staff.leaveCreate
       tags:
         - Staff & HR
-      summary: Request leave (status PENDING); notifies the owner.
-      description: "Requirements: FR-STAFF-003, FR-NOTIF-003"
+      summary: Request leave (status PENDING).
+      description: "Requirements: FR-STAFF-003"
       x-roles:
         - FRONT_DESK
         - KITCHEN_MANAGER
       x-owner: Dev 4
       x-requirements:
         - FR-STAFF-003
-        - FR-NOTIF-003
       x-tables:
         - leave_requests
-        - notifications
       security:
         - bearerAuth: []
       requestBody:
@@ -13033,13 +9833,6 @@ paths:
             schema:
               type: object
               properties:
-                leave_type:
-                  type: string
-                  enum:
-                    - CASUAL
-                    - SICK
-                    - PAID
-                    - UNPAID
                 start_date:
                   type: string
                   format: date
@@ -13050,7 +9843,6 @@ paths:
                 reason:
                   type: string
               required:
-                - leave_type
                 - start_date
                 - end_date
       responses:
@@ -13102,16 +9894,14 @@ paths:
       tags:
         - Staff & HR
       summary: Approve or reject a PENDING leave request.
-      description: "Requirements: FR-STAFF-004, FR-NOTIF-003"
+      description: "Requirements: FR-STAFF-004"
       x-roles:
         - OWNER_ADMIN
       x-owner: Dev 4
       x-requirements:
         - FR-STAFF-004
-        - FR-NOTIF-003
       x-tables:
         - leave_requests
-        - notifications
       security:
         - bearerAuth: []
       parameters:
@@ -13297,14 +10087,12 @@ paths:
           schema:
             type: string
             format: date
-        - name: status
+        - name: paid
           in: query
           required: false
+          description: true = paid_on is set, false = still pending
           schema:
-            type: string
-            enum:
-              - PENDING
-              - PAID
+            type: boolean
         - name: page
           in: query
           schema:
@@ -13402,8 +10190,7 @@ paths:
                     - ONLINE
                 mark_paid:
                   type: boolean
-                notes:
-                  type: string
+                  description: true sets paid_on = today
               required:
                 - staff_id
                 - pay_period
@@ -13462,7 +10249,7 @@ paths:
       operationId: staff.payrollPay
       tags:
         - Staff & HR
-      summary: Mark a PENDING salary as PAID.
+      summary: Mark a pending salary as paid (sets paid_on).
       description: "Requirements: FR-STAFF-006, FR-FIN-008"
       x-roles:
         - OWNER_ADMIN
@@ -13555,7 +10342,7 @@ paths:
         - Reports
       summary: Owner dashboard KPIs for today / this week / this month across every module.
       description: |-
-        Revenue = SUM(payments.amount - refunded_amount) where status in (SUCCEEDED, PARTIALLY_REFUNDED), by paid_at in the range (IST).
+        Revenue = SUM(payments.amount - refunded_amount) by paid_at in the range (IST), grouped by the derived revenue_category (view payment_ledger).
 
         Requirements: FR-REP-001, FR-FIN-009, FR-MEM-014
       x-roles:
@@ -13855,7 +10642,7 @@ paths:
       operationId: reports.shop
       tags:
         - Reports
-      summary: Shop sales, channel split, top products, low stock.
+      summary: Shop sales, fulfillment split, top products, low stock.
       description: "Requirements: FR-REP-005"
       x-roles:
         - OWNER_ADMIN
@@ -13925,7 +10712,7 @@ paths:
       operationId: reports.bar
       tags:
         - Reports
-      summary: Bar revenue per day (what the bar earned), by method, with open tabs.
+      summary: Cafe revenue per day (what the cafe earned), by method.
       description: "Requirements: FR-REP-006, FR-BAR-009"
       x-roles:
         - OWNER_ADMIN
@@ -13936,7 +10723,6 @@ paths:
       x-tables:
         - payments
         - bar_orders
-        - bar_tabs
       security:
         - bearerAuth: []
       parameters:
@@ -14072,7 +10858,7 @@ paths:
         - Reports
       summary: Tax collected (GST) by revenue category for filing.
       description: |-
-        Sum of payments.tax_amount net of refunds (pro-rata), grouped by revenue_category.
+        Sum of payments.tax_amount net of refunds (pro-rata), grouped by the derived revenue_category.
 
         Requirements: FR-REP-007, FR-FIN-007
       x-roles:
@@ -14205,234 +10991,6 @@ paths:
                 $ref: "#/components/schemas/ApiError"
         "403":
           description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /notifications:
-    get:
-      operationId: notifications.list
-      tags:
-        - Notifications
-      summary: Own notifications, newest first.
-      description: "Requirements: FR-NOTIF-001"
-      x-roles:
-        - MEMBER
-        - FRONT_DESK
-        - KITCHEN_MANAGER
-        - BUSINESS_CLIENT
-        - OWNER_ADMIN
-      x-owner: Dev 1
-      x-requirements:
-        - FR-NOTIF-001
-      x-tables:
-        - notifications
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: unread_only
-          in: query
-          required: false
-          schema:
-            type: boolean
-        - name: page
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-            default: 1
-        - name: page_size
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 20
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Notification"
-                  message:
-                    type: string
-                  meta:
-                    $ref: "#/components/schemas/PageMeta"
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /notifications/unread-count:
-    get:
-      operationId: notifications.unreadCount
-      tags:
-        - Notifications
-      summary: Badge count.
-      description: "Requirements: FR-NOTIF-001"
-      x-roles:
-        - MEMBER
-        - FRONT_DESK
-        - KITCHEN_MANAGER
-        - BUSINESS_CLIENT
-        - OWNER_ADMIN
-      x-owner: Dev 1
-      x-requirements:
-        - FR-NOTIF-001
-      x-tables:
-        - notifications
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/CountResult"
-                  message:
-                    type: string
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /notifications/{id}/read:
-    patch:
-      operationId: notifications.read
-      tags:
-        - Notifications
-      summary: Mark one notification read.
-      description: "Requirements: FR-NOTIF-002"
-      x-roles:
-        - MEMBER
-        - FRONT_DESK
-        - KITCHEN_MANAGER
-        - BUSINESS_CLIENT
-        - OWNER_ADMIN
-      x-owner: Dev 1
-      x-requirements:
-        - FR-NOTIF-002
-      x-tables:
-        - notifications
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/Notification"
-                  message:
-                    type: string
-        "400":
-          description: VALIDATION_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "404":
-          description: NOTIFICATION_NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /notifications/read-all:
-    post:
-      operationId: notifications.readAll
-      tags:
-        - Notifications
-      summary: Mark all own notifications read.
-      description: "Requirements: FR-NOTIF-002"
-      x-roles:
-        - MEMBER
-        - FRONT_DESK
-        - KITCHEN_MANAGER
-        - BUSINESS_CLIENT
-        - OWNER_ADMIN
-      x-owner: Dev 1
-      x-requirements:
-        - FR-NOTIF-002
-      x-tables:
-        - notifications
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/CountResult"
-                  message:
-                    type: string
-        "401":
-          description: AUTH_UNAUTHORIZED
           content:
             application/json:
               schema:

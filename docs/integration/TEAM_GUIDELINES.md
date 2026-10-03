@@ -33,11 +33,11 @@ Four vertical slices (API module + tables + UI). Full table with endpoints: [OWN
 
 | | Developer 1 — Platform, Identity & Public Experience | Developer 2 — Membership, Courts & Front Desk | Developer 3 — Commerce, Bar & Kitchen | Developer 4 — Owner, Finance & Reporting |
 |---|---|---|---|---|
-| **API modules** | `auth`, `public`, `notifications`, `enquiries` | `members`, `memberships`, `courts`, `bookings`, `social` | `shop`, `inventory`, `bar`, `kitchen` | `payments`, `invoices`, `clients`, `staff`, `reports`, `settings` |
-| **Tables** | `users`, `notifications`, `enquiries`, `enquiry_follow_ups`, `quotes` | `members`, `membership_plans`, `memberships`, `courts`, `court_bookings`, `social_*` | `products`, `shop_*`, `inventory_movements`, `bar_*`, `order_status_events` | `payments`, `invoices`, `invoice_items`, `business_clients`, `staff*`, `staff_shifts`, `leave_requests`, `payroll_payments`, `club_settings` |
+| **API modules** | `auth`, `public`, `enquiries` | `members`, `memberships`, `courts`, `bookings` | `shop`, `inventory`, `bar`, `kitchen` | `payments`, `invoices`, `clients`, `staff`, `reports`, `settings` |
+| **Tables** | `users`, `enquiries` | `members`, `membership_plans`, `memberships`, `courts`, `court_bookings` | `products`, `shop_orders`, `shop_order_items`, `bar_menu_items`, `bar_orders`, `bar_order_items` | `payments`, `invoices`, `invoice_items`, `business_clients`, `staff`, `staff_shifts`, `leave_requests`, `payroll_payments`, `club_settings` |
 | **Backend kernel** | **owns** `kernel/*`, `app.ts`, `config.ts` | uses | uses | uses |
-| **Shared service they publish** | `withTransaction`, `AppError`, `ok/page`, `requireRole`, `NotificationsService`, `SettingsService.get` | `MembershipService`, `MembersService.register`, `BookingService.createTrial/playsUsedOn` | (none; implements payment adapters for shop/bar) | `PaymentsService.record/refundSource`, adapter registry |
-| **UI** | Public website, login/signup, Member dashboard shell + profile, notification bell, Enquiry/CRM screens | Front Desk dashboard (members, bookings, social), member booking & social screens, plan/court admin | Shop (public/member/counter), Bar POS (tables/tabs/orders), Kitchen board, product/inventory/menu admin | Owner dashboard, Reports, Finance, Invoices + Business portal, Staff/HR, Settings, member payments/receipts |
+| **Shared service they publish** | `withTransaction`, `AppError`, `ok/page`, `requireRole`, `SettingsService.get` | `MembershipService`, `MembersService.register`, `BookingService.playsUsedOn` | (none; implements payment adapters for shop/cafe) | `PaymentsService.record/refundSource`, adapter registry |
+| **UI** | Public website, login/signup, Member dashboard shell + profile, Enquiry inbox | Front Desk dashboard (members, bookings), member booking screens, plan/court admin | Shop (public/member/counter), Cafe order screen, Kitchen board, product/stock/menu admin | Owner dashboard, Reports, Finance, Invoices + Business portal, Staff/HR, Settings, member payments/receipts |
 | **Seeds/mocks** | shared by all — changes to `tools/gen-mock.mjs` are additive and announced | | | |
 
 ### Do NOT modify without coordination
@@ -69,7 +69,7 @@ Branch from `develop`; keep branches **short-lived (≤ 2–3 h)** and rebase on
 ```
 feat(bookings): enforce max plays per day (FR-COURT-008, R-COURT-04)
 fix(shop): restore stock on order cancel (FR-SHOP-010)
-chore(contract): add bookings.complete + regenerate docs
+chore(contract): add inventory.adjust + regenerate docs
 ```
 Types: `feat` `fix` `refactor` `test` `docs` `chore` `contract` (contract = anything under `shared/`, `tools/api/`, `database/migrations/`).
 
@@ -125,11 +125,10 @@ The **integrator** (rotating: D1 at 4, D4 at 8, D2 at 11) merges `develop`→`ma
 1. Visitor: home → plans → availability → submit **trial enquiry** → front desk sees it.
 2. Front desk registers a member (Silver) and sells a plan; member logs in → dashboard shows plan + expiry.
 3. Member books a court (price 50 %), tries a 3rd play → blocked; cancels one → refund.
-4. Friday social play: join, session fills, further join rejected.
-5. Member orders shoes online for delivery; counter sells the last unit of something → stock hits 0 → online order refused.
-6. Bar: open tab, order with automatic member discount → kitchen board moves it to READY → served → settle tab by UPI.
-7. Owner dashboard: today's revenue by stream, low stock, expiring memberships, bar daily summary, tax report, CSV export; invoice a business client, client pays online.
-8. Staff: leave request → owner approves; payroll marked paid.
+4. Member orders shoes online for delivery; counter sells the last unit of something → stock hits 0 → online order refused.
+5. Cafe: order with automatic member discount → kitchen board moves it to READY → served → pay by UPI.
+6. Owner dashboard: today's revenue by stream, low stock, expiring memberships, cafe daily summary, tax report, CSV export; invoice a business client, client pays online.
+7. Staff: leave request → owner approves; payroll marked paid.
 
 ## 12-hour plan
 
@@ -137,18 +136,18 @@ Priorities: **M**UST first, then **S**HOULD; NICE only after hour 10. (Per-requi
 
 | Hours | Developer 1 | Developer 2 | Developer 3 | Developer 4 |
 |---|---|---|---|---|
-| **0–1 setup** | scaffold backend + kernel (`db`, `http`, `errors`, `auth`, `validate`, `notify`, `settings`), frontend shell, `api/client.ts`, layouts | clone, DB up (`db:reset`), scaffold `modules/{members,memberships,courts,bookings,social}` + `MembershipService` stub | scaffold `modules/{shop,inventory,bar,kitchen}` + UI routes | `PaymentsService` + adapter registry stub, scaffold `modules/{payments,invoices,clients,staff,reports,settings}` |
+| **0–1 setup** | scaffold backend + kernel (`db`, `http`, `errors`, `auth`, `validate`, `settings`), frontend shell, `api/client.ts`, layouts | clone, DB up (`db:reset`), scaffold `modules/{members,memberships,courts,bookings}` + `MembershipService` stub | scaffold `modules/{shop,inventory,bar,kitchen}` + UI routes | `PaymentsService` + adapter registry stub, scaffold `modules/{payments,invoices,clients,staff,reports,settings}` |
 | **1** | **publish kernel** (PR merged by minute 60) | publish `MembershipService.getEffectiveMembership/discountPercent` | — | publish `PaymentsService.record/refundSource` + adapter interface |
 | **2 — contract freeze** | all: 20-min review of API_CONTRACT for your module; fix gaps via §5; **freeze** | | | |
-| **2–4** | M: `auth.*`, `public.club`, Home/Plans/Courts/Shop public pages, Login/Signup, role redirect, notifications list | M: `courts.list/availability`, `bookings.price/create/list`, `members.list/create/get`, `memberships.plans/purchase`; Front-desk booking + member search UI | M: `shop.products`, `shop.orderCreate` (stock tx), `inventory.list/adjust`, `bar.menu/tables/orderCreate`, `kitchen.list/status`; counter + Kitchen UI | M: `payments.create/list/get` + adapters (invoice), `settings.*`, `clients.*`, `invoices.create/list/get/send`; Owner shell UI |
+| **2–4** | M: `auth.*`, `public.club`, Home/Plans/Courts/Shop public pages, Login/Signup, role redirect | M: `courts.list/availability`, `bookings.price/create/list`, `members.list/create/get`, `memberships.plans/purchase`; Front-desk booking + member search UI | M: `shop.products`, `shop.orderCreate` (stock tx), `inventory.list/adjust`, `bar.menu/orderCreate`, `kitchen.list/status`; counter + Kitchen UI | M: `payments.create/list/get` + adapters (invoice), `settings.*`, `clients.*`, `invoices.create/list/get/send`; Owner shell UI |
 | **4 — integration #1** | drive: flows 2, 6, 9, 13, 14 on `develop` | | | |
-| **4–8** | M: `enquiries.*` (create, list, follow-up, quote, convert, trial), Member dashboard (profile, plan, history), notifications triggers | M: `bookings.cancel` (+refund), `social.*`, `memberships.changePlan/expiring/runExpiry`, `members.history`; S: maintenance blocks, price preview polish | M: tabs (`bar.tabOpen/tabList/tabGet/tabSettle`), `shop.orderStatus` / `shop.orderCancel` (pickup/delivery), low stock, `bar.dailySummary`; S: product/menu admin UI | M: `reports.dashboard/revenue/bar/finance/tax`, `staff.*` (shifts, leave, payroll), Business portal UI; S: `reports.courts/memberships/shop/export` |
+| **4–8** | M: `enquiries.*` (create, list, get, update), Member dashboard (profile, plan, history) | M: `bookings.cancel` (+refund), `memberships.changePlan/expiring`, `members.history`; S: maintenance blocks, price preview polish | M: `bar.orderList/orderCancel`, `shop.orderStatus` / `shop.orderCancel` (pickup/delivery), low stock, `bar.dailySummary`; S: product/menu admin UI | M: `reports.dashboard/revenue/bar/finance/tax`, `staff.*` (shifts, leave, payroll), Business portal UI; S: `reports.courts/memberships/shop/export` |
 | **8 — integration #2** | tag `v0.8`; run full demo path | | | |
-| **8–10** | S: CRM polish, notification coverage, Member orders/bookings pages | S: UX polish, empty/error states, validation messages; auto-complete job | S: member bar activity, receipts, edge cases (out of stock races) | S: invoices overdue job, void, refunds, exports |
+| **8–10** | S: enquiry inbox polish, Member orders/bookings pages | S: UX polish, empty/error states, validation messages | S: member cafe activity, receipts, edge cases (out of stock races) | S: invoice void, refunds, exports |
 | **10–11** | cross-test D2's module with the checklist | cross-test D3's | cross-test D4's | cross-test D1's |
 | **11–12** | seed reset, deploy, rehearsal | fix bugs | fix bugs | fix bugs, final `main` tag |
 
-**What can be simplified without breaking the architecture:** PENDING booking holds (create `CONFIRMED`), report caching (none), notification coverage (6 events first), CSV only, HTML receipts instead of PDF, mock payments, polling. Everything is documented in SYSTEM_ARCHITECTURE §11.
+**What can be simplified without breaking the architecture:** report caching (none), CSV only, HTML receipts instead of PDF, mock payments, polling. Everything is documented in SYSTEM_ARCHITECTURE §11.
 
 ### If time runs short — the cut ladder
 
@@ -158,11 +157,10 @@ Priorities: **M**UST first, then **S**HOULD; NICE only after hour 10. (Per-requi
 |---|---|---|
 | 1 | `reports.courts/memberships/shop/export`, owner charts → plain tables | `reports.dashboard`, `revenue`, `bar`, `tax`, `finance` |
 | 2 | Staff UI polish: payroll/leave screens as simple lists; shifts as a table | leave request → approval, payroll paid |
-| 3 | Notifications beyond the 6 core events; notification polling UI | booking, order ready, low stock, new enquiry, expiry, leave |
 | 4 | Business-client portal → owner records payments for the client; invoice PDF/print | `invoices.create/send`, `payments.create(INVOICE)` |
-| 5 | Maintenance blocks, social-session cancel-all, `bookings.complete`, tab void, product delete | everything else in courts/social/bar |
+| 5 | Maintenance blocks, product delete | everything else in courts/shop/cafe |
 | 6 | Member history timeline → bookings + payments only | `members.history` endpoint shape unchanged |
-| 7 | Enquiry funnel summary, quote status editing, trial-booking button (create the TRIAL booking via a normal booking with a note) | enquiry → follow-up → quote → convert |
+| 7 | Enquiry filters (keep the inbox list and mark-handled) | enquiry form → inbox → handled |
 | 8 | Seed-driven public pages (shop/menu without search/filters) | availability, plans, enquiry form |
 
 Rule of thumb: **the demo path in §8 beats breadth.** A working booking → payment → report chain with real constraints is worth more than 20 half-finished screens.
@@ -171,6 +169,6 @@ Rule of thumb: **the demo path in §8 beats breadth.** A working booking → pay
 
 - **Chat protocol:** one channel; prefix messages `contract:`, `blocked:`, `merged:`, `bug:`. Stand-ups of 3 minutes at hours 3, 6, 9: done / next / blocked.
 - **Code style:** TypeScript `strict`, no `any` without a comment, ESLint + Prettier on commit; comments cite `FR-…` / `R-…` ids at the line that implements a rule; no commented-out code.
-- **Tests:** at minimum the critical rules in the integration checklist (double booking, daily limit, oversell, tab settlement, payment totals).
+- **Tests:** at minimum the critical rules in the integration checklist (double booking, daily limit, oversell, payment totals).
 - **Never:** commit `.env`, put a secret in a `VITE_*` variable, edit the Supabase schema in the dashboard, hand-edit generated files, merge a red PR, force-push `develop`/`main`.
 - **Definition of done** for every module: [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).

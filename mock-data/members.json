@@ -8,9 +8,7 @@
     "emergency_contact_name": "Family Contact",
     "emergency_contact_phone": "+919822000000",
     "photo_url": null,
-    "notes": null,
     "joined_on": "2026-03-17",
-    "created_by_user_id": "01000000-0000-4000-8000-000000000002",
     "created_at": "2026-03-17T04:30:00.000Z",
     "updated_at": "2026-03-17T04:30:00.000Z"
   },
@@ -23,9 +21,7 @@
     "emergency_contact_name": "Family Contact",
     "emergency_contact_phone": "+919822000001",
     "photo_url": null,
-    "notes": null,
     "joined_on": "2026-01-16",
-    "created_by_user_id": "01000000-0000-4000-8000-000000000002",
     "created_at": "2026-03-17T04:30:00.000Z",
     "updated_at": "2026-03-17T04:30:00.000Z"
   },
@@ -38,9 +34,7 @@
     "emergency_contact_name": "Family Contact",
     "emergency_contact_phone": "+919822000002",
     "photo_url": null,
-    "notes": null,
     "joined_on": "2026-06-05",
-    "created_by_user_id": "01000000-0000-4000-8000-000000000002",
     "created_at": "2026-03-17T04:30:00.000Z",
     "updated_at": "2026-03-17T04:30:00.000Z"
   },
@@ -53,9 +47,7 @@
     "emergency_contact_name": "Family Contact",
     "emergency_contact_phone": "+919822000003",
     "photo_url": null,
-    "notes": null,
     "joined_on": "2026-02-20",
-    "created_by_user_id": "01000000-0000-4000-8000-000000000002",
     "created_at": "2026-03-17T04:30:00.000Z",
     "updated_at": "2026-03-17T04:30:00.000Z"
   },
@@ -68,9 +60,7 @@
     "emergency_contact_name": "Family Contact",
     "emergency_contact_phone": "+919822000004",
     "photo_url": null,
-    "notes": null,
     "joined_on": "2026-10-01",
-    "created_by_user_id": "01000000-0000-4000-8000-000000000002",
     "created_at": "2026-03-17T04:30:00.000Z",
     "updated_at": "2026-03-17T04:30:00.000Z"
   },
@@ -83,9 +73,7 @@
     "emergency_contact_name": "Family Contact",
     "emergency_contact_phone": "+919822000005",
     "photo_url": null,
-    "notes": null,
     "joined_on": "2025-12-07",
-    "created_by_user_id": "01000000-0000-4000-8000-000000000002",
     "created_at": "2026-03-17T04:30:00.000Z",
     "updated_at": "2026-03-17T04:30:00.000Z"
   },
@@ -98,9 +86,7 @@
     "emergency_contact_name": "Family Contact",
     "emergency_contact_phone": "+919822000006",
     "photo_url": null,
-    "notes": null,
     "joined_on": "2026-04-06",
-    "created_by_user_id": "01000000-0000-4000-8000-000000000002",
     "created_at": "2026-03-17T04:30:00.000Z",
     "updated_at": "2026-03-17T04:30:00.000Z"
   },
@@ -113,9 +99,7 @@
     "emergency_contact_name": "Family Contact",
     "emergency_contact_phone": "+919822000007",
     "photo_url": null,
-    "notes": null,
     "joined_on": "2026-09-03",
-    "created_by_user_id": "01000000-0000-4000-8000-000000000002",
     "created_at": "2026-03-17T04:30:00.000Z",
     "updated_at": "2026-03-17T04:30:00.000Z"
   },
@@ -128,9 +112,7 @@
     "emergency_contact_name": "Family Contact",
     "emergency_contact_phone": "+919822000008",
     "photo_url": null,
-    "notes": null,
     "joined_on": "2025-12-07",
-    "created_by_user_id": "01000000-0000-4000-8000-000000000002",
     "created_at": "2026-03-17T04:30:00.000Z",
     "updated_at": "2026-03-17T04:30:00.000Z"
   },
@@ -143,9 +125,7 @@
     "emergency_contact_name": "Family Contact",
     "emergency_contact_phone": "+919822000009",
     "photo_url": null,
-    "notes": "Membership lapsed — remind at desk",
     "joined_on": "2025-12-07",
-    "created_by_user_id": "01000000-0000-4000-8000-000000000002",
     "created_at": "2026-03-17T04:30:00.000Z",
     "updated_at": "2026-03-17T04:30:00.000Z"
   },
@@ -158,9 +138,7 @@
     "emergency_contact_name": "Family Contact",
     "emergency_contact_phone": "+919822000010",
     "photo_url": null,
-    "notes": null,
     "joined_on": "2026-10-02",
-    "created_by_user_id": "01000000-0000-4000-8000-000000000002",
     "created_at": "2026-03-17T04:30:00.000Z",
     "updated_at": "2026-03-17T04:30:00.000Z"
   },
@@ -173,9 +151,7 @@
     "emergency_contact_name": "Family Contact",
     "emergency_contact_phone": "+919822000011",
     "photo_url": null,
-    "notes": null,
     "joined_on": "2026-07-15",
-    "created_by_user_id": "01000000-0000-4000-8000-000000000002",
     "created_at": "2026-03-17T04:30:00.000Z",
     "updated_at": "2026-03-17T04:30:00.000Z"
   },
@@ -188,9 +164,7 @@
     "emergency_contact_name": "Family Contact",
     "emergency_contact_phone": "+919822000012",
     "photo_url": null,
-    "notes": null,
     "joined_on": "2025-12-07",
-    "created_by_user_id": "01000000-0000-4000-8000-000000000002",
     "created_at": "2026-03-17T04:30:00.000Z",
     "updated_at": "2026-03-17T04:30:00.000Z"
   }
