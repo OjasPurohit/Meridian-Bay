@@ -6,6 +6,7 @@ import { ActionLink } from '@/components/ui/button';
 import { formatRupees } from '@/lib/format';
 import { useReveal } from '@/lib/useReveal';
 import { cn } from '@/lib/utils';
+import { DiscountTable } from '../components/DiscountTable';
 import { ageLine, applyHref, DAY_PASS_SLUG, planShortName, planSlug } from '../plans';
 
 function PlanCard({ plan, featured }: { plan: MembershipPlan; featured: boolean }) {
@@ -120,9 +121,19 @@ export default function MembershipPage() {
           <DayPassCard info={info} />
         </div>
 
-        <p className="mt-8 max-w-2xl text-sm text-muted">
-          Membership prices include GST. Junior is for players under 18. Applying starts a conversation with the front desk — they confirm your details and send a quote before anything is charged.
-        </p>
+        <p className="mt-8 max-w-2xl text-sm text-muted">Membership prices include GST. Junior is for players under 18. Applying starts with a free member account; you buy the plan afterwards online or at the front desk.</p>
+
+        <section aria-labelledby="discounts-title" className="mt-20 md:mt-28" data-reveal>
+          <div className="grid gap-6 md:grid-cols-12">
+            <h2 id="discounts-title" className="display text-[clamp(2rem,3.6vw,3rem)] leading-[1] md:col-span-4">
+              What each plan saves you
+            </h2>
+            <div className="md:col-span-8">
+              <DiscountTable plans={plans} />
+              <p className="mt-4 text-sm text-muted">Discounts apply automatically to the member’s own bookings and orders. Guests and walk-ins pay list prices.</p>
+            </div>
+          </div>
+        </section>
       </section>
     </div>
   );

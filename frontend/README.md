@@ -2,7 +2,9 @@
 
 > **Status:** public homepage built (`features/public`), reading `mock-data/*.json` through `src/api/public.ts`. Role dashboards are still to be built. This file is the **layout contract** so four developers can build screens in parallel without editing each other's files.
 
-**Run:** `cd frontend && npm install && npm run dev` (http://localhost:5173) · `npm run build` typechecks and bundles. Design tokens live in `src/index.css` (`@theme`); photo slots use `components/ui/PlaceholderArt.tsx` until real photography is supplied (pass `src`).
+**Run:** `cd frontend && npm install && npm run dev` (http://localhost:5173) · `npm run build` typechecks and bundles.
+
+**Backend switch:** set `VITE_API_BASE_URL` (e.g. `http://localhost:4000` in `frontend/.env.local`) once the API exists. Unset = no backend: login/sign-up report that accounts aren't connected, and the role dashboards (`/member`, `/owner`, `/front-desk`, `/business`, `/kitchen`) open as labelled previews of `mock-data`. Set = dashboards require a real session with the matching role (`src/auth`, `src/features/dashboards`); the API must still enforce every permission server-side. Design tokens live in `src/index.css` (`@theme`); photo slots use `components/ui/PlaceholderArt.tsx` until real photography is supplied (pass `src`).
 
 **Stack (ADR-008):** React 18 · Vite · TypeScript · React Router · TanStack Query · Tailwind CSS. Types, enums, error codes, money/time helpers come from `/shared` (alias `@shared/*`). Network contract: [API_CONTRACT.md](../docs/api/API_CONTRACT.md) (`docs/api/openapi.yaml` can generate a client if wanted).
 
