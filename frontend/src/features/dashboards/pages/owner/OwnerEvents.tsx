@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { CalendarPlus, Ticket, Users } from 'lucide-react';
 
+import { isBackendConfigured } from '@/api/client';
 import { formatMoney, formatRupees } from '@/lib/format';
 import { Capacity, DateBlock, EventFacts, eventPhase, KIND, taken } from '../../components/EventBits';
+import { admin } from '../../store/admin';
 import { demo, useDemo } from '../../store/demoStore';
 import type { EventKind } from '../../store/types';
 import { FormModal, type FieldDef } from '../../ui/forms';
@@ -60,9 +62,16 @@ export default function OwnerEvents() {
         })}
       </ul>
       <FormModal open={open} onClose={() => setOpen(false)} eyebrow="Events" title="Create an event" fields={FIELDS} initial={{ title: '', kind: 'CLINIC', location: '', start: '2026-10-12T09:00', end: '2026-10-12T11:00', capacity: 20, fee: 500, description: '' }} submitLabel="Publish event"
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           const toIso = (x: string | number | boolean) => new Date(`${String(x)}:00+05:30`).toISOString();
-          demo.addEvent({ title: String(v.title), kind: v.kind as EventKind, description: String(v.description) || 'Details to follow.', start_at: toIso(v.start), end_at: toIso(v.end), location: String(v.location), capacity: Number(v.capacity), fee: Number(v.fee), perks: ['Member discounts apply automatically'] });
+          const description = String(v.description).trim();
+          if (isBackendConfigured) {
+            // the database first: the event is shown (and members see it) only once it is saved
+            const r = await admin.createEvent({ title: String(v.title).trim(), kind: String(v.kind), ...(description ? { description } : {}), location: String(v.location).trim(), start_at: toIso(v.start), end_at: toIso(v.end), capacity: Math.floor(Number(v.capacity)), fee: Number(v.fee || 0).toFixed(2) });
+            if (!r.ok) return toast(r.message, 'warn');
+          } else {
+            demo.addEvent({ title: String(v.title), kind: v.kind as EventKind, description: description || 'Details to follow.', start_at: toIso(v.start), end_at: toIso(v.end), location: String(v.location), capacity: Number(v.capacity), fee: Number(v.fee), perks: ['Member discounts apply automatically'] });
+          }
           toast(`${v.title} published — members can register now`);
           setOpen(false);
         }} />

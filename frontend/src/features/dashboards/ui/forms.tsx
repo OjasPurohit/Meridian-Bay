@@ -7,7 +7,7 @@ import { btn, field, Field, Modal } from './kit';
 export interface FieldDef {
   key: string;
   label: string;
-  type: 'text' | 'number' | 'textarea' | 'select' | 'toggle' | 'date' | 'datetime';
+  type: 'text' | 'number' | 'textarea' | 'select' | 'toggle' | 'date' | 'datetime' | 'password' | 'email';
   options?: { value: string; label: string }[];
   required?: boolean;
   hint?: string;
@@ -69,7 +69,7 @@ export function FormModal({ open, onClose, title, eyebrow, fields, initial, onSu
                       ))}
                     </select>
                   ) : (
-                    <input {...common} type={f.type === 'number' ? 'number' : f.type === 'date' ? 'date' : f.type === 'datetime' ? 'datetime-local' : 'text'} min={f.type === 'number' ? 0 : undefined} step={f.type === 'number' ? 'any' : undefined} value={String(v[f.key] ?? '')} placeholder={f.placeholder} onChange={(e) => setV({ ...v, [f.key]: e.target.value })} />
+                    <input {...common} type={f.type === 'number' ? 'number' : f.type === 'date' ? 'date' : f.type === 'datetime' ? 'datetime-local' : f.type === 'password' ? 'password' : f.type === 'email' ? 'email' : 'text'} min={f.type === 'number' ? 0 : undefined} step={f.type === 'number' ? 'any' : undefined} value={String(v[f.key] ?? '')} placeholder={f.placeholder} autoComplete={f.type === 'password' ? 'new-password' : 'off'} onChange={(e) => setV({ ...v, [f.key]: e.target.value })} />
                   )}
                 </Field>
               )}

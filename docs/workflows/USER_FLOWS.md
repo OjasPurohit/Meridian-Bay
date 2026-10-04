@@ -69,7 +69,7 @@ sequenceDiagram
     FE->>FE: store token, navigate to ROLE_HOME_ROUTE[role]
   end
 ```
-Role → landing: MEMBER → `/member` · FRONT_DESK → `/front-desk` · KITCHEN_MANAGER → `/kitchen` · BUSINESS_CLIENT → `/business` · OWNER_ADMIN → `/owner`. A user who is not authenticated stays on the public website; private routes and APIs answer `AUTH_UNAUTHORIZED`.
+Role → landing: MEMBER → `/member` · FRONT_DESK → `/front-desk` · KITCHEN_MANAGER → `/kitchen` · STORE_MANAGER → `/store-manager` · OWNER_ADMIN → `/owner`. A person who only has a PENDING job application gets no session: `POST /auth/login` answers `EMPLOYEE_APPLICATION_PENDING` and the app shows `/employee-application-pending`. A user who is not authenticated stays on the public website; private routes and APIs answer `AUTH_UNAUTHORIZED`.
 
 ## 3. Member flow
 ```mermaid
@@ -278,7 +278,7 @@ sequenceDiagram
   actor O as Owner
   actor B as Business client
   participant API as API
-  O->>API: POST /business-clients (optional portal login)
+  O->>API: POST /business-clients (a company to invoice, no login)
   O->>API: POST /invoices {business_client_id, items (tax-exclusive), due_date, send_now}
   B->>API: GET /invoices (own), GET /invoices/:id
   B->>API: POST /payments {INVOICE, amount (partial ok), ONLINE}

@@ -6,7 +6,9 @@
 The brief has many actors; the hackathon needs a model that is simple to enforce and to demo.
 
 ## Decision
-Exactly five roles in `user_role`: `MEMBER`, `FRONT_DESK`, `KITCHEN_MANAGER`, `BUSINESS_CLIENT`, `OWNER_ADMIN`.
+Exactly five roles in `user_role`: `MEMBER`, `FRONT_DESK`, `KITCHEN_MANAGER`, `STORE_MANAGER`, `OWNER_ADMIN`.
+
+> **Update (migration 0005):** `BUSINESS_CLIENT` is no longer a login. Business clients are companies the owner invoices (`business_clients`, no user). The fifth role is `STORE_MANAGER`, an *employee* (`users` + `staff`). Employees do not self-register: a visitor signs up and applies as an employee, the application waits in `employee_applications` (the applicant can log in but receives no session), and the owner approves it with a chosen role (FRONT_DESK, KITCHEN_MANAGER or STORE_MANAGER), which creates the `users` + `staff` rows in one transaction.
 
 - **Gold / Silver / Junior are `membership_plans` rows**, attached to a member through `memberships`. There are no GoldUser/SilverUser/JuniorUser tables and no role per tier.
 - *Online visitor* and *walk-in guest* are actors but **not roles**: they have no login. Guests are stored as `guest_name` / `guest_phone` on the records staff create for them.

@@ -4,7 +4,7 @@
  */
 import { PAYMENT_METHOD, USER_ROLE, type OrderStatus, type PaymentMethod } from '@shared/constants/enums';
 import { ORDER_TRANSITIONS } from '@shared/constants/rules';
-import type { BarDailySummary, BarOrderDetail, KitchenOrder } from '@shared/types/api';
+import type { BarDailySummary, BarOrderDetail, KitchenOrder, MemberPosLookup } from '@shared/types/api';
 import type { BarMenuItem, BarOrderItem } from '@shared/types/rows';
 import type { BarOrderCreateRequest } from '@shared/types/requests.generated';
 import { fromPaise, percentOf, toPaise } from '@shared/lib/money';
@@ -19,7 +19,7 @@ import { ReportsService } from '../reports/service';
 
 const pool: Tx = { query };
 const NOBODY = '00000000-0000-0000-0000-000000000000';
-const isStaff = (u: AuthUser) => u.role !== USER_ROLE.MEMBER && u.role !== USER_ROLE.BUSINESS_CLIENT;
+const isStaff = (u: AuthUser) => u.role !== USER_ROLE.MEMBER;
 
 const ORDER_SELECT = `
   SELECT o.id, o.order_number, o.member_id, o.guest_name, o.status, o.discount_amount, o.notes, o.created_at, o.updated_at, o.table_label,
@@ -111,6 +111,30 @@ export const BarService = {
       return id;
     });
     return (await barOrderDetail(pool, id))!;
+  },
+
+  /** Till lookup (kitchen, desk, owner): who is this customer and what café discount do they get. Never the member list. */
+  async memberLookup(q: string): Promise<MemberPosLookup[]> {
+    const text = q.trim();
+    const digits = text.replace(/\D/g, '');
+    const like = `%${text.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+    const { rows } = await query<{ id: string }>(
+      `SELECT m.id FROM members m JOIN users u ON u.id = m.user_id
+        WHERE u.is_active AND (
+              upper(m.member_code) = upper($1) OR lower(u.email) = lower($1)
+           OR ($2 <> '' AND length($2) >= 6 AND regexp_replace(coalesce(u.phone, ''), '\\D', '', 'g') LIKE '%' || $2)
+           OR (length($1) >= 3 AND u.full_name ILIKE $3))
+        ORDER BY u.full_name LIMIT 5`,
+      [text, digits, like],
+    );
+    const out: MemberPosLookup[] = [];
+    for (const r of rows) {
+      const m = await members.summaryById(pool, r.id);
+      if (!m) continue;
+      const plan = await members.effectivePlan(pool, r.id);
+      out.push({ member_id: m.id, member_code: m.member_code, full_name: m.full_name, membership_status: plan ? 'ACTIVE' : 'NONE', plan_name: plan?.name ?? null, membership_type: plan?.membership_type ?? null, bar_discount_percent: plan?.bar_discount_percent ?? '0.00' });
+    }
+    return out;
   },
 
   async orderList(user: AuthUser, q: { status?: string; payment_status?: string; table_label?: string; member_id?: string; from?: string; to?: string; page: number; page_size: number }) {

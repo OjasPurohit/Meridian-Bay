@@ -31,6 +31,8 @@ router.post('/menu-items', ...counter, validateBody(strictObject({ ...menuFields
 router.patch('/menu-items/:id', ...counter, validateParams(idParams), validateBody(strictObject({ ...Object.fromEntries(Object.entries(menuFields).map(([k, v]) => [k, v.optional()])), is_available: z.boolean().optional() } as never)),
   asyncHandler(async (req, res) => ok(res, await BarService.menuUpdate(req.params.id!, req.body as Record<string, unknown>))));
 
+router.get('/member-lookup', ...counter, validateQuery(z.object({ q: z.string().trim().min(2).max(60) })),
+  asyncHandler(async (req, res) => ok(res, await BarService.memberLookup((req.query as { q: string }).q))));
 router.post('/orders', requireAuth, requireRole(R.MEMBER, R.FRONT_DESK, R.KITCHEN_MANAGER, R.OWNER_ADMIN), validateBody(strictObject({
   table_label: text(60).optional(), member_id: uuid.optional(), guest_name: text(120).optional(), notes: text(500).optional(), payment_method: enumOf(PAYMENT_METHOD).optional(),
   items: z.array(strictObject({ bar_menu_item_id: uuid, quantity: z.number().int().min(1).max(100), notes: text(300).optional() })).min(1).max(50),

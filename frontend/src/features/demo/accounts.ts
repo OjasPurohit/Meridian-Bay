@@ -8,6 +8,9 @@ import { ROLE_HOME_ROUTE } from '@shared/constants/rules';
 import type { User } from '@shared/types/rows';
 import usersJson from '@mock/users.json';
 
+/** Password of every seeded demo account (fictional seed data; used only to sign the demo shortcuts in through the real login). */
+export const DEMO_PASSWORD = 'Password@123';
+
 const users = usersJson as unknown as User[];
 
 export interface DemoAccount {
@@ -40,12 +43,12 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     home: ROLE_HOME_ROUTE.FRONT_DESK,
   },
   {
-    role: 'BUSINESS_CLIENT',
-    label: 'Demo Business Client',
-    tagline: 'TechNova Solutions · Corporate partner',
-    highlights: ['Revenue, expenses and profit/loss', 'Invoices, dealers and partners', 'Own product catalogue with full CRUD'],
-    user: find('sanjay.gupta@technova.example'),
-    home: ROLE_HOME_ROUTE.BUSINESS_CLIENT,
+    role: 'STORE_MANAGER',
+    label: 'Demo Store Manager',
+    tagline: 'Sanjay Gupta · Gear shop',
+    highlights: ['Add products and restock', 'Shop orders from counter and online', 'One shelf shared with the member store'],
+    user: find('sanjay.gupta@championsclub.example'),
+    home: ROLE_HOME_ROUTE.STORE_MANAGER,
   },
   {
     role: 'KITCHEN_MANAGER',

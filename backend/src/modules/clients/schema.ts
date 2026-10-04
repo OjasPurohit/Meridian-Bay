@@ -30,15 +30,6 @@ export const createClientBody: Schema<ClientsCreateRequest> = strictObject({
   gstin: gstin.optional(),
   billing_address: longText.optional(),
   notes: longText.optional(),
-  create_login: z.boolean().optional(),
-  initial_password: password.optional(),
-}).superRefine((body, ctx) => {
-  if (body.create_login === true && body.initial_password === undefined) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['initial_password'], message: 'Required when create_login is true.' });
-  }
-  if (body.create_login !== true && body.initial_password !== undefined) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['initial_password'], message: 'Only allowed when create_login is true.' });
-  }
 });
 
 // ------------------------------------------------------------------ PATCH /business-clients/:id

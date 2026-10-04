@@ -5,7 +5,7 @@
  */
 import { Router } from 'express';
 import type { BookingsCreateRequest } from '@shared/types/requests.generated';
-import { BOOKING_STATUS, BOOKING_TYPE, PAYMENT_METHOD, USER_ROLE } from '@shared/constants/enums';
+import { BOOKING_STATUS, BOOKING_TYPE, PAYMENT_METHOD, SPORT_TYPE, USER_ROLE } from '@shared/constants/enums';
 import { requireAuth, requireRole } from '../../kernel/auth';
 import { AppError } from '../../kernel/errors';
 import { asyncHandler, created, ok, page } from '../../kernel/http';
@@ -29,6 +29,11 @@ router.post('/', ...roles, validateBody(strictObject({
   court_id: uuid, start_at: instant, member_id: uuid.optional(), guest_name: z.string().trim().min(1).max(120).optional(),
   guest_phone: z.string().trim().regex(/^\+?\d{10,15}$/, 'Must be a phone number.').optional(), payment_method: enumOf(PAYMENT_METHOD).optional(),
 })), asyncHandler(async (req, res) => created(res, await BookingsService.create(caller(req), req.body as BookingsCreateRequest))));
+
+router.post('/trial', validateBody(strictObject({
+  name: z.string().trim().min(1).max(120), phone: z.string().trim().regex(/^\+?\d{10,15}$/, 'Must be a phone number.'), email: z.string().trim().toLowerCase().email().max(200).optional(),
+  sport_type: enumOf(SPORT_TYPE), start_at: instant,
+})), asyncHandler(async (req, res) => created(res, await BookingsService.trial(req.body as Parameters<typeof BookingsService.trial>[0]))));
 
 router.get('/', ...roles, validateQuery(z.object({
   from: isoDate.optional(), to: isoDate.optional(), court_id: uuid.optional(), member_id: uuid.optional(), status: enumOf(BOOKING_STATUS).optional(),

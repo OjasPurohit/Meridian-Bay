@@ -5,10 +5,12 @@ import { AlertTriangle, ArrowUpRight, CalendarCheck, CalendarClock, ChefHat, Clo
 import { ROLE_HOME_ROUTE } from '@shared/constants/rules';
 import { formatClockIst, formatDateIst, formatMoney, formatRupees } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { isBackendConfigured } from '@/api/client';
+import { StockStepper } from '../../components/StockStepper';
 import { pendingItems } from '../../components/PaymentBits';
 import { courtById, dayOf, demo, useDemo } from '../../store/demoStore';
 import { delta, PERIOD_LABEL, periodTotals, trail, type Period } from '../../store/selectors';
-import { ALL_MEMBERS, bucket, enquiries, staff, type Grain } from '../../store/staticData';
+import { ALL_MEMBERS, bucket, courts, enquiries, staff, type Grain } from '../../store/staticData';
 import { DEMO_NOW, DEMO_TODAY } from '../../store/types';
 import { AreaChart, C, Donut, Legend, rupeeCompact } from '../../ui/charts';
 import { btn, Kpi, PageHeader, PageSkeleton, Pill, Section, Segmented, useToast, usePageReady } from '../../ui/kit';
@@ -43,7 +45,7 @@ export default function OwnerOverview() {
   const upcoming = s.bookings.filter((b) => b.kind === 'REGULAR' && b.status !== 'CANCELLED' && Date.parse(b.start_at) > Date.parse(DEMO_NOW)).sort((a, b) => a.start_at.localeCompare(b.start_at));
   const pending = pendingItems(s);
   const lowProducts = s.products.filter((p) => p.stock <= p.threshold);
-  const lowMenu = s.menu.filter((m) => m.available && m.stock <= m.threshold);
+  const lowMenu = isBackendConfigured ? [] : s.menu.filter((m) => m.available && m.stock <= m.threshold); // café items have no stock column in the database
   const lowCount = lowProducts.length + lowMenu.length;
 
   const recent = useMemo(
@@ -86,7 +88,8 @@ export default function OwnerOverview() {
         <Kpi key={`k-${period}`} label="Kitchen & bar revenue" value={cur.bar} format={rupee} delta={delta(cur.bar, prev.bar)} spark={trail((d) => d.bar)} delay={210} />
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+        <Mini icon={Dumbbell} label="Active courts" value={courts.length} to={`${O}/bookings`} />
         <Mini icon={UserPlus} label="New members" value={cur.newMembers} to={`${O}/members`} />
         <Mini icon={CalendarCheck} label="Today’s bookings" value={todays.length} to={`${O}/bookings`} />
         <Mini icon={CalendarClock} label="Upcoming bookings" value={upcoming.length} to={`${O}/bookings`} />
@@ -114,17 +117,17 @@ export default function OwnerOverview() {
 
         <Section eyebrow="Needs attention" title="Low-stock alerts" delay={120} action={<Pill tone={lowCount ? 'rust' : 'green'}>{lowCount ? `${lowCount} items` : 'all good'}</Pill>}>
           {lowCount === 0 ? <p className="text-sm text-muted">Everything is well stocked.</p> : (
-            <ul>
-              {lowProducts.slice(0, 4).map((p) => (
+            <ul className="max-h-80 overflow-y-auto pr-1">
+              {lowProducts.map((p) => (
                 <li key={p.id} className="flex items-center gap-3 border-b border-line py-2.5 last:border-0">
                   <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{p.name}</span><span className="text-xs text-muted">Store · {p.stock === 0 ? 'out of stock' : `${p.stock} left (alert at ${p.threshold})`}</span></span>
-                  <button type="button" className={cn(btn.secondary, '!min-h-9 !px-3 text-xs')} onClick={() => { demo.adjustProductStock(p.id, 10); toast(`Restocked +10 ${p.name}`); }}>+10</button>
+                  <StockStepper name={p.name} stock={p.stock} onChange={(d) => demo.adjustProductStock(p.id, d)} />
                 </li>
               ))}
-              {lowMenu.slice(0, 3).map((m) => (
+              {lowMenu.map((m) => (
                 <li key={m.id} className="flex items-center gap-3 border-b border-line py-2.5 last:border-0">
                   <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{m.name}</span><span className="text-xs text-muted">Kitchen · {m.stock} left</span></span>
-                  <button type="button" className={cn(btn.secondary, '!min-h-9 !px-3 text-xs')} onClick={() => { demo.adjustMenuStock(m.id, 20); toast(`Restocked +20 ${m.name}`); }}>+20</button>
+                  <StockStepper name={m.name} stock={m.stock} onChange={(d) => demo.adjustMenuStock(m.id, d)} />
                 </li>
               ))}
             </ul>

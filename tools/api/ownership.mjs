@@ -8,14 +8,14 @@ export const DEVS = {
 
 export const MODULE_OWNER = {
   auth: 'D1', public: 'D1', enquiries: 'D1',
-  members: 'D2', memberships: 'D2', courts: 'D2', bookings: 'D2',
+  members: 'D2', memberships: 'D2', courts: 'D2', bookings: 'D2', events: 'D4',
   shop: 'D3', inventory: 'D3', bar: 'D3', kitchen: 'D3',
   clients: 'D4', invoices: 'D4', payments: 'D4', staff: 'D4', reports: 'D4', settings: 'D4',
 };
 
 export const MODULE_TITLE = {
   auth: 'Authentication', public: 'Public website', members: 'Members', memberships: 'Membership plans & memberships', courts: 'Courts & availability',
-  bookings: 'Court bookings', shop: 'Shop', inventory: 'Inventory', bar: 'Cafe', kitchen: 'Kitchen',
+  bookings: 'Court bookings', events: 'Events', shop: 'Shop', inventory: 'Inventory', bar: 'Cafe', kitchen: 'Kitchen',
   enquiries: 'Enquiries', clients: 'Business clients', invoices: 'Invoices', payments: 'Payments', staff: 'Staff & HR', reports: 'Reports', settings: 'Club settings',
 };
 
@@ -23,15 +23,16 @@ export const TABLE_OWNER = {
   users: 'D1', enquiries: 'D1',
   members: 'D2', membership_plans: 'D2', memberships: 'D2', courts: 'D2', court_bookings: 'D2',
   products: 'D3', shop_orders: 'D3', shop_order_items: 'D3', bar_menu_items: 'D3', bar_orders: 'D3', bar_order_items: 'D3',
-  payments: 'D4', invoices: 'D4', invoice_items: 'D4', business_clients: 'D4', staff: 'D4', staff_shifts: 'D4', leave_requests: 'D4', payroll_payments: 'D4', club_settings: 'D4',
+  events: 'D4', event_registrations: 'D4', payments: 'D4', invoices: 'D4', invoice_items: 'D4', business_clients: 'D4', staff: 'D4', employee_applications: 'D4', staff_shifts: 'D4', leave_requests: 'D4', payroll_payments: 'D4', club_settings: 'D4',
 };
 
 // One sentence per table: the real-world thing it represents (ADR-016). Shown in docs/database/DATABASE_SCHEMA.md.
 export const TABLE_PURPOSE = {
-  users: 'Login identity + role for every person (member, staff, kitchen, business client, owner). One table, one auth path; account on/off lives here (is_active).',
+  users: 'Login identity + role for every person (member, front desk, kitchen, store manager, owner). One table, one auth path; account on/off lives here (is_active).',
   members: 'Club profile of a user with role MEMBER (member code, date of birth, emergency contact). Gold/Silver/Junior is NOT stored here: see memberships.',
-  staff: 'Employee record (designation, salary, hire date) for FRONT_DESK / KITCHEN_MANAGER / OWNER_ADMIN users.',
-  business_clients: 'Companies invoiced by the club; optional portal login via user_id.',
+  staff: 'Employee record (designation, salary, hire date) for FRONT_DESK / KITCHEN_MANAGER / STORE_MANAGER / OWNER_ADMIN users.',
+  employee_applications: 'Job applications: PENDING until the owner approves (creating users + staff) or rejects. Not an employee. The applicant bcrypt hash exists only while PENDING.',
+  business_clients: 'Companies invoiced by the club (no login).',
   membership_plans: 'Gold / Silver / Junior definitions: price, discounts, plays per day, max age, benefits (all behaviour is data-driven).',
   memberships: 'One row per membership TERM: member + plan + start/end date + price paid. ACTIVE / EXPIRED is derived from the dates (views membership_terms, member_membership_status), never stored.',
   enquiries: 'Contact and trial requests from the website or the desk: a plain inbox (handled_at NULL = still waiting).',
@@ -46,6 +47,8 @@ export const TABLE_PURPOSE = {
   payments: 'Revenue ledger: every rupee received (and refunded). Revenue category and refund status are derived (view payment_ledger). All finance reports aggregate this table.',
   invoices: 'Tax-exclusive invoices for business clients (and membership invoices to a member): lifecycle DRAFT / SENT / VOID. Totals and the paid / overdue state are derived (view invoice_totals).',
   invoice_items: 'Invoice lines.',
+  events: 'Club events (tournament, clinic, camp, mixer, social) the owner creates; every role reads the same rows.',
+  event_registrations: 'Which member registered for which event (one row per member and event; capacity is enforced from the count).',
   staff_shifts: 'Shift roster (same-day shifts).',
   leave_requests: 'Staff leave with approval workflow.',
   payroll_payments: 'Monthly salary payments to employees (paid_on NULL = pending).',

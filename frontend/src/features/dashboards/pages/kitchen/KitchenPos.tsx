@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BadgeCheck, Banknote, ChefHat, CreditCard, Minus, Plus, Search, Smartphone, UserCheck, UserX, UtensilsCrossed } from 'lucide-react';
 
 import type { MenuCategory, PaymentMethod } from '@shared/constants/enums';
@@ -6,6 +6,8 @@ import { formatMoney } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { ReceiptModal, type ReceiptData } from '../../components/MemberBits';
 import { demo, memberDiscount, useDemo } from '../../store/demoStore';
+import { apiRequest, isBackendConfigured } from '@/api/client';
+import type { MemberPosLookup } from '@shared/types/api';
 import { findMember } from '../../store/staticData';
 import type { DMember } from '../../store/types';
 import { btn, Chips, Empty, field, PageHeader, PageSkeleton, Pill, SearchInput, Segmented, Select, usePageReady, useToast } from '../../ui/kit';
@@ -19,6 +21,13 @@ const CATS: { value: MenuCategory | 'ALL'; label: string }[] = [
 ];
 const TABLES = ['Counter', ...Array.from({ length: 7 }, (_, i) => `Table ${i + 1}`)];
 
+/** The till only learns identity + café discount from the server; everything else on a DMember is unused here. */
+const fromLookup = (h: MemberPosLookup): DMember => ({
+  id: h.member_id, user_id: '', code: h.member_code, name: h.full_name, email: '', phone: '', joined_on: '', type: h.membership_type, plan_name: h.plan_name ?? 'No plan',
+  status: h.membership_status, start_date: null, end_date: null, days_left: null, price_paid: 0, court_pct: 0, shop_pct: 0, bar_pct: Number(h.bar_discount_percent), max_plays: 2,
+  active: true, address: null, synthetic: false,
+});
+
 export default function KitchenPos() {
   const ready = usePageReady();
   const s = useDemo();
@@ -28,13 +37,33 @@ export default function KitchenPos() {
   const [cart, setCart] = useState<Record<string, number>>({});
   const [kind, setKind] = useState<'WALKIN' | 'MEMBER'>('WALKIN');
   const [guest, setGuest] = useState('');
-  const [memberQ, setMemberQ] = useState('CCM-00001');
+  const [memberQ, setMemberQ] = useState(isBackendConfigured ? '' : 'CCM-00001');
+  const [hits, setHits] = useState<MemberPosLookup[]>([]);
+  const [pickedId, setPickedId] = useState<string | null>(null);
   const [table, setTable] = useState('Counter');
   const [method, setMethod] = useState<PaymentMethod>('UPI');
   const [error, setError] = useState<string | null>(null);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
 
-  const member: DMember | undefined = kind === 'MEMBER' ? findMember(memberQ) : undefined;
+  // With a backend the till asks the server (narrow lookup: identity + café discount only); the kitchen role cannot list members.
+  useEffect(() => {
+    if (!isBackendConfigured || kind !== 'MEMBER') return;
+    const t = memberQ.trim();
+    if (t.length < 2) {
+      setHits([]);
+      return;
+    }
+    let live = true;
+    const timer = window.setTimeout(() => {
+      apiRequest<MemberPosLookup[]>('GET', `/bar/member-lookup?q=${encodeURIComponent(t)}`).then((r) => live && setHits(r), () => live && setHits([]));
+    }, 250);
+    return () => {
+      live = false;
+      window.clearTimeout(timer);
+    };
+  }, [memberQ, kind]);
+  const hit = hits.find((h) => h.member_id === pickedId) ?? hits[0];
+  const member: DMember | undefined = kind !== 'MEMBER' ? undefined : isBackendConfigured ? (hit ? fromLookup(hit) : undefined) : findMember(memberQ);
   const pct = memberDiscount(member, 'bar');
   const items = useMemo(() => s.menu.filter((m) => (cat === 'ALL' || m.category === cat) && (!q || m.name.toLowerCase().includes(q.toLowerCase()))), [s.menu, cat, q]);
   const lines = Object.entries(cart).filter(([, n]) => n > 0).map(([id, qty]) => ({ m: s.menu.find((x) => x.id === id)!, qty })).filter((l) => l.m);
@@ -105,8 +134,20 @@ export default function KitchenPos() {
             <div className="space-y-2">
               <div className="relative">
                 <Search className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted" aria-hidden="true" />
-                <input value={memberQ} onChange={(e) => setMemberQ(e.target.value)} placeholder="Member no. e.g. CCM-00003 or name" aria-label="Member number" className={cn(field, 'pl-10')} />
+                <input value={memberQ} onChange={(e) => setMemberQ(e.target.value)} placeholder="Member no., phone, e-mail or name" aria-label="Member number" className={cn(field, 'pl-10')} />
               </div>
+              {isBackendConfigured && hits.length > 1 && (
+                <ul className="divide-y divide-line border border-line bg-chalk" aria-label="Matching members">
+                  {hits.map((h) => (
+                    <li key={h.member_id}>
+                      <button type="button" onClick={() => setPickedId(h.member_id)} className={cn('flex min-h-11 w-full items-center justify-between gap-3 px-3 text-left text-sm hover:bg-olive/8', hit?.member_id === h.member_id && 'bg-olive/12')}>
+                        <span className="min-w-0 truncate font-semibold">{h.full_name}</span>
+                        <span className="shrink-0 text-xs text-muted">{h.member_code}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
               {member ? (
                 <div key={member.id} className="anim-pop flex items-start gap-3 border border-olive/40 bg-olive/8 p-3">
                   <BadgeCheck className="mt-0.5 size-5 shrink-0 text-olive" aria-hidden="true" />

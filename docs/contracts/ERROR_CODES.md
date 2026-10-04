@@ -10,7 +10,7 @@ Source of truth: [shared/constants/errors.ts](../../shared/constants/errors.ts).
 |---|---|---|---|
 | `VALIDATION_ERROR` | 400 | Request validation failed. | many (automatic) |
 | `NOT_FOUND` | 404 | Resource not found. | staff.payrollPay |
-| `INVALID_STATUS_TRANSITION` | 409 | This status change is not allowed. | memberships.changePlan, memberships.cancel, bookings.cancel, shop.orderStatus, shop.orderCancel, bar.orderCancel, kitchen.status, invoices.send, invoices.void, staff.leaveDecide, staff.leaveCancel, staff.payrollPay |
+| `INVALID_STATUS_TRANSITION` | 409 | This status change is not allowed. | memberships.changePlan, memberships.cancel, bookings.cancel, shop.orderStatus, shop.orderCancel, bar.orderCancel, kitchen.status, invoices.send, invoices.void, staff.applicationApprove, staff.applicationReject, staff.leaveDecide, staff.leaveCancel, staff.payrollPay |
 | `INTERNAL_ERROR` | 500 | Unexpected server error. | many (automatic) |
 
 ## Auth
@@ -20,8 +20,21 @@ Source of truth: [shared/constants/errors.ts](../../shared/constants/errors.ts).
 | `AUTH_INVALID` | 401 | Invalid email or password. | auth.login, auth.changePassword |
 | `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. | many (automatic) |
 | `FORBIDDEN` | 403 | You do not have permission to perform this action. | many (automatic) |
-| `EMAIL_TAKEN` | 409 | An account with this email already exists. | auth.signup, members.create, clients.create, staff.create |
+| `EMAIL_TAKEN` | 409 | An account with this email already exists. | auth.signup, members.create, staff.create, staff.applicationCreate, staff.applicationApprove |
+| `APPLICATION_PENDING` | 409 | A job application for this email is already waiting for the owner. Log in to see its status. | auth.signup, staff.applicationCreate |
 | `ACCOUNT_DISABLED` | 403 | This account has been deactivated. | auth.login |
+
+## Staff
+
+| Code | HTTP | Default message | Used by |
+|---|---|---|---|
+| `APPLICATION_NOT_FOUND` | 404 | Job application not found. | staff.applicationApprove, staff.applicationReject |
+| `STAFF_NOT_FOUND` | 404 | Staff member not found. | staff.get, staff.update, staff.shiftCreate, staff.payrollCreate |
+| `SHIFT_NOT_FOUND` | 404 | Shift not found. | staff.shiftUpdate, staff.shiftDelete |
+| `SHIFT_OVERLAP` | 409 | Shift overlaps with an existing shift for this employee. | staff.shiftCreate, staff.shiftUpdate |
+| `LEAVE_NOT_FOUND` | 404 | Leave request not found. | staff.leaveDecide, staff.leaveCancel |
+| `LEAVE_OVERLAP` | 409 | Leave overlaps with an existing leave request. | staff.leaveCreate |
+| `PAYROLL_EXISTS` | 409 | Payroll for this period already exists. | staff.payrollCreate |
 
 ## Membership
 
@@ -29,22 +42,24 @@ Source of truth: [shared/constants/errors.ts](../../shared/constants/errors.ts).
 |---|---|---|---|
 | `MEMBER_NOT_FOUND` | 404 | Member not found. | members.me, members.get, members.update, members.history, members.memberships, memberships.purchase, bookings.price, bookings.create, shop.orderCreate, bar.orderCreate, invoices.create |
 | `MEMBERSHIP_NOT_FOUND` | 404 | Membership not found. | memberships.changePlan, memberships.cancel, payments.create |
-| `MEMBERSHIP_PLAN_NOT_FOUND` | 404 | Membership plan not found. | members.create, memberships.planUpdate, memberships.purchase, memberships.changePlan, enquiries.create |
+| `MEMBERSHIP_PLAN_NOT_FOUND` | 404 | Membership plan not found. | auth.signup, members.create, memberships.planUpdate, memberships.purchase, memberships.changePlan, enquiries.create |
 | `MEMBERSHIP_EXPIRED` | 403 | Membership has expired; member rates do not apply. | memberships.changePlan |
 | `MEMBERSHIP_ALREADY_ACTIVE` | 409 | Member already has an active membership. | memberships.purchase |
-| `JUNIOR_AGE_INVALID` | 422 | Junior plan requires the member to be under 18. | members.create, memberships.purchase, memberships.changePlan |
+| `JUNIOR_AGE_INVALID` | 422 | Junior plan requires the member to be under 18. | auth.signup, members.create, memberships.purchase, memberships.changePlan |
 
 ## Courts
 
 | Code | HTTP | Default message | Used by |
 |---|---|---|---|
 | `COURT_NOT_FOUND` | 404 | Court not found. | courts.availability, courts.update, courts.block, bookings.price, bookings.create |
-| `COURT_UNAVAILABLE` | 409 | Court is closed, inactive, blocked, or outside opening hours. | bookings.create |
-| `INVALID_SLOT` | 422 | Start time must be on a 30-minute boundary, in the future, within opening hours. | courts.block, bookings.price, bookings.create |
+| `COURT_UNAVAILABLE` | 409 | Court is closed, inactive, blocked, or outside opening hours. | bookings.create, bookings.trial |
+| `INVALID_SLOT` | 422 | Start time must be on a 30-minute boundary, in the future, within opening hours. | courts.block, bookings.price, bookings.create, bookings.trial |
 | `BOOKING_NOT_FOUND` | 404 | Booking not found. | courts.unblock, bookings.get, bookings.cancel, payments.create |
-| `BOOKING_CONFLICT` | 409 | This court is already booked for that time. | courts.block, bookings.create |
+| `BOOKING_CONFLICT` | 409 | This court is already booked for that time. | courts.block, bookings.create, bookings.trial |
 | `DAILY_BOOKING_LIMIT` | 409 | Member has reached the maximum plays allowed per day. | bookings.create |
 | `BOOKING_NOT_CANCELLABLE` | 409 | This booking can no longer be cancelled. | bookings.cancel |
+| `TRIAL_ALREADY_BOOKED` | 409 | This phone number already has an upcoming trial booked. | bookings.trial |
+| `COURT_NAME_TAKEN` | 409 | A court with this name already exists. | courts.create, courts.update |
 
 ## Shop
 
@@ -67,14 +82,14 @@ Source of truth: [shared/constants/errors.ts](../../shared/constants/errors.ts).
 
 | Code | HTTP | Default message | Used by |
 |---|---|---|---|
-| `PAYMENT_FAILED` | 402 | Payment could not be completed. | members.create, memberships.purchase, memberships.changePlan, bookings.create, shop.orderCreate, bar.orderCreate, payments.create |
+| `PAYMENT_FAILED` | 402 | Payment could not be completed. | auth.signup, members.create, memberships.purchase, memberships.changePlan, bookings.create, shop.orderCreate, bar.orderCreate, payments.create |
 | `PAYMENT_NOT_FOUND` | 404 | Payment not found. | payments.get, payments.refund |
 | `PAYMENT_AMOUNT_MISMATCH` | 422 | Payment amount does not match the amount due. | payments.create |
 | `ALREADY_PAID` | 409 | This item is already fully paid. | payments.create |
 | `REFUND_EXCEEDS_PAYMENT` | 422 | Refund amount exceeds the amount paid. | payments.refund |
 | `INVOICE_NOT_FOUND` | 404 | Invoice not found. | invoices.get, invoices.update, invoices.send, invoices.void, payments.create |
 | `INVOICE_NOT_EDITABLE` | 409 | Invoice can no longer be edited. | invoices.update |
-| `BUSINESS_CLIENT_NOT_FOUND` | 404 | Business client not found. | clients.me, clients.get, clients.update, invoices.create |
+| `BUSINESS_CLIENT_NOT_FOUND` | 404 | Business client not found. | clients.get, clients.update, invoices.create |
 
 ## Enquiries
 
@@ -82,16 +97,13 @@ Source of truth: [shared/constants/errors.ts](../../shared/constants/errors.ts).
 |---|---|---|---|
 | `ENQUIRY_NOT_FOUND` | 404 | Enquiry not found. | enquiries.get, enquiries.update |
 
-## Staff
+## Events
 
 | Code | HTTP | Default message | Used by |
 |---|---|---|---|
-| `STAFF_NOT_FOUND` | 404 | Staff member not found. | staff.get, staff.update, staff.shiftCreate, staff.payrollCreate |
-| `SHIFT_NOT_FOUND` | 404 | Shift not found. | staff.shiftUpdate, staff.shiftDelete |
-| `SHIFT_OVERLAP` | 409 | Shift overlaps with an existing shift for this employee. | staff.shiftCreate, staff.shiftUpdate |
-| `LEAVE_NOT_FOUND` | 404 | Leave request not found. | staff.leaveDecide, staff.leaveCancel |
-| `LEAVE_OVERLAP` | 409 | Leave overlaps with an existing leave request. | staff.leaveCreate |
-| `PAYROLL_EXISTS` | 409 | Payroll for this period already exists. | staff.payrollCreate |
+| `EVENT_NOT_FOUND` | 404 | Event not found. | events.register, events.unregister |
+| `EVENT_FULL` | 409 | This event is full. | events.register |
+| `EVENT_ENDED` | 409 | This event has already ended. | events.register |
 
 ## Misc
 

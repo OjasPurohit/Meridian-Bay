@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Minus, PackageCheck, Plus, Receipt, ShoppingBag, Truck, Store as StoreIcon, X } from 'lucide-react';
 
 import type { PaymentMethod, ProductCategory } from '@shared/constants/enums';
@@ -181,7 +181,11 @@ function BasketDrawer({ open, onClose, basket, setBasket, pct, onReceipt }: { op
   const me = useMe();
   const toast = useToast();
   const [fulfil, setFulfil] = useState<'PICKUP' | 'DELIVERY'>('PICKUP');
-  const [address, setAddress] = useState('');
+  // the member's saved address (members.address) pre-fills the delivery address; it comes from the database
+  const [address, setAddress] = useState(me.address ?? '');
+  useEffect(() => {
+    if (me.address) setAddress((a) => a || me.address!);
+  }, [me.address]);
   const [error, setError] = useState<string | null>(null);
   const [placed, setPlaced] = useState<DShopOrder | null>(null);
 

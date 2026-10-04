@@ -66,7 +66,7 @@ components:
             - MEMBER
             - FRONT_DESK
             - KITCHEN_MANAGER
-            - BUSINESS_CLIENT
+            - STORE_MANAGER
             - OWNER_ADMIN
         full_name:
           type: string
@@ -180,10 +180,6 @@ components:
         id:
           type: string
           format: uuid
-        user_id:
-          type: string
-          format: uuid
-          nullable: true
         company_name:
           type: string
         contact_name:
@@ -212,7 +208,6 @@ components:
           format: date-time
       required:
         - id
-        - user_id
         - company_name
         - contact_name
         - email
@@ -340,6 +335,134 @@ components:
         - cancellation_reason
         - created_at
         - updated_at
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        kind:
+          type: string
+          enum:
+            - TOURNAMENT
+            - CLINIC
+            - CAMP
+            - MIXER
+            - SOCIAL
+        description:
+          type: string
+          nullable: true
+        location:
+          type: string
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+        capacity:
+          type: number
+        fee:
+          type: string
+          pattern: ^\d+\.\d{2}$
+          example: "1250.00"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - kind
+        - description
+        - location
+        - start_at
+        - end_at
+        - capacity
+        - fee
+        - created_at
+        - updated_at
+    EventRegistration:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        event_id:
+          type: string
+          format: uuid
+        member_id:
+          type: string
+          format: uuid
+        registered_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - event_id
+        - member_id
+        - registered_at
+    EmployeeApplication:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+          nullable: true
+        password_hash:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum:
+            - PENDING
+            - APPROVED
+            - REJECTED
+        approved_role:
+          type: string
+          enum:
+            - MEMBER
+            - FRONT_DESK
+            - KITCHEN_MANAGER
+            - STORE_MANAGER
+            - OWNER_ADMIN
+          nullable: true
+        applied_at:
+          type: string
+          format: date-time
+        reviewed_at:
+          type: string
+          format: date-time
+          nullable: true
+        reviewed_by_user_id:
+          type: string
+          format: uuid
+          nullable: true
+        decision_note:
+          type: string
+          nullable: true
+      required:
+        - id
+        - full_name
+        - email
+        - phone
+        - password_hash
+        - status
+        - approved_role
+        - applied_at
+        - reviewed_at
+        - reviewed_by_user_id
+        - decision_note
     Enquiry:
       type: object
       properties:
@@ -468,6 +591,7 @@ components:
           enum:
             - REGULAR
             - MAINTENANCE
+            - TRIAL
         member_id:
           type: string
           format: uuid
@@ -476,6 +600,9 @@ components:
           type: string
           nullable: true
         guest_phone:
+          type: string
+          nullable: true
+        guest_email:
           type: string
           nullable: true
         start_at:
@@ -510,6 +637,7 @@ components:
         - member_id
         - guest_name
         - guest_phone
+        - guest_email
         - start_at
         - end_at
         - list_price
@@ -1158,9 +1286,6 @@ components:
         staff:
           $ref: "#/components/schemas/StaffView"
           nullable: true
-        business_client:
-          $ref: "#/components/schemas/BusinessClient"
-          nullable: true
       required:
         - token
         - expires_at
@@ -1168,7 +1293,136 @@ components:
         - redirect_to
         - member
         - staff
-        - business_client
+    EmployeeApplicationPending:
+      type: object
+      properties:
+        state:
+          type: string
+          enum:
+            - EMPLOYEE_APPLICATION_PENDING
+        full_name:
+          type: string
+        email:
+          type: string
+        applied_at:
+          type: string
+          format: date-time
+        redirect_to:
+          type: string
+          enum:
+            - /employee-application-pending
+      required:
+        - state
+        - full_name
+        - email
+        - applied_at
+        - redirect_to
+    EmployeeApplicationView:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum:
+            - PENDING
+            - APPROVED
+            - REJECTED
+        approved_role:
+          type: string
+          enum:
+            - MEMBER
+            - FRONT_DESK
+            - KITCHEN_MANAGER
+            - STORE_MANAGER
+            - OWNER_ADMIN
+          nullable: true
+        applied_at:
+          type: string
+          format: date-time
+        reviewed_at:
+          type: string
+          format: date-time
+          nullable: true
+        reviewed_by_user_id:
+          type: string
+          format: uuid
+          nullable: true
+        decision_note:
+          type: string
+          nullable: true
+        reviewed_by_name:
+          type: string
+          nullable: true
+      required:
+        - id
+        - full_name
+        - email
+        - phone
+        - status
+        - approved_role
+        - applied_at
+        - reviewed_at
+        - reviewed_by_user_id
+        - decision_note
+        - reviewed_by_name
+    EventView:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        kind:
+          type: string
+          enum:
+            - TOURNAMENT
+            - CLINIC
+            - CAMP
+            - MIXER
+            - SOCIAL
+        description:
+          type: string
+          nullable: true
+        location:
+          type: string
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+        capacity:
+          type: number
+        fee:
+          type: string
+          pattern: ^\d+\.\d{2}$
+          example: "1250.00"
+        registered_count:
+          type: number
+        is_registered:
+          type: boolean
+      required:
+        - id
+        - title
+        - kind
+        - description
+        - location
+        - start_at
+        - end_at
+        - capacity
+        - fee
+        - registered_count
+        - is_registered
     ActiveMembershipSummary:
       type: object
       properties:
@@ -1255,6 +1509,40 @@ components:
         - joined_on
         - is_active
         - active_membership
+    MemberPosLookup:
+      type: object
+      properties:
+        member_id:
+          type: string
+          format: uuid
+        member_code:
+          type: string
+        full_name:
+          type: string
+        membership_status:
+          description: "TS: 'ACTIVE' | 'NONE'"
+        plan_name:
+          type: string
+          nullable: true
+        membership_type:
+          type: string
+          enum:
+            - GOLD
+            - SILVER
+            - JUNIOR
+          nullable: true
+        bar_discount_percent:
+          type: string
+          pattern: ^\d+\.\d{2}$
+          example: "18.00"
+      required:
+        - member_id
+        - member_code
+        - full_name
+        - membership_status
+        - plan_name
+        - membership_type
+        - bar_discount_percent
     MemberDetail:
       allOf:
         - $ref: "#/components/schemas/MemberSummary"
@@ -2018,7 +2306,7 @@ components:
                 - MEMBER
                 - FRONT_DESK
                 - KITCHEN_MANAGER
-                - BUSINESS_CLIENT
+                - STORE_MANAGER
                 - OWNER_ADMIN
             is_active:
               type: boolean
@@ -2576,7 +2864,7 @@ components:
             - MEMBER
             - FRONT_DESK
             - KITCHEN_MANAGER
-            - BUSINESS_CLIENT
+            - STORE_MANAGER
             - OWNER_ADMIN
         full_name:
           type: string
@@ -2609,19 +2897,22 @@ paths:
       operationId: auth.signup
       tags:
         - Authentication
-      summary: Visitor creates an account (role MEMBER, no plan yet) and is logged in.
+      summary: "Visitor joins as a member: account + the chosen membership, paid online, in one step; the member is logged in."
       description: |-
-        Creates `users` (role MEMBER) + `members` in one transaction. No membership is created: until a plan is bought the member pays walk-in rates.
+        Creates `users` (role MEMBER) + `members` (+ `memberships` + `payments` when a plan is given) in ONE transaction: if the payment fails nothing is created. The password is stored only as a bcrypt hash.
 
-        Requirements: FR-AUTH-001
+        Requirements: FR-AUTH-001, FR-MEM-012
       x-roles:
         - PUBLIC
       x-owner: Dev 1
       x-requirements:
         - FR-AUTH-001
+        - FR-MEM-012
       x-tables:
         - users
         - members
+        - memberships
+        - payments
       security: []
       requestBody:
         required: true
@@ -2645,7 +2936,13 @@ paths:
                 date_of_birth:
                   type: string
                   format: date
-                  description: must be in the past
+                  description: must be in the past; REQUIRED for a JUNIOR plan
+                address:
+                  type: string
+                membership_plan_id:
+                  type: string
+                  format: uuid
+                  description: the plan to buy now (paid ONLINE through the mock gateway). Omit to join without a plan.
               required:
                 - full_name
                 - email
@@ -2676,8 +2973,26 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
+        "402":
+          description: PAYMENT_FAILED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: MEMBERSHIP_PLAN_NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
         "409":
-          description: EMAIL_TAKEN
+          description: EMAIL_TAKEN | APPLICATION_PENDING
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "422":
+          description: JUNIOR_AGE_INVALID
           content:
             application/json:
               schema:
@@ -2687,19 +3002,21 @@ paths:
       operationId: auth.login
       tags:
         - Authentication
-      summary: Authenticate and receive a JWT plus the role-based landing route.
+      summary: Authenticate and receive a JWT plus the role-based landing route, or the EMPLOYEE_APPLICATION_PENDING state.
       description: |-
-        `redirect_to` = ROLE_HOME_ROUTE[user.role]. Never reveal whether the email exists (always AUTH_INVALID).
+        `redirect_to` = ROLE_HOME_ROUTE[user.role]. Active users are checked first. If there is no such user but a PENDING job application for the email whose bcrypt hash matches, the answer is `{state: EMPLOYEE_APPLICATION_PENDING, redirect_to: /employee-application-pending}`: NO token, NO role. Never reveal whether the email exists (always AUTH_INVALID).
 
-        Requirements: FR-AUTH-002, FR-AUTH-003
+        Requirements: FR-AUTH-002, FR-AUTH-003, FR-AUTH-008
       x-roles:
         - PUBLIC
       x-owner: Dev 1
       x-requirements:
         - FR-AUTH-002
         - FR-AUTH-003
+        - FR-AUTH-008
       x-tables:
         - users
+        - employee_applications
       security: []
       requestBody:
         required: true
@@ -2764,7 +3081,7 @@ paths:
         - MEMBER
         - FRONT_DESK
         - KITCHEN_MANAGER
-        - BUSINESS_CLIENT
+        - STORE_MANAGER
         - OWNER_ADMIN
       x-owner: Dev 1
       x-requirements:
@@ -2808,7 +3125,7 @@ paths:
         - MEMBER
         - FRONT_DESK
         - KITCHEN_MANAGER
-        - BUSINESS_CLIENT
+        - STORE_MANAGER
         - OWNER_ADMIN
       x-owner: Dev 1
       x-requirements:
@@ -2817,7 +3134,6 @@ paths:
         - users
         - members
         - staff
-        - business_clients
       security:
         - bearerAuth: []
       responses:
@@ -2856,7 +3172,7 @@ paths:
         - MEMBER
         - FRONT_DESK
         - KITCHEN_MANAGER
-        - BUSINESS_CLIENT
+        - STORE_MANAGER
         - OWNER_ADMIN
       x-owner: Dev 1
       x-requirements:
@@ -4371,6 +4687,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
+        "409":
+          description: COURT_NAME_TAKEN
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
   /courts/availability:
     get:
       operationId: courts.availability
@@ -4534,6 +4856,12 @@ paths:
                 $ref: "#/components/schemas/ApiError"
         "404":
           description: COURT_NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: COURT_NAME_TAKEN
           content:
             application/json:
               schema:
@@ -4982,6 +5310,7 @@ paths:
             enum:
               - REGULAR
               - MAINTENANCE
+              - TRIAL
         - name: upcoming
           in: query
           required: false
@@ -5038,6 +5367,92 @@ paths:
                 $ref: "#/components/schemas/ApiError"
         "403":
           description: FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /bookings/trial:
+    post:
+      operationId: bookings.trial
+      tags:
+        - Court bookings
+      summary: "A visitor books a free trial hour from the public website: the first free active court of the chosen sport takes the slot."
+      description: |-
+        Transaction: lock the phone number (advisory) -> at most one upcoming TRIAL per phone (TRIAL_ALREADY_BOOKED) -> pick the first active court of the sport (by name) with no standing booking in the slot, else BOOKING_CONFLICT -> INSERT booking_type TRIAL (list_price 0, so amount due is 0 and nothing is paid). The same table, calendar and exclusion constraint as every other court booking; owner and front desk see it in their calendars.
+
+        Requirements: FR-PUB-006, FR-COURT-004
+      x-roles:
+        - PUBLIC
+      x-owner: Dev 2
+      x-requirements:
+        - FR-PUB-006
+        - FR-COURT-004
+      x-tables:
+        - court_bookings
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                phone:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                sport_type:
+                  type: string
+                  enum:
+                    - TENNIS
+                    - CRICKET
+                    - PADEL
+                    - BADMINTON
+                start_at:
+                  type: string
+                  format: date-time
+                  description: on a :00/:30 boundary, in the future, inside opening hours
+              required:
+                - name
+                - phone
+                - sport_type
+                - start_at
+      responses:
+        "201":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - data
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    $ref: "#/components/schemas/BookingDetail"
+                  message:
+                    type: string
+        "400":
+          description: VALIDATION_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: COURT_UNAVAILABLE | BOOKING_CONFLICT | TRIAL_ALREADY_BOOKED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "422":
+          description: INVALID_SLOT
           content:
             application/json:
               schema:
@@ -5296,6 +5711,7 @@ paths:
       summary: Create a product (optionally with opening stock).
       description: "Requirements: FR-SHOP-002, FR-INV-003"
       x-roles:
+        - STORE_MANAGER
         - OWNER_ADMIN
       x-owner: Dev 3
       x-requirements:
@@ -5450,6 +5866,7 @@ paths:
       summary: "Edit a product. Stock is NEVER edited here: use /inventory/adjustments."
       description: "Requirements: FR-SHOP-002"
       x-roles:
+        - STORE_MANAGER
         - OWNER_ADMIN
       x-owner: Dev 3
       x-requirements:
@@ -5617,6 +6034,7 @@ paths:
       x-roles:
         - MEMBER
         - FRONT_DESK
+        - STORE_MANAGER
         - OWNER_ADMIN
       x-owner: Dev 3
       x-requirements:
@@ -5758,6 +6176,7 @@ paths:
       x-roles:
         - MEMBER:own
         - FRONT_DESK
+        - STORE_MANAGER
         - OWNER_ADMIN
       x-owner: Dev 3
       x-requirements:
@@ -5873,6 +6292,7 @@ paths:
       x-roles:
         - MEMBER:own
         - FRONT_DESK
+        - STORE_MANAGER
         - OWNER_ADMIN
       x-owner: Dev 3
       x-requirements:
@@ -5944,6 +6364,7 @@ paths:
         Requirements: FR-SHOP-009, FR-SHOP-005, FR-SHOP-006
       x-roles:
         - FRONT_DESK
+        - STORE_MANAGER
         - OWNER_ADMIN
       x-owner: Dev 3
       x-requirements:
@@ -6042,6 +6463,7 @@ paths:
       x-roles:
         - MEMBER:own
         - FRONT_DESK
+        - STORE_MANAGER
         - OWNER_ADMIN
       x-owner: Dev 3
       x-requirements:
@@ -6118,6 +6540,7 @@ paths:
       description: "Requirements: FR-INV-001, FR-INV-002"
       x-roles:
         - FRONT_DESK
+        - STORE_MANAGER
         - OWNER_ADMIN
       x-owner: Dev 3
       x-requirements:
@@ -6215,6 +6638,7 @@ paths:
         Requirements: FR-INV-002
       x-roles:
         - FRONT_DESK
+        - STORE_MANAGER
         - OWNER_ADMIN
       x-owner: Dev 3
       x-requirements:
@@ -6267,6 +6691,7 @@ paths:
 
         Requirements: FR-INV-003
       x-roles:
+        - STORE_MANAGER
         - OWNER_ADMIN
       x-owner: Dev 3
       x-requirements:
@@ -6560,6 +6985,77 @@ paths:
                 $ref: "#/components/schemas/ApiError"
         "404":
           description: MENU_ITEM_NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /bar/member-lookup:
+    get:
+      operationId: bar.memberLookup
+      tags:
+        - Cafe
+      summary: "Counter lookup of a member for the café till: identifies the customer and returns the café discount, nothing else (not the member list)."
+      description: |-
+        Active accounts only. Returns member id, member number, name, membership status, plan name and bar_discount_percent (0 without an active membership). The order itself is still priced by the server from member_id (R-BAR-01).
+
+        Requirements: FR-BAR-003, FR-BAR-004
+      x-roles:
+        - FRONT_DESK
+        - KITCHEN_MANAGER
+        - OWNER_ADMIN
+      x-owner: Dev 3
+      x-requirements:
+        - FR-BAR-003
+        - FR-BAR-004
+      x-tables:
+        - members
+        - users
+        - memberships
+        - membership_plans
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: member number (CCM-00001), e-mail, phone digits (6+) or part of the name (3+ letters); at most 5 matches
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - data
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MemberPosLookup"
+                  message:
+                    type: string
+        "400":
+          description: VALIDATION_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: AUTH_UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: FORBIDDEN
           content:
             application/json:
               schema:
@@ -7176,7 +7672,7 @@ paths:
       operationId: kitchen.status
       tags:
         - Kitchen
-      summary: "Move an order forward: NEW -> PREPARING -> READY -> SERVED (or reject a NEW order with CANCELLED)."
+      summary: "Move an order along: NEW -> PREPARING -> READY -> SERVED (reject a NEW order with CANCELLED; a READY order may go back to PREPARING)."
       description: |-
         bar_orders.status is the only record of progress: there is no separate status history.
 
@@ -7707,17 +8203,15 @@ paths:
       operationId: clients.create
       tags:
         - Business clients
-      summary: Register a business client (optionally with a portal login).
-      description: "Requirements: FR-INVC-001, FR-AUTH-007"
+      summary: Register a business client (a company the club invoices; it has no login).
+      description: "Requirements: FR-INVC-001"
       x-roles:
         - OWNER_ADMIN
       x-owner: Dev 4
       x-requirements:
         - FR-INVC-001
-        - FR-AUTH-007
       x-tables:
         - business_clients
-        - users
       security:
         - bearerAuth: []
       requestBody:
@@ -7743,12 +8237,6 @@ paths:
                   type: string
                 notes:
                   type: string
-                create_login:
-                  type: boolean
-                  description: true => creates users(role BUSINESS_CLIENT)
-                initial_password:
-                  type: string
-                  description: required when create_login = true
               required:
                 - company_name
                 - contact_name
@@ -7786,66 +8274,6 @@ paths:
                 $ref: "#/components/schemas/ApiError"
         "403":
           description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "409":
-          description: EMAIL_TAKEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-  /business-clients/me:
-    get:
-      operationId: clients.me
-      tags:
-        - Business clients
-      summary: Own client profile + totals (business dashboard header).
-      description: "Requirements: FR-INVC-008"
-      x-roles:
-        - BUSINESS_CLIENT
-      x-owner: Dev 4
-      x-requirements:
-        - FR-INVC-008
-      x-tables:
-        - business_clients
-        - invoices
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    enum:
-                      - true
-                  data:
-                    $ref: "#/components/schemas/BusinessClientDetail"
-                  message:
-                    type: string
-        "401":
-          description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "404":
-          description: BUSINESS_CLIENT_NOT_FOUND
           content:
             application/json:
               schema:
@@ -8010,13 +8438,12 @@ paths:
       operationId: invoices.list
       tags:
         - Invoices
-      summary: List invoices (a business client sees only theirs; a member only their membership invoices).
+      summary: List invoices (the owner sees all; a member only their membership invoices).
       description: |-
         Paid / partially paid / overdue are DERIVED by the view invoice_totals (payment_state): OVERDUE = a SENT invoice whose due_date is before today (IST) and that is not fully paid. Nothing is persisted by a job.
 
         Requirements: FR-INVC-005, FR-INVC-008, FR-FIN-006, FR-INVC-009
       x-roles:
-        - BUSINESS_CLIENT:own
         - MEMBER:own
         - OWNER_ADMIN
       x-owner: Dev 4
@@ -8268,7 +8695,6 @@ paths:
       summary: Invoice with lines, payments and outstanding amount.
       description: "Requirements: FR-INVC-005, FR-INVC-008"
       x-roles:
-        - BUSINESS_CLIENT:own
         - MEMBER:own
         - OWNER_ADMIN
       x-owner: Dev 4
@@ -8592,8 +9018,9 @@ paths:
         Requirements: FR-FIN-001, FR-FIN-002, FR-INVC-004, FR-FIN-010
       x-roles:
         - MEMBER:own
-        - BUSINESS_CLIENT:own
         - FRONT_DESK
+        - KITCHEN_MANAGER
+        - STORE_MANAGER
         - OWNER_ADMIN
       x-owner: Dev 4
       x-requirements:
@@ -8638,7 +9065,7 @@ paths:
                     - CARD
                     - UPI
                     - ONLINE
-                  description: "MEMBER / BUSINESS_CLIENT: ONLINE only. FRONT_DESK: CASH | CARD | UPI. OWNER_ADMIN: any"
+                  description: "MEMBER: ONLINE only. FRONT_DESK: CASH | CARD | UPI. OWNER_ADMIN: any"
                 gateway_reference:
                   type: string
                 notes:
@@ -8684,12 +9111,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
         "404":
           description: BOOKING_NOT_FOUND | ORDER_NOT_FOUND | INVOICE_NOT_FOUND | MEMBERSHIP_NOT_FOUND
           content:
@@ -8716,8 +9137,9 @@ paths:
       description: "Requirements: FR-FIN-004, FR-INVC-005, FR-FIN-003"
       x-roles:
         - MEMBER:own
-        - BUSINESS_CLIENT:own
         - FRONT_DESK:own
+        - KITCHEN_MANAGER:own
+        - STORE_MANAGER:own
         - OWNER_ADMIN
       x-owner: Dev 4
       x-requirements:
@@ -8844,12 +9266,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
   /payments/{id}:
     get:
       operationId: payments.get
@@ -8859,8 +9275,9 @@ paths:
       description: "Requirements: FR-FIN-004"
       x-roles:
         - MEMBER:own
-        - BUSINESS_CLIENT:own
         - FRONT_DESK:own
+        - KITCHEN_MANAGER:own
+        - STORE_MANAGER:own
         - OWNER_ADMIN
       x-owner: Dev 4
       x-requirements:
@@ -8903,12 +9320,6 @@ paths:
                 $ref: "#/components/schemas/ApiError"
         "401":
           description: AUTH_UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-        "403":
-          description: FORBIDDEN
           content:
             application/json:
               schema:
@@ -9039,7 +9450,7 @@ paths:
               - MEMBER
               - FRONT_DESK
               - KITCHEN_MANAGER
-              - BUSINESS_CLIENT
+              - STORE_MANAGER
               - OWNER_ADMIN
         - name: is_active
           in: query
@@ -9104,7 +9515,7 @@ paths:
       operationId: staff.create
       tags:
         - Staff & HR
-      summary: Create a staff account (front desk, kitchen manager or another owner) and employee record.
+      summary: Create a staff account (front desk, kitchen, store manager or another owner) and employee record.
       description: "Requirements: FR-STAFF-001, FR-AUTH-007"
       x-roles:
         - OWNER_ADMIN
@@ -9137,9 +9548,9 @@ paths:
                     - MEMBER
                     - FRONT_DESK
                     - KITCHEN_MANAGER
-                    - BUSINESS_CLIENT
+                    - STORE_MANAGER
                     - OWNER_ADMIN
-                  description: FRONT_DESK | KITCHEN_MANAGER | OWNER_ADMIN only
+                  description: FRONT_DESK | KITCHEN_MANAGER | STORE_MANAGER | OWNER_ADMIN only
                 password:
                   type: string
                 designation:
@@ -9210,6 +9621,7 @@ paths:
       x-roles:
         - FRONT_DESK:own
         - KITCHEN_MANAGER:own
+        - STORE_MANAGER:own
         - OWNER_ADMIN
       x-owner: Dev 4
       x-requirements:
@@ -9353,6 +9765,614 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
+  /staff/applications:
+    post:
+      operationId: staff.applicationCreate
+      tags:
+        - Staff & HR
+      summary: A visitor applies to work at the club. Nothing is granted until the owner approves; the applicant can log in to see the status.
+      description: |-
+        Creates a PENDING `employee_applications` row. No `users` / `staff` row exists yet. One PENDING application per email.
+
+        Requirements: FR-AUTH-008, FR-STAFF-008
+      x-roles:
+        - PUBLIC
+      x-owner: Dev 4
+      x-requirements:
+        - FR-AUTH-008
+        - FR-STAFF-008
+      x-tables:
+        - employee_applications
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                  description: 2-120 chars
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                password:
+                  type: string
+                  description: min 8 chars, >=1 letter and >=1 digit; kept only as a bcrypt hash until the owner decides
+              required:
+                - full_name
+                - email
+                - phone
+                - password
+      responses:
+        "201":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - data
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    $ref: "#/components/schemas/EmployeeApplicationPending"
+                  message:
+                    type: string
+        "400":
+          description: VALIDATION_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: EMAIL_TAKEN | APPLICATION_PENDING
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    get:
+      operationId: staff.applicationList
+      tags:
+        - Staff & HR
+      summary: Job applications, newest first (never includes password hashes).
+      description: "Requirements: FR-STAFF-008"
+      x-roles:
+        - OWNER_ADMIN
+      x-owner: Dev 4
+      x-requirements:
+        - FR-STAFF-008
+      x-tables:
+        - employee_applications
+        - users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - PENDING
+              - APPROVED
+              - REJECTED
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - data
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/EmployeeApplicationView"
+                  message:
+                    type: string
+        "400":
+          description: VALIDATION_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: AUTH_UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /staff/applications/{id}/approve:
+    post:
+      operationId: staff.applicationApprove
+      tags:
+        - Staff & HR
+      summary: "Approve an application and choose the role: creates the login (same email and password) and the staff record."
+      description: |-
+        One transaction: lock the PENDING application, create `users` (bcrypt hash copied, role, active) + `staff`, mark it APPROVED with approved_role / reviewer / reviewed_at, clear the stored hash.
+
+        Requirements: FR-STAFF-008
+      x-roles:
+        - OWNER_ADMIN
+      x-owner: Dev 4
+      x-requirements:
+        - FR-STAFF-008
+      x-tables:
+        - employee_applications
+        - users
+        - staff
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum:
+                    - MEMBER
+                    - FRONT_DESK
+                    - KITCHEN_MANAGER
+                    - STORE_MANAGER
+                    - OWNER_ADMIN
+                  description: FRONT_DESK | KITCHEN_MANAGER | STORE_MANAGER
+                designation:
+                  type: string
+                  description: "default: the role name"
+                monthly_salary:
+                  type: string
+                  pattern: ^\d+\.\d{2}$
+                  description: default 0.00
+              required:
+                - role
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - data
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    $ref: "#/components/schemas/EmployeeApplicationView"
+                  message:
+                    type: string
+        "400":
+          description: VALIDATION_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: AUTH_UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: APPLICATION_NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: INVALID_STATUS_TRANSITION | EMAIL_TAKEN
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /staff/applications/{id}/reject:
+    post:
+      operationId: staff.applicationReject
+      tags:
+        - Staff & HR
+      summary: Decline an application. No account is created.
+      description: |-
+        Marks the application REJECTED and clears the stored hash; the applicant gets no access.
+
+        Requirements: FR-STAFF-008
+      x-roles:
+        - OWNER_ADMIN
+      x-owner: Dev 4
+      x-requirements:
+        - FR-STAFF-008
+      x-tables:
+        - employee_applications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                note:
+                  type: string
+                  description: shown on the owner dashboard
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - data
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    $ref: "#/components/schemas/EmployeeApplicationView"
+                  message:
+                    type: string
+        "400":
+          description: VALIDATION_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: AUTH_UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: APPLICATION_NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: INVALID_STATUS_TRANSITION
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /events:
+    get:
+      operationId: events.list
+      tags:
+        - Events
+      summary: All club events, soonest first. Every role reads the same rows; a member also gets `is_registered`.
+      description: "Requirements: FR-EVT-002"
+      x-roles:
+        - MEMBER
+        - FRONT_DESK
+        - KITCHEN_MANAGER
+        - STORE_MANAGER
+        - OWNER_ADMIN
+      x-owner: Dev 4
+      x-requirements:
+        - FR-EVT-002
+      x-tables:
+        - events
+        - event_registrations
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - data
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/EventView"
+                  message:
+                    type: string
+        "401":
+          description: AUTH_UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    post:
+      operationId: events.create
+      tags:
+        - Events
+      summary: Create an event.
+      description: "Requirements: FR-EVT-001"
+      x-roles:
+        - OWNER_ADMIN
+      x-owner: Dev 4
+      x-requirements:
+        - FR-EVT-001
+      x-tables:
+        - events
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                kind:
+                  type: string
+                  enum:
+                    - TOURNAMENT
+                    - CLINIC
+                    - CAMP
+                    - MIXER
+                    - SOCIAL
+                description:
+                  type: string
+                location:
+                  type: string
+                start_at:
+                  type: string
+                  format: date-time
+                end_at:
+                  type: string
+                  format: date-time
+                  description: "> start_at"
+                capacity:
+                  type: integer
+                  description: ">= 1"
+                fee:
+                  type: string
+                  pattern: ^\d+\.\d{2}$
+                  description: default 0.00
+              required:
+                - title
+                - kind
+                - location
+                - start_at
+                - end_at
+                - capacity
+      responses:
+        "201":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - data
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    $ref: "#/components/schemas/EventView"
+                  message:
+                    type: string
+        "400":
+          description: VALIDATION_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: AUTH_UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /events/{id}/registrations:
+    post:
+      operationId: events.register
+      tags:
+        - Events
+      summary: Register the calling member for an event (idempotent).
+      description: |-
+        Capacity is checked inside a transaction that locks the event row.
+
+        Requirements: FR-EVT-002
+      x-roles:
+        - MEMBER
+      x-owner: Dev 4
+      x-requirements:
+        - FR-EVT-002
+      x-tables:
+        - events
+        - event_registrations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "201":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - data
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    $ref: "#/components/schemas/EventView"
+                  message:
+                    type: string
+        "400":
+          description: VALIDATION_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: AUTH_UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: EVENT_NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: EVENT_FULL | EVENT_ENDED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      operationId: events.unregister
+      tags:
+        - Events
+      summary: Cancel the calling member registration.
+      description: "Requirements: FR-EVT-002"
+      x-roles:
+        - MEMBER
+      x-owner: Dev 4
+      x-requirements:
+        - FR-EVT-002
+      x-tables:
+        - event_registrations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - data
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    $ref: "#/components/schemas/EventView"
+                  message:
+                    type: string
+        "400":
+          description: VALIDATION_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: AUTH_UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: EVENT_NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
   /staff/shifts:
     get:
       operationId: staff.shifts
@@ -9363,6 +10383,7 @@ paths:
       x-roles:
         - FRONT_DESK
         - KITCHEN_MANAGER:own
+        - STORE_MANAGER:own
         - OWNER_ADMIN
       x-owner: Dev 4
       x-requirements:
@@ -9716,6 +10737,7 @@ paths:
       x-roles:
         - FRONT_DESK:own
         - KITCHEN_MANAGER:own
+        - STORE_MANAGER:own
         - OWNER_ADMIN
       x-owner: Dev 4
       x-requirements:
@@ -9819,6 +10841,7 @@ paths:
       x-roles:
         - FRONT_DESK
         - KITCHEN_MANAGER
+        - STORE_MANAGER
       x-owner: Dev 4
       x-requirements:
         - FR-STAFF-003
@@ -9987,6 +11010,7 @@ paths:
       x-roles:
         - FRONT_DESK:own
         - KITCHEN_MANAGER:own
+        - STORE_MANAGER:own
         - OWNER_ADMIN
       x-owner: Dev 4
       x-requirements:
@@ -10061,6 +11085,7 @@ paths:
       x-roles:
         - FRONT_DESK:own
         - KITCHEN_MANAGER:own
+        - STORE_MANAGER:own
         - OWNER_ADMIN
       x-owner: Dev 4
       x-requirements:

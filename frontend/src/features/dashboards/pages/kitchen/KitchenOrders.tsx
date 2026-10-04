@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, Check, ChefHat, Flame, Hourglass, Utensils, X } from 'lucide-react';
+import { ArrowRight, Check, ChefHat, Flame, Hourglass, Undo2, Utensils, X } from 'lucide-react';
 
 import type { OrderStatus } from '@shared/constants/enums';
 import { formatClockIst, formatMoney } from '@/lib/format';
@@ -76,9 +76,10 @@ export function OrderBoard({ readOnly = false }: { readOnly?: boolean }) {
                       {o.pay === 'PENDING' ? <Pill tone="sun">unpaid</Pill> : <span>{formatMoney(o.total)}</span>}
                     </div>
                     {!readOnly && (
-                      <div className="mt-3 flex gap-2">
-                        <button type="button" className={cn(btn.primary, 'flex-1 !min-h-10')} onClick={() => advance(o, col.next)}>{col.cta} <ArrowRight className="size-4" /></button>
-                        {o.status === 'NEW' && <button type="button" aria-label={`Reject ${o.number}`} className={cn(btn.danger, 'border border-primary/30 !min-h-10')} onClick={() => advance(o, 'CANCELLED')}><X className="size-4" /></button>}
+                      <div className="mt-3 flex items-center gap-2">
+                        <button type="button" className={cn(btn.primary, 'min-w-0 flex-1 whitespace-nowrap !min-h-10')} onClick={() => advance(o, col.next)}>{col.cta} <ArrowRight className="size-4 shrink-0" /></button>
+                        {o.status === 'READY' && <button type="button" aria-label={`Send ${o.number} back to preparing`} title="Back to preparing" className={cn(btn.secondary, 'shrink-0 whitespace-nowrap !min-h-10 !px-3.5')} onClick={() => advance(o, 'PREPARING')}><Undo2 className="size-4 shrink-0" /> Back</button>}
+                        {o.status === 'NEW' && <button type="button" aria-label={`Reject ${o.number}`} className={cn(btn.danger, 'shrink-0 border border-primary/30 !min-h-10')} onClick={() => advance(o, 'CANCELLED')}><X className="size-4" /></button>}
                       </div>
                     )}
                   </li>

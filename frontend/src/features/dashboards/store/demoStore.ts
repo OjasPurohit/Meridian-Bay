@@ -5,16 +5,21 @@ import { SLOT_INTERVAL_MINUTES, SESSION_DURATION_MINUTES } from '@shared/constan
 import { applyDiscount, fromPaise, percentOf, toPaise } from '@shared/lib/money';
 import { istDate, slotStarts } from '@shared/lib/time';
 
+import { isBackendConfigured } from '@/api/client';
 import { seedState, STATE_VERSION } from './seed';
 import { ALL_MEMBERS, courts, memberById } from './staticData';
-import { DEMO_NOW, DEMO_TODAY, type BizProduct, type BizTx, type DBooking, type DCourt, type DemoState, type DEvent, type DInvoice, type DKOrder, type DMember, type DMenuItem, type DPayment, type DProduct, type DShopOrder, type Dealer, type OrderLine } from './types';
+import { DEMO_NOW, DEMO_TODAY, type DBooking, type DCourt, type DemoState, type DEvent, type DInvoice, type DKOrder, type DMember, type DMenuItem, type DPayment, type DProduct, type DShopOrder, type OrderLine } from './types';
 
 /* ------------------------------------------------------------------ store plumbing */
 const KEY = 'mb.demo.state';
+/** With a backend the database is the only copy of the data: nothing is read from or written to the browser (a copy kept
+ *  here would show changes that never reached the database, to every role that opens the app in this browser). */
+const PERSIST = !isBackendConfigured;
 let state: DemoState = load();
 const listeners = new Set<() => void>();
 
 function load(): DemoState {
+  if (!PERSIST) return seedState();
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) {
@@ -30,14 +35,14 @@ function load(): DemoState {
 function commit(next: DemoState) {
   state = next;
   try {
-    localStorage.setItem(KEY, JSON.stringify(next));
+    if (PERSIST) localStorage.setItem(KEY, JSON.stringify(next));
   } catch {
     /* storage full or blocked: keep working in memory */
   }
   listeners.forEach((l) => l());
 }
 
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && PERSIST) {
   // Another tab (e.g. the kitchen screen) changed the demo data → follow it.
   window.addEventListener('storage', (e) => {
     if (e.key === KEY && e.newValue) {
@@ -397,22 +402,6 @@ function payInvoice(id: string, method: PaymentMethod = 'ONLINE') {
   commit(s);
 }
 
-/* ---- the business client's own books */
-function saveBizProduct(p: Partial<BizProduct> & { name: string; price: number }) {
-  const existing = p.id ? state.bizProducts.find((x) => x.id === p.id) : undefined;
-  if (existing) commit({ ...state, bizProducts: state.bizProducts.map((x) => (x.id === existing.id ? { ...x, ...p } : x)) });
-  else commit({ ...state, bizProducts: [{ id: uid(), sku: p.sku ?? `TN-NEW-${Math.floor(Math.random() * 900 + 100)}`, category: p.category ?? 'General', description: p.description ?? '', cost: p.cost ?? Math.round(p.price * 0.6), stock: p.stock ?? 0, name: p.name, price: p.price }, ...state.bizProducts] });
-}
-const removeBizProduct = (id: string) => commit({ ...state, bizProducts: state.bizProducts.filter((p) => p.id !== id) });
-function saveDealer(d: Partial<Dealer> & { name: string }) {
-  const existing = d.id ? state.dealers.find((x) => x.id === d.id) : undefined;
-  if (existing) commit({ ...state, dealers: state.dealers.map((x) => (x.id === existing.id ? { ...x, ...d } : x)) });
-  else commit({ ...state, dealers: [{ id: uid(), contact: d.contact ?? '', phone: d.phone ?? '', email: d.email ?? '', city: d.city ?? '', since: DEMO_TODAY, status: 'ACTIVE', offers: d.offers ?? [], traded: 0, name: d.name }, ...state.dealers] });
-}
-function addBizTx(t: Omit<BizTx, 'id' | 'ref'>) {
-  commit({ ...state, bizTx: [{ ...t, id: uid(), ref: `TN-${t.type[0]}-${Math.floor(Math.random() * 9000 + 1000)}` }, ...state.bizTx] });
-}
-
 export function resetDemoData() {
   commit(seedState());
 }
@@ -437,15 +426,15 @@ const baseActions = {
   toggleEvent,
   addEvent,
   payInvoice,
-  saveBizProduct,
-  removeBizProduct,
-  saveDealer,
-  addBizTx,
   reset: resetDemoData,
 };
 
 /** Live mode (live.ts) sets `after` to send every action to the API; preview mode leaves it empty. */
-export const hooks: { after?: (action: string, args: unknown[], result: unknown) => void } = {};
+export const hooks: {
+  after?: (action: string, args: unknown[], result: unknown) => void;
+  /** Live mode: why an action cannot be saved right now (no session), or null. A blocked action changes nothing. */
+  blocked?: () => string | null;
+} = {};
 export const replaceState = (next: DemoState) => commit(next);
 
 type Actions = typeof baseActions;
@@ -453,6 +442,8 @@ export const demo = Object.fromEntries(
   Object.entries(baseActions).map(([name, fn]) => [
     name,
     (...args: unknown[]) => {
+      const why = name === 'reset' ? null : hooks.blocked?.() ?? null;
+      if (why) return fail('AUTH_UNAUTHORIZED', why);
       const result = (fn as (...a: unknown[]) => unknown)(...args);
       if (name !== 'reset') hooks.after?.(name, args, result);
       return result;

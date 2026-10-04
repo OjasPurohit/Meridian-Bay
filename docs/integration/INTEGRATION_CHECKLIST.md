@@ -32,7 +32,7 @@ npm run docs:build && git diff --exit-code   # generated files are committed and
 |---|---|---|
 | C1 | Login as each of the 5 roles → landing route | `/member`, `/front-desk`, `/kitchen`, `/business`, `/owner` |
 | C2 | No token on a private endpoint | `401 AUTH_UNAUTHORIZED`; UI → `/login` |
-| C3 | Role matrix: as MEMBER call `/reports/dashboard`, `/staff`, `/inventory`; as KITCHEN call `/bar/orders`, `/payments`; as FRONT_DESK call `/reports/finance`, `/staff/payroll?staff_id=other`; as BUSINESS_CLIENT call `/members` | all `403 FORBIDDEN` — compare with `docs/security/permissions.generated.json` |
+| C3 | Role matrix: as MEMBER call `/reports/dashboard`, `/staff`, `/inventory`; as KITCHEN call `/bar/orders`, `/payments`; as FRONT_DESK call `/reports/finance`, `/staff/payroll?staff_id=other`; as STORE_MANAGER call `/members` | all `403 FORBIDDEN` — compare with `docs/security/permissions.generated.json` |
 | C4 | Own-record scoping: member A requests member B's booking/order/payment/invoice by id | 403/404, never data |
 | C5 | Kitchen payload | contains **no** `unit_price`, `total_amount`, `discount_amount`, member contact fields |
 | C6 | `GET /auth/me` / any user payload | no `password_hash` |
@@ -55,7 +55,7 @@ npm run docs:build && git diff --exit-code   # generated files are committed and
 | D9 | Free (Gold) booking | no payment row; `payment_status = NOT_REQUIRED` |
 | D10 | Partial invoice payment | `invoice_totals.amount_paid` increases; `payment_state` `PARTIALLY_PAID`; second payment completes → `PAID`; over-payment rejected |
 | D11 | Revenue reconciliation: dashboard `revenue.total` for MONTH | equals `SELECT sum(amount - refunded_amount) FROM payments …` and equals the sum of its `by_category` and of its `by_method` |
-| D12 | **Order states:** kitchen jumps NEW → SERVED | `409 INVALID_STATUS_TRANSITION`; the legal path NEW → PREPARING → READY → SERVED works |
+| D12 | **Order states:** kitchen jumps NEW → SERVED | `409 INVALID_STATUS_TRANSITION`; the legal path NEW → PREPARING → READY → SERVED works (and READY → PREPARING) |
 | D13 | Shop order: `READY_FOR_PICKUP` on a DELIVERY order | rejected |
 | D14 | Cafe order paid on its own | one `BAR_ORDER` payment equals the order total (`bar_order_totals.total_amount`); `payment_status` PAID |
 | D15 | Member bar discount | Priya (Gold) order shows 15 % off automatically; guest none |

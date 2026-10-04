@@ -30,6 +30,7 @@ export function LoginForm({ idPrefix, firstFieldRef, onDone, compact }: Props) {
     try {
       const s = await login({ email: String(f.get('email') ?? '').trim(), password: String(f.get('password') ?? '') });
       onDone?.();
+      // a pending job applicant gets the "under review" page only: the server sent no session for them
       navigate(s.redirect_to);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.');

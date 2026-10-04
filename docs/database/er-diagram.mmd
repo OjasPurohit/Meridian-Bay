@@ -2,7 +2,6 @@
 erDiagram
   users ||--o{ members : "user_id"
   users ||--o{ staff : "user_id"
-  users ||--o{ business_clients : "user_id"
   members ||--o{ memberships : "member_id"
   membership_plans ||--o{ memberships : "membership_plan_id"
   membership_plans ||--o{ enquiries : "membership_plan_id"
@@ -23,6 +22,9 @@ erDiagram
   staff ||--o{ staff_shifts : "staff_id"
   staff ||--o{ leave_requests : "staff_id"
   staff ||--o{ payroll_payments : "staff_id"
+  users ||--o{ employee_applications : "reviewed_by_user_id"
+  events ||--o{ event_registrations : "event_id"
+  members ||--o{ event_registrations : "member_id"
   users {
     uuid id PK
     text email
@@ -39,7 +41,6 @@ erDiagram
   }
   business_clients {
     uuid id PK
-    uuid user_id FK
     text email
   }
   membership_plans {
@@ -138,4 +139,21 @@ erDiagram
   }
   club_settings {
     uuid id PK
+  }
+  employee_applications {
+    uuid id PK
+    text full_name
+    text email
+    application_status status
+    uuid reviewed_by_user_id FK
+  }
+  events {
+    uuid id PK
+    timestamptz start_at
+    timestamptz end_at
+  }
+  event_registrations {
+    uuid id PK
+    uuid event_id FK
+    uuid member_id FK
   }

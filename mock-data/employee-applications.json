@@ -1,0 +1,54 @@
+[
+  {
+    "id": "17000000-0000-4000-8000-000000000001",
+    "full_name": "Devika Rao",
+    "email": "devika.rao@example.com",
+    "phone": "+919811200001",
+    "password_hash": "$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q",
+    "status": "PENDING",
+    "approved_role": null,
+    "applied_at": "2026-10-02T06:00:00.000Z",
+    "reviewed_at": null,
+    "reviewed_by_user_id": null,
+    "decision_note": null
+  },
+  {
+    "id": "17000000-0000-4000-8000-000000000002",
+    "full_name": "Manish Kulkarni",
+    "email": "manish.kulkarni@example.com",
+    "phone": "+919811200002",
+    "password_hash": "$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q",
+    "status": "PENDING",
+    "approved_role": null,
+    "applied_at": "2026-10-01T06:00:00.000Z",
+    "reviewed_at": null,
+    "reviewed_by_user_id": null,
+    "decision_note": null
+  },
+  {
+    "id": "17000000-0000-4000-8000-000000000003",
+    "full_name": "Zoya Khan",
+    "email": "zoya.khan@example.com",
+    "phone": "+919811200003",
+    "password_hash": null,
+    "status": "REJECTED",
+    "approved_role": null,
+    "applied_at": "2026-09-13T06:00:00.000Z",
+    "reviewed_at": "2026-09-15T10:30:00.000Z",
+    "reviewed_by_user_id": "01000000-0000-4000-8000-000000000001",
+    "decision_note": "No opening for this role at the moment."
+  },
+  {
+    "id": "17000000-0000-4000-8000-000000000004",
+    "full_name": "Pooja Iyer",
+    "email": "pooja.iyer@championsclub.example",
+    "phone": "+919820000004",
+    "password_hash": null,
+    "status": "APPROVED",
+    "approved_role": "FRONT_DESK",
+    "applied_at": "2025-09-18T06:00:00.000Z",
+    "reviewed_at": "2025-09-20T10:30:00.000Z",
+    "reviewed_by_user_id": "01000000-0000-4000-8000-000000000001",
+    "decision_note": null
+  }
+]

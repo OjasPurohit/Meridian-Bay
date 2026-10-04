@@ -44,7 +44,9 @@ interface PgErrorLike {
  *  the other unique rules of the schema, mapped to the code the API contract lists for them. */
 const UNIQUE_VIOLATIONS: Record<string, ErrorCode> = {
   users_email_key: 'EMAIL_TAKEN',
+  employee_applications_pending_email_key: 'APPLICATION_PENDING',
   products_sku_key: 'SKU_TAKEN',
+  courts_name_key: 'COURT_NAME_TAKEN',
   payroll_payments_staff_id_pay_period_key: 'PAYROLL_EXISTS',
   staff_shifts_staff_id_shift_date_start_time_key: 'SHIFT_OVERLAP',
   membership_plans_membership_type_duration_months_key: 'VALIDATION_ERROR',

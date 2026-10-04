@@ -59,8 +59,8 @@ await run('reset refused for a non-local host (Supabase-like URL)', 'database/re
 await run('reset (local, ALLOW_DB_RESET=true) rebuilds + reseeds', 'database/reset.mjs', [], { ALLOW_DB_RESET: 'true' });
 const n = (await db.query('SELECT count(*)::int AS n FROM payments')).rows[0].n;
 const m = (await db.query('SELECT count(*)::int AS n FROM schema_migrations')).rows[0].n;
-console.log(`  ${n > 0 && m === 4 ? '✔' : '✘'} after reset: payments=${n}, schema_migrations=${m}`);
-if (!(n > 0 && m === 4)) fails++;
+console.log(`  ${n > 0 && m === 7 ? '✔' : '✘'} after reset: payments=${n}, schema_migrations=${m}`);
+if (!(n > 0 && m === 7)) fails++;
 
 await server.stop();
 await db.close();

@@ -101,7 +101,7 @@ Exactly **five** login roles (`USER_ROLE`); the other two actors need no role.
 | **MEMBER** | `users.role = MEMBER` + `members` row | `/member` | **Gold / Silver / Junior are not roles**: they are `membership_plans.membership_type`, attached via `memberships`. Benefits are data. |
 | **FRONT_DESK** | `users` + `staff` | `/front-desk` | registers members, bookings, the enquiry inbox, runs the shop counter and cafe orders, sees schedules |
 | **KITCHEN_MANAGER** | `users` + `staff` | `/kitchen` | kitchen board only: incoming → preparing → ready → served |
-| **BUSINESS_CLIENT** | `users` + `business_clients` | `/business` | invoices, payments, transaction history |
+| **STORE_MANAGER** | `users` + `staff` | `/store-manager` | products, stock, shop orders (employee; applies on the sign-up page and is approved by the owner) |
 | **OWNER_ADMIN** | `users` + `staff` | `/owner` | everything: products/stock, plans, courts, menu, finance, invoices, staff/HR, leave approval, reports, settings |
 
 There is deliberately **no Shop Staff role** (shop/inventory = Owner; counter sales = Front Desk) and **one** kitchen role (ADR-003).

@@ -20,9 +20,9 @@ const caller = (req: Express.Request) => {
   return req.user;
 };
 const enumOf = <T extends Record<string, string>>(o: T) => z.enum(Object.values(o) as [string, ...string[]]) as unknown as z.ZodType<T[keyof T]>;
-const owner = [requireAuth, requireRole(R.OWNER_ADMIN)];
-const buyers = [requireAuth, requireRole(R.MEMBER, R.FRONT_DESK, R.OWNER_ADMIN)];
-const staff = [requireAuth, requireRole(R.FRONT_DESK, R.OWNER_ADMIN)];
+const owner = [requireAuth, requireRole(R.STORE_MANAGER, R.OWNER_ADMIN)];
+const buyers = [requireAuth, requireRole(R.MEMBER, R.FRONT_DESK, R.STORE_MANAGER, R.OWNER_ADMIN)];
+const staff = [requireAuth, requireRole(R.FRONT_DESK, R.STORE_MANAGER, R.OWNER_ADMIN)];
 const text = (n: number) => z.string().trim().min(1).max(n);
 const productFields = { name: text(200), category: enumOf(PRODUCT_CATEGORY), brand: text(100), description: text(2000), price: money, image_url: text(500), low_stock_threshold: z.number().int().min(0).max(100000) };
 

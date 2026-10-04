@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 
 import type { MembershipPlan } from '@shared/types/rows';
-import { listPlans } from '@/api/public';
+import { listMenu, listPlans } from '@/api/public';
 import { ActionLink } from '@/components/ui/button';
 import { formatRupees } from '@/lib/format';
 import { useReveal } from '@/lib/useReveal';
 import { cn } from '@/lib/utils';
-import { MENU, type MenuSection } from '../menu';
+import { buildMenuSections, type MenuSection } from '../menu';
 
 const wrap = 'mx-auto w-full max-w-[1440px] px-5 md:px-10';
 
@@ -29,7 +29,7 @@ function MenuBlock({ section }: { section: MenuSection }) {
               {g.label && <h3 className="eyebrow mb-2 text-terracotta">{g.label}</h3>}
               <ul className={cn(section.groups.length === 1 && items > 4 && 'md:columns-2 md:gap-12')}>
                 {g.items.map((m) => (
-                  <li key={m.name} className="break-inside-avoid border-b border-line py-4">
+                  <li key={m.id} className="break-inside-avoid border-b border-line py-4">
                     <div className="flex items-baseline gap-3">
                       <span className="mt-1 inline-flex size-3 shrink-0 items-center justify-center border border-olive-mid" aria-hidden="true">
                         <span className="size-1.5 rounded-full bg-olive-mid" />
@@ -55,11 +55,33 @@ function MenuBlock({ section }: { section: MenuSection }) {
 
 export default function BarCafePage() {
   const [plans, setPlans] = useState<MembershipPlan[]>([]);
+  const [menu, setMenu] = useState<MenuSection[] | null>(null);
+  const [menuError, setMenuError] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
     listPlans().then(setPlans);
   }, []);
-  useReveal(root, []);
+  // The menu is the database's menu: fetched on arrival and again whenever the tab regains focus (no polling timer), so
+  // an item the kitchen changed shows up without a restart.
+  useEffect(() => {
+    let on = true;
+    const load = () =>
+      listMenu()
+        .then((items) => {
+          if (!on) return;
+          setMenu(buildMenuSections(items));
+          setMenuError(false);
+        })
+        .catch(() => on && setMenuError(true));
+    void load();
+    const onVisible = () => document.visibilityState === 'visible' && void load();
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      on = false;
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, []);
+  useReveal(root, [menu]);
 
   const discounts = plans.filter((p) => parseFloat(p.bar_discount_percent) > 0);
 
@@ -99,7 +121,7 @@ export default function BarCafePage() {
 
       <nav aria-label="Menu sections" className="sticky top-18 z-30 border-b border-line bg-chalk/95">
         <ul className={cn(wrap, 'flex gap-1 overflow-x-auto py-2 [scrollbar-width:none]')}>
-          {MENU.map((s) => (
+          {(menu ?? []).map((s) => (
             <li key={s.id} className="shrink-0">
               <a href={`#${s.id}`} className="inline-flex min-h-11 items-center rounded-full px-4 text-sm font-semibold whitespace-nowrap text-ink/75 transition-colors hover:bg-sand hover:text-ink">
                 {s.title}
@@ -110,7 +132,17 @@ export default function BarCafePage() {
       </nav>
 
       <div className={wrap}>
-        {MENU.map((s) => (
+        {menuError && !menu && (
+          <p role="alert" className="border-t border-line py-14 text-muted">
+            The menu can’t be loaded right now. Please try again in a moment.
+          </p>
+        )}
+        {!menu && !menuError && (
+          <p role="status" className="border-t border-line py-14 text-muted">
+            Loading the menu…
+          </p>
+        )}
+        {(menu ?? []).map((s) => (
           <MenuBlock key={s.id} section={s} />
         ))}
 
@@ -120,9 +152,9 @@ export default function BarCafePage() {
               <span className="inline-flex size-3 shrink-0 items-center justify-center border border-olive-mid" aria-hidden="true">
                 <span className="size-1.5 rounded-full bg-olive-mid" />
               </span>
-              Vegetarian. Every item on this menu carries the vegetarian mark.
+              Made fresh to order at the bar &amp; café.
             </p>
-            <p>Prices are as listed on the café menu and are exclusive of taxes. Ask the team about allergens.</p>
+            <p>Prices include GST. Ask the team about allergens.</p>
           </div>
           <ActionLink to="/membership" variant="secondary">
             Member discounts

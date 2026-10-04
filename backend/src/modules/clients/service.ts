@@ -1,10 +1,8 @@
 /**
- * Business rules + transactions for business clients (FR-INVC-001, FR-INVC-008, FR-AUTH-007; R-INVC-05).
+ * Business rules + transactions for business clients (FR-INVC-001; R-INVC-05).
  * No SQL here (repo.ts) and no HTTP here (routes.ts).
  */
-import bcrypt from 'bcryptjs';
 import type { BusinessClientDetail } from '@shared/types/api';
-import { getConfig } from '../../config';
 import { withTransaction } from '../../kernel/db';
 import { AppError } from '../../kernel/errors';
 import { offsetOf } from '../../kernel/validate';
@@ -25,24 +23,9 @@ export const ClientsService = {
     return client;
   },
 
-  /** clients.me: the client whose portal login is the caller (own-record scoping by users.id). */
-  async me(user_id: string): Promise<BusinessClientDetail> {
-    const client = await repo.findByUserId(repo.pool, user_id);
-    if (!client) throw notFound();
-    return client;
-  },
-
-  /** One transaction: [portal user] + client. A duplicate login email rolls back both (EMAIL_TAKEN). */
   async create(body: ClientsCreateRequest): Promise<BusinessClientDetail> {
-    // Hash before opening the transaction: bcrypt is CPU-bound and must not hold a connection.
-    const password_hash = body.create_login ? await bcrypt.hash(body.initial_password!, getConfig().bcrypt_rounds) : null;
-
     return withTransaction(async (tx) => {
-      const user_id = password_hash
-        ? await repo.insertPortalUser(tx, { email: body.email, password_hash, full_name: body.contact_name, phone: body.phone ?? null })
-        : null;
       const id = await repo.insertClient(tx, {
-        user_id,
         company_name: body.company_name,
         contact_name: body.contact_name,
         email: body.email,
@@ -51,8 +34,7 @@ export const ClientsService = {
         billing_address: body.billing_address ?? null,
         notes: body.notes ?? null,
       });
-      const client = await repo.findById(tx, id);
-      return client!;
+      return (await repo.findById(tx, id))!;
     });
   },
 

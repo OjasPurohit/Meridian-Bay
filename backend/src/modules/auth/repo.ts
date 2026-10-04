@@ -1,6 +1,6 @@
 /** SQL for authentication: the `users` row plus the profile (member / staff / business client) the role points at. */
 import type { StaffView } from '@shared/types/api';
-import type { BusinessClient, User } from '@shared/types/rows';
+import type { EmployeeApplication, User } from '@shared/types/rows';
 import type { Tx } from '../../kernel/db';
 
 export async function findUserByEmail(db: Tx, email: string): Promise<User | null> {
@@ -23,8 +23,9 @@ export async function staffByUserId(db: Tx, user_id: string): Promise<StaffView 
   return rows[0] ?? null;
 }
 
-export async function businessClientByUserId(db: Tx, user_id: string): Promise<BusinessClient | null> {
-  const { rows } = await db.query<BusinessClient>('SELECT * FROM business_clients WHERE user_id = $1', [user_id]);
+/** The PENDING job application for an email (the only kind that still holds a password hash). */
+export async function pendingApplicationByEmail(db: Tx, email: string): Promise<EmployeeApplication | null> {
+  const { rows } = await db.query<EmployeeApplication>("SELECT * FROM employee_applications WHERE lower(email) = lower($1) AND status = 'PENDING'", [email]);
   return rows[0] ?? null;
 }
 

@@ -10,7 +10,7 @@ One unified platform for **The Champions Club** (tennis/cricket/padel/badminton 
 
 ## 2. Problem statement
 
-Source: *Sports Club Management System* (provided PDF; the primary source of truth). Eight "scenes" — a new member walks in; booking a court on a busy evening; gearing up before a match; after the match at the bar; a stranger finds the club online; the owner at the end of the month — are translated into **113 functional requirements** with IDs (`FR-COURT-008` …), each traced to a user, module, API and database entity: [REQUIREMENTS.md](docs/requirements/REQUIREMENTS.md) · [TRACEABILITY_MATRIX.md](docs/requirements/TRACEABILITY_MATRIX.md) (includes a line-by-line **coverage check** of the brief). Where the brief is silent we record a decision instead of silently inventing: [ASSUMPTIONS.md](docs/ASSUMPTIONS.md).
+Source: *Sports Club Management System* (provided PDF; the primary source of truth). Eight "scenes" — a new member walks in; booking a court on a busy evening; gearing up before a match; after the match at the bar; a stranger finds the club online; the owner at the end of the month — are translated into **117 functional requirements** with IDs (`FR-COURT-008` …), each traced to a user, module, API and database entity: [REQUIREMENTS.md](docs/requirements/REQUIREMENTS.md) · [TRACEABILITY_MATRIX.md](docs/requirements/TRACEABILITY_MATRIX.md) (includes a line-by-line **coverage check** of the brief). Where the brief is silent we record a decision instead of silently inventing: [ASSUMPTIONS.md](docs/ASSUMPTIONS.md).
 
 ## 3. Architecture
 
@@ -20,15 +20,15 @@ Actors → public website + role dashboards → authentication/authorisation →
 
 ## 4. Users and roles
 
-Seven actors, **five logins**: `MEMBER` (Gold / Silver / Junior are *plans*, not roles), `FRONT_DESK`, `KITCHEN_MANAGER`, `BUSINESS_CLIENT`, `OWNER_ADMIN`; plus the online **visitor** and the walk-in **guest** (no login; served by staff). After login the user lands on their dashboard (`/member`, `/front-desk`, `/kitchen`, `/business`, `/owner`). Permissions: [PERMISSIONS_MATRIX.md](docs/security/PERMISSIONS_MATRIX.md) (generated from the API definition).
+Seven actors, **five logins**: `MEMBER` (Gold / Silver / Junior are *plans*, not roles), `FRONT_DESK`, `KITCHEN_MANAGER`, `STORE_MANAGER`, `OWNER_ADMIN`; plus the online **visitor** and the walk-in **guest** (no login; served by staff). After login the user lands on their dashboard (`/member`, `/front-desk`, `/kitchen`, `/store-manager`, `/owner`). Permissions: [PERMISSIONS_MATRIX.md](docs/security/PERMISSIONS_MATRIX.md) (generated from the API definition).
 
 ## 5. Modules
 
-Membership · Court booking · Shop · Inventory · Cafe · Kitchen · Enquiries · Finance/Payments · Invoicing/Business clients · Staff/HR · Reporting · Settings — 100 endpoints across 17 API modules. Flows (18, with Mermaid): [USER_FLOWS.md](docs/workflows/USER_FLOWS.md) · [workflows.mmd](docs/workflows/workflows.mmd).
+Membership · Court booking · Shop · Inventory · Cafe · Kitchen · Enquiries · Finance/Payments · Invoicing/Business clients · Staff/HR · Reporting · Settings · Events — 109 endpoints across 18 API modules. Flows (18, with Mermaid): [USER_FLOWS.md](docs/workflows/USER_FLOWS.md) · [workflows.mmd](docs/workflows/workflows.mmd).
 
 ## 6. Database
 
-One canonical schema = `database/migrations/*.sql` (22 tables, 22 enums). Docs: [DATABASE_SCHEMA.md](docs/database/DATABASE_SCHEMA.md) · [er-diagram.mmd](docs/database/er-diagram.mmd) · [schema.sql](docs/database/schema.sql) (generated snapshot) · how migrations/seeds work: [database/README.md](database/README.md). Highlights: exclusion constraint = **no double booking**; `CHECK (stock_quantity >= 0)` + atomic decrement = **no overselling**; `payments` = **one revenue ledger**; `memberships` rows = **membership history**.
+One canonical schema = `database/migrations/*.sql` (25 tables, 24 enums). Docs: [DATABASE_SCHEMA.md](docs/database/DATABASE_SCHEMA.md) · [er-diagram.mmd](docs/database/er-diagram.mmd) · [schema.sql](docs/database/schema.sql) (generated snapshot) · how migrations/seeds work: [database/README.md](database/README.md). Highlights: exclusion constraint = **no double booking**; `CHECK (stock_quantity >= 0)` + atomic decrement = **no overselling**; `payments` = **one revenue ledger**; `memberships` rows = **membership history**.
 
 ## 7. API
 

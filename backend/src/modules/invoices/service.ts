@@ -17,7 +17,6 @@ const NOBODY = '00000000-0000-0000-0000-000000000000';
 function canSee(user: AuthUser, v: InvoiceView): boolean {
   if (user.role === USER_ROLE.OWNER_ADMIN) return true;
   if (v.status === 'DRAFT') return false;
-  if (user.role === USER_ROLE.BUSINESS_CLIENT) return v.business_client_id !== null && v.business_client_id === user.business_client_id;
   if (user.role === USER_ROLE.MEMBER) return v.member_id !== null && v.member_id === user.member_id;
   return false;
 }
@@ -30,8 +29,7 @@ export const InvoicesService = {
       filter.member_id = input.member_id;
     } else {
       filter.hide_drafts = true;
-      if (user.role === USER_ROLE.BUSINESS_CLIENT) filter.business_client_id = user.business_client_id ?? NOBODY;
-      else filter.member_id = user.member_id ?? NOBODY;
+      filter.member_id = user.member_id ?? NOBODY;
     }
     return repo.list(repo.pool, filter, input.page_size, offsetOf(input));
   },

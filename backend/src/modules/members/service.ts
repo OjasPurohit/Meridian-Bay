@@ -21,7 +21,7 @@ import { recordPayment } from '../payments/service';
 import * as repo from './repo';
 
 const today = () => istDate(new Date());
-const isStaff = (u: AuthUser) => u.role !== USER_ROLE.MEMBER && u.role !== USER_ROLE.BUSINESS_CLIENT;
+const isStaff = (u: AuthUser) => u.role !== USER_ROLE.MEMBER;
 
 function ageOn(dob: string, date: string): number {
   const [y, m, d] = dob.split('-').map(Number) as [number, number, number];

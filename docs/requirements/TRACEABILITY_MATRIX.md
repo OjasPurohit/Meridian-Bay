@@ -8,19 +8,20 @@ Every requirement → user(s) → module → API → database entity. API and ta
 
 | Requirement | Pri | User(s) | Module | API | Database entities |
 |---|---|---|---|---|---|
-| FR-AUTH-001 | MUST | Visitor | Authentication & access | `POST /auth/signup` | `users`, `members` |
-| FR-AUTH-002 | MUST | All | Authentication & access | `POST /auth/login`<br>`GET /auth/me` | `users`, `members`, `staff`, `business_clients` |
-| FR-AUTH-003 | MUST | Visitor | Authentication & access | `POST /auth/login` | `users` |
+| FR-AUTH-001 | MUST | Visitor | Authentication & access | `POST /auth/signup` | `users`, `members`, `memberships`, `payments` |
+| FR-AUTH-002 | MUST | All | Authentication & access | `POST /auth/login`<br>`GET /auth/me` | `users`, `employee_applications`, `members`, `staff` |
+| FR-AUTH-003 | MUST | Visitor | Authentication & access | `POST /auth/login` | `users`, `employee_applications` |
 | FR-AUTH-004 | SHOULD | All | Authentication & access | `POST /auth/logout` | — |
 | FR-AUTH-005 | MUST | All | Authentication & access | *UI only / cross-cutting* | — |
 | FR-AUTH-006 | SHOULD | All | Authentication & access | `POST /auth/change-password` | `users` |
-| FR-AUTH-007 | MUST | Owner | Authentication & access | `POST /business-clients`<br>`POST /staff` | `business_clients`, `users`, `staff` |
+| FR-AUTH-007 | MUST | Owner | Authentication & access | `POST /staff` | `users`, `staff` |
+| FR-AUTH-008 | MUST | Visitor, Owner | Authentication & access | `POST /auth/login`<br>`POST /staff/applications` | `users`, `employee_applications` |
 | FR-PUB-001 | MUST | Visitor | Public website | `GET /public/club` | `club_settings`, `courts` |
 | FR-PUB-002 | MUST | Visitor | Public website | `GET /memberships/plans` | `membership_plans` |
 | FR-PUB-003 | MUST | Visitor | Public website | `GET /courts`<br>`GET /courts/availability` | `courts`, `court_bookings` |
 | FR-PUB-004 | MUST | Visitor | Public website | `GET /shop/products` | `products` |
 | FR-PUB-005 | SHOULD | Visitor | Public website | `GET /bar/menu` | `bar_menu_items` |
-| FR-PUB-006 | MUST | Visitor | Public website | `POST /enquiries` | `enquiries` |
+| FR-PUB-006 | MUST | Visitor | Public website | `POST /bookings/trial`<br>`POST /enquiries` | `court_bookings`, `enquiries` |
 | FR-PUB-007 | MUST | Visitor | Public website | `GET /public/club` | `club_settings`, `courts` |
 | FR-MEM-001 | MUST | Front desk | Membership | `POST /members` | `users`, `members`, `memberships`, `payments` |
 | FR-MEM-002 | MUST | Front desk | Membership | `GET /members` | `members`, `users`, `memberships`, `membership_plans` |
@@ -32,14 +33,14 @@ Every requirement → user(s) → module → API → database entity. API and ta
 | FR-MEM-008 | MUST | Front desk | Membership | `POST /memberships/:id/change-plan` | `memberships`, `payments` |
 | FR-MEM-009 | SHOULD | Owner | Membership | `POST /memberships/:id/cancel` | `memberships` |
 | FR-MEM-011 | MUST | Owner | Membership | `GET /memberships/plans`<br>`POST /memberships/plans`<br>`PATCH /memberships/plans/:id` | `membership_plans` |
-| FR-MEM-012 | MUST | System | Membership | `POST /members`<br>`POST /memberships`<br>`POST /memberships/:id/change-plan` | `users`, `members`, `memberships`, `payments` |
+| FR-MEM-012 | MUST | System | Membership | `POST /auth/signup`<br>`POST /members`<br>`POST /memberships`<br>`POST /memberships/:id/change-plan` | `users`, `members`, `memberships`, `payments` |
 | FR-MEM-013 | SHOULD | Member | Membership | `PATCH /members/:id` | `members`, `users` |
 | FR-MEM-014 | SHOULD | Owner | Membership | `GET /reports/dashboard`<br>`GET /reports/memberships` | `payments`, `memberships`, `court_bookings`, `shop_orders`, `bar_orders`, `enquiries`, `invoices`, `payroll_payments`, `leave_requests`, `products`, `members` |
 | FR-MEM-015 | NICE | Front desk | Membership | *UI only / cross-cutting* | — |
 | FR-COURT-001 | MUST | Visitor, Member, Staff | Court booking | `GET /courts` | `courts` |
 | FR-COURT-002 | MUST | Visitor, Member, Staff | Court booking | `GET /courts/availability` | `courts`, `court_bookings` |
 | FR-COURT-003 | MUST | System | Court booking | `GET /courts/availability`<br>`POST /bookings` | `courts`, `court_bookings`, `payments` |
-| FR-COURT-004 | MUST | Member | Court booking | `POST /bookings` | `court_bookings`, `payments` |
+| FR-COURT-004 | MUST | Member | Court booking | `POST /bookings`<br>`POST /bookings/trial` | `court_bookings`, `payments` |
 | FR-COURT-005 | MUST | Front desk | Court booking | `POST /bookings` | `court_bookings`, `payments` |
 | FR-COURT-006 | MUST | Front desk | Court booking | `POST /bookings` | `court_bookings`, `payments` |
 | FR-COURT-007 | MUST | System | Court booking | `GET /bookings/price`<br>`POST /bookings` | `courts`, `memberships`, `membership_plans`, `court_bookings`, `payments` |
@@ -51,6 +52,8 @@ Every requirement → user(s) → module → API → database entity. API and ta
 | FR-COURT-013 | SHOULD | Owner | Court booking | `POST /courts/:id/blocks`<br>`DELETE /courts/blocks/:booking_id` | `court_bookings` |
 | FR-COURT-015 | MUST | Owner | Court booking | `POST /courts`<br>`PATCH /courts/:id` | `courts` |
 | FR-COURT-016 | MUST | Front desk, Owner | Court booking | `GET /bookings`<br>`GET /bookings/:id` | `court_bookings`, `courts`, `members` |
+| FR-EVT-001 | MUST | Owner | Club events | `POST /events` | `events` |
+| FR-EVT-002 | MUST | Member | Club events | `GET /events`<br>`POST /events/:id/registrations`<br>`DELETE /events/:id/registrations` | `events`, `event_registrations` |
 | FR-SHOP-001 | MUST | Visitor, Member | Shop | `GET /shop/products`<br>`GET /shop/products/:id` | `products` |
 | FR-SHOP-002 | MUST | Owner | Shop | `POST /shop/products`<br>`PATCH /shop/products/:id`<br>`DELETE /shop/products/:id` | `products` |
 | FR-SHOP-003 | MUST | Front desk | Shop | `POST /shop/orders` | `shop_orders`, `shop_order_items`, `products`, `payments` |
@@ -66,8 +69,8 @@ Every requirement → user(s) → module → API → database entity. API and ta
 | FR-INV-002 | MUST | Front desk, Owner | Inventory | `GET /inventory`<br>`GET /inventory/low-stock` | `products` |
 | FR-INV-003 | MUST | Owner | Inventory | `POST /shop/products`<br>`POST /inventory/adjustments` | `products` |
 | FR-BAR-001 | MUST | Visitor, Member | Cafe | `GET /bar/menu` | `bar_menu_items` |
-| FR-BAR-003 | MUST | Front desk | Cafe | `POST /bar/orders` | `bar_orders`, `bar_order_items`, `payments` |
-| FR-BAR-004 | MUST | System | Cafe | `POST /bar/orders` | `bar_orders`, `bar_order_items`, `payments` |
+| FR-BAR-003 | MUST | Front desk | Cafe | `GET /bar/member-lookup`<br>`POST /bar/orders` | `members`, `users`, `memberships`, `membership_plans`, `bar_orders`, `bar_order_items`, `payments` |
+| FR-BAR-004 | MUST | System | Cafe | `GET /bar/member-lookup`<br>`POST /bar/orders` | `members`, `users`, `memberships`, `membership_plans`, `bar_orders`, `bar_order_items`, `payments` |
 | FR-BAR-005 | MUST | System | Cafe | `POST /bar/orders` | `bar_orders`, `bar_order_items`, `payments` |
 | FR-BAR-008 | MUST | Front desk | Cafe | `POST /bar/orders` | `bar_orders`, `bar_order_items`, `payments` |
 | FR-BAR-009 | MUST | Front desk, Owner | Cafe | `GET /bar/orders`<br>`GET /bar/daily-summary`<br>`GET /reports/bar` | `bar_orders`, `bar_order_items`, `payments`, `staff_shifts` |
@@ -95,14 +98,14 @@ Every requirement → user(s) → module → API → database entity. API and ta
 | FR-FIN-008 | MUST | Owner | Finance & payments | `GET /staff/payroll`<br>`POST /staff/payroll`<br>`POST /staff/payroll/:id/pay`<br>`GET /reports/finance` | `payroll_payments`, `staff`, `payments`, `invoices` |
 | FR-FIN-009 | MUST | Owner | Finance & payments | `GET /reports/dashboard` | `payments`, `memberships`, `court_bookings`, `shop_orders`, `bar_orders`, `enquiries`, `invoices`, `payroll_payments`, `leave_requests`, `products` |
 | FR-FIN-010 | SHOULD | Member, Business client | Finance & payments | `POST /payments` | `payments`, `court_bookings`, `shop_orders`, `bar_orders`, `invoices` |
-| FR-INVC-001 | MUST | Owner | Business clients & invoicing | `GET /business-clients`<br>`POST /business-clients`<br>`GET /business-clients/:id`<br>`PATCH /business-clients/:id` | `business_clients`, `invoices`, `users` |
+| FR-INVC-001 | MUST | Owner | Business clients & invoicing | `GET /business-clients`<br>`POST /business-clients`<br>`GET /business-clients/:id`<br>`PATCH /business-clients/:id` | `business_clients`, `invoices` |
 | FR-INVC-002 | MUST | Owner | Business clients & invoicing | `POST /invoices`<br>`PATCH /invoices/:id` | `invoices`, `invoice_items` |
 | FR-INVC-003 | MUST | Owner | Business clients & invoicing | `POST /invoices`<br>`POST /invoices/:id/send` | `invoices`, `invoice_items` |
 | FR-INVC-004 | MUST | Business client, Owner | Business clients & invoicing | `POST /payments` | `payments`, `court_bookings`, `shop_orders`, `bar_orders`, `invoices` |
 | FR-INVC-005 | MUST | Business client | Business clients & invoicing | `GET /invoices`<br>`GET /invoices/:id`<br>`GET /payments` | `invoices`, `invoice_items`, `payments` |
 | FR-INVC-006 | SHOULD | Owner | Business clients & invoicing | `POST /invoices` | `invoices`, `invoice_items` |
 | FR-INVC-007 | SHOULD | Owner | Business clients & invoicing | `POST /invoices/:id/void` | `invoices`, `payments` |
-| FR-INVC-008 | MUST | Business client | Business clients & invoicing | `GET /business-clients/me`<br>`GET /invoices`<br>`GET /invoices/:id` | `business_clients`, `invoices`, `invoice_items`, `payments` |
+| FR-INVC-008 | MUST | Business client | Business clients & invoicing | `GET /invoices`<br>`GET /invoices/:id` | `invoices`, `invoice_items`, `payments` |
 | FR-INVC-009 | SHOULD | System | Business clients & invoicing | `GET /invoices` | `invoices`, `invoice_items`, `payments` |
 | FR-STAFF-001 | MUST | Owner | Staff / HR | `GET /staff`<br>`POST /staff`<br>`GET /staff/:id`<br>`PATCH /staff/:id` | `staff`, `users` |
 | FR-STAFF-002 | MUST | Owner | Staff / HR | `GET /staff/shifts`<br>`POST /staff/shifts`<br>`PATCH /staff/shifts/:id`<br>`DELETE /staff/shifts/:id` | `staff_shifts`, `staff` |
@@ -110,6 +113,7 @@ Every requirement → user(s) → module → API → database entity. API and ta
 | FR-STAFF-004 | MUST | Owner | Staff / HR | `GET /staff/leave-requests`<br>`POST /staff/leave-requests/:id/decision` | `leave_requests`, `staff` |
 | FR-STAFF-005 | SHOULD | Front desk | Staff / HR | `GET /staff/shifts` | `staff_shifts`, `staff` |
 | FR-STAFF-006 | MUST | Owner | Staff / HR | `GET /staff/payroll`<br>`POST /staff/payroll`<br>`POST /staff/payroll/:id/pay` | `payroll_payments`, `staff` |
+| FR-STAFF-008 | MUST | Owner | Staff / HR | `POST /staff/applications`<br>`GET /staff/applications`<br>`POST /staff/applications/:id/approve`<br>`POST /staff/applications/:id/reject` | `employee_applications`, `users`, `staff` |
 | FR-STAFF-007 | SHOULD | Front desk, Kitchen manager | Staff / HR | `GET /staff/:id`<br>`GET /staff/shifts`<br>`GET /staff/payroll` | `staff`, `staff_shifts`, `payroll_payments` |
 | FR-REP-001 | MUST | Owner | Reporting | `GET /reports/dashboard` | `payments`, `memberships`, `court_bookings`, `shop_orders`, `bar_orders`, `enquiries`, `invoices`, `payroll_payments`, `leave_requests`, `products` |
 | FR-REP-002 | MUST | Owner | Reporting | `GET /reports/revenue` | `payments` |
@@ -127,27 +131,27 @@ Every requirement → user(s) → module → API → database entity. API and ta
 | Requirement | Pri | Delivered by | Modules | Database entities |
 |---|---|---|---|---|
 | UR-VIS-001 | MUST | FR-PUB-001, FR-PUB-002, FR-PUB-003, FR-PUB-004, FR-PUB-005, FR-PUB-006, FR-PUB-007, FR-ENQ-001, FR-ENQ-002 | Public website, Enquiries | `club_settings`, `courts`, `membership_plans`, `court_bookings`, `products`, `bar_menu_items`, `enquiries` |
-| UR-VIS-002 | MUST | FR-AUTH-001, FR-AUTH-002, FR-AUTH-003 | Authentication & access | `users`, `members`, `staff`, `business_clients` |
+| UR-VIS-002 | MUST | FR-AUTH-001, FR-AUTH-002, FR-AUTH-003 | Authentication & access | `users`, `members`, `memberships`, `payments`, `employee_applications`, `staff` |
 | UR-MEM-001 | MUST | FR-MEM-003, FR-MEM-004, FR-MEM-005, FR-MEM-013 | Membership | `members`, `memberships`, `membership_plans`, `users`, `court_bookings`, `shop_orders`, `bar_orders`, `payments` |
 | UR-MEM-002 | MUST | FR-COURT-002, FR-COURT-004, FR-COURT-010, FR-COURT-011, FR-COURT-012 | Court booking | `courts`, `court_bookings`, `payments`, `members`, `memberships`, `membership_plans` |
 | UR-MEM-004 | MUST | FR-SHOP-001, FR-SHOP-004, FR-SHOP-005, FR-SHOP-006, FR-SHOP-011 | Shop | `products`, `shop_orders`, `shop_order_items`, `payments` |
-| UR-MEM-005 | SHOULD | FR-SHOP-008, FR-BAR-004, FR-BAR-012, FR-FIN-004, FR-MEM-007 | Shop, Cafe, Finance & payments, Membership | `products`, `shop_orders`, `shop_order_items`, `payments`, `bar_orders`, `bar_order_items`, `memberships` |
-| UR-GST-001 | MUST | FR-COURT-006, FR-SHOP-003, FR-BAR-003, FR-BAR-005, FR-BAR-008 | Court booking, Shop, Cafe | `court_bookings`, `payments`, `shop_orders`, `shop_order_items`, `products`, `bar_orders`, `bar_order_items` |
+| UR-MEM-005 | SHOULD | FR-SHOP-008, FR-BAR-004, FR-BAR-012, FR-FIN-004, FR-MEM-007 | Shop, Cafe, Finance & payments, Membership | `products`, `shop_orders`, `shop_order_items`, `payments`, `members`, `users`, `memberships`, `membership_plans`, `bar_orders`, `bar_order_items` |
+| UR-GST-001 | MUST | FR-COURT-006, FR-SHOP-003, FR-BAR-003, FR-BAR-005, FR-BAR-008 | Court booking, Shop, Cafe | `court_bookings`, `payments`, `shop_orders`, `shop_order_items`, `products`, `members`, `users`, `memberships`, `membership_plans`, `bar_orders`, `bar_order_items` |
 | UR-FD-001 | MUST | FR-MEM-001, FR-MEM-002, FR-MEM-003, FR-MEM-004, FR-MEM-005, FR-MEM-006 | Membership | `users`, `members`, `memberships`, `payments`, `membership_plans`, `court_bookings`, `shop_orders`, `bar_orders` |
 | UR-FD-002 | MUST | FR-COURT-005, FR-COURT-006, FR-COURT-010, FR-COURT-016 | Court booking | `court_bookings`, `payments`, `courts`, `members` |
 | UR-FD-003 | MUST | FR-ENQ-003, FR-ENQ-004, FR-ENQ-008 | Enquiries | `enquiries` |
-| UR-FD-004 | MUST | FR-SHOP-003, FR-BAR-003, FR-BAR-008 | Shop, Cafe | `shop_orders`, `shop_order_items`, `products`, `payments`, `bar_orders`, `bar_order_items` |
+| UR-FD-004 | MUST | FR-SHOP-003, FR-BAR-003, FR-BAR-008 | Shop, Cafe | `shop_orders`, `shop_order_items`, `products`, `payments`, `members`, `users`, `memberships`, `membership_plans`, `bar_orders`, `bar_order_items` |
 | UR-KIT-001 | MUST | FR-KIT-001, FR-KIT-002, FR-KIT-003, FR-KIT-004, FR-KIT-005 | Kitchen orders | `bar_orders`, `bar_order_items`, `payments` |
-| UR-BC-001 | MUST | FR-INVC-004, FR-INVC-005, FR-INVC-008, FR-FIN-010 | Business clients & invoicing, Finance & payments | `payments`, `court_bookings`, `shop_orders`, `bar_orders`, `invoices`, `invoice_items`, `business_clients` |
+| UR-BC-001 | MUST | FR-INVC-004, FR-INVC-005, FR-INVC-008, FR-FIN-010 | Business clients & invoicing, Finance & payments | `payments`, `court_bookings`, `shop_orders`, `bar_orders`, `invoices`, `invoice_items` |
 | UR-OWN-001 | MUST | FR-REP-001, FR-REP-002, FR-FIN-003, FR-FIN-009 | Reporting, Finance & payments | `payments`, `memberships`, `court_bookings`, `shop_orders`, `bar_orders`, `enquiries`, `invoices`, `payroll_payments`, `leave_requests`, `products` |
 | UR-OWN-002 | MUST | FR-MEM-011, FR-COURT-015, FR-SHOP-002, FR-INV-003, FR-BAR-011, FR-SET-001 | Membership, Court booking, Shop, Inventory, Cafe, Club settings | `membership_plans`, `courts`, `products`, `bar_menu_items`, `club_settings` |
-| UR-OWN-003 | MUST | FR-INVC-001, FR-INVC-002, FR-INVC-003, FR-FIN-006, FR-FIN-008, FR-STAFF-004, FR-STAFF-006 | Business clients & invoicing, Finance & payments, Staff / HR | `business_clients`, `invoices`, `users`, `invoice_items`, `payments`, `payroll_payments`, `staff`, `leave_requests` |
+| UR-OWN-003 | MUST | FR-INVC-001, FR-INVC-002, FR-INVC-003, FR-FIN-006, FR-FIN-008, FR-STAFF-004, FR-STAFF-006 | Business clients & invoicing, Finance & payments, Staff / HR | `business_clients`, `invoices`, `invoice_items`, `payments`, `payroll_payments`, `staff`, `leave_requests` |
 | UR-OWN-004 | MUST | FR-FIN-007, FR-REP-007, FR-REP-008 | Finance & payments, Reporting | `payments`, `court_bookings`, `members`, `shop_orders`, `bar_orders` |
 | BR-001 | MUST | FR-COURT-002, FR-COURT-004, FR-MEM-001, FR-BAR-013, FR-PUB-003 | Court booking, Membership, Cafe, Public website | `courts`, `court_bookings`, `payments`, `users`, `members`, `memberships`, `bar_orders`, `bar_order_items` |
 | BR-002 | MUST | FR-COURT-008, FR-COURT-009 | Court booking | `court_bookings`, `payments` |
 | BR-003 | MUST | FR-MEM-005, FR-MEM-006, FR-MEM-011 | Membership | `members`, `memberships`, `membership_plans`, `users` |
 | BR-004 | MUST | FR-INV-001, FR-INV-002, FR-SHOP-007 | Inventory, Shop | `shop_orders`, `shop_order_items`, `products`, `payments` |
-| BR-005 | MUST | FR-BAR-003, FR-BAR-004, FR-KIT-001 | Cafe, Kitchen orders | `bar_orders`, `bar_order_items`, `payments` |
+| BR-005 | MUST | FR-BAR-003, FR-BAR-004, FR-KIT-001 | Cafe, Kitchen orders | `members`, `users`, `memberships`, `membership_plans`, `bar_orders`, `bar_order_items`, `payments` |
 | BR-006 | MUST | FR-ENQ-001, FR-ENQ-002, FR-MEM-001 | Enquiries, Membership | `enquiries`, `users`, `members`, `memberships`, `payments` |
 | BR-007 | MUST | FR-FIN-001, FR-FIN-003, FR-REP-001 | Finance & payments, Reporting | `memberships`, `payments`, `shop_orders`, `shop_order_items`, `products`, `court_bookings`, `bar_orders`, `invoices`, `enquiries`, `payroll_payments`, `leave_requests` |
 | BR-008 | MUST | FR-INVC-002, FR-FIN-006, FR-INVC-009 | Business clients & invoicing, Finance & payments | `invoices`, `invoice_items`, `payments`, `payroll_payments` |
@@ -159,8 +163,8 @@ Every requirement → user(s) → module → API → database entity. API and ta
 
 | Endpoint | Requirements |
 |---|---|
-| `POST /auth/signup` (auth.signup) | FR-AUTH-001 |
-| `POST /auth/login` (auth.login) | FR-AUTH-002, FR-AUTH-003 |
+| `POST /auth/signup` (auth.signup) | FR-AUTH-001, FR-MEM-012 |
+| `POST /auth/login` (auth.login) | FR-AUTH-002, FR-AUTH-003, FR-AUTH-008 |
 | `POST /auth/logout` (auth.logout) | FR-AUTH-004 |
 | `GET /auth/me` (auth.me) | FR-AUTH-002 |
 | `POST /auth/change-password` (auth.changePassword) | FR-AUTH-006 |
@@ -187,6 +191,7 @@ Every requirement → user(s) → module → API → database entity. API and ta
 | `DELETE /courts/blocks/:booking_id` (courts.unblock) | FR-COURT-013 |
 | `GET /bookings/price` (bookings.price) | FR-COURT-012, FR-COURT-007 |
 | `POST /bookings` (bookings.create) | FR-COURT-004, FR-COURT-005, FR-COURT-006, FR-COURT-007, FR-COURT-008, FR-COURT-009, FR-COURT-003 |
+| `POST /bookings/trial` (bookings.trial) | FR-PUB-006, FR-COURT-004 |
 | `GET /bookings` (bookings.list) | FR-COURT-011, FR-COURT-016 |
 | `GET /bookings/:id` (bookings.get) | FR-COURT-011, FR-COURT-016 |
 | `POST /bookings/:id/cancel` (bookings.cancel) | FR-COURT-010 |
@@ -206,6 +211,7 @@ Every requirement → user(s) → module → API → database entity. API and ta
 | `GET /bar/menu` (bar.menu) | FR-BAR-001, FR-PUB-005 |
 | `POST /bar/menu-items` (bar.menuCreate) | FR-BAR-011 |
 | `PATCH /bar/menu-items/:id` (bar.menuUpdate) | FR-BAR-011 |
+| `GET /bar/member-lookup` (bar.memberLookup) | FR-BAR-003, FR-BAR-004 |
 | `POST /bar/orders` (bar.orderCreate) | FR-BAR-003, FR-BAR-004, FR-BAR-005, FR-BAR-008, FR-BAR-013, FR-KIT-001 |
 | `GET /bar/orders` (bar.orderList) | FR-BAR-012, FR-BAR-009 |
 | `GET /bar/orders/:id` (bar.orderGet) | FR-BAR-012 |
@@ -219,8 +225,7 @@ Every requirement → user(s) → module → API → database entity. API and ta
 | `GET /enquiries/:id` (enquiries.get) | FR-ENQ-004 |
 | `PATCH /enquiries/:id` (enquiries.update) | FR-ENQ-004, FR-ENQ-008 |
 | `GET /business-clients` (clients.list) | FR-INVC-001 |
-| `POST /business-clients` (clients.create) | FR-INVC-001, FR-AUTH-007 |
-| `GET /business-clients/me` (clients.me) | FR-INVC-008 |
+| `POST /business-clients` (clients.create) | FR-INVC-001 |
 | `GET /business-clients/:id` (clients.get) | FR-INVC-001 |
 | `PATCH /business-clients/:id` (clients.update) | FR-INVC-001 |
 | `GET /invoices` (invoices.list) | FR-INVC-005, FR-INVC-008, FR-FIN-006, FR-INVC-009 |
@@ -237,6 +242,14 @@ Every requirement → user(s) → module → API → database entity. API and ta
 | `POST /staff` (staff.create) | FR-STAFF-001, FR-AUTH-007 |
 | `GET /staff/:id` (staff.get) | FR-STAFF-001, FR-STAFF-007 |
 | `PATCH /staff/:id` (staff.update) | FR-STAFF-001 |
+| `POST /staff/applications` (staff.applicationCreate) | FR-AUTH-008, FR-STAFF-008 |
+| `GET /staff/applications` (staff.applicationList) | FR-STAFF-008 |
+| `POST /staff/applications/:id/approve` (staff.applicationApprove) | FR-STAFF-008 |
+| `POST /staff/applications/:id/reject` (staff.applicationReject) | FR-STAFF-008 |
+| `GET /events` (events.list) | FR-EVT-002 |
+| `POST /events` (events.create) | FR-EVT-001 |
+| `POST /events/:id/registrations` (events.register) | FR-EVT-002 |
+| `DELETE /events/:id/registrations` (events.unregister) | FR-EVT-002 |
 | `GET /staff/shifts` (staff.shifts) | FR-STAFF-002, FR-STAFF-005, FR-STAFF-007 |
 | `POST /staff/shifts` (staff.shiftCreate) | FR-STAFF-002 |
 | `PATCH /staff/shifts/:id` (staff.shiftUpdate) | FR-STAFF-002 |

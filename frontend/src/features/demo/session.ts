@@ -16,6 +16,5 @@ export function buildDemoSession(role: UserRole): AuthSession {
     redirect_to: a.home,
     member: null,
     staff: null,
-    business_client: null,
   };
 }

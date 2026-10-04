@@ -6,9 +6,11 @@ Source of truth: [shared/constants/enums.ts](../../shared/constants/enums.ts) (v
 
 | Constant | Stored in DB? | Values |
 |---|---|---|
+| `APPLICATION_STATUS` | `application_status` | `PENDING`, `APPROVED`, `REJECTED` |
 | `BOOKING_STATUS` | `booking_status` | `CONFIRMED`, `CANCELLED`, `COMPLETED` |
-| `BOOKING_TYPE` | `booking_type` | `REGULAR`, `MAINTENANCE` |
+| `BOOKING_TYPE` | `booking_type` | `REGULAR`, `MAINTENANCE`, `TRIAL` |
 | `ENQUIRY_TYPE` | `enquiry_type` | `GENERAL`, `TRIAL`, `MEMBERSHIP`, `BUSINESS` |
+| `EVENT_KIND` | `event_kind` | `TOURNAMENT`, `CLINIC`, `CAMP`, `MIXER`, `SOCIAL` |
 | `EXPORT_REPORT` | API only | `REVENUE`, `MEMBERS`, `BOOKINGS`, `SHOP_SALES`, `BAR_SALES`, `TAX` |
 | `HISTORY_EVENT_TYPE` | API only | `MEMBERSHIP`, `COURT_BOOKING`, `SHOP_ORDER`, `BAR_ORDER`, `PAYMENT` |
 | `INVOICE_PAYMENT_STATE` | `invoice_payment_state` | `UNPAID`, `PARTIALLY_PAID`, `PAID`, `OVERDUE` |
@@ -34,7 +36,7 @@ Source of truth: [shared/constants/enums.ts](../../shared/constants/enums.ts) (v
 | `SLOT_STATUS` | API only | `AVAILABLE`, `BOOKED`, `BLOCKED`, `PAST` |
 | `SPORT_TYPE` | `sport_type` | `TENNIS`, `CRICKET`, `PADEL`, `BADMINTON` |
 | `STOCK_STATUS` | API only | `IN_STOCK`, `LOW_STOCK`, `OUT_OF_STOCK` |
-| `USER_ROLE` | `user_role` | `MEMBER`, `FRONT_DESK`, `KITCHEN_MANAGER`, `BUSINESS_CLIENT`, `OWNER_ADMIN` |
+| `USER_ROLE` | `user_role` | `MEMBER`, `FRONT_DESK`, `KITCHEN_MANAGER`, `STORE_MANAGER`, `OWNER_ADMIN` |
 
 ## State machines
 
@@ -69,6 +71,7 @@ stateDiagram-v2
   NEW --> PREPARING
   NEW --> CANCELLED
   PREPARING --> READY
+  READY --> PREPARING
   READY --> SERVED
 ```
 

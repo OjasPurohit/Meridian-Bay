@@ -142,15 +142,15 @@ export default function ApplyPage() {
                 <>
                   <ol className="mt-3 space-y-2 text-[0.95rem] leading-relaxed text-muted">
                     <li>
-                      <span className="font-semibold text-ink">1. Create a member account.</span> Your chosen plan comes with you.
+                      <span className="font-semibold text-ink">1. Enter your details.</span> Your chosen plan comes with you.
                     </li>
                     <li>
-                      <span className="font-semibold text-ink">2. Buy the plan</span> from your dashboard, or at the front desk.
+                      <span className="font-semibold text-ink">2. Pay online at checkout.</span> Your account and membership start as soon as the payment goes through.
                       {plan?.max_age != null && ' Junior needs the player’s date of birth.'}
                     </li>
                   </ol>
                   <div className="mt-6 flex flex-wrap items-center gap-3">
-                    <ActionLink to={`/signup?plan=${selected}`}>Create an account</ActionLink>
+                    <ActionLink to={`/signup?plan=${selected}`}>Sign up and join</ActionLink>
                     <button type="button" onClick={openLoginMenu} className="inline-flex min-h-11 items-center px-2 font-semibold underline underline-offset-4">
                       I already have one — log in
                     </button>

@@ -38,6 +38,11 @@ export interface DMember {
   shop_pct: number;
   bar_pct: number;
   max_plays: number;
+  /** users.is_active: a deactivated member cannot log in (history stays). */
+  active: boolean;
+  address: string | null;
+  /** members.date_of_birth (YYYY-MM-DD), when the club has it. */
+  dob?: string | null;
   synthetic: boolean;
 }
 
@@ -178,42 +183,6 @@ export interface DInvoice {
   notes: string | null;
 }
 
-/* -------------------------- business client's own (demo) books */
-export interface BizProduct {
-  id: string;
-  sku: string;
-  name: string;
-  category: string;
-  description: string;
-  price: number;
-  cost: number;
-  stock: number;
-}
-
-export interface Dealer {
-  id: string;
-  name: string;
-  contact: string;
-  phone: string;
-  email: string;
-  city: string;
-  since: string;
-  status: 'ACTIVE' | 'PAUSED';
-  offers: string[];
-  traded: number;
-}
-
-export interface BizTx {
-  id: string;
-  at: string;
-  type: 'SALE' | 'PURCHASE' | 'EXPENSE';
-  party: string;
-  description: string;
-  amount: number;
-  status: 'PAID' | 'PENDING';
-  ref: string;
-}
-
 export interface DemoState {
   v: number;
   bookings: DBooking[];
@@ -224,7 +193,35 @@ export interface DemoState {
   events: DEvent[];
   payments: DPayment[];
   invoices: DInvoice[];
-  bizProducts: BizProduct[];
-  dealers: Dealer[];
-  bizTx: BizTx[];
+}
+
+/** A job application as the owner sees it (the password hash never leaves the database). */
+export interface DApplication {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  role: string | null;
+  applied_at: string;
+  reviewed_at: string | null;
+  reviewed_by: string | null;
+  note: string | null;
+}
+
+/** An employee row: id is staff.id; `active` is users.is_active. */
+export interface DStaff {
+  id: string;
+  user_id?: string;
+  name: string;
+  email: string;
+  designation: string;
+  role: string;
+  area: string;
+  salary: number;
+  phone: string;
+  shift: string;
+  payroll: 'PAID' | 'PENDING';
+  on_duty: boolean;
+  active: boolean;
 }

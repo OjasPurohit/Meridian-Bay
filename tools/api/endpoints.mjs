@@ -6,16 +6,16 @@
 // Field DSL:  f(name, type, required, rule)
 //   types: uuid string text int number money percent bool date datetime time email phone url
 //          enum:ENUM_NAME   (from shared/constants/enums.ts)   array:<type>   object[] (needs `of`)
-// Roles: M=MEMBER F=FRONT_DESK K=KITCHEN_MANAGER B=BUSINESS_CLIENT O=OWNER_ADMIN, PUB=no auth.  A trailing `:own` limits the role to its own records.
+// Roles: M=MEMBER F=FRONT_DESK K=KITCHEN_MANAGER S=STORE_MANAGER O=OWNER_ADMIN, PUB=no auth.  A trailing `:own` limits the role to its own records.
 //
 // Scope note (ADR-016): the club has no social play, no bar tabs / table management, no CRM pipeline (quotes, follow-ups, funnel),
 // no in-app notifications and no stock ledger. Derived values (payment status, totals, membership status, invoice paid / overdue ...)
 // are returned by the API but computed by SQL views, never stored (ADR-015, ADR-016).
 
 export const PUB = 'PUBLIC';
-const M = 'MEMBER', F = 'FRONT_DESK', K = 'KITCHEN_MANAGER', B = 'BUSINESS_CLIENT', O = 'OWNER_ADMIN';
-const Mo = 'MEMBER:own', Bo = 'BUSINESS_CLIENT:own', Fo = 'FRONT_DESK:own', Ko = 'KITCHEN_MANAGER:own';
-const ANY = [M, F, K, B, O];
+const M = 'MEMBER', F = 'FRONT_DESK', K = 'KITCHEN_MANAGER', S = 'STORE_MANAGER', O = 'OWNER_ADMIN';
+const Mo = 'MEMBER:own', Fo = 'FRONT_DESK:own', Ko = 'KITCHEN_MANAGER:own', So = 'STORE_MANAGER:own';
+const ANY = [M, F, K, S, O];
 
 const f = (name, type, required = false, rule = '', of = null) => ({ name, type, required: !!required, rule, of });
 const memberRef = f('member_id', 'uuid', false, 'Staff only: book/order on behalf of this member. MEMBER callers: omit (implied = self).');
@@ -33,16 +33,16 @@ const ep = (id, method, path, roles, feature, action, summary, o = {}) =>
   endpoints.push({ id, module: id.split('.')[0], method, path, roles: Array.isArray(roles) ? roles : [roles], feature, action, summary, reqs: [], query: [], body: [], res: 'void', status: method === 'POST' && action === 'C' ? 201 : 200, errors: [], rules: '', tables: [], scope: '', guest: false, ...o });
 
 // =================================================================================== AUTH
-ep('auth.signup', 'POST', '/auth/signup', PUB, 'Authentication', 'C', 'Visitor creates an account (role MEMBER, no plan yet) and is logged in.', {
-  reqs: ['FR-AUTH-001'], res: 'AuthSession', tables: ['users', 'members'], errors: ['EMAIL_TAKEN'],
-  body: [f('full_name', 'string', 1, '2-120 chars'), f('email', 'email', 1, 'unique (case-insensitive)'), f('phone', 'phone', 1), f('password', 'string', 1, 'min 8 chars, >=1 letter and >=1 digit'), f('date_of_birth', 'date', 0, 'must be in the past')],
-  rules: 'Creates `users` (role MEMBER) + `members` in one transaction. No membership is created: until a plan is bought the member pays walk-in rates.' });
-ep('auth.login', 'POST', '/auth/login', PUB, 'Authentication', 'C', 'Authenticate and receive a JWT plus the role-based landing route.', {
-  reqs: ['FR-AUTH-002', 'FR-AUTH-003'], res: 'AuthSession', status: 200, tables: ['users'], errors: ['AUTH_INVALID', 'ACCOUNT_DISABLED'],
+ep('auth.signup', 'POST', '/auth/signup', PUB, 'Authentication', 'C', 'Visitor joins as a member: account + the chosen membership, paid online, in one step; the member is logged in.', {
+  reqs: ['FR-AUTH-001', 'FR-MEM-012'], res: 'AuthSession', tables: ['users', 'members', 'memberships', 'payments'], errors: ['EMAIL_TAKEN', 'APPLICATION_PENDING', 'MEMBERSHIP_PLAN_NOT_FOUND', 'JUNIOR_AGE_INVALID', 'PAYMENT_FAILED'],
+  body: [f('full_name', 'string', 1, '2-120 chars'), f('email', 'email', 1, 'unique (case-insensitive)'), f('phone', 'phone', 1), f('password', 'string', 1, 'min 8 chars, >=1 letter and >=1 digit'), f('date_of_birth', 'date', 0, 'must be in the past; REQUIRED for a JUNIOR plan'), f('address', 'text'), f('membership_plan_id', 'uuid', 0, 'the plan to buy now (paid ONLINE through the mock gateway). Omit to join without a plan.')],
+  rules: 'Creates `users` (role MEMBER) + `members` (+ `memberships` + `payments` when a plan is given) in ONE transaction: if the payment fails nothing is created. The password is stored only as a bcrypt hash.' });
+ep('auth.login', 'POST', '/auth/login', PUB, 'Authentication', 'C', 'Authenticate and receive a JWT plus the role-based landing route, or the EMPLOYEE_APPLICATION_PENDING state.', {
+  reqs: ['FR-AUTH-002', 'FR-AUTH-003', 'FR-AUTH-008'], res: 'AuthSession', status: 200, tables: ['users', 'employee_applications'], errors: ['AUTH_INVALID', 'ACCOUNT_DISABLED'],
   body: [f('email', 'email', 1), f('password', 'string', 1)],
-  rules: '`redirect_to` = ROLE_HOME_ROUTE[user.role]. Never reveal whether the email exists (always AUTH_INVALID).' });
+  rules: '`redirect_to` = ROLE_HOME_ROUTE[user.role]. Active users are checked first. If there is no such user but a PENDING job application for the email whose bcrypt hash matches, the answer is `{state: EMPLOYEE_APPLICATION_PENDING, redirect_to: /employee-application-pending}`: NO token, NO role. Never reveal whether the email exists (always AUTH_INVALID).' });
 ep('auth.logout', 'POST', '/auth/logout', ANY, 'Authentication', 'U', 'End the session (stateless JWT: the client discards the token).', { reqs: ['FR-AUTH-004'], res: 'void' });
-ep('auth.me', 'GET', '/auth/me', ANY, 'Authentication', 'V', 'Current user + role profile + landing route. Re-issues a fresh token.', { reqs: ['FR-AUTH-002'], res: 'AuthSession', tables: ['users', 'members', 'staff', 'business_clients'] });
+ep('auth.me', 'GET', '/auth/me', ANY, 'Authentication', 'V', 'Current user + role profile + landing route. Re-issues a fresh token.', { reqs: ['FR-AUTH-002'], res: 'AuthSession', tables: ['users', 'members', 'staff'] });
 ep('auth.changePassword', 'POST', '/auth/change-password', ANY, 'Authentication', 'U', 'Change own password (clears must_change_password).', {
   reqs: ['FR-AUTH-006'], tables: ['users'], errors: ['AUTH_INVALID'],
   body: [f('current_password', 'string', 1), f('new_password', 'string', 1, 'min 8 chars, >=1 letter and >=1 digit')] });
@@ -101,8 +101,8 @@ ep('courts.availability', 'GET', '/courts/availability', PUB, 'Courts', 'V', 'Sl
   reqs: ['FR-COURT-002', 'FR-COURT-003', 'FR-PUB-003'], res: 'CourtAvailability[]', tables: ['courts', 'court_bookings'], errors: ['COURT_NOT_FOUND'],
   query: [f('date', 'date', 1, 'today .. today+60d (IST)'), f('sport_type', 'enum:SPORT_TYPE'), f('court_id', 'uuid')],
   rules: 'Slots: first start = club_open_time, last start = club_close_time - 1h, step 30 min. Status PAST for starts before now. `booking_id` only for FRONT_DESK/OWNER_ADMIN; never expose who booked.' });
-ep('courts.create', 'POST', '/courts', O, 'Courts', 'C', 'Add a court.', { reqs: ['FR-COURT-015'], res: 'Court', tables: ['courts'], body: [f('name', 'string', 1, 'unique'), f('sport_type', 'enum:SPORT_TYPE', 1), f('description', 'text'), f('surface', 'string'), f('walk_in_rate_per_hour', 'money', 1), f('image_url', 'url'), f('sort_order', 'int')] });
-ep('courts.update', 'PATCH', '/courts/:id', O, 'Courts', 'U', 'Edit court / change rate / deactivate.', { reqs: ['FR-COURT-015'], res: 'Court', tables: ['courts'], errors: ['COURT_NOT_FOUND'], body: [f('name', 'string'), f('description', 'text'), f('surface', 'string'), f('walk_in_rate_per_hour', 'money'), f('image_url', 'url'), f('sort_order', 'int'), f('is_active', 'bool')] });
+ep('courts.create', 'POST', '/courts', O, 'Courts', 'C', 'Add a court.', { reqs: ['FR-COURT-015'], res: 'Court', tables: ['courts'], errors: ['COURT_NAME_TAKEN'], body: [f('name', 'string', 1, 'unique'), f('sport_type', 'enum:SPORT_TYPE', 1), f('description', 'text'), f('surface', 'string'), f('walk_in_rate_per_hour', 'money', 1), f('image_url', 'url'), f('sort_order', 'int')] });
+ep('courts.update', 'PATCH', '/courts/:id', O, 'Courts', 'U', 'Edit court / change rate / deactivate.', { reqs: ['FR-COURT-015'], res: 'Court', tables: ['courts'], errors: ['COURT_NOT_FOUND', 'COURT_NAME_TAKEN'], body: [f('name', 'string'), f('description', 'text'), f('surface', 'string'), f('walk_in_rate_per_hour', 'money'), f('image_url', 'url'), f('sort_order', 'int'), f('is_active', 'bool')] });
 ep('courts.block', 'POST', '/courts/:id/blocks', O, 'Courts', 'C', 'Block a court for maintenance (creates 1-hour MAINTENANCE bookings covering the range).', {
   reqs: ['FR-COURT-013'], res: 'BookingDetail[]', tables: ['court_bookings'], errors: ['COURT_NOT_FOUND', 'BOOKING_CONFLICT', 'INVALID_SLOT'],
   body: [f('start_at', 'datetime', 1, 'on a 30-min boundary'), f('end_at', 'datetime', 1, 'multiple of 1h after start_at')], rules: 'Fails with BOOKING_CONFLICT (and creates nothing) if any hour overlaps a booking that stands.' });
@@ -117,6 +117,11 @@ ep('bookings.create', 'POST', '/bookings', [M, F, O], 'Court bookings', 'C', 'Bo
   errors: ['COURT_NOT_FOUND', 'MEMBER_NOT_FOUND', 'INVALID_SLOT', 'COURT_UNAVAILABLE', 'BOOKING_CONFLICT', 'DAILY_BOOKING_LIMIT', 'PAYMENT_FAILED'],
   body: [f('court_id', 'uuid', 1), f('start_at', 'datetime', 1, 'on a :00/:30 boundary, in the future, session must end by club_close_time'), memberRef, guestName, guestPhone, method(0, 'omit = pay later at the desk (payment_status PENDING). MEMBER callers pay ONLINE or later at desk.')],
   rules: 'Transaction: lock member (advisory) -> check plays-per-day (REGULAR bookings that stand, IST day, max = plan.max_plays_per_day, default 2) -> compute price -> INSERT (DB exclusion constraint `court_bookings_no_overlap` is the final arbiter; map SQLSTATE 23P01 to BOOKING_CONFLICT) -> optional payment. list_price and discount_amount are stored (snapshot); the amount due and payment_status are derived (view court_booking_totals). Expired/no membership => walk-in price. Free (amount due 0) => payment_status NOT_REQUIRED.' });
+ep('bookings.trial', 'POST', '/bookings/trial', PUB, 'Court bookings', 'C', 'A visitor books a free trial hour from the public website: the first free active court of the chosen sport takes the slot.', {
+  reqs: ['FR-PUB-006', 'FR-COURT-004'], res: 'BookingDetail', tables: ['court_bookings'], guest: true,
+  errors: ['INVALID_SLOT', 'COURT_UNAVAILABLE', 'BOOKING_CONFLICT', 'TRIAL_ALREADY_BOOKED'],
+  body: [f('name', 'string', 1), f('phone', 'phone', 1), f('email', 'email'), f('sport_type', 'enum:SPORT_TYPE', 1), f('start_at', 'datetime', 1, 'on a :00/:30 boundary, in the future, inside opening hours')],
+  rules: 'Transaction: lock the phone number (advisory) -> at most one upcoming TRIAL per phone (TRIAL_ALREADY_BOOKED) -> pick the first active court of the sport (by name) with no standing booking in the slot, else BOOKING_CONFLICT -> INSERT booking_type TRIAL (list_price 0, so amount due is 0 and nothing is paid). The same table, calendar and exclusion constraint as every other court booking; owner and front desk see it in their calendars.' });
 ep('bookings.list', 'GET', '/bookings', [Mo, F, O], 'Court bookings', 'V', 'List bookings (day view for the desk, own bookings for a member).', {
   reqs: ['FR-COURT-011', 'FR-COURT-016'], res: 'Page<BookingDetail>', tables: ['court_bookings', 'courts', 'members'], guest: true,
   query: [f('from', 'date'), f('to', 'date'), f('court_id', 'uuid'), f('member_id', 'uuid', 0, 'staff only'), f('status', 'enum:BOOKING_STATUS'), f('booking_type', 'enum:BOOKING_TYPE'), f('upcoming', 'bool', 0, 'true = start_at >= now')] });
@@ -131,34 +136,34 @@ ep('shop.products', 'GET', '/shop/products', PUB, 'Shop catalogue', 'V', 'Browse
   reqs: ['FR-SHOP-001', 'FR-PUB-004', 'FR-SHOP-008'], res: 'Page<ProductView>', tables: ['products'],
   query: [f('category', 'enum:PRODUCT_CATEGORY'), f('q', 'string'), f('in_stock', 'bool'), f('include_inactive', 'bool', 0, 'OWNER_ADMIN only')], rules: '`member_price` is included when the caller is a MEMBER with a current plan.' });
 ep('shop.product', 'GET', '/shop/products/:id', PUB, 'Shop catalogue', 'V', 'Product detail.', { reqs: ['FR-SHOP-001'], res: 'ProductView', tables: ['products'], errors: ['PRODUCT_NOT_FOUND'] });
-ep('shop.productCreate', 'POST', '/shop/products', O, 'Shop catalogue', 'C', 'Create a product (optionally with opening stock).', {
+ep('shop.productCreate', 'POST', '/shop/products', [S, O], 'Shop catalogue', 'C', 'Create a product (optionally with opening stock).', {
   reqs: ['FR-SHOP-002', 'FR-INV-003'], res: 'ProductView', tables: ['products'], errors: ['SKU_TAKEN'],
   body: [f('sku', 'string', 1, 'unique'), f('name', 'string', 1), f('category', 'enum:PRODUCT_CATEGORY', 1), f('brand', 'string'), f('description', 'text'), f('price', 'money', 1, 'tax-inclusive'), f('image_url', 'url'), f('initial_stock', 'int', 0, '>=0; the starting stock_quantity'), f('low_stock_threshold', 'int', 0, 'default = setting low_stock_default_threshold')] });
-ep('shop.productUpdate', 'PATCH', '/shop/products/:id', O, 'Shop catalogue', 'U', 'Edit a product. Stock is NEVER edited here: use /inventory/adjustments.', {
+ep('shop.productUpdate', 'PATCH', '/shop/products/:id', [S, O], 'Shop catalogue', 'U', 'Edit a product. Stock is NEVER edited here: use /inventory/adjustments.', {
   reqs: ['FR-SHOP-002'], res: 'ProductView', tables: ['products'], errors: ['PRODUCT_NOT_FOUND'],
   body: [f('name', 'string'), f('category', 'enum:PRODUCT_CATEGORY'), f('brand', 'string'), f('description', 'text'), f('price', 'money'), f('image_url', 'url'), f('low_stock_threshold', 'int'), f('is_active', 'bool')] });
 ep('shop.productDelete', 'DELETE', '/shop/products/:id', O, 'Shop catalogue', 'D', 'Retire a product (soft delete: is_active = false; order history stays intact).', { reqs: ['FR-SHOP-002'], res: 'ProductView', tables: ['products'], errors: ['PRODUCT_NOT_FOUND'] });
-ep('shop.orderCreate', 'POST', '/shop/orders', [M, F, O], 'Shop orders', 'C', 'Place a shop order: member online order (pickup/delivery) or staff counter sale.', {
+ep('shop.orderCreate', 'POST', '/shop/orders', [M, F, S, O], 'Shop orders', 'C', 'Place a shop order: member online order (pickup/delivery) or staff counter sale.', {
   reqs: ['FR-SHOP-003', 'FR-SHOP-004', 'FR-SHOP-005', 'FR-SHOP-006', 'FR-SHOP-007', 'FR-SHOP-008', 'FR-INV-001', 'FR-FIN-001'], res: 'ShopOrderDetail', tables: ['shop_orders', 'shop_order_items', 'products', 'payments'], guest: true,
   errors: ['PRODUCT_NOT_FOUND', 'OUT_OF_STOCK', 'DELIVERY_ADDRESS_REQUIRED', 'MEMBER_NOT_FOUND', 'PAYMENT_FAILED'],
   body: [f('items', 'object[]', 1, '1-50 lines; duplicate products are merged', [f('product_id', 'uuid', 1), f('quantity', 'int', 1, '1-99')]), f('fulfillment', 'enum:ORDER_FULFILLMENT', 1, 'MEMBER: PICKUP|DELIVERY. Staff: IN_STORE'), f('delivery_address', 'text', 0, 'required when fulfillment = DELIVERY'), memberRef, guestName, guestPhone, method(0, 'MEMBER: ONLINE. Staff counter sale: CASH|CARD|UPI (required for IN_STORE)')],
   rules: 'IN_STORE = a counter sale made by staff; PICKUP / DELIVERY = placed online by a member (no separate channel column: it follows from fulfillment). One transaction: `UPDATE products SET stock_quantity = stock_quantity - :q WHERE id = :id AND stock_quantity >= :q` per line (0 rows => OUT_OF_STOCK, rollback) + snapshot unit_price + discount_amount = subtotal x shop_discount_percent + delivery_fee (unless free_delivery_above) + payment. Totals and payment_status are derived (view shop_order_totals). IN_STORE orders are created COMPLETED; online orders start PLACED.' });
-ep('shop.orderList', 'GET', '/shop/orders', [Mo, F, O], 'Shop orders', 'V', 'List shop orders (members see their own).', {
+ep('shop.orderList', 'GET', '/shop/orders', [Mo, F, S, O], 'Shop orders', 'V', 'List shop orders (members see their own).', {
   reqs: ['FR-SHOP-011', 'FR-SHOP-009'], res: 'Page<ShopOrderDetail>', tables: ['shop_orders', 'shop_order_items'], guest: true,
   query: [f('status', 'enum:SHOP_ORDER_STATUS'), f('fulfillment', 'enum:ORDER_FULFILLMENT'), f('member_id', 'uuid', 0, 'staff only'), f('from', 'date'), f('to', 'date')] });
-ep('shop.orderGet', 'GET', '/shop/orders/:id', [Mo, F, O], 'Shop orders', 'V', 'Order detail with lines.', { reqs: ['FR-SHOP-011', 'FR-SHOP-009'], res: 'ShopOrderDetail', tables: ['shop_orders'], errors: ['ORDER_NOT_FOUND'] });
-ep('shop.orderStatus', 'PATCH', '/shop/orders/:id/status', [F, O], 'Shop orders', 'U', 'Advance an order: PLACED -> CONFIRMED -> READY_FOR_PICKUP | OUT_FOR_DELIVERY -> COMPLETED.', {
+ep('shop.orderGet', 'GET', '/shop/orders/:id', [Mo, F, S, O], 'Shop orders', 'V', 'Order detail with lines.', { reqs: ['FR-SHOP-011', 'FR-SHOP-009'], res: 'ShopOrderDetail', tables: ['shop_orders'], errors: ['ORDER_NOT_FOUND'] });
+ep('shop.orderStatus', 'PATCH', '/shop/orders/:id/status', [F, S, O], 'Shop orders', 'U', 'Advance an order: PLACED -> CONFIRMED -> READY_FOR_PICKUP | OUT_FOR_DELIVERY -> COMPLETED.', {
   reqs: ['FR-SHOP-009', 'FR-SHOP-005', 'FR-SHOP-006'], res: 'ShopOrderDetail', tables: ['shop_orders'], errors: ['ORDER_NOT_FOUND', 'INVALID_STATUS_TRANSITION'],
   body: [f('status', 'enum:SHOP_ORDER_STATUS', 1, 'must be allowed by SHOP_ORDER_TRANSITIONS; READY_FOR_PICKUP only for PICKUP orders, OUT_FOR_DELIVERY only for DELIVERY orders')], rules: 'Use /shop/orders/:id/cancel for cancellations.' });
-ep('shop.orderCancel', 'POST', '/shop/orders/:id/cancel', [Mo, F, O], 'Shop orders', 'U', 'Cancel an order: restores stock and refunds.', {
+ep('shop.orderCancel', 'POST', '/shop/orders/:id/cancel', [Mo, F, S, O], 'Shop orders', 'U', 'Cancel an order: restores stock and refunds.', {
   reqs: ['FR-SHOP-010', 'FR-INV-001'], res: 'ShopOrderDetail', tables: ['shop_orders', 'products', 'payments'], guest: true, errors: ['ORDER_NOT_FOUND', 'INVALID_STATUS_TRANSITION'],
   rules: 'MEMBER may cancel only own order while PLACED. Staff while not COMPLETED/CANCELLED. Adds the quantities back to products.stock_quantity and refunds the payment in full (the order then reports payment_status REFUNDED).' });
 
 // =================================================================================== INVENTORY
-ep('inventory.list', 'GET', '/inventory', [F, O], 'Inventory', 'V', 'Stock levels for every product (same shelf for counter and online).', {
+ep('inventory.list', 'GET', '/inventory', [F, S, O], 'Inventory', 'V', 'Stock levels for every product (same shelf for counter and online).', {
   reqs: ['FR-INV-001', 'FR-INV-002'], res: 'Page<InventoryItem>', tables: ['products'], query: [f('category', 'enum:PRODUCT_CATEGORY'), f('low_stock_only', 'bool'), f('q', 'string')] });
-ep('inventory.lowStock', 'GET', '/inventory/low-stock', [F, O], 'Inventory', 'V', 'Products at or below their low-stock threshold (includes out of stock).', { reqs: ['FR-INV-002'], res: 'InventoryItem[]', tables: ['products'], rules: 'stock_quantity <= low_stock_threshold AND is_active. stock_status: 0 => OUT_OF_STOCK, <= threshold => LOW_STOCK, else IN_STOCK.' });
-ep('inventory.adjust', 'POST', '/inventory/adjustments', O, 'Inventory', 'C', 'Restock or correct the stock of a product.', {
+ep('inventory.lowStock', 'GET', '/inventory/low-stock', [F, S, O], 'Inventory', 'V', 'Products at or below their low-stock threshold (includes out of stock).', { reqs: ['FR-INV-002'], res: 'InventoryItem[]', tables: ['products'], rules: 'stock_quantity <= low_stock_threshold AND is_active. stock_status: 0 => OUT_OF_STOCK, <= threshold => LOW_STOCK, else IN_STOCK.' });
+ep('inventory.adjust', 'POST', '/inventory/adjustments', [S, O], 'Inventory', 'C', 'Restock or correct the stock of a product.', {
   reqs: ['FR-INV-003'], res: 'InventoryItem', tables: ['products'], errors: ['PRODUCT_NOT_FOUND'],
   body: [f('product_id', 'uuid', 1), f('quantity_change', 'int', 1, 'non-zero; negative allowed only if the result stays >= 0 (else VALIDATION_ERROR)')],
   rules: '`UPDATE products SET stock_quantity = stock_quantity + :change WHERE id = :id AND stock_quantity + :change >= 0`. products.stock_quantity is the stock: there is no separate ledger (ADR-016).' });
@@ -167,6 +172,10 @@ ep('inventory.adjust', 'POST', '/inventory/adjustments', O, 'Inventory', 'C', 'R
 ep('bar.menu', 'GET', '/bar/menu', PUB, 'Cafe menu', 'V', 'Bar & cafeteria menu.', { reqs: ['FR-BAR-001', 'FR-PUB-005'], res: 'BarMenuItem[]', tables: ['bar_menu_items'], query: [f('category', 'enum:MENU_CATEGORY'), f('include_unavailable', 'bool', 0, 'staff only')] });
 ep('bar.menuCreate', 'POST', '/bar/menu-items', O, 'Cafe menu', 'C', 'Add a menu item.', { reqs: ['FR-BAR-011'], res: 'BarMenuItem', tables: ['bar_menu_items'], body: [f('name', 'string', 1, 'unique'), f('category', 'enum:MENU_CATEGORY', 1), f('description', 'text'), f('price', 'money', 1, 'tax-inclusive'), f('sort_order', 'int')] });
 ep('bar.menuUpdate', 'PATCH', '/bar/menu-items/:id', O, 'Cafe menu', 'U', 'Edit a menu item / mark unavailable.', { reqs: ['FR-BAR-011'], res: 'BarMenuItem', tables: ['bar_menu_items'], errors: ['MENU_ITEM_NOT_FOUND'], body: [f('name', 'string'), f('category', 'enum:MENU_CATEGORY'), f('description', 'text'), f('price', 'money'), f('is_available', 'bool'), f('sort_order', 'int')] });
+ep('bar.memberLookup', 'GET', '/bar/member-lookup', [F, K, O], 'Cafe orders', 'V', 'Counter lookup of a member for the café till: identifies the customer and returns the café discount, nothing else (not the member list).', {
+  reqs: ['FR-BAR-003', 'FR-BAR-004'], res: 'MemberPosLookup[]', tables: ['members', 'users', 'memberships', 'membership_plans'],
+  query: [f('q', 'string', 1, 'member number (CCM-00001), e-mail, phone digits (6+) or part of the name (3+ letters); at most 5 matches')],
+  rules: 'Active accounts only. Returns member id, member number, name, membership status, plan name and bar_discount_percent (0 without an active membership). The order itself is still priced by the server from member_id (R-BAR-01).' });
 ep('bar.orderCreate', 'POST', '/bar/orders', [F, O], 'Cafe orders', 'C', 'Take a cafe order for a table label, member or guest. Appears instantly on the kitchen board.', {
   reqs: ['FR-BAR-003', 'FR-BAR-004', 'FR-BAR-005', 'FR-BAR-008', 'FR-BAR-013', 'FR-KIT-001'], res: 'BarOrderDetail', tables: ['bar_orders', 'bar_order_items', 'payments'], guest: true,
   errors: ['MENU_ITEM_NOT_FOUND', 'MENU_ITEM_UNAVAILABLE', 'MEMBER_NOT_FOUND', 'PAYMENT_FAILED'],
@@ -183,7 +192,7 @@ ep('bar.dailySummary', 'GET', '/bar/daily-summary', [F, O], 'Cafe orders', 'V', 
 ep('kitchen.list', 'GET', '/kitchen/orders', [K, O], 'Kitchen orders', 'V', 'Kitchen board: incoming and in-progress orders (oldest first). No prices, no payment data.', {
   reqs: ['FR-KIT-001', 'FR-KIT-002', 'FR-KIT-004'], res: 'KitchenOrder[]', tables: ['bar_orders', 'bar_order_items'], query: [f('status', 'array:enum:ORDER_STATUS', 0, 'default NEW,PREPARING,READY'), f('date', 'date', 0, 'default today')], rules: 'Client polls every 5 s (see ADR-010). Projection only: never include unit_price, totals, member discount or payment fields.' });
 ep('kitchen.get', 'GET', '/kitchen/orders/:id', [K, O], 'Kitchen orders', 'V', 'One kitchen order.', { reqs: ['FR-KIT-002'], res: 'KitchenOrder', tables: ['bar_orders'], errors: ['ORDER_NOT_FOUND'] });
-ep('kitchen.status', 'PATCH', '/kitchen/orders/:id/status', [K, O], 'Kitchen orders', 'U', 'Move an order forward: NEW -> PREPARING -> READY -> SERVED (or reject a NEW order with CANCELLED).', {
+ep('kitchen.status', 'PATCH', '/kitchen/orders/:id/status', [K, O], 'Kitchen orders', 'U', 'Move an order along: NEW -> PREPARING -> READY -> SERVED (reject a NEW order with CANCELLED; a READY order may go back to PREPARING).', {
   reqs: ['FR-KIT-003', 'FR-KIT-005'], res: 'KitchenOrder', tables: ['bar_orders'], errors: ['ORDER_NOT_FOUND', 'INVALID_STATUS_TRANSITION'],
   body: [f('status', 'enum:ORDER_STATUS', 1, 'next status per ORDER_TRANSITIONS')], rules: 'bar_orders.status is the only record of progress: there is no separate status history.' });
 
@@ -200,53 +209,68 @@ ep('enquiries.update', 'PATCH', '/enquiries/:id', [F, O], 'Enquiries', 'U', 'Mar
 
 // =================================================================================== BUSINESS CLIENTS + INVOICES
 ep('clients.list', 'GET', '/business-clients', O, 'Business clients', 'V', 'Business clients with invoiced / paid / outstanding totals.', { reqs: ['FR-INVC-001'], res: 'Page<BusinessClientDetail>', tables: ['business_clients', 'invoices'], query: [f('q', 'string'), f('is_active', 'bool')] });
-ep('clients.create', 'POST', '/business-clients', O, 'Business clients', 'C', 'Register a business client (optionally with a portal login).', {
-  reqs: ['FR-INVC-001', 'FR-AUTH-007'], res: 'BusinessClientDetail', tables: ['business_clients', 'users'], errors: ['EMAIL_TAKEN'],
-  body: [f('company_name', 'string', 1), f('contact_name', 'string', 1), f('email', 'email', 1), f('phone', 'phone'), f('gstin', 'string', 0, '15-char GSTIN'), f('billing_address', 'text'), f('notes', 'text'), f('create_login', 'bool', 0, 'true => creates users(role BUSINESS_CLIENT)'), f('initial_password', 'string', 0, 'required when create_login = true')] });
-ep('clients.me', 'GET', '/business-clients/me', B, 'Business clients', 'V', 'Own client profile + totals (business dashboard header).', { reqs: ['FR-INVC-008'], res: 'BusinessClientDetail', tables: ['business_clients', 'invoices'], errors: ['BUSINESS_CLIENT_NOT_FOUND'] });
+ep('clients.create', 'POST', '/business-clients', O, 'Business clients', 'C', 'Register a business client (a company the club invoices; it has no login).', {
+  reqs: ['FR-INVC-001'], res: 'BusinessClientDetail', tables: ['business_clients'],
+  body: [f('company_name', 'string', 1), f('contact_name', 'string', 1), f('email', 'email', 1), f('phone', 'phone'), f('gstin', 'string', 0, '15-char GSTIN'), f('billing_address', 'text'), f('notes', 'text')] });
 ep('clients.get', 'GET', '/business-clients/:id', O, 'Business clients', 'V', 'Client detail.', { reqs: ['FR-INVC-001'], res: 'BusinessClientDetail', tables: ['business_clients'], errors: ['BUSINESS_CLIENT_NOT_FOUND'] });
 ep('clients.update', 'PATCH', '/business-clients/:id', O, 'Business clients', 'U', 'Edit a client.', { reqs: ['FR-INVC-001'], res: 'BusinessClientDetail', tables: ['business_clients'], errors: ['BUSINESS_CLIENT_NOT_FOUND'], body: [f('company_name', 'string'), f('contact_name', 'string'), f('email', 'email'), f('phone', 'phone'), f('gstin', 'string'), f('billing_address', 'text'), f('notes', 'text'), f('is_active', 'bool')] });
-ep('invoices.list', 'GET', '/invoices', [Bo, Mo, O], 'Invoices', 'V', 'List invoices (a business client sees only theirs; a member only their membership invoices).', {
+ep('invoices.list', 'GET', '/invoices', [Mo, O], 'Invoices', 'V', 'List invoices (the owner sees all; a member only their membership invoices).', {
   reqs: ['FR-INVC-005', 'FR-INVC-008', 'FR-FIN-006', 'FR-INVC-009'], res: 'Page<InvoiceView>', tables: ['invoices', 'invoice_items', 'payments'],
   query: [f('status', 'enum:INVOICE_STATUS'), f('payment_state', 'enum:INVOICE_PAYMENT_STATE'), f('invoice_type', 'enum:INVOICE_TYPE'), f('business_client_id', 'uuid', 0, 'OWNER_ADMIN only'), f('member_id', 'uuid', 0, 'OWNER_ADMIN only'), f('from', 'date'), f('to', 'date'), f('overdue', 'bool')], rules: 'Paid / partially paid / overdue are DERIVED by the view invoice_totals (payment_state): OVERDUE = a SENT invoice whose due_date is before today (IST) and that is not fully paid. Nothing is persisted by a job.' });
 ep('invoices.create', 'POST', '/invoices', O, 'Invoices', 'C', 'Create a business-client or membership invoice.', {
   reqs: ['FR-INVC-002', 'FR-INVC-006', 'FR-INVC-003'], res: 'InvoiceDetail', tables: ['invoices', 'invoice_items'], errors: ['BUSINESS_CLIENT_NOT_FOUND', 'MEMBER_NOT_FOUND'],
   body: [f('business_client_id', 'uuid', 0, 'addressed to a business client (exactly one of business_client_id / member_id)'), f('member_id', 'uuid', 0, 'addressed to a member (membership invoice)'), f('issue_date', 'date', 0, 'default today'), f('due_date', 'date', 1, '>= issue_date'), f('items', 'object[]', 1, '>=1 line', [f('description', 'string', 1), f('quantity', 'int', 1), f('unit_price', 'money', 1, 'TAX-EXCLUSIVE')]), f('tax_rate', 'percent', 0, 'default setting tax_rate_business'), f('notes', 'text'), f('send_now', 'bool')],
   rules: 'Invoices are tax-EXCLUSIVE: subtotal = sum(quantity x unit_price); tax_amount = round(subtotal x tax_rate / 100, 2); total_amount = subtotal + tax_amount. Only the lines and tax_rate are stored; the totals are derived (view invoice_totals).' });
-ep('invoices.get', 'GET', '/invoices/:id', [Bo, Mo, O], 'Invoices', 'V', 'Invoice with lines, payments and outstanding amount.', { reqs: ['FR-INVC-005', 'FR-INVC-008'], res: 'InvoiceDetail', tables: ['invoices', 'invoice_items', 'payments'], errors: ['INVOICE_NOT_FOUND'] });
+ep('invoices.get', 'GET', '/invoices/:id', [Mo, O], 'Invoices', 'V', 'Invoice with lines, payments and outstanding amount.', { reqs: ['FR-INVC-005', 'FR-INVC-008'], res: 'InvoiceDetail', tables: ['invoices', 'invoice_items', 'payments'], errors: ['INVOICE_NOT_FOUND'] });
 ep('invoices.update', 'PATCH', '/invoices/:id', O, 'Invoices', 'U', 'Edit a DRAFT invoice.', { reqs: ['FR-INVC-002'], res: 'InvoiceDetail', tables: ['invoices', 'invoice_items'], errors: ['INVOICE_NOT_FOUND', 'INVOICE_NOT_EDITABLE'], body: [f('due_date', 'date'), f('items', 'object[]', 0, 'replaces all lines', [f('description', 'string', 1), f('quantity', 'int', 1), f('unit_price', 'money', 1)]), f('tax_rate', 'percent'), f('notes', 'text')] });
 ep('invoices.send', 'POST', '/invoices/:id/send', O, 'Invoices', 'U', 'Issue the invoice to the client (DRAFT -> SENT).', { reqs: ['FR-INVC-003'], res: 'InvoiceDetail', tables: ['invoices'], errors: ['INVOICE_NOT_FOUND', 'INVALID_STATUS_TRANSITION'] });
 ep('invoices.void', 'POST', '/invoices/:id/void', O, 'Invoices', 'A', 'Void an invoice that has no payments.', { reqs: ['FR-INVC-007'], res: 'InvoiceDetail', tables: ['invoices', 'payments'], errors: ['INVOICE_NOT_FOUND', 'INVALID_STATUS_TRANSITION'] });
 
 // =================================================================================== PAYMENTS
-ep('payments.create', 'POST', '/payments', [Mo, Bo, F, O], 'Payments', 'C', 'Record a payment against a court booking, membership, shop order, cafe order or invoice.', {
+ep('payments.create', 'POST', '/payments', [Mo, F, K, S, O], 'Payments', 'C', 'Record a payment against a court booking, membership, shop order, cafe order or invoice.', {
   reqs: ['FR-FIN-001', 'FR-FIN-002', 'FR-INVC-004', 'FR-FIN-010'], res: 'PaymentView', tables: ['payments', 'court_bookings', 'shop_orders', 'bar_orders', 'invoices'], guest: true,
   errors: ['PAYMENT_FAILED', 'PAYMENT_AMOUNT_MISMATCH', 'ALREADY_PAID', 'BOOKING_NOT_FOUND', 'ORDER_NOT_FOUND', 'INVOICE_NOT_FOUND', 'MEMBERSHIP_NOT_FOUND'],
-  body: [f('source_type', 'enum:PAYMENT_SOURCE_TYPE', 1), f('source_id', 'uuid', 1), f('amount', 'money', 0, 'default = remaining due. Partial payments allowed ONLY for INVOICE; every other source must equal the full amount due'), method(1, 'MEMBER / BUSINESS_CLIENT: ONLINE only. FRONT_DESK: CASH | CARD | UPI. OWNER_ADMIN: any'), f('gateway_reference', 'string'), f('notes', 'text')],
+  body: [f('source_type', 'enum:PAYMENT_SOURCE_TYPE', 1), f('source_id', 'uuid', 1), f('amount', 'money', 0, 'default = remaining due. Partial payments allowed ONLY for INVOICE; every other source must equal the full amount due'), method(1, 'MEMBER: ONLINE only. FRONT_DESK: CASH | CARD | UPI. OWNER_ADMIN: any'), f('gateway_reference', 'string'), f('notes', 'text')],
   rules: 'The revenue category is derived from source_type (INVOICE: BUSINESS or MEMBERSHIP by the invoice recipient) by the view payment_ledger. tax_amount is computed at payment time (tax-inclusive sources) or pro rata (invoices). No status is written on the thing being paid: its payment status is derived from its payments. ONLINE goes through the mock gateway of the hackathon build (ADR-011): an amount whose paise are .13 (e.g. 100.13) returns PAYMENT_FAILED.' });
-ep('payments.list', 'GET', '/payments', [Mo, Bo, Fo, O], 'Payments', 'V', 'Payment history. Members / clients: own. Front desk: payments they received. Owner: all.', {
+ep('payments.list', 'GET', '/payments', [Mo, Fo, Ko, So, O], 'Payments', 'V', 'Payment history. Members / clients: own. Front desk: payments they received. Owner: all.', {
   reqs: ['FR-FIN-004', 'FR-INVC-005', 'FR-FIN-003'], res: 'Page<PaymentView>', tables: ['payments'],
   query: [f('source_type', 'enum:PAYMENT_SOURCE_TYPE'), f('revenue_category', 'enum:REVENUE_CATEGORY'), f('method', 'enum:PAYMENT_METHOD'), f('status', 'enum:PAYMENT_TXN_STATUS'), f('member_id', 'uuid', 0, 'OWNER_ADMIN only'), f('business_client_id', 'uuid', 0, 'OWNER_ADMIN only'), f('from', 'date'), f('to', 'date')] });
-ep('payments.get', 'GET', '/payments/:id', [Mo, Bo, Fo, O], 'Payments', 'V', 'One payment = the receipt.', { reqs: ['FR-FIN-004'], res: 'PaymentView', tables: ['payments'], errors: ['PAYMENT_NOT_FOUND'] });
+ep('payments.get', 'GET', '/payments/:id', [Mo, Fo, Ko, So, O], 'Payments', 'V', 'One payment = the receipt.', { reqs: ['FR-FIN-004'], res: 'PaymentView', tables: ['payments'], errors: ['PAYMENT_NOT_FOUND'] });
 ep('payments.refund', 'POST', '/payments/:id/refund', O, 'Payments', 'A', 'Refund (fully or partly) a payment. Cancellation flows refund automatically; this is for manual corrections.', {
   reqs: ['FR-FIN-005'], res: 'PaymentView', tables: ['payments'], errors: ['PAYMENT_NOT_FOUND', 'REFUND_EXCEEDS_PAYMENT'], body: [f('amount', 'money', 1, '> 0, <= amount - refunded_amount'), f('reason', 'text', 1)] });
 
 // =================================================================================== STAFF / HR
 ep('staff.list', 'GET', '/staff', O, 'Staff records', 'V', 'Staff directory.', { reqs: ['FR-STAFF-001'], res: 'Page<StaffView>', tables: ['staff', 'users'], query: [f('q', 'string'), f('role', 'enum:USER_ROLE'), f('is_active', 'bool')] });
-ep('staff.create', 'POST', '/staff', O, 'Staff records', 'C', 'Create a staff account (front desk, kitchen manager or another owner) and employee record.', {
+ep('staff.create', 'POST', '/staff', O, 'Staff records', 'C', 'Create a staff account (front desk, kitchen, store manager or another owner) and employee record.', {
   reqs: ['FR-STAFF-001', 'FR-AUTH-007'], res: 'StaffView', tables: ['users', 'staff'], errors: ['EMAIL_TAKEN'],
-  body: [f('full_name', 'string', 1), f('email', 'email', 1), f('phone', 'phone'), f('role', 'enum:USER_ROLE', 1, 'FRONT_DESK | KITCHEN_MANAGER | OWNER_ADMIN only'), f('password', 'string', 1), f('designation', 'string', 1), f('monthly_salary', 'money', 1), f('joined_on', 'date')] });
-ep('staff.get', 'GET', '/staff/:id', [Fo, Ko, O], 'Staff records', 'V', 'Employee record.', { reqs: ['FR-STAFF-001', 'FR-STAFF-007'], res: 'StaffView', tables: ['staff'], errors: ['STAFF_NOT_FOUND'] });
+  body: [f('full_name', 'string', 1), f('email', 'email', 1), f('phone', 'phone'), f('role', 'enum:USER_ROLE', 1, 'FRONT_DESK | KITCHEN_MANAGER | STORE_MANAGER | OWNER_ADMIN only'), f('password', 'string', 1), f('designation', 'string', 1), f('monthly_salary', 'money', 1), f('joined_on', 'date')] });
+ep('staff.get', 'GET', '/staff/:id', [Fo, Ko, So, O], 'Staff records', 'V', 'Employee record.', { reqs: ['FR-STAFF-001', 'FR-STAFF-007'], res: 'StaffView', tables: ['staff'], errors: ['STAFF_NOT_FOUND'] });
 ep('staff.update', 'PATCH', '/staff/:id', O, 'Staff records', 'U', 'Edit an employee / deactivate (is_active lives on the login: users.is_active).', { reqs: ['FR-STAFF-001'], res: 'StaffView', tables: ['staff', 'users'], errors: ['STAFF_NOT_FOUND'], body: [f('full_name', 'string'), f('phone', 'phone'), f('designation', 'string'), f('monthly_salary', 'money'), f('is_active', 'bool')] });
-ep('staff.shifts', 'GET', '/staff/shifts', [F, Ko, O], 'Shifts', 'V', 'Shift roster for a date range (front desk sees everyone read-only; kitchen only own).', { reqs: ['FR-STAFF-002', 'FR-STAFF-005', 'FR-STAFF-007'], res: 'ShiftView[]', tables: ['staff_shifts', 'staff'], query: [f('from', 'date', 1), f('to', 'date', 1, 'max 31 days'), f('staff_id', 'uuid'), f('area', 'enum:SHIFT_AREA')] });
+ep('staff.applicationCreate', 'POST', '/staff/applications', PUB, 'Job applications', 'C', 'A visitor applies to work at the club. Nothing is granted until the owner approves; the applicant can log in to see the status.', {
+  reqs: ['FR-AUTH-008', 'FR-STAFF-008'], res: 'EmployeeApplicationPending', tables: ['employee_applications'], errors: ['EMAIL_TAKEN', 'APPLICATION_PENDING'],
+  body: [f('full_name', 'string', 1, '2-120 chars'), f('email', 'email', 1), f('phone', 'phone', 1), f('password', 'string', 1, 'min 8 chars, >=1 letter and >=1 digit; kept only as a bcrypt hash until the owner decides')],
+  rules: 'Creates a PENDING `employee_applications` row. No `users` / `staff` row exists yet. One PENDING application per email.' });
+ep('staff.applicationList', 'GET', '/staff/applications', O, 'Job applications', 'V', 'Job applications, newest first (never includes password hashes).', { reqs: ['FR-STAFF-008'], res: 'EmployeeApplicationView[]', tables: ['employee_applications', 'users'], query: [f('status', 'enum:APPLICATION_STATUS')] });
+ep('staff.applicationApprove', 'POST', '/staff/applications/:id/approve', O, 'Job applications', 'A', 'Approve an application and choose the role: creates the login (same email and password) and the staff record.', {
+  reqs: ['FR-STAFF-008'], res: 'EmployeeApplicationView', tables: ['employee_applications', 'users', 'staff'], errors: ['APPLICATION_NOT_FOUND', 'INVALID_STATUS_TRANSITION', 'EMAIL_TAKEN'],
+  body: [f('role', 'enum:USER_ROLE', 1, 'FRONT_DESK | KITCHEN_MANAGER | STORE_MANAGER'), f('designation', 'string', 0, 'default: the role name'), f('monthly_salary', 'money', 0, 'default 0.00')],
+  rules: 'One transaction: lock the PENDING application, create `users` (bcrypt hash copied, role, active) + `staff`, mark it APPROVED with approved_role / reviewer / reviewed_at, clear the stored hash.' });
+ep('staff.applicationReject', 'POST', '/staff/applications/:id/reject', O, 'Job applications', 'A', 'Decline an application. No account is created.', {
+  reqs: ['FR-STAFF-008'], res: 'EmployeeApplicationView', tables: ['employee_applications'], errors: ['APPLICATION_NOT_FOUND', 'INVALID_STATUS_TRANSITION'],
+  body: [f('note', 'string', 0, 'shown on the owner dashboard')], rules: 'Marks the application REJECTED and clears the stored hash; the applicant gets no access.' });
+ep('events.list', 'GET', '/events', ANY, 'Events', 'V', 'All club events, soonest first. Every role reads the same rows; a member also gets `is_registered`.', { reqs: ['FR-EVT-002'], res: 'EventView[]', tables: ['events', 'event_registrations'] });
+ep('events.create', 'POST', '/events', O, 'Events', 'C', 'Create an event.', { reqs: ['FR-EVT-001'], res: 'EventView', tables: ['events'], body: [f('title', 'string', 1), f('kind', 'enum:EVENT_KIND', 1), f('description', 'text'), f('location', 'string', 1), f('start_at', 'datetime', 1), f('end_at', 'datetime', 1, '> start_at'), f('capacity', 'int', 1, '>= 1'), f('fee', 'money', 0, 'default 0.00')] });
+ep('events.register', 'POST', '/events/:id/registrations', M, 'Events', 'C', 'Register the calling member for an event (idempotent).', { reqs: ['FR-EVT-002'], res: 'EventView', tables: ['events', 'event_registrations'], errors: ['EVENT_NOT_FOUND', 'EVENT_FULL', 'EVENT_ENDED'], rules: 'Capacity is checked inside a transaction that locks the event row.' });
+ep('events.unregister', 'DELETE', '/events/:id/registrations', M, 'Events', 'D', 'Cancel the calling member registration.', { reqs: ['FR-EVT-002'], res: 'EventView', tables: ['event_registrations'], errors: ['EVENT_NOT_FOUND'] });
+ep('staff.shifts', 'GET', '/staff/shifts', [F, Ko, So, O], 'Shifts', 'V', 'Shift roster for a date range (front desk sees everyone read-only; kitchen only own).', { reqs: ['FR-STAFF-002', 'FR-STAFF-005', 'FR-STAFF-007'], res: 'ShiftView[]', tables: ['staff_shifts', 'staff'], query: [f('from', 'date', 1), f('to', 'date', 1, 'max 31 days'), f('staff_id', 'uuid'), f('area', 'enum:SHIFT_AREA')] });
 ep('staff.shiftCreate', 'POST', '/staff/shifts', O, 'Shifts', 'C', 'Assign a shift.', { reqs: ['FR-STAFF-002'], res: 'ShiftView', tables: ['staff_shifts'], errors: ['STAFF_NOT_FOUND', 'SHIFT_OVERLAP'], body: [f('staff_id', 'uuid', 1), f('shift_date', 'date', 1), f('start_time', 'time', 1), f('end_time', 'time', 1, '> start_time (same day)'), f('area', 'enum:SHIFT_AREA', 1)], rules: 'Rejects overlaps for the same staff/date and dates inside an APPROVED leave (SHIFT_OVERLAP).' });
 ep('staff.shiftUpdate', 'PATCH', '/staff/shifts/:id', O, 'Shifts', 'U', 'Edit a shift.', { reqs: ['FR-STAFF-002'], res: 'ShiftView', tables: ['staff_shifts'], errors: ['SHIFT_NOT_FOUND', 'SHIFT_OVERLAP'], body: [f('shift_date', 'date'), f('start_time', 'time'), f('end_time', 'time'), f('area', 'enum:SHIFT_AREA')] });
 ep('staff.shiftDelete', 'DELETE', '/staff/shifts/:id', O, 'Shifts', 'D', 'Remove a shift.', { reqs: ['FR-STAFF-002'], res: 'void', tables: ['staff_shifts'], errors: ['SHIFT_NOT_FOUND'] });
-ep('staff.leaveList', 'GET', '/staff/leave-requests', [Fo, Ko, O], 'Leave', 'V', 'Leave requests (staff see their own; owner sees all).', { reqs: ['FR-STAFF-003', 'FR-STAFF-004'], res: 'Page<LeaveView>', tables: ['leave_requests', 'staff'], query: [f('status', 'enum:LEAVE_STATUS'), f('staff_id', 'uuid', 0, 'OWNER_ADMIN only'), f('from', 'date'), f('to', 'date')] });
-ep('staff.leaveCreate', 'POST', '/staff/leave-requests', [F, K], 'Leave', 'C', 'Request leave (status PENDING).', { reqs: ['FR-STAFF-003'], res: 'LeaveView', tables: ['leave_requests'], errors: ['LEAVE_OVERLAP'], body: [f('start_date', 'date', 1), f('end_date', 'date', 1, '>= start_date'), f('reason', 'text')] });
+ep('staff.leaveList', 'GET', '/staff/leave-requests', [Fo, Ko, So, O], 'Leave', 'V', 'Leave requests (staff see their own; owner sees all).', { reqs: ['FR-STAFF-003', 'FR-STAFF-004'], res: 'Page<LeaveView>', tables: ['leave_requests', 'staff'], query: [f('status', 'enum:LEAVE_STATUS'), f('staff_id', 'uuid', 0, 'OWNER_ADMIN only'), f('from', 'date'), f('to', 'date')] });
+ep('staff.leaveCreate', 'POST', '/staff/leave-requests', [F, K, S], 'Leave', 'C', 'Request leave (status PENDING).', { reqs: ['FR-STAFF-003'], res: 'LeaveView', tables: ['leave_requests'], errors: ['LEAVE_OVERLAP'], body: [f('start_date', 'date', 1), f('end_date', 'date', 1, '>= start_date'), f('reason', 'text')] });
 ep('staff.leaveDecide', 'POST', '/staff/leave-requests/:id/decision', O, 'Leave', 'A', 'Approve or reject a PENDING leave request.', { reqs: ['FR-STAFF-004'], res: 'LeaveView', tables: ['leave_requests'], errors: ['LEAVE_NOT_FOUND', 'INVALID_STATUS_TRANSITION'], body: [f('decision', 'enum:LEAVE_DECISION', 1), f('note', 'text', 0, 'required when REJECT')], status: 200 });
-ep('staff.leaveCancel', 'POST', '/staff/leave-requests/:id/cancel', [Fo, Ko, O], 'Leave', 'U', 'Cancel a PENDING or future APPROVED leave request.', { reqs: ['FR-STAFF-003'], res: 'LeaveView', tables: ['leave_requests'], errors: ['LEAVE_NOT_FOUND', 'INVALID_STATUS_TRANSITION'] });
-ep('staff.payrollList', 'GET', '/staff/payroll', [Fo, Ko, O], 'Payroll', 'V', 'Salary payments (staff: own history).', { reqs: ['FR-STAFF-006', 'FR-FIN-008', 'FR-STAFF-007'], res: 'Page<PayrollView>', tables: ['payroll_payments', 'staff'], query: [f('staff_id', 'uuid', 0, 'OWNER_ADMIN only'), f('pay_period', 'date', 0, 'first day of month'), f('paid', 'bool', 0, 'true = paid_on is set, false = still pending')] });
+ep('staff.leaveCancel', 'POST', '/staff/leave-requests/:id/cancel', [Fo, Ko, So, O], 'Leave', 'U', 'Cancel a PENDING or future APPROVED leave request.', { reqs: ['FR-STAFF-003'], res: 'LeaveView', tables: ['leave_requests'], errors: ['LEAVE_NOT_FOUND', 'INVALID_STATUS_TRANSITION'] });
+ep('staff.payrollList', 'GET', '/staff/payroll', [Fo, Ko, So, O], 'Payroll', 'V', 'Salary payments (staff: own history).', { reqs: ['FR-STAFF-006', 'FR-FIN-008', 'FR-STAFF-007'], res: 'Page<PayrollView>', tables: ['payroll_payments', 'staff'], query: [f('staff_id', 'uuid', 0, 'OWNER_ADMIN only'), f('pay_period', 'date', 0, 'first day of month'), f('paid', 'bool', 0, 'true = paid_on is set, false = still pending')] });
 ep('staff.payrollCreate', 'POST', '/staff/payroll', O, 'Payroll', 'C', 'Create (and optionally pay) a salary record for a month.', { reqs: ['FR-STAFF-006', 'FR-FIN-008'], res: 'PayrollView', tables: ['payroll_payments'], errors: ['STAFF_NOT_FOUND', 'PAYROLL_EXISTS'], body: [f('staff_id', 'uuid', 1), f('pay_period', 'date', 1, 'first day of month'), f('amount', 'money', 0, 'default staff.monthly_salary'), method(1), f('mark_paid', 'bool', 0, 'true sets paid_on = today')] });
 ep('staff.payrollPay', 'POST', '/staff/payroll/:id/pay', O, 'Payroll', 'U', 'Mark a pending salary as paid (sets paid_on).', { reqs: ['FR-STAFF-006', 'FR-FIN-008'], res: 'PayrollView', tables: ['payroll_payments'], errors: ['NOT_FOUND', 'INVALID_STATUS_TRANSITION'], body: [method(0), f('paid_on', 'date', 0, 'default today')], status: 200 });
 
@@ -269,7 +293,7 @@ ep('settings.update', 'PATCH', '/settings/:key', O, 'Club settings', 'U', 'Chang
 // ---------------------------------------------------------------------------------- derived helpers
 export const roleName = (r) => r.split(':')[0];
 export const isOwnOnly = (r) => r.endsWith(':own');
-export const ALL_ROLES = [M, F, K, B, O];
+export const ALL_ROLES = [M, F, K, S, O];
 
 // ---------------------------------------------------------------------------------- governing business rules per endpoint
 // Rule ids live in docs/business-rules/BUSINESS_RULES.md (single place). The API contract cites them instead of restating them;

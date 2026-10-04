@@ -17,8 +17,7 @@ const claimsFor = (role: UserRole): TokenClaims => ({
   sub: '11111111-1111-4111-8111-111111111111',
   role,
   ...(role === 'MEMBER' ? { member_id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' } : {}),
-  ...(role === 'BUSINESS_CLIENT' ? { business_client_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' } : {}),
-  ...(role === 'FRONT_DESK' || role === 'KITCHEN_MANAGER' || role === 'OWNER_ADMIN' ? { staff_id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc' } : {}),
+  ...(role === 'FRONT_DESK' || role === 'KITCHEN_MANAGER' || role === 'STORE_MANAGER' || role === 'OWNER_ADMIN' ? { staff_id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc' } : {}),
 });
 
 describe('tokens', () => {
@@ -148,9 +147,7 @@ describe('requireAuth / optionalAuth / requireRole / callerScope', () => {
   it('callerScope returns the profile id that matches the role', async () => {
     setState({ is_active: true, role: 'MEMBER' });
     assert.deepEqual((await call('/scope', 'MEMBER')).body.data, { member_id: claimsFor('MEMBER').member_id });
-    setState({ is_active: true, role: 'BUSINESS_CLIENT' });
-    assert.deepEqual((await call('/scope', 'BUSINESS_CLIENT')).body.data, { business_client_id: claimsFor('BUSINESS_CLIENT').business_client_id });
-    for (const role of ['FRONT_DESK', 'KITCHEN_MANAGER', 'OWNER_ADMIN'] as const) {
+    for (const role of ['FRONT_DESK', 'KITCHEN_MANAGER', 'STORE_MANAGER', 'OWNER_ADMIN'] as const) {
       setState({ is_active: true, role });
       assert.deepEqual((await call('/scope', role)).body.data, { staff_id: claimsFor(role).staff_id });
     }

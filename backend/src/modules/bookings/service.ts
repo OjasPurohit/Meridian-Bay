@@ -18,11 +18,11 @@ import * as members from '../members/repo';
 import { recordPayment, refundInTx } from '../payments/service';
 
 const pool: Tx = { query };
-const isStaff = (u: AuthUser) => u.role !== USER_ROLE.MEMBER && u.role !== USER_ROLE.BUSINESS_CLIENT;
+const isStaff = (u: AuthUser) => u.role !== USER_ROLE.MEMBER;
 const NOBODY = '00000000-0000-0000-0000-000000000000';
 
 const DETAIL_SELECT = `
-  SELECT b.id, b.booking_number, b.court_id, b.booking_type, b.member_id, b.guest_name, b.guest_phone, b.start_at, b.end_at, b.list_price, b.discount_amount,
+  SELECT b.id, b.booking_number, b.court_id, b.booking_type, b.member_id, b.guest_name, b.guest_phone, b.guest_email, b.start_at, b.end_at, b.list_price, b.discount_amount,
          b.cancelled_at, b.created_at, b.updated_at,
          t.status, t.amount_due, t.amount_paid, t.payment_status,
          c.name AS court_name, c.sport_type, mu.full_name AS member_name, m.member_code
@@ -130,6 +130,31 @@ export const BookingsService = {
     return (await bookingDetail(pool, id))!;
   },
 
+  /** Public: a visitor's free trial hour. Takes the first free active court of the sport; the exclusion constraint stays the final arbiter. */
+  async trial(body: { name: string; phone: string; email?: string; sport_type: string; start_at: string }): Promise<BookingDetail> {
+    await checkSlot(body.start_at);
+    const start = new Date(body.start_at);
+    const end = new Date(start.getTime() + 3_600_000);
+    const id = await withTransaction(async (tx) => {
+      await advisoryLock(tx, `trial:${body.phone}`);
+      const open = (await tx.query<{ n: number }>(`SELECT count(*)::int AS n FROM court_bookings WHERE booking_type = 'TRIAL' AND guest_phone = $1 AND cancelled_at IS NULL AND start_at > now()`, [body.phone])).rows[0]!.n;
+      if (open > 0) throw new AppError('TRIAL_ALREADY_BOOKED');
+      const court = (await tx.query<{ id: string }>(
+        `SELECT c.id FROM courts c WHERE c.is_active AND c.sport_type = $1
+            AND NOT EXISTS (SELECT 1 FROM court_bookings b WHERE b.court_id = c.id AND b.cancelled_at IS NULL AND b.start_at < $3 AND b.end_at > $2)
+          ORDER BY c.name LIMIT 1`,
+        [body.sport_type, start.toISOString(), end.toISOString()],
+      )).rows[0];
+      if (!court) throw new AppError('BOOKING_CONFLICT', { reason: 'No court is free for that sport at that time.' });
+      return (await tx.query<{ id: string }>(
+        `INSERT INTO court_bookings (court_id, booking_type, guest_name, guest_phone, guest_email, start_at, end_at, list_price, discount_amount)
+         VALUES ($1, 'TRIAL', $2, $3, $4, $5, $6, 0, 0) RETURNING id`,
+        [court.id, body.name, body.phone, body.email ?? null, start.toISOString(), end.toISOString()],
+      )).rows[0]!.id;
+    });
+    return (await bookingDetail(pool, id))!;
+  },
+
   async list(user: AuthUser, q: { from?: string; to?: string; court_id?: string; member_id?: string; status?: string; booking_type?: string; upcoming?: boolean; page: number; page_size: number }) {
     const c: string[] = [];
     const params: unknown[] = [];
@@ -164,7 +189,7 @@ export const BookingsService = {
       const { rows } = await tx.query<{ member_id: string | null; start_at: string; cancelled_at: string | null; booking_type: string }>('SELECT member_id, start_at, cancelled_at, booking_type FROM court_bookings WHERE id = $1 FOR UPDATE', [id]);
       const b = rows[0];
       if (!b || (user.role === USER_ROLE.MEMBER && b.member_id !== user.member_id)) throw new AppError('BOOKING_NOT_FOUND');
-      if (b.cancelled_at || Date.parse(b.start_at) <= Date.now() || b.booking_type !== 'REGULAR') throw new AppError('BOOKING_NOT_CANCELLABLE');
+      if (b.cancelled_at || Date.parse(b.start_at) <= Date.now() || b.booking_type === 'MAINTENANCE') throw new AppError('BOOKING_NOT_CANCELLABLE');
       await tx.query('UPDATE court_bookings SET cancelled_at = now() WHERE id = $1', [id]);
       const early = Date.parse(b.start_at) - Date.now() >= cutoff * 3_600_000;
       const refund = isStaff(user) && refundOverride !== undefined ? refundOverride : early;

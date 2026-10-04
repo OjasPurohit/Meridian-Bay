@@ -1,12 +1,12 @@
 /**
  * Authentication + authorisation infrastructure (ADR-002). The auth *module* (signup/login/me) is a separate task and
  * will use signToken(); this file only provides the shared pieces:
- *   signToken / verifyToken   HS256 JWT, 8 h (config), claims: sub, role, member_id | staff_id | business_client_id
+ *   signToken / verifyToken   HS256 JWT, 8 h (config), claims: sub, role, member_id | staff_id
  *   requireAuth               Bearer token -> req.user; re-checks users.is_active (short cache) => ACCOUNT_DISABLED
  *   optionalAuth              same, but anonymous callers pass (PUBLIC endpoints that vary by role)
  *   requireRole(...roles)     copy of the `roles` of the endpoint in tools/api/endpoints.mjs (own-record scoping
  *                             `:own` is applied in the service with callerScope)
- *   callerScope(req)          { member_id } | { staff_id } | { business_client_id }
+ *   callerScope(req)          { member_id } | { staff_id }
  */
 import jwt from 'jsonwebtoken';
 import type { RequestHandler, Request } from 'express';
@@ -21,7 +21,6 @@ export interface TokenClaims {
   role: UserRole;
   member_id?: string;
   staff_id?: string;
-  business_client_id?: string;
 }
 
 export interface AuthUser {
@@ -29,7 +28,6 @@ export interface AuthUser {
   role: UserRole;
   member_id?: string;
   staff_id?: string;
-  business_client_id?: string;
 }
 
 declare global {
@@ -71,7 +69,7 @@ export function verifyToken(token: string): TokenClaims {
     throw new AppError('AUTH_UNAUTHORIZED');
   }
   const claims: TokenClaims = { sub: decoded.sub, role: decoded.role as UserRole };
-  for (const key of ['member_id', 'staff_id', 'business_client_id'] as const) {
+  for (const key of ['member_id', 'staff_id'] as const) {
     if (typeof decoded[key] === 'string') claims[key] = decoded[key];
   }
   return claims;
@@ -135,7 +133,6 @@ async function authenticate(req: Request, token: string): Promise<void> {
   const user: AuthUser = { id: claims.sub, role: claims.role };
   if (claims.member_id) user.member_id = claims.member_id;
   if (claims.staff_id) user.staff_id = claims.staff_id;
-  if (claims.business_client_id) user.business_client_id = claims.business_client_id;
   req.user = user;
 }
 
@@ -167,15 +164,14 @@ export function requireRole(...roles: UserRole[]): RoleGuard {
 }
 
 // ------------------------------------------------------------------ own-record scoping
-export type CallerScope = { member_id: string } | { staff_id: string } | { business_client_id: string };
+export type CallerScope = { member_id: string } | { staff_id: string };
 
 /** The profile id of the caller, for `WHERE member_id = :id` style scoping in services (PERMISSIONS_MATRIX §3.1).
- *  Which key is present follows the role: MEMBER -> member_id, BUSINESS_CLIENT -> business_client_id, staff -> staff_id. */
+ *  Which key is present follows the role: MEMBER -> member_id, staff roles -> staff_id. */
 export function callerScope(req: Request): CallerScope {
   const user = req.user;
   if (!user) throw new AppError('AUTH_UNAUTHORIZED');
   if (user.role === USER_ROLE.MEMBER && user.member_id) return { member_id: user.member_id };
-  if (user.role === USER_ROLE.BUSINESS_CLIENT && user.business_client_id) return { business_client_id: user.business_client_id };
-  if (user.staff_id && user.role !== USER_ROLE.MEMBER && user.role !== USER_ROLE.BUSINESS_CLIENT) return { staff_id: user.staff_id };
+  if (user.staff_id && user.role !== USER_ROLE.MEMBER) return { staff_id: user.staff_id };
   throw new AppError('FORBIDDEN'); // the account has no profile of the kind its role requires
 }

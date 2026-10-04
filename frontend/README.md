@@ -4,7 +4,7 @@
 
 **Run:** `cd frontend && npm install && npm run dev` (http://localhost:5173) · `npm run build` typechecks and bundles.
 
-**Backend switch:** set `VITE_API_BASE_URL` (e.g. `http://localhost:4000` in `frontend/.env.local`) once the API exists. Unset = no backend: login/sign-up report that accounts aren't connected, and the role dashboards (`/member`, `/owner`, `/front-desk`, `/business`, `/kitchen`) open as labelled previews of `mock-data`. Set = dashboards require a real session with the matching role (`src/auth`, `src/features/dashboards`); the API must still enforce every permission server-side. Design tokens live in `src/index.css` (`@theme`); photo slots use `components/ui/PlaceholderArt.tsx` until real photography is supplied (pass `src`).
+**Backend switch:** `npm run dev` talks to the API at `http://localhost:4000` by default (override with `VITE_API_BASE_URL` in `frontend/.env.local`); `npm run dev:preview` starts the no-backend preview on purpose. Unset = no backend: login/sign-up report that accounts aren't connected, and the role dashboards (`/member`, `/owner`, `/front-desk`, `/business`, `/kitchen`) open as labelled previews of `mock-data`. Set = dashboards require a real session with the matching role (`src/auth`, `src/features/dashboards`); the API must still enforce every permission server-side. Design tokens live in `src/index.css` (`@theme`); photo slots use `components/ui/PlaceholderArt.tsx` until real photography is supplied (pass `src`).
 
 **Stack (ADR-008):** React 18 · Vite · TypeScript · React Router · TanStack Query · Tailwind CSS. Types, enums, error codes, money/time helpers come from `/shared` (alias `@shared/*`). Network contract: [API_CONTRACT.md](../docs/api/API_CONTRACT.md) (`docs/api/openapi.yaml` can generate a client if wanted).
 
@@ -33,7 +33,7 @@ frontend/
 | MEMBER | `/member` | Overview + profile/plan/expiry (Dev 1); Book/cancel court (Dev 2); Shop + orders (Dev 3); Cafe orders (Dev 3); Payments/receipts (Dev 4) |
 | FRONT_DESK | `/front-desk` | Member search/register/history + Bookings (Dev 2); Enquiry inbox (Dev 1); Shop counter + Cafe orders (Dev 3); Schedule/leave (Dev 4) |
 | KITCHEN_MANAGER | `/kitchen` | Kitchen board only (Dev 3) |
-| BUSINESS_CLIENT | `/business` | Invoices, pay, history (Dev 4) |
+| STORE_MANAGER | `/store-manager` | Products, stock, shop orders |
 | OWNER_ADMIN | `/owner` | Dashboard + Reports + Finance + Invoices + Staff/HR + Settings (Dev 4); Plans/Courts admin (Dev 2); Products/Inventory/Menu admin (Dev 3) |
 
 ## Rules

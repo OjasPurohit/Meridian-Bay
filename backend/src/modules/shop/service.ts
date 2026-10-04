@@ -17,7 +17,7 @@ import * as members from '../members/repo';
 import { recordPayment, refundInTx } from '../payments/service';
 
 const pool: Tx = { query };
-const isStaff = (u: AuthUser | undefined) => !!u && u.role !== USER_ROLE.MEMBER && u.role !== USER_ROLE.BUSINESS_CLIENT;
+const isStaff = (u: AuthUser | undefined) => !!u && u.role !== USER_ROLE.MEMBER;
 const NOBODY = '00000000-0000-0000-0000-000000000000';
 
 const stockStatus = (p: { stock_quantity: number; low_stock_threshold: number }): ProductView['stock_status'] =>
@@ -26,7 +26,7 @@ const stockStatus = (p: { stock_quantity: number; low_stock_threshold: number })
 async function view(p: Product, user: AuthUser | undefined, pct: number): Promise<ProductView> {
   const v: ProductView = { id: p.id, sku: p.sku, name: p.name, category: p.category, brand: p.brand, description: p.description, price: p.price, image_url: p.image_url, stock_status: stockStatus(p) };
   if (pct > 0) v.member_price = fromPaise(toPaise(p.price) - percentOf(toPaise(p.price), pct));
-  if (user && (user.role === USER_ROLE.FRONT_DESK || user.role === USER_ROLE.OWNER_ADMIN || user.role === USER_ROLE.KITCHEN_MANAGER)) {
+  if (user && (user.role === USER_ROLE.FRONT_DESK || user.role === USER_ROLE.OWNER_ADMIN || user.role === USER_ROLE.KITCHEN_MANAGER || user.role === USER_ROLE.STORE_MANAGER)) {
     v.stock_quantity = p.stock_quantity;
     v.low_stock_threshold = p.low_stock_threshold;
     v.is_active = p.is_active;

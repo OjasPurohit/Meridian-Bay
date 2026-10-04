@@ -3,10 +3,11 @@ import { Check } from 'lucide-react';
 
 import type { EnquiryType, SportType } from '@shared/constants/enums';
 import type { MembershipPlan } from '@shared/types/rows';
-import { createEnquiry, SPORT_LABEL, type PublicClubInfo } from '@/api/public';
+import { ApiError, isBackendConfigured } from '@/api/client';
+import { bookTrial, createEnquiry, SPORT_LABEL, type PublicClubInfo, type TrialBookingResult } from '@/api/public';
 import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button';
 import { ENQUIRY_PRESET_EVENT, takePendingPreset, type EnquiryPreset } from '@/features/public/nav';
-import { formatTimeOfDay } from '@/lib/format';
+import { formatClockIst, formatDateIst, formatTimeOfDay } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 const TYPES: { value: EnquiryType; label: string }[] = [
@@ -19,12 +20,18 @@ export const field = 'mt-2 block min-h-12 w-full border border-line bg-chalk px-
 export const label = 'text-sm font-semibold';
 
 function minLocalDateTime() {
-  const d = new Date(Date.now() + 60 * 60 * 1000);
+  const d = new Date(Math.ceil((Date.now() + 60 * 60 * 1000) / 1_800_000) * 1_800_000); // next :00/:30 at least an hour away, so the 30-minute steps land on real slots
   d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
   return d.toISOString().slice(0, 16);
 }
 
-type Status = { kind: 'idle' } | { kind: 'sending' } | { kind: 'sent'; name: string } | { kind: 'error'; message: string };
+type Status = { kind: 'idle' } | { kind: 'sending' } | { kind: 'sent'; name: string; persisted: boolean; trial?: TrialBookingResult } | { kind: 'error'; message: string };
+
+const TRIAL_ERRORS: Record<string, string> = {
+  BOOKING_CONFLICT: 'No court is free for that sport at that time. Please pick another time.',
+  INVALID_SLOT: 'Please choose a future time on the hour or half hour.',
+  COURT_UNAVAILABLE: 'That time is outside our opening hours. Please pick another time.',
+};
 
 export function EnquirySection({ club, plans }: { club: PublicClubInfo | null; plans: MembershipPlan[] }) {
   const uid = useId();
@@ -52,19 +59,28 @@ export function EnquirySection({ club, plans }: { club: PublicClubInfo | null; p
     const when = String(f.get('preferred') ?? '');
     setStatus({ kind: 'sending' });
     try {
-      await createEnquiry({
+      if (type === 'TRIAL') {
+        const trial = await bookTrial({
+          name,
+          phone: phone.replace(/[\s()-]/g, ''),
+          email: String(f.get('email') ?? '').trim() || undefined,
+          sport_type: String(f.get('sport')) as SportType,
+          start_at: new Date(when).toISOString(),
+        });
+        setStatus({ kind: 'sent', name: name.split(' ')[0], persisted: trial.persisted, trial });
+        return;
+      }
+      const sentEnquiry = await createEnquiry({
         name,
         phone,
         email: String(f.get('email') ?? '').trim() || undefined,
         enquiry_type: type,
         message: String(f.get('message') ?? '').trim() || undefined,
         membership_plan_id: type === 'MEMBERSHIP' && planId ? planId : undefined,
-        sport_type: type === 'TRIAL' ? (String(f.get('sport')) as SportType) : undefined,
-        preferred_start_at: type === 'TRIAL' && when ? new Date(when).toISOString() : undefined,
       });
-      setStatus({ kind: 'sent', name: name.split(' ')[0] });
+      setStatus({ kind: 'sent', name: name.split(' ')[0], persisted: sentEnquiry.persisted });
     } catch (err) {
-      setStatus({ kind: 'error', message: err instanceof Error ? err.message : 'Something went wrong. Please try again.' });
+      setStatus({ kind: 'error', message: err instanceof ApiError && TRIAL_ERRORS[err.code] ? TRIAL_ERRORS[err.code]! : err instanceof Error ? err.message : 'Something went wrong. Please try again.' });
     }
   }
 
@@ -126,12 +142,28 @@ export function EnquirySection({ club, plans }: { club: PublicClubInfo | null; p
                 <span className="inline-flex size-12 items-center justify-center rounded-full bg-olive text-chalk">
                   <Check className="size-6" aria-hidden="true" />
                 </span>
-                <p className="display mt-6 text-4xl">Thank you, {status.name}.</p>
-                <p className="mt-4 max-w-md leading-relaxed text-muted">
-                  This is a preview of the website and isn&rsquo;t connected to the club yet, so your enquiry was <strong>not sent</strong>. Once it&rsquo;s live, the front desk will see it straight away.
-                </p>
+                {status.trial?.persisted ? (
+                  <>
+                    <p className="display mt-6 text-4xl">You&rsquo;re booked, {status.name}.</p>
+                    <p className="mt-4 max-w-md leading-relaxed text-muted">
+                      Your free trial hour is on <strong>{status.trial.court_name}</strong>, {formatDateIst(status.trial.start_at)} at {formatClockIst(status.trial.start_at)} IST. Booking {status.trial.booking_number}. Just turn up; the front desk has it on the calendar.
+                    </p>
+                  </>
+                ) : status.persisted ? (
+                  <>
+                    <p className="display mt-6 text-4xl">Thank you, {status.name}.</p>
+                    <p className="mt-4 max-w-md leading-relaxed text-muted">Your enquiry is with the front desk, and someone will get back to you soon.</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="display mt-6 text-4xl">Thank you, {status.name}.</p>
+                    <p className="mt-4 max-w-md leading-relaxed text-muted">
+                      This is a preview of the website and isn&rsquo;t connected to the club yet, so nothing was <strong>sent or booked</strong>. Once it&rsquo;s live, the front desk will see it straight away.
+                    </p>
+                  </>
+                )}
                 <button type="button" onClick={() => setStatus({ kind: 'idle' })} className="mt-8 inline-flex min-h-11 items-center font-semibold underline underline-offset-4">
-                  Send another enquiry
+                  {status.trial ? 'Book another trial' : 'Send another enquiry'}
                 </button>
               </div>
             ) : (
@@ -203,12 +235,14 @@ export function EnquirySection({ club, plans }: { club: PublicClubInfo | null; p
                     </label>
                   )}
 
-                  <label className="sm:col-span-2">
-                    <span className={label}>
-                      Message <span className="font-normal text-muted">(optional)</span>
-                    </span>
-                    <textarea name="message" rows={3} className={cn(field, 'resize-y')} />
-                  </label>
+                  {type !== 'TRIAL' && (
+                    <label className="sm:col-span-2">
+                      <span className={label}>
+                        Message <span className="font-normal text-muted">(optional)</span>
+                      </span>
+                      <textarea name="message" rows={3} className={cn(field, 'resize-y')} />
+                    </label>
+                  )}
                 </div>
 
                 {status.kind === 'error' && (
@@ -219,10 +253,10 @@ export function EnquirySection({ club, plans }: { club: PublicClubInfo | null; p
 
                 <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <InteractiveHoverButton type="submit" disabled={status.kind === 'sending'} className="px-8 disabled:cursor-wait disabled:opacity-70">
-                    {status.kind === 'sending' ? 'Sending…' : 'Send enquiry'}
+                    {status.kind === 'sending' ? (type === 'TRIAL' ? 'Booking…' : 'Sending…') : type === 'TRIAL' ? 'Book my free trial' : 'Send enquiry'}
                   </InteractiveHoverButton>
                   <p id={`${uid}-note`} className="text-xs text-muted sm:max-w-[16rem] sm:text-right">
-                    Preview only — enquiries are not sent anywhere yet.
+                    {isBackendConfigured ? (type === 'TRIAL' ? 'A free hour on a real court, held for you straight away.' : 'Goes straight to the front desk.') : 'Preview only — nothing is sent or booked yet.'}
                   </p>
                 </div>
               </form>

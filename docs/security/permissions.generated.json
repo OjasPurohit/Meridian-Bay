@@ -20,7 +20,7 @@
       "MEMBER",
       "FRONT_DESK",
       "KITCHEN_MANAGER",
-      "BUSINESS_CLIENT",
+      "STORE_MANAGER",
       "OWNER_ADMIN"
     ]
   },
@@ -31,7 +31,7 @@
       "MEMBER",
       "FRONT_DESK",
       "KITCHEN_MANAGER",
-      "BUSINESS_CLIENT",
+      "STORE_MANAGER",
       "OWNER_ADMIN"
     ]
   },
@@ -42,7 +42,7 @@
       "MEMBER",
       "FRONT_DESK",
       "KITCHEN_MANAGER",
-      "BUSINESS_CLIENT",
+      "STORE_MANAGER",
       "OWNER_ADMIN"
     ]
   },
@@ -225,6 +225,13 @@
       "OWNER_ADMIN"
     ]
   },
+  "bookings.trial": {
+    "method": "POST",
+    "path": "/api/v1/bookings/trial",
+    "roles": [
+      "PUBLIC"
+    ]
+  },
   "bookings.list": {
     "method": "GET",
     "path": "/api/v1/bookings",
@@ -270,6 +277,7 @@
     "method": "POST",
     "path": "/api/v1/shop/products",
     "roles": [
+      "STORE_MANAGER",
       "OWNER_ADMIN"
     ]
   },
@@ -277,6 +285,7 @@
     "method": "PATCH",
     "path": "/api/v1/shop/products/:id",
     "roles": [
+      "STORE_MANAGER",
       "OWNER_ADMIN"
     ]
   },
@@ -293,6 +302,7 @@
     "roles": [
       "MEMBER",
       "FRONT_DESK",
+      "STORE_MANAGER",
       "OWNER_ADMIN"
     ]
   },
@@ -302,6 +312,7 @@
     "roles": [
       "MEMBER:own",
       "FRONT_DESK",
+      "STORE_MANAGER",
       "OWNER_ADMIN"
     ]
   },
@@ -311,6 +322,7 @@
     "roles": [
       "MEMBER:own",
       "FRONT_DESK",
+      "STORE_MANAGER",
       "OWNER_ADMIN"
     ]
   },
@@ -319,6 +331,7 @@
     "path": "/api/v1/shop/orders/:id/status",
     "roles": [
       "FRONT_DESK",
+      "STORE_MANAGER",
       "OWNER_ADMIN"
     ]
   },
@@ -328,6 +341,7 @@
     "roles": [
       "MEMBER:own",
       "FRONT_DESK",
+      "STORE_MANAGER",
       "OWNER_ADMIN"
     ]
   },
@@ -336,6 +350,7 @@
     "path": "/api/v1/inventory",
     "roles": [
       "FRONT_DESK",
+      "STORE_MANAGER",
       "OWNER_ADMIN"
     ]
   },
@@ -344,6 +359,7 @@
     "path": "/api/v1/inventory/low-stock",
     "roles": [
       "FRONT_DESK",
+      "STORE_MANAGER",
       "OWNER_ADMIN"
     ]
   },
@@ -351,6 +367,7 @@
     "method": "POST",
     "path": "/api/v1/inventory/adjustments",
     "roles": [
+      "STORE_MANAGER",
       "OWNER_ADMIN"
     ]
   },
@@ -372,6 +389,15 @@
     "method": "PATCH",
     "path": "/api/v1/bar/menu-items/:id",
     "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "bar.memberLookup": {
+    "method": "GET",
+    "path": "/api/v1/bar/member-lookup",
+    "roles": [
+      "FRONT_DESK",
+      "KITCHEN_MANAGER",
       "OWNER_ADMIN"
     ]
   },
@@ -488,13 +514,6 @@
       "OWNER_ADMIN"
     ]
   },
-  "clients.me": {
-    "method": "GET",
-    "path": "/api/v1/business-clients/me",
-    "roles": [
-      "BUSINESS_CLIENT"
-    ]
-  },
   "clients.get": {
     "method": "GET",
     "path": "/api/v1/business-clients/:id",
@@ -513,7 +532,6 @@
     "method": "GET",
     "path": "/api/v1/invoices",
     "roles": [
-      "BUSINESS_CLIENT:own",
       "MEMBER:own",
       "OWNER_ADMIN"
     ]
@@ -529,7 +547,6 @@
     "method": "GET",
     "path": "/api/v1/invoices/:id",
     "roles": [
-      "BUSINESS_CLIENT:own",
       "MEMBER:own",
       "OWNER_ADMIN"
     ]
@@ -560,8 +577,9 @@
     "path": "/api/v1/payments",
     "roles": [
       "MEMBER:own",
-      "BUSINESS_CLIENT:own",
       "FRONT_DESK",
+      "KITCHEN_MANAGER",
+      "STORE_MANAGER",
       "OWNER_ADMIN"
     ]
   },
@@ -570,8 +588,9 @@
     "path": "/api/v1/payments",
     "roles": [
       "MEMBER:own",
-      "BUSINESS_CLIENT:own",
       "FRONT_DESK:own",
+      "KITCHEN_MANAGER:own",
+      "STORE_MANAGER:own",
       "OWNER_ADMIN"
     ]
   },
@@ -580,8 +599,9 @@
     "path": "/api/v1/payments/:id",
     "roles": [
       "MEMBER:own",
-      "BUSINESS_CLIENT:own",
       "FRONT_DESK:own",
+      "KITCHEN_MANAGER:own",
+      "STORE_MANAGER:own",
       "OWNER_ADMIN"
     ]
   },
@@ -612,6 +632,7 @@
     "roles": [
       "FRONT_DESK:own",
       "KITCHEN_MANAGER:own",
+      "STORE_MANAGER:own",
       "OWNER_ADMIN"
     ]
   },
@@ -622,12 +643,73 @@
       "OWNER_ADMIN"
     ]
   },
+  "staff.applicationCreate": {
+    "method": "POST",
+    "path": "/api/v1/staff/applications",
+    "roles": [
+      "PUBLIC"
+    ]
+  },
+  "staff.applicationList": {
+    "method": "GET",
+    "path": "/api/v1/staff/applications",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "staff.applicationApprove": {
+    "method": "POST",
+    "path": "/api/v1/staff/applications/:id/approve",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "staff.applicationReject": {
+    "method": "POST",
+    "path": "/api/v1/staff/applications/:id/reject",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "events.list": {
+    "method": "GET",
+    "path": "/api/v1/events",
+    "roles": [
+      "MEMBER",
+      "FRONT_DESK",
+      "KITCHEN_MANAGER",
+      "STORE_MANAGER",
+      "OWNER_ADMIN"
+    ]
+  },
+  "events.create": {
+    "method": "POST",
+    "path": "/api/v1/events",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "events.register": {
+    "method": "POST",
+    "path": "/api/v1/events/:id/registrations",
+    "roles": [
+      "MEMBER"
+    ]
+  },
+  "events.unregister": {
+    "method": "DELETE",
+    "path": "/api/v1/events/:id/registrations",
+    "roles": [
+      "MEMBER"
+    ]
+  },
   "staff.shifts": {
     "method": "GET",
     "path": "/api/v1/staff/shifts",
     "roles": [
       "FRONT_DESK",
       "KITCHEN_MANAGER:own",
+      "STORE_MANAGER:own",
       "OWNER_ADMIN"
     ]
   },
@@ -658,6 +740,7 @@
     "roles": [
       "FRONT_DESK:own",
       "KITCHEN_MANAGER:own",
+      "STORE_MANAGER:own",
       "OWNER_ADMIN"
     ]
   },
@@ -666,7 +749,8 @@
     "path": "/api/v1/staff/leave-requests",
     "roles": [
       "FRONT_DESK",
-      "KITCHEN_MANAGER"
+      "KITCHEN_MANAGER",
+      "STORE_MANAGER"
     ]
   },
   "staff.leaveDecide": {
@@ -682,6 +766,7 @@
     "roles": [
       "FRONT_DESK:own",
       "KITCHEN_MANAGER:own",
+      "STORE_MANAGER:own",
       "OWNER_ADMIN"
     ]
   },
@@ -691,6 +776,7 @@
     "roles": [
       "FRONT_DESK:own",
       "KITCHEN_MANAGER:own",
+      "STORE_MANAGER:own",
       "OWNER_ADMIN"
     ]
   },

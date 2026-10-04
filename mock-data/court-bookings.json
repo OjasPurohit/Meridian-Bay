@@ -13,7 +13,8 @@
     "discount_amount": "400.00",
     "cancelled_at": null,
     "created_at": "2026-09-26T12:30:00.000Z",
-    "updated_at": "2026-09-26T12:30:00.000Z"
+    "updated_at": "2026-09-26T12:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000002",
@@ -29,7 +30,8 @@
     "discount_amount": "400.00",
     "cancelled_at": null,
     "created_at": "2026-09-26T13:30:00.000Z",
-    "updated_at": "2026-09-26T13:30:00.000Z"
+    "updated_at": "2026-09-26T13:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000003",
@@ -45,7 +47,8 @@
     "discount_amount": "0.00",
     "cancelled_at": null,
     "created_at": "2026-09-26T12:30:00.000Z",
-    "updated_at": "2026-09-26T12:30:00.000Z"
+    "updated_at": "2026-09-26T12:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000004",
@@ -61,7 +64,8 @@
     "discount_amount": "280.00",
     "cancelled_at": null,
     "created_at": "2026-09-27T01:30:00.000Z",
-    "updated_at": "2026-09-27T01:30:00.000Z"
+    "updated_at": "2026-09-27T01:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000005",
@@ -77,7 +81,8 @@
     "discount_amount": "1000.00",
     "cancelled_at": null,
     "created_at": "2026-09-27T13:00:00.000Z",
-    "updated_at": "2026-09-27T13:00:00.000Z"
+    "updated_at": "2026-09-27T13:00:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000006",
@@ -93,7 +98,8 @@
     "discount_amount": "1200.00",
     "cancelled_at": null,
     "created_at": "2026-09-27T14:00:00.000Z",
-    "updated_at": "2026-09-27T14:00:00.000Z"
+    "updated_at": "2026-09-27T14:00:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000007",
@@ -109,7 +115,8 @@
     "discount_amount": "800.00",
     "cancelled_at": null,
     "created_at": "2026-09-28T11:30:00.000Z",
-    "updated_at": "2026-09-28T11:30:00.000Z"
+    "updated_at": "2026-09-28T11:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000008",
@@ -125,7 +132,8 @@
     "discount_amount": "0.00",
     "cancelled_at": null,
     "created_at": "2026-09-28T12:30:00.000Z",
-    "updated_at": "2026-09-28T12:30:00.000Z"
+    "updated_at": "2026-09-28T12:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000009",
@@ -141,7 +149,8 @@
     "discount_amount": "400.00",
     "cancelled_at": null,
     "created_at": "2026-09-29T01:00:00.000Z",
-    "updated_at": "2026-09-29T01:00:00.000Z"
+    "updated_at": "2026-09-29T01:00:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000010",
@@ -157,7 +166,8 @@
     "discount_amount": "1000.00",
     "cancelled_at": null,
     "created_at": "2026-09-29T13:30:00.000Z",
-    "updated_at": "2026-09-29T13:30:00.000Z"
+    "updated_at": "2026-09-29T13:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000011",
@@ -173,7 +183,8 @@
     "discount_amount": "500.00",
     "cancelled_at": null,
     "created_at": "2026-09-29T14:30:00.000Z",
-    "updated_at": "2026-09-29T14:30:00.000Z"
+    "updated_at": "2026-09-29T14:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000012",
@@ -189,7 +200,8 @@
     "discount_amount": "400.00",
     "cancelled_at": null,
     "created_at": "2026-09-30T12:30:00.000Z",
-    "updated_at": "2026-09-30T12:30:00.000Z"
+    "updated_at": "2026-09-30T12:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000013",
@@ -205,7 +217,8 @@
     "discount_amount": "0.00",
     "cancelled_at": null,
     "created_at": "2026-09-30T12:30:00.000Z",
-    "updated_at": "2026-09-30T12:30:00.000Z"
+    "updated_at": "2026-09-30T12:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000014",
@@ -221,7 +234,8 @@
     "discount_amount": "1200.00",
     "cancelled_at": null,
     "created_at": "2026-09-30T14:30:00.000Z",
-    "updated_at": "2026-09-30T14:30:00.000Z"
+    "updated_at": "2026-09-30T14:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000015",
@@ -237,7 +251,8 @@
     "discount_amount": "0.00",
     "cancelled_at": null,
     "created_at": "2026-09-30T13:30:00.000Z",
-    "updated_at": "2026-09-30T13:30:00.000Z"
+    "updated_at": "2026-09-30T13:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000016",
@@ -253,7 +268,8 @@
     "discount_amount": "560.00",
     "cancelled_at": null,
     "created_at": "2026-10-01T11:30:00.000Z",
-    "updated_at": "2026-10-01T11:30:00.000Z"
+    "updated_at": "2026-10-01T11:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000017",
@@ -269,7 +285,8 @@
     "discount_amount": "200.00",
     "cancelled_at": "2026-10-02T07:30:00.000Z",
     "created_at": "2026-10-01T12:30:00.000Z",
-    "updated_at": "2026-10-01T12:30:00.000Z"
+    "updated_at": "2026-10-01T12:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000018",
@@ -285,7 +302,8 @@
     "discount_amount": "800.00",
     "cancelled_at": null,
     "created_at": "2026-10-02T01:00:00.000Z",
-    "updated_at": "2026-10-02T01:00:00.000Z"
+    "updated_at": "2026-10-02T01:00:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000019",
@@ -301,7 +319,8 @@
     "discount_amount": "400.00",
     "cancelled_at": null,
     "created_at": "2026-10-02T02:30:00.000Z",
-    "updated_at": "2026-10-02T02:30:00.000Z"
+    "updated_at": "2026-10-02T02:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000020",
@@ -317,7 +336,8 @@
     "discount_amount": "800.00",
     "cancelled_at": null,
     "created_at": "2026-10-02T12:30:00.000Z",
-    "updated_at": "2026-10-02T12:30:00.000Z"
+    "updated_at": "2026-10-02T12:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000021",
@@ -333,7 +353,8 @@
     "discount_amount": "0.00",
     "cancelled_at": null,
     "created_at": "2026-10-02T12:30:00.000Z",
-    "updated_at": "2026-10-02T12:30:00.000Z"
+    "updated_at": "2026-10-02T12:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000022",
@@ -349,7 +370,8 @@
     "discount_amount": "280.00",
     "cancelled_at": null,
     "created_at": "2026-10-02T13:00:00.000Z",
-    "updated_at": "2026-10-02T13:00:00.000Z"
+    "updated_at": "2026-10-02T13:00:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000023",
@@ -365,7 +387,8 @@
     "discount_amount": "1000.00",
     "cancelled_at": null,
     "created_at": "2026-10-02T13:30:00.000Z",
-    "updated_at": "2026-10-02T13:30:00.000Z"
+    "updated_at": "2026-10-02T13:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000024",
@@ -381,7 +404,8 @@
     "discount_amount": "1200.00",
     "cancelled_at": null,
     "created_at": "2026-10-02T14:30:00.000Z",
-    "updated_at": "2026-10-02T14:30:00.000Z"
+    "updated_at": "2026-10-02T14:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000025",
@@ -397,7 +421,8 @@
     "discount_amount": "400.00",
     "cancelled_at": null,
     "created_at": "2026-10-03T01:30:00.000Z",
-    "updated_at": "2026-10-03T01:30:00.000Z"
+    "updated_at": "2026-10-03T01:30:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000026",
@@ -413,7 +438,8 @@
     "discount_amount": "800.00",
     "cancelled_at": null,
     "created_at": "2026-10-03T09:45:00.000Z",
-    "updated_at": "2026-10-03T09:45:00.000Z"
+    "updated_at": "2026-10-03T09:45:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000027",
@@ -429,7 +455,8 @@
     "discount_amount": "800.00",
     "cancelled_at": null,
     "created_at": "2026-10-03T09:45:00.000Z",
-    "updated_at": "2026-10-03T09:45:00.000Z"
+    "updated_at": "2026-10-03T09:45:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000028",
@@ -445,7 +472,8 @@
     "discount_amount": "400.00",
     "cancelled_at": null,
     "created_at": "2026-10-03T09:45:00.000Z",
-    "updated_at": "2026-10-03T09:45:00.000Z"
+    "updated_at": "2026-10-03T09:45:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000029",
@@ -461,7 +489,8 @@
     "discount_amount": "0.00",
     "cancelled_at": null,
     "created_at": "2026-10-03T09:45:00.000Z",
-    "updated_at": "2026-10-03T09:45:00.000Z"
+    "updated_at": "2026-10-03T09:45:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000030",
@@ -477,7 +506,8 @@
     "discount_amount": "0.00",
     "cancelled_at": null,
     "created_at": "2026-10-03T09:45:00.000Z",
-    "updated_at": "2026-10-03T09:45:00.000Z"
+    "updated_at": "2026-10-03T09:45:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000031",
@@ -493,7 +523,8 @@
     "discount_amount": "800.00",
     "cancelled_at": null,
     "created_at": "2026-10-03T09:45:00.000Z",
-    "updated_at": "2026-10-03T09:45:00.000Z"
+    "updated_at": "2026-10-03T09:45:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000032",
@@ -509,7 +540,8 @@
     "discount_amount": "1000.00",
     "cancelled_at": null,
     "created_at": "2026-10-03T09:45:00.000Z",
-    "updated_at": "2026-10-03T09:45:00.000Z"
+    "updated_at": "2026-10-03T09:45:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000033",
@@ -525,7 +557,8 @@
     "discount_amount": "400.00",
     "cancelled_at": null,
     "created_at": "2026-10-03T09:45:00.000Z",
-    "updated_at": "2026-10-03T09:45:00.000Z"
+    "updated_at": "2026-10-03T09:45:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000034",
@@ -541,7 +574,8 @@
     "discount_amount": "1200.00",
     "cancelled_at": null,
     "created_at": "2026-10-03T09:45:00.000Z",
-    "updated_at": "2026-10-03T09:45:00.000Z"
+    "updated_at": "2026-10-03T09:45:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000035",
@@ -557,7 +591,8 @@
     "discount_amount": "280.00",
     "cancelled_at": null,
     "created_at": "2026-10-03T09:45:00.000Z",
-    "updated_at": "2026-10-03T09:45:00.000Z"
+    "updated_at": "2026-10-03T09:45:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000036",
@@ -573,7 +608,8 @@
     "discount_amount": "800.00",
     "cancelled_at": null,
     "created_at": "2026-10-03T09:45:00.000Z",
-    "updated_at": "2026-10-03T09:45:00.000Z"
+    "updated_at": "2026-10-03T09:45:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000037",
@@ -589,7 +625,8 @@
     "discount_amount": "0.00",
     "cancelled_at": null,
     "created_at": "2026-10-03T09:45:00.000Z",
-    "updated_at": "2026-10-03T09:45:00.000Z"
+    "updated_at": "2026-10-03T09:45:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000038",
@@ -605,7 +642,8 @@
     "discount_amount": "0.00",
     "cancelled_at": null,
     "created_at": "2026-10-03T09:45:00.000Z",
-    "updated_at": "2026-10-03T09:45:00.000Z"
+    "updated_at": "2026-10-03T09:45:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000039",
@@ -621,7 +659,8 @@
     "discount_amount": "0.00",
     "cancelled_at": null,
     "created_at": "2026-10-03T09:45:00.000Z",
-    "updated_at": "2026-10-03T09:45:00.000Z"
+    "updated_at": "2026-10-03T09:45:00.000Z",
+    "guest_email": null
   },
   {
     "id": "09000000-0000-4000-8000-000000000040",
@@ -637,6 +676,7 @@
     "discount_amount": "200.00",
     "cancelled_at": null,
     "created_at": "2026-10-03T09:45:00.000Z",
-    "updated_at": "2026-10-03T09:45:00.000Z"
+    "updated_at": "2026-10-03T09:45:00.000Z",
+    "guest_email": null
   }
 ]

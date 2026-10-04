@@ -29,7 +29,7 @@ export const StaffService = {
   },
 
   async create(body: StaffCreateRequest): Promise<StaffView> {
-    if (body.role === USER_ROLE.MEMBER || body.role === USER_ROLE.BUSINESS_CLIENT) throw new AppError('VALIDATION_ERROR', { fields: { role: 'Must be FRONT_DESK, KITCHEN_MANAGER or OWNER_ADMIN.' } });
+    if (body.role === USER_ROLE.MEMBER) throw new AppError('VALIDATION_ERROR', { fields: { role: 'Must be FRONT_DESK, KITCHEN_MANAGER, STORE_MANAGER or OWNER_ADMIN.' } });
     const password_hash = await bcrypt.hash(body.password, getConfig().bcrypt_rounds);
     const id = await withTransaction(async (tx) => {
       const user_id = await repo.insertStaffUser(tx, { email: body.email, password_hash, role: body.role, full_name: body.full_name, phone: body.phone ?? null });
@@ -52,7 +52,7 @@ export const StaffService = {
 
   // ---- shifts
   shifts(user: AuthUser, q: StaffShiftsQuery): Promise<ShiftView[]> {
-    const staff_id = user.role === USER_ROLE.KITCHEN_MANAGER ? (user.staff_id ?? NOBODY) : q.staff_id;
+    const staff_id = user.role === USER_ROLE.KITCHEN_MANAGER || user.role === USER_ROLE.STORE_MANAGER ? (user.staff_id ?? NOBODY) : q.staff_id;
     return repo.shifts(repo.pool, { from: q.from, to: q.to, staff_id, area: q.area });
   },
 

@@ -1,13 +1,13 @@
-import { AlertTriangle, Boxes, Minus, PackagePlus, Plus } from 'lucide-react';
+import { AlertTriangle, Boxes, PackagePlus } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
+import { isBackendConfigured } from '@/api/client';
+import { StockStepper } from '../../components/StockStepper';
 import { demo, useDemo } from '../../store/demoStore';
 import type { DMenuItem } from '../../store/types';
-import { btn, DataTable, Kpi, Meter, PageHeader, PageSkeleton, Pill, Section, usePageReady, useToast, type Column } from '../../ui/kit';
+import { btn, DataTable, Kpi, Meter, PageHeader, PageSkeleton, Pill, Section, usePageReady, type Column } from '../../ui/kit';
 
 export function StockTable() {
   const s = useDemo();
-  const toast = useToast();
   const cols: Column<DMenuItem>[] = [
     { key: 'n', header: 'Item', cell: (m) => <div><p className="font-semibold">{m.name}</p><p className="text-xs text-muted capitalize">{m.category.toLowerCase()}</p></div> },
     { key: 'lvl', header: 'Level', hide: 'sm', cell: (m) => <div className="w-36"><Meter value={m.stock} max={80} tone={m.stock === 0 ? 'rust' : m.stock <= m.threshold ? 'sun' : 'olive'} /></div> },
@@ -18,10 +18,8 @@ export function StockTable() {
       header: 'Adjust',
       align: 'right',
       cell: (m) => (
-        <span className="inline-flex items-center gap-1">
-          <button type="button" aria-label={`Remove 5 ${m.name}`} className={cn(btn.quiet, '!size-9 !p-0')} onClick={() => demo.adjustMenuStock(m.id, -5)}><Minus className="size-4" /></button>
-          <button type="button" aria-label={`Add 10 ${m.name}`} className={cn(btn.secondary, '!min-h-9 !px-3 text-xs')} onClick={() => { demo.adjustMenuStock(m.id, 10); toast(`+10 ${m.name} restocked`); }}><Plus className="size-3.5" /> 10</button>
-        </span>
+        isBackendConfigured ? <span className="text-xs text-muted">not tracked</span> : <StockStepper name={m.name} stock={m.stock} onChange={(d) => demo.adjustMenuStock(m.id, d)} />
+
       ),
     },
   ];

@@ -1,6 +1,6 @@
 /**
  * HTTP mapping for invoices. Roles copy tools/api/endpoints.mjs:
- *   invoices.list / get  BUSINESS_CLIENT:own | MEMBER:own | OWNER_ADMIN
+ *   invoices.list / get  MEMBER:own | OWNER_ADMIN
  *   invoices.create / update / send / void  OWNER_ADMIN
  */
 import { Router } from 'express';
@@ -21,7 +21,7 @@ const caller = (req: Express.Request) => {
   return req.user;
 };
 const ownerOnly = [requireAuth, requireRole(R.OWNER_ADMIN)];
-const customers = [requireAuth, requireRole(R.BUSINESS_CLIENT, R.MEMBER, R.OWNER_ADMIN)];
+const customers = [requireAuth, requireRole(R.MEMBER, R.OWNER_ADMIN)];
 
 router.get(
   '/',

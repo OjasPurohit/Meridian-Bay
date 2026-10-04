@@ -1,12 +1,10 @@
 /**
  * SQL for the clients module (hand-written, parameterised). Owns `business_clients`.
  * The contract (clients.create / clients.list) also lists `users` and `invoices` as tables touched:
- *   - users:    one INSERT when a portal login is requested (clients.create);
  *   - invoices: read-only aggregation for the BusinessClientDetail totals.
  * Every function takes a `Tx`, so the service decides whether it runs on the pool or inside a transaction.
  */
 import type { BusinessClientDetail } from '@shared/types/api';
-import { USER_ROLE } from '@shared/constants/enums';
 import { query, type Tx } from '../../kernel/db';
 
 /** Non-transactional handle: statements run on the pool. */
@@ -20,7 +18,7 @@ export const pool: Tx = { query };
  * Money is cast to numeric(12,2) so it serialises as a 2-decimal string even when there are no invoices.
  */
 const DETAIL_SELECT = `
-  SELECT c.id, c.user_id, c.company_name, c.contact_name, c.email, c.phone, c.gstin, c.billing_address, c.notes,
+  SELECT c.id, c.company_name, c.contact_name, c.email, c.phone, c.gstin, c.billing_address, c.notes,
          c.is_active, c.created_at, c.updated_at,
          t.invoice_count, t.total_invoiced, t.total_paid, t.total_outstanding
     FROM business_clients c
@@ -37,12 +35,6 @@ const DETAIL_SELECT = `
 
 export async function findById(db: Tx, id: string): Promise<BusinessClientDetail | null> {
   const { rows } = await db.query<BusinessClientDetail>(`${DETAIL_SELECT} WHERE c.id = $1`, [id]);
-  return rows[0] ?? null;
-}
-
-/** The client whose portal login is this user (clients.me). */
-export async function findByUserId(db: Tx, user_id: string): Promise<BusinessClientDetail | null> {
-  const { rows } = await db.query<BusinessClientDetail>(`${DETAIL_SELECT} WHERE c.user_id = $1`, [user_id]);
   return rows[0] ?? null;
 }
 
@@ -81,7 +73,6 @@ export async function list(db: Tx, filter: ClientFilter, limit: number, offset: 
 }
 
 export interface NewClient {
-  user_id: string | null;
   company_name: string;
   contact_name: string;
   email: string;
@@ -93,27 +84,9 @@ export interface NewClient {
 
 export async function insertClient(db: Tx, c: NewClient): Promise<string> {
   const { rows } = await db.query<{ id: string }>(
-    `INSERT INTO business_clients (user_id, company_name, contact_name, email, phone, gstin, billing_address, notes)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
-    [c.user_id, c.company_name, c.contact_name, c.email, c.phone, c.gstin, c.billing_address, c.notes],
-  );
-  return rows[0]!.id;
-}
-
-export interface NewPortalUser {
-  email: string;
-  password_hash: string;
-  full_name: string;
-  phone: string | null;
-}
-
-/** Portal login for a business client: users.role = BUSINESS_CLIENT. The owner chose the password, so the account
- *  must change it at first login (R-SEC-02). A duplicate email raises users_email_key -> EMAIL_TAKEN (kernel/db). */
-export async function insertPortalUser(db: Tx, u: NewPortalUser): Promise<string> {
-  const { rows } = await db.query<{ id: string }>(
-    `INSERT INTO users (email, password_hash, role, full_name, phone, must_change_password)
-     VALUES ($1, $2, $3, $4, $5, true) RETURNING id`,
-    [u.email, u.password_hash, USER_ROLE.BUSINESS_CLIENT, u.full_name, u.phone],
+    `INSERT INTO business_clients (company_name, contact_name, email, phone, gstin, billing_address, notes)
+     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
+    [c.company_name, c.contact_name, c.email, c.phone, c.gstin, c.billing_address, c.notes],
   );
   return rows[0]!.id;
 }

@@ -17,7 +17,7 @@ const page = (load: () => Promise<{ default: React.ComponentType }>, path: strin
 
 const M = ROLE_HOME_ROUTE.MEMBER;
 const F = ROLE_HOME_ROUTE.FRONT_DESK;
-const B = ROLE_HOME_ROUTE.BUSINESS_CLIENT;
+const S = ROLE_HOME_ROUTE.STORE_MANAGER;
 const K = ROLE_HOME_ROUTE.KITCHEN_MANAGER;
 const O = ROLE_HOME_ROUTE.OWNER_ADMIN;
 
@@ -40,12 +40,8 @@ const routes: FeatureRoute[] = [
   page(() => import('./pages/kitchen/KitchenInvoices'), `${K}/invoices`, 'KITCHEN_MANAGER'),
   page(() => import('./pages/kitchen/KitchenStock'), `${K}/stock`, 'KITCHEN_MANAGER'),
   page(() => import('./pages/kitchen/KitchenProducts'), `${K}/products`, 'KITCHEN_MANAGER'),
-  // ---- business client
-  page(() => import('./pages/business/BizOverview'), B, 'BUSINESS_CLIENT'),
-  page(() => import('./pages/business/BizInvoices'), `${B}/invoices`, 'BUSINESS_CLIENT'),
-  page(() => import('./pages/business/BizHistory'), `${B}/history`, 'BUSINESS_CLIENT'),
-  page(() => import('./pages/business/BizPartners'), `${B}/partners`, 'BUSINESS_CLIENT'),
-  page(() => import('./pages/business/BizStore'), `${B}/store`, 'BUSINESS_CLIENT'),
+  // ---- store manager
+  page(() => import('./pages/owner/OwnerStore'), S, 'STORE_MANAGER'),
   // ---- owner / admin
   page(() => import('./pages/owner/OwnerOverview'), O, 'OWNER_ADMIN'),
   page(() => import('./pages/owner/OwnerAnalytics'), `${O}/analytics`, 'OWNER_ADMIN'),

@@ -43,8 +43,49 @@ export interface AuthSession {
   user: UserPublic;
   redirect_to: string; // ROLE_HOME_ROUTE[user.role]
   member: MemberSummary | null; // when role = MEMBER
-  staff: StaffView | null; // when role = FRONT_DESK | KITCHEN_MANAGER | OWNER_ADMIN (owner has a staff row too)
-  business_client: BusinessClient | null; // when role = BUSINESS_CLIENT
+  staff: StaffView | null; // when role = FRONT_DESK | KITCHEN_MANAGER | STORE_MANAGER | OWNER_ADMIN (owner has a staff row too)
+}
+
+/** POST /auth/login and /auth/signup (employee) answer with this instead of a session when the person only has a PENDING job
+ *  application: no token, no role, nothing that opens a dashboard. */
+export interface EmployeeApplicationPending {
+  state: 'EMPLOYEE_APPLICATION_PENDING';
+  full_name: string;
+  email: string;
+  applied_at: IsoDateTime;
+  redirect_to: '/employee-application-pending';
+}
+export type LoginResult = AuthSession | EmployeeApplicationPending;
+
+/** What an owner sees of a job application (the password hash never leaves the database). */
+export interface EmployeeApplicationView {
+  id: Uuid;
+  full_name: string;
+  email: string;
+  phone: string | null;
+  status: E.ApplicationStatus;
+  approved_role: E.UserRole | null;
+  applied_at: IsoDateTime;
+  reviewed_at: IsoDateTime | null;
+  reviewed_by_user_id: Uuid | null;
+  decision_note: string | null;
+  reviewed_by_name: string | null;
+}
+
+// ------------------------------------------------------------------ events
+/** An event as every role reads it. `registered_count` is all members signed up; `is_registered` is the caller's own sign-up. */
+export interface EventView {
+  id: Uuid;
+  title: string;
+  kind: E.EventKind;
+  description: string | null;
+  location: string;
+  start_at: IsoDateTime;
+  end_at: IsoDateTime;
+  capacity: number;
+  fee: Money;
+  registered_count: number;
+  is_registered: boolean;
 }
 
 // ------------------------------------------------------------------ members / memberships
@@ -71,6 +112,17 @@ export interface MemberSummary {
   joined_on: IsoDate;
   is_active: boolean;
   active_membership: ActiveMembershipSummary | null; // null => no current plan => walk-in rates apply
+}
+
+/** What the café till may learn about a member: who they are and which discount applies (nothing else). */
+export interface MemberPosLookup {
+  member_id: Uuid;
+  member_code: string;
+  full_name: string;
+  membership_status: 'ACTIVE' | 'NONE';
+  plan_name: string | null;
+  membership_type: E.MembershipType | null;
+  bar_discount_percent: Percent;
 }
 
 export interface MemberDetail extends MemberSummary {

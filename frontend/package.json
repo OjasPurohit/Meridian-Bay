@@ -6,6 +6,7 @@
   "description": "Meridian Bay web app (public website first; role dashboards follow). Layout contract: README.md.",
   "scripts": {
     "dev": "vite",
+    "dev:preview": "vite --mode preview",
     "build": "tsc -p tsconfig.json && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.json"

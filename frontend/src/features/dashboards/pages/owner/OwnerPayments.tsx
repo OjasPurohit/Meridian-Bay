@@ -7,7 +7,7 @@ import { INVOICE_STATUS_LABEL } from '../../status';
 import { demo, useDemo } from '../../store/demoStore';
 import type { DInvoice } from '../../store/types';
 import { btn, DataTable, Empty, Kpi, PageHeader, PageSkeleton, Pill, Section, Segmented, usePageReady, useToast, type Column } from '../../ui/kit';
-import { InvoiceModal } from '../business/BizInvoices';
+import { InvoiceModal } from '../../components/InvoiceModal';
 
 export default function OwnerPayments() {
   const ready = usePageReady();

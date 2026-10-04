@@ -32,7 +32,7 @@ Generated for a **base date** (default: the day you run `npm run mock:build`; `-
 | OWNER_ADMIN | `owner@championsclub.example` | Vikram Malhotra |
 | FRONT_DESK | `neha.sharma@championsclub.example`, `arjun.mehta@championsclub.example`, `pooja.iyer@championsclub.example` | Pooja works the bar counter |
 | KITCHEN_MANAGER | `kitchen@championsclub.example` | Ramesh Patil |
-| BUSINESS_CLIENT | `sanjay.gupta@technova.example` | TechNova Solutions (Greenfield Corp is invoiced without a login) |
+| STORE_MANAGER | `sanjay.gupta@championsclub.example` | Sanjay Gupta, store manager (TechNova and Greenfield are invoiced companies without a login) |
 | MEMBER · Gold | `aarav.kapoor@example.com`, `priya.nair@example.com`, `karan.bhatia@example.com` (expires in 28 d), `tanvi.shah@example.com` (upgraded from Silver) | |
 | MEMBER · Silver | `rohan.desai@example.com`, `ananya.iyer@example.com`, `kabir.singh@example.com` (new, converted from an enquiry), `meera.joshi@example.com` (expires in 9 d), `sneha.kulkarni@example.com` (**expired** 9 days ago) | |
 | MEMBER · Junior | `ishaan.verma@example.com` (14), `diya.reddy@example.com` (16) | |
@@ -68,6 +68,7 @@ Every column of every table is populated by at least one row **except** these th
 |---|---|
 | `members.photo_url` | member photo upload is NICE-to-have (FR-MEM-015) |
 | `courts.image_url` | no image hosting in the mock; the UI falls back to a sport icon |
+| `court_bookings.guest_email` | only public trial bookings (`booking_type = TRIAL`) carry an email; the seed has none |
 | `products.image_url` | filled: photos live in `frontend/public/media` (kept across regenerations by `tools/gen-mock.mjs`) |
 
 Other nullable columns are legitimately null on *some* rows (guest bookings have no `member_id`; free bookings have no payment; unpaid orders have no payment) — those are exactly the null-handling cases the UI must cope with.

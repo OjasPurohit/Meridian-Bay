@@ -7,11 +7,13 @@ import type {
   StaffCreateRequest, StaffLeaveCreateRequest, StaffLeaveDecideRequest, StaffLeaveListQuery, StaffListQuery, StaffPayrollCreateRequest,
   StaffPayrollListQuery, StaffPayrollPayRequest, StaffShiftCreateRequest, StaffShiftsQuery, StaffShiftUpdateRequest, StaffUpdateRequest,
 } from '@shared/types/requests.generated';
-import { LEAVE_DECISION, LEAVE_STATUS, PAYMENT_METHOD, SHIFT_AREA, USER_ROLE } from '@shared/constants/enums';
+import { APPLICATION_STATUS, LEAVE_DECISION, LEAVE_STATUS, PAYMENT_METHOD, SHIFT_AREA, USER_ROLE } from '@shared/constants/enums';
+import type { ApplicationStatus, UserRole } from '@shared/constants/enums';
 import { requireAuth, requireRole } from '../../kernel/auth';
 import { AppError } from '../../kernel/errors';
 import { asyncHandler, created, ok } from '../../kernel/http';
 import { idParams, isoDate, money, queryBool, strictObject, timeOfDay, uuid, validateBody, validateParams, validateQuery, z } from '../../kernel/validate';
+import { ApplicationsService } from './applications';
 import { StaffService } from './service';
 
 export const router = Router();
@@ -22,7 +24,7 @@ const caller = (req: Express.Request) => {
 };
 const enumOf = <T extends Record<string, string>>(o: T) => z.enum(Object.values(o) as [string, ...string[]]) as unknown as z.ZodType<T[keyof T]>;
 const owner = [requireAuth, requireRole(R.OWNER_ADMIN)];
-const staffRoles = [requireAuth, requireRole(R.FRONT_DESK, R.KITCHEN_MANAGER, R.OWNER_ADMIN)];
+const staffRoles = [requireAuth, requireRole(R.FRONT_DESK, R.KITCHEN_MANAGER, R.STORE_MANAGER, R.OWNER_ADMIN)];
 const phone = z.string().trim().regex(/^\+?\d{10,15}$/, 'Must be a phone number.');
 const password = z.string().min(8).refine((v) => /[A-Za-z]/.test(v) && /\d/.test(v), 'Needs a letter and a digit.').refine((v) => Buffer.byteLength(v, 'utf8') <= 72, 'Max 72 bytes.');
 const firstOfMonth = isoDate.refine((v) => v.endsWith('-01'), 'Must be the first day of a month.');
@@ -32,6 +34,16 @@ router.get('/', ...owner, validateQuery(z.object({ q: z.string().trim().max(100)
   asyncHandler(async (req, res) => ok(res, await StaffService.list(req.query as unknown as StaffListQuery))));
 router.post('/', ...owner, validateBody(strictObject({ full_name: z.string().trim().min(2).max(120), email: z.string().trim().toLowerCase().email(), phone: phone.optional(), role: enumOf(R), password, designation: z.string().trim().min(1).max(100), monthly_salary: money, joined_on: isoDate.optional() })),
   asyncHandler(async (req, res) => created(res, await StaffService.create(req.body as StaffCreateRequest))));
+
+// ---- job applications (before /:id)
+router.post('/applications', validateBody(strictObject({ full_name: z.string().trim().min(2).max(120), email: z.string().trim().toLowerCase().email().max(254), phone, password })),
+  asyncHandler(async (req, res) => created(res, await ApplicationsService.create(req.body as { full_name: string; email: string; phone: string; password: string }))));
+router.get('/applications', ...owner, validateQuery(z.object({ status: enumOf(APPLICATION_STATUS).optional() })),
+  asyncHandler(async (req, res) => ok(res, await ApplicationsService.list((req.query as { status?: ApplicationStatus }).status))));
+router.post('/applications/:id/approve', ...owner, validateParams(idParams), validateBody(strictObject({ role: enumOf(R), designation: z.string().trim().min(1).max(100).optional(), monthly_salary: money.optional() })),
+  asyncHandler(async (req, res) => ok(res, await ApplicationsService.approve(caller(req), req.params.id!, req.body as { role: UserRole; designation?: string; monthly_salary?: string }))));
+router.post('/applications/:id/reject', ...owner, validateParams(idParams), validateBody(strictObject({ note: z.string().trim().min(1).max(500).optional() })),
+  asyncHandler(async (req, res) => ok(res, await ApplicationsService.reject(caller(req), req.params.id!, (req.body as { note?: string }).note))));
 
 // ---- shifts
 const shiftTimes = { start_time: timeOfDay, end_time: timeOfDay };
@@ -49,7 +61,7 @@ router.delete('/shifts/:id', ...owner, validateParams(idParams), asyncHandler(as
 // ---- leave
 router.get('/leave-requests', ...staffRoles, validateQuery(z.object({ status: enumOf(LEAVE_STATUS).optional(), staff_id: uuid.optional(), from: isoDate.optional(), to: isoDate.optional() })),
   asyncHandler(async (req, res) => ok(res, await StaffService.leaveList(caller(req), req.query as unknown as StaffLeaveListQuery))));
-router.post('/leave-requests', requireAuth, requireRole(R.FRONT_DESK, R.KITCHEN_MANAGER), validateBody(strictObject({ start_date: isoDate, end_date: isoDate, reason: z.string().trim().min(1).max(500).optional() }).refine((b) => b.end_date >= b.start_date, { path: ['end_date'], message: 'Must be on or after start_date.' })),
+router.post('/leave-requests', requireAuth, requireRole(R.FRONT_DESK, R.KITCHEN_MANAGER, R.STORE_MANAGER), validateBody(strictObject({ start_date: isoDate, end_date: isoDate, reason: z.string().trim().min(1).max(500).optional() }).refine((b) => b.end_date >= b.start_date, { path: ['end_date'], message: 'Must be on or after start_date.' })),
   asyncHandler(async (req, res) => created(res, await StaffService.leaveCreate(caller(req), req.body as StaffLeaveCreateRequest))));
 router.post('/leave-requests/:id/decision', ...owner, validateParams(idParams), validateBody(strictObject({ decision: enumOf(LEAVE_DECISION), note: z.string().trim().min(1).max(500).optional() })),
   asyncHandler(async (req, res) => ok(res, await StaffService.leaveDecide(req.params.id!, req.body as StaffLeaveDecideRequest))));

@@ -44,7 +44,7 @@ if (!noSeed) {
 
   // ---- structure of the simplified schema (ADR-016)
   const tables = (await q(`SELECT count(*)::int n FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'`))[0].n;
-  tables === 22 ? ok('22 tables') : bad(`expected 22 tables, found ${tables}`);
+  tables === 25 ? ok('25 tables') : bad(`expected 25 tables, found ${tables}`);
   await none('every retired table is gone (bar_tables, bar_tabs, order_status_events, quotes, enquiry_follow_ups, notifications, inventory_movements, social_*)',
     `SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('bar_tables','bar_tabs','order_status_events','quotes','enquiry_follow_ups','notifications','inventory_movements','social_sessions','social_session_participants')`);
   await none('no stored status / amount / total columns that the views derive',
@@ -74,11 +74,10 @@ if (!noSeed) {
   // ---- identity: a role must have its profile row (the JWT claims member_id / staff_id)
   await none('every MEMBER user has a members row; every staff user has a staff row',
     `SELECT u.email FROM users u WHERE (u.role = 'MEMBER' AND NOT EXISTS (SELECT 1 FROM members m WHERE m.user_id = u.id))
-        OR (u.role IN ('FRONT_DESK','KITCHEN_MANAGER','OWNER_ADMIN') AND NOT EXISTS (SELECT 1 FROM staff s WHERE s.user_id = u.id))`);
-  await none('profile rows belong to users of the right role (members -> MEMBER, staff -> staff roles, business clients -> BUSINESS_CLIENT)',
+        OR (u.role IN ('FRONT_DESK','KITCHEN_MANAGER','STORE_MANAGER','OWNER_ADMIN') AND NOT EXISTS (SELECT 1 FROM staff s WHERE s.user_id = u.id))`);
+  await none('profile rows belong to users of the right role (members -> MEMBER, staff -> staff roles)',
     `SELECT u.email FROM users u WHERE (EXISTS (SELECT 1 FROM members m WHERE m.user_id = u.id) AND u.role <> 'MEMBER')
-        OR (EXISTS (SELECT 1 FROM staff s WHERE s.user_id = u.id) AND u.role NOT IN ('FRONT_DESK','KITCHEN_MANAGER','OWNER_ADMIN'))
-        OR (EXISTS (SELECT 1 FROM business_clients c WHERE c.user_id = u.id) AND u.role <> 'BUSINESS_CLIENT')`);
+        OR (EXISTS (SELECT 1 FROM staff s WHERE s.user_id = u.id) AND u.role NOT IN ('FRONT_DESK','KITCHEN_MANAGER','STORE_MANAGER','OWNER_ADMIN'))`);
 
   // ---- financial reconciliation: every payment pays something that exists, and nothing is over-paid
   await none('payments.source_type/source_id (polymorphic) all resolve',

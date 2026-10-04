@@ -19,7 +19,7 @@ import type { PaymentsListInput } from './schema';
 /** R-FIN-11: which payment methods each role may use. */
 const METHODS_BY_ROLE: Record<UserRole, readonly PaymentMethod[]> = {
   MEMBER: [PAYMENT_METHOD.ONLINE],
-  BUSINESS_CLIENT: [PAYMENT_METHOD.ONLINE],
+  STORE_MANAGER: [PAYMENT_METHOD.CASH, PAYMENT_METHOD.CARD, PAYMENT_METHOD.UPI],
   FRONT_DESK: [PAYMENT_METHOD.CASH, PAYMENT_METHOD.CARD, PAYMENT_METHOD.UPI],
   KITCHEN_MANAGER: [PAYMENT_METHOD.CASH, PAYMENT_METHOD.CARD, PAYMENT_METHOD.UPI],
   OWNER_ADMIN: [PAYMENT_METHOD.CASH, PAYMENT_METHOD.CARD, PAYMENT_METHOD.UPI, PAYMENT_METHOD.ONLINE],
@@ -47,7 +47,6 @@ export interface RecordPaymentInput {
   received_by_user_id: string | null;
   /** When set, the bill must belong to this member / business client (own-record rule). */
   require_member_id?: string;
-  require_business_client_id?: string;
 }
 
 /** Records one payment on a bill. Runs inside the caller's transaction and locks the bill. */
@@ -56,7 +55,6 @@ export async function recordPayment(tx: Tx, input: RecordPaymentInput): Promise<
   const bill = await repo.loadBill(tx, input.source_type, input.source_id, true);
   if (!bill) throw new AppError(input.source_type === 'INVOICE' ? 'INVOICE_NOT_FOUND' : 'NOT_FOUND', { source_type: input.source_type, source_id: input.source_id });
   if (input.require_member_id && bill.member_id !== input.require_member_id) throw new AppError('FORBIDDEN');
-  if (input.require_business_client_id && bill.business_client_id !== input.require_business_client_id) throw new AppError('FORBIDDEN');
   if (!bill.payable) throw new AppError('INVALID_STATUS_TRANSITION', { reason: 'This item can no longer be paid.' });
 
   const due = toPaise(bill.amount_due);
@@ -113,7 +111,9 @@ export const PaymentsService = {
     }
     // The kitchen screen takes cash/card/UPI for cafe orders only (extension for the built kitchen POS).
     if (user.role === USER_ROLE.KITCHEN_MANAGER && body.source_type !== 'BAR_ORDER') throw new AppError('FORBIDDEN');
-    const staff = user.role === USER_ROLE.FRONT_DESK || user.role === USER_ROLE.OWNER_ADMIN || user.role === USER_ROLE.KITCHEN_MANAGER;
+    // The store manager takes cash/card/UPI for shop orders only.
+    if (user.role === USER_ROLE.STORE_MANAGER && body.source_type !== 'SHOP_ORDER') throw new AppError('FORBIDDEN');
+    const staff = user.role !== USER_ROLE.MEMBER;
     const id = await withTransaction((tx) =>
       recordPayment(tx, {
         source_type: body.source_type,
@@ -124,7 +124,6 @@ export const PaymentsService = {
         notes: body.notes,
         received_by_user_id: staff ? user.id : null,
         require_member_id: user.role === USER_ROLE.MEMBER ? user.member_id : undefined,
-        require_business_client_id: user.role === USER_ROLE.BUSINESS_CLIENT ? user.business_client_id : undefined,
       }),
     );
     return (await repo.findView(repo.pool, id))!;
@@ -136,8 +135,7 @@ export const PaymentsService = {
       filter.member_id = input.member_id;
       filter.business_client_id = input.business_client_id;
     } else if (user.role === USER_ROLE.MEMBER) filter.member_id = user.member_id ?? '00000000-0000-0000-0000-000000000000';
-    else if (user.role === USER_ROLE.BUSINESS_CLIENT) filter.business_client_id = user.business_client_id ?? '00000000-0000-0000-0000-000000000000';
-    else filter.received_by_user_id = user.id; // FRONT_DESK: own (the payments they took)
+    else filter.received_by_user_id = user.id; // staff roles: own (the payments they took)
     return repo.list(repo.pool, filter, input.page_size, offsetOf(input));
   },
 
@@ -146,8 +144,7 @@ export const PaymentsService = {
     const own =
       user.role === USER_ROLE.OWNER_ADMIN ||
       (user.role === USER_ROLE.MEMBER && p?.member_id === user.member_id) ||
-      (user.role === USER_ROLE.BUSINESS_CLIENT && p?.business_client_id === user.business_client_id) ||
-      (user.role !== USER_ROLE.MEMBER && user.role !== USER_ROLE.BUSINESS_CLIENT && p?.received_by_user_id === user.id);
+      (user.role !== USER_ROLE.MEMBER && p?.received_by_user_id === user.id);
     if (!p || !own) throw new AppError('PAYMENT_NOT_FOUND'); // do not reveal other people's payments
     return p;
   },

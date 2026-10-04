@@ -1348,3 +1348,139 @@ COMMENT ON COLUMN bar_orders.table_label IS 'Free-text table or seat the cafe or
 COMMENT ON COLUMN enquiries.handled_at IS 'NULL = new, waiting for the front desk. Set when somebody has dealt with the enquiry.';
 COMMENT ON COLUMN payments.source_type IS 'What this payment pays for. Together with source_id a deliberate polymorphic reference (ADR-009), no FK.';
 COMMENT ON COLUMN payments.tax_amount IS 'GST portion of amount at payment time (snapshot): reports sum this column (R-FIN-07).';
+
+-- ===== 0005_store_manager_and_applications.sql =====
+-- =====================================================================================
+-- 0005 — Store Manager replaces the Business Client login; employee job applications
+--
+-- 1. user_role: BUSINESS_CLIENT is removed, STORE_MANAGER is added. Any user that held BUSINESS_CLIENT becomes a
+--    STORE_MANAGER with a staff row (nothing is deleted, so payments / invoices that point at them keep working).
+-- 2. business_clients stays (companies the owner invoices) but loses its portal login: user_id is dropped.
+-- 3. employee_applications: a JOB APPLICATION is not an employee. It holds the applicant's bcrypt hash only while it
+--    is PENDING (so the applicant can log in to see "under review"); the hash is cleared on approval/rejection.
+-- Preconditions are asserted first; the migration fails (and rolls back) on anything unexpected.
+-- =====================================================================================
+
+DO $$
+DECLARE n int;
+BEGIN
+  SELECT count(*) INTO n FROM users WHERE role = 'BUSINESS_CLIENT' AND NOT is_active;
+  IF n > 0 THEN RAISE EXCEPTION '0005: inactive BUSINESS_CLIENT users exist (%) - resolve before migrating', n; END IF;
+END $$;
+
+-- ------------------------------------------------------------------ 1. role enum swap
+ALTER TYPE user_role RENAME TO user_role_old;
+CREATE TYPE user_role AS ENUM ('MEMBER','FRONT_DESK','KITCHEN_MANAGER','STORE_MANAGER','OWNER_ADMIN');
+ALTER TABLE users ALTER COLUMN role TYPE user_role
+  USING (CASE role::text WHEN 'BUSINESS_CLIENT' THEN 'STORE_MANAGER' ELSE role::text END)::user_role;
+DROP TYPE user_role_old;
+
+-- Former business-client logins are club staff now: give them a staff row and a club email.
+UPDATE users u SET email = lower(regexp_replace(u.full_name, '[^A-Za-z]+', '.', 'g')) || '@championsclub.example'
+  WHERE u.role = 'STORE_MANAGER' AND NOT EXISTS (SELECT 1 FROM staff s WHERE s.user_id = u.id)
+    AND NOT EXISTS (SELECT 1 FROM users o WHERE o.id <> u.id AND lower(o.email) = lower(regexp_replace(u.full_name, '[^A-Za-z]+', '.', 'g')) || '@championsclub.example');
+INSERT INTO staff (user_id, designation, monthly_salary)
+  SELECT u.id, 'Store Manager', 38000 FROM users u
+  WHERE u.role = 'STORE_MANAGER' AND NOT EXISTS (SELECT 1 FROM staff s WHERE s.user_id = u.id);
+
+-- ------------------------------------------------------------------ 2. business clients: invoiced companies only
+ALTER TABLE business_clients DROP COLUMN user_id;
+
+-- ------------------------------------------------------------------ 3. job applications
+CREATE TYPE application_status AS ENUM ('PENDING','APPROVED','REJECTED');
+
+CREATE TABLE employee_applications (
+  id                   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  full_name            text NOT NULL,
+  email                text NOT NULL,
+  phone                text,
+  password_hash        text,                                   -- bcrypt; only while PENDING, cleared on a decision
+  status               application_status NOT NULL DEFAULT 'PENDING',
+  approved_role        user_role,                              -- set on APPROVED: FRONT_DESK | KITCHEN_MANAGER | STORE_MANAGER
+  applied_at           timestamptz NOT NULL DEFAULT now(),
+  reviewed_at          timestamptz,
+  reviewed_by_user_id  uuid REFERENCES users(id),
+  decision_note        text,
+  CHECK ((status = 'PENDING') = (password_hash IS NOT NULL)),
+  CHECK ((status = 'PENDING') = (reviewed_at IS NULL)),
+  CHECK ((status = 'APPROVED') = (approved_role IS NOT NULL)),
+  CHECK (approved_role IS NULL OR approved_role IN ('FRONT_DESK','KITCHEN_MANAGER','STORE_MANAGER'))
+);
+CREATE UNIQUE INDEX employee_applications_pending_email_key ON employee_applications (lower(email)) WHERE status = 'PENDING';
+CREATE INDEX employee_applications_status_idx ON employee_applications (status, applied_at DESC);
+
+-- same lock-down as every other table (0002): only the backend reads or writes it
+ALTER TABLE employee_applications ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+    EXECUTE 'REVOKE ALL ON TABLE employee_applications FROM anon';
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
+    EXECUTE 'REVOKE ALL ON TABLE employee_applications FROM authenticated';
+  END IF;
+END $$;
+
+-- ===== 0006_events.sql =====
+-- =====================================================================================
+-- 0006 — Club events become real data
+--
+-- Events (tournaments, clinics, camps, socials) were a frontend-only demo list. `events` is the one source the owner
+-- creates into and every member reads; `event_registrations` records which member signed up (one row per member and
+-- event), so capacity and "Registered" come from the database too. Nothing existing is touched.
+-- =====================================================================================
+
+CREATE TYPE event_kind AS ENUM ('TOURNAMENT','CLINIC','CAMP','MIXER','SOCIAL');
+
+CREATE TABLE events (
+  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  title        text NOT NULL,
+  kind         event_kind NOT NULL,
+  description  text,
+  location     text NOT NULL,
+  start_at     timestamptz NOT NULL,
+  end_at       timestamptz NOT NULL,
+  capacity     integer NOT NULL CHECK (capacity > 0),
+  fee          numeric(12,2) NOT NULL DEFAULT 0 CHECK (fee >= 0),
+  created_at   timestamptz NOT NULL DEFAULT now(),
+  updated_at   timestamptz NOT NULL DEFAULT now(),
+  CHECK (end_at > start_at)
+);
+CREATE INDEX events_start_idx ON events (start_at);
+
+CREATE TABLE event_registrations (
+  id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id       uuid NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+  member_id      uuid NOT NULL REFERENCES members(id),
+  registered_at  timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (event_id, member_id)
+);
+CREATE INDEX event_registrations_member_idx ON event_registrations (member_id);
+
+CREATE TRIGGER trg_events_updated_at BEFORE UPDATE ON events FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+-- same lock-down as every other table (0002): only the backend reads or writes it
+ALTER TABLE events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE event_registrations ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+    EXECUTE 'REVOKE ALL ON TABLE events, event_registrations FROM anon';
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
+    EXECUTE 'REVOKE ALL ON TABLE events, event_registrations FROM authenticated';
+  END IF;
+END $$;
+
+-- ===== 0007_trial_bookings.sql =====
+-- =====================================================================================
+-- 0007 — Free trial sessions are court bookings
+--
+-- A visitor books a trial hour on the public website. It is a real court booking (it occupies the slot and shows in the
+-- owner and front-desk calendars), so it uses court_bookings with its own booking type instead of a second table.
+-- guest_email keeps the visitor's contact detail next to guest_name / guest_phone. Nothing existing is touched.
+-- =====================================================================================
+
+ALTER TYPE booking_type ADD VALUE 'TRIAL';
+
+ALTER TABLE court_bookings ADD COLUMN guest_email text;

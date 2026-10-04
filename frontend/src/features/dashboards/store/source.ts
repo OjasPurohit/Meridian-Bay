@@ -1,6 +1,6 @@
 import type { BarMenuItem, BusinessClient, Product } from '@shared/types/rows';
 
-import kitchenMenuJson from '@mock/kitchen-menu-items.json';
+import barMenuJson from '@mock/bar-menu-items.json';
 import businessClientsJson from '@mock/business-clients.json';
 import productsJson from '@mock/products.json';
 import { mockRows, type BarOrderRow, type BookingRow, type InvoiceRow, type PaymentRow, type ShopOrderRow } from './derive';
@@ -22,13 +22,11 @@ export interface Source {
 
 export function mockSource(): Source {
   const r = mockRows();
-  return { bookings: r.bookings, products: as<Product[]>(productsJson), shopOrders: r.shopOrders, menu: as<BarMenuItem[]>(kitchenMenuJson), barOrders: r.barOrders, payments: r.payments, invoices: r.invoices };
+  return { bookings: r.bookings, products: as<Product[]>(productsJson), shopOrders: r.shopOrders, menu: as<BarMenuItem[]>(barMenuJson), barOrders: r.barOrders, payments: r.payments, invoices: r.invoices };
 }
 
-/** Business clients known to the UI (names on invoices and payments). Live mode refills this array in place. */
+/** Business clients (companies the club invoices) known to the UI: names on invoices and payments. Live mode refills this array in place. */
 export const clientRegistry: BusinessClient[] = as<BusinessClient[]>(businessClientsJson);
-/** The signed-in business client (preview: the seeded one). Live mode overwrites its fields in place. */
-export const BUSINESS_CLIENT: BusinessClient = { ...(clientRegistry.find((c) => c.user_id) ?? clientRegistry[0]) };
 export const clientName = (id: string | null) => clientRegistry.find((c) => c.id === id)?.company_name ?? 'Business client';
 
 const num = (s: string) => parseFloat(s);
@@ -43,7 +41,7 @@ export function seedBookings(src: Source): DBooking[] {
     const m = ALL_MEMBERS.find((x) => x.id === b.member_id);
     const maintenance = b.booking_type === 'MAINTENANCE';
     const social = !b.member_id && !!b.guest_name && SOCIAL.test(b.guest_name);
-    const trial = !b.member_id && !social && !maintenance && num(b.list_price) > 0 && num(b.list_price) === num(b.discount_amount);
+    const trial = b.booking_type === 'TRIAL' || (!b.member_id && !social && !maintenance && num(b.list_price) > 0 && num(b.list_price) === num(b.discount_amount));
     return {
       id: b.id,
       number: b.booking_number,

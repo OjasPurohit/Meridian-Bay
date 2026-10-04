@@ -32,7 +32,7 @@ t('slotStarts: 06:00..22:00 => 31 half-hour starts, last 21:00 IST', () => {
 });
 
 console.log('state machines');
-t('kitchen: NEW -> PREPARING -> READY -> SERVED, no skipping, reject only while NEW', () => { assert.ok(!ORDER_TRANSITIONS.NEW.includes('SERVED')); assert.deepEqual(ORDER_TRANSITIONS.NEW, ['PREPARING', 'CANCELLED']); assert.deepEqual(ORDER_TRANSITIONS.PREPARING, ['READY']); });
+t('kitchen: NEW -> PREPARING -> READY -> SERVED, no skipping, reject only while NEW, READY may go back to PREPARING', () => { assert.ok(!ORDER_TRANSITIONS.NEW.includes('SERVED')); assert.deepEqual(ORDER_TRANSITIONS.NEW, ['PREPARING', 'CANCELLED']); assert.deepEqual(ORDER_TRANSITIONS.PREPARING, ['READY']); assert.deepEqual(ORDER_TRANSITIONS.READY, ['PREPARING', 'SERVED']); assert.deepEqual(ORDER_TRANSITIONS.SERVED, []); assert.deepEqual(ORDER_TRANSITIONS.CANCELLED, []); });
 t('shop: pickup/delivery branches both reachable from CONFIRMED', () => { assert.ok(SHOP_ORDER_TRANSITIONS.CONFIRMED.includes('READY_FOR_PICKUP') && SHOP_ORDER_TRANSITIONS.CONFIRMED.includes('OUT_FOR_DELIVERY')); });
 t('invoice: only DRAFT can be sent; a SENT invoice can only be voided (paid/overdue are derived)', () => { assert.deepEqual(INVOICE_TRANSITIONS.DRAFT, ['SENT', 'VOID']); assert.deepEqual(INVOICE_TRANSITIONS.SENT, ['VOID']); assert.deepEqual(INVOICE_TRANSITIONS.VOID, []); });
 t('leave: APPROVED can only be cancelled; REJECTED is terminal', () => { assert.deepEqual(LEAVE_TRANSITIONS.APPROVED, ['CANCELLED']); assert.deepEqual(LEAVE_TRANSITIONS.REJECTED, []); });

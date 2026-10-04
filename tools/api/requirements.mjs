@@ -7,7 +7,7 @@
 export const MODULES = {
   AUTH: 'Authentication & access', PUB: 'Public website', MEM: 'Membership', COURT: 'Court booking', SHOP: 'Shop',
   INV: 'Inventory', BAR: 'Cafe', KIT: 'Kitchen orders', ENQ: 'Enquiries', FIN: 'Finance & payments', INVC: 'Business clients & invoicing',
-  STAFF: 'Staff / HR', REP: 'Reporting', SET: 'Club settings',
+  STAFF: 'Staff / HR', REP: 'Reporting', SET: 'Club settings', EVT: 'Club events',
 };
 
 // [id, priority, actors, text, scene, extras]
@@ -19,7 +19,8 @@ export const FR = [
   ['FR-AUTH-004', 'SHOULD', 'All', 'Users can log out.', 'Auth flow'],
   ['FR-AUTH-005', 'MUST', 'All', 'Every endpoint enforces the role/ownership rules of the permissions matrix server-side (UI hiding is not security).', 'Roles', { ui: true, module: 'AUTH' }],
   ['FR-AUTH-006', 'SHOULD', 'All', 'Users can change their password; accounts created by staff must change it on first login.', 'Auth flow'],
-  ['FR-AUTH-007', 'MUST', 'Owner', 'The owner creates accounts for front-desk staff, kitchen manager and business clients.', 'Roles'],
+  ['FR-AUTH-007', 'MUST', 'Owner', 'The owner creates accounts for front-desk staff, kitchen manager and store manager.', 'Roles'],
+  ['FR-AUTH-008', 'MUST', 'Visitor, Owner', 'A visitor can apply as an employee: the application waits for the owner, the applicant can log in to see it is under review but gets no dashboard until approved.', 'Latest product requirements'],
   // ---- PUB
   ['FR-PUB-001', 'MUST', 'Visitor', 'Homepage presents the club: introduction, sports/courts, timings, location and contact.', 'A stranger finds the club online'],
   ['FR-PUB-002', 'MUST', 'Visitor', 'Public membership plans page with Gold / Silver / Junior pricing and benefits.', 'A stranger finds the club online'],
@@ -59,6 +60,9 @@ export const FR = [
   ['FR-COURT-013', 'SHOULD', 'Owner', 'Block courts for maintenance.', 'Implied by availability management'],
   ['FR-COURT-015', 'MUST', 'Owner', 'Manage the court catalogue (add, edit, change rates, deactivate).', 'Club description'],
   ['FR-COURT-016', 'MUST', 'Front desk, Owner', 'Day/week view of all bookings for the desk.', 'Booking a court on a busy evening'],
+  // ---- EVT
+  ['FR-EVT-001', 'MUST', 'Owner', 'The owner creates club events (tournament, clinic, camp, social) with place, time, capacity and fee; they are saved in the database.', 'Latest product requirements'],
+  ['FR-EVT-002', 'MUST', 'Member', 'Every role reads the same events; a member sees new events without a restart and can register or cancel (capacity enforced).', 'Latest product requirements'],
   // ---- SOC
   // ---- SHOP
   ['FR-SHOP-001', 'MUST', 'Visitor, Member', 'Browse rackets, balls, shoes, accessories and apparel with stock status.', 'Gearing up before a match'],
@@ -90,7 +94,7 @@ export const FR = [
   // ---- KIT
   ['FR-KIT-001', 'MUST', 'Kitchen manager', 'See incoming orders on a live board.', 'After the match ("the kitchen keeps asking who ordered what")'],
   ['FR-KIT-002', 'MUST', 'Kitchen manager', 'Each order shows items, quantities, the table label and who ordered.', 'After the match ("who ordered what")'],
-  ['FR-KIT-003', 'MUST', 'Kitchen manager', 'Progress an order NEW → PREPARING → READY → SERVED.', 'Kitchen flow'],
+  ['FR-KIT-003', 'MUST', 'Kitchen manager', 'Progress an order NEW → PREPARING → READY → SERVED; a READY order may be sent back to PREPARING.', 'Kitchen flow'],
   ['FR-KIT-004', 'MUST', 'Kitchen manager', 'The kitchen view exposes no financial, inventory, HR or admin data.', 'Role definition (Kitchen Manager kept simple)'],
   ['FR-KIT-005', 'SHOULD', 'Kitchen manager', 'Reject (cancel) an order that is still NEW.', 'Kitchen flow'],
   // ---- ENQ
@@ -127,6 +131,7 @@ export const FR = [
   ['FR-STAFF-004', 'MUST', 'Owner', 'Approve or reject leave.', 'The owner ("leave to approve")'],
   ['FR-STAFF-005', 'SHOULD', 'Front desk', 'Front desk can view the staff schedule.', 'Club description ("front desk handles ... staff schedules")'],
   ['FR-STAFF-006', 'MUST', 'Owner', 'Payroll records per employee per month.', 'The owner ("employees to pay")'],
+  ['FR-STAFF-008', 'MUST', 'Owner', 'The owner reviews job applications, approves one with a chosen role (front desk, kitchen or store manager) or declines it.', 'Latest product requirements'],
   ['FR-STAFF-007', 'SHOULD', 'Front desk, Kitchen manager', 'Staff see their own shifts and payroll history.', 'Staff self-service'],
   // ---- REP
   ['FR-REP-001', 'MUST', 'Owner', 'Dashboard for today / this week / this month.', 'The owner ("today, this week and this month")'],
@@ -201,7 +206,9 @@ export const BR = [
 
 // Problem-statement coverage: every capability named in the brief -> the requirement IDs that deliver it.
 export const COVERAGE = [
-  ['Roles: Member (Gold/Silver/Junior), Front Desk, Kitchen Manager, Business Client, Owner/Admin', ['FR-AUTH-002', 'FR-AUTH-005', 'FR-AUTH-007']],
+  ['Roles: Member (Gold/Silver/Junior), Front Desk, Kitchen Manager, Store Manager, Owner/Admin', ['FR-AUTH-002', 'FR-AUTH-005', 'FR-AUTH-007', 'FR-AUTH-008']],
+  ['Employees: job applications approved by the owner', ['FR-STAFF-008']],
+  ['Club events: owner creates, members see and register', ['FR-EVT-001', 'FR-EVT-002']],
   ['Courts catalogue (tennis, cricket, padel, badminton)', ['FR-COURT-001', 'FR-COURT-015']],
   ['Shop order tracking (placed → ready/out for delivery → completed)', ['FR-SHOP-009']],
   ['Bar & cafeteria menu', ['FR-BAR-001', 'FR-BAR-011']],

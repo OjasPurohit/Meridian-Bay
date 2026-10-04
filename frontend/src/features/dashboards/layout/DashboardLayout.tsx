@@ -53,7 +53,7 @@ function ActivityDrawer({ open, onClose, role }: { open: boolean; onClose: () =>
       ...s.shopOrders.map((o) => ({ at: o.created_at, icon: ShoppingBag, title: `Store order ${o.number} · ${o.customer}`, sub: `${o.lines.length} item${o.lines.length > 1 ? 's' : ''} · ${o.status.replace(/_/g, ' ').toLowerCase()}` })),
       ...s.kOrders.map((o) => ({ at: o.created_at, icon: ChefHat, title: `Kitchen order ${o.number} · ${o.customer}`, sub: `${o.lines.length} item${o.lines.length > 1 ? 's' : ''} · ${o.status.toLowerCase()}` })),
     ];
-    const wanted = role === 'KITCHEN_MANAGER' ? rows.filter((r) => r.icon === ChefHat) : rows;
+    const wanted = role === 'KITCHEN_MANAGER' ? rows.filter((r) => r.icon === ChefHat) : role === 'STORE_MANAGER' ? rows.filter((r) => r.icon === ShoppingBag) : rows;
     return wanted.sort((a, b) => b.at.localeCompare(a.at)).slice(0, 10);
   }, [s, role]);
   return (
@@ -116,8 +116,7 @@ function Shell({ role }: { role: UserRole }) {
   const fresh = useMemo(() => [...s.shopOrders, ...s.kOrders, ...s.bookings].filter((x) => x.created_at > DEMO_NOW).length, [s]);
 
   const switchTo = (r: UserRole) => {
-    const next = demoLogin(r);
-    navigate(next.redirect_to);
+    demoLogin(r).then((next) => navigate(next.redirect_to), (e) => toast(e instanceof Error ? e.message : 'Could not sign in.', 'warn'));
   };
 
   return (

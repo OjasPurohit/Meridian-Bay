@@ -7,6 +7,7 @@ import { SHOP_STATUS, shopFlow } from '../../status';
 import { demo, useDemo } from '../../store/demoStore';
 import type { DProduct, DShopOrder } from '../../store/types';
 import { ConfirmDelete, FormModal, type FieldDef } from '../../ui/forms';
+import { StockStepper } from '../../components/StockStepper';
 import { btn, Chips, DataTable, Empty, Kpi, Meter, PageHeader, PageSkeleton, Pill, SearchInput, Section, Segmented, usePageReady, useToast, type Column } from '../../ui/kit';
 
 const FIELDS: FieldDef[] = [
@@ -48,11 +49,11 @@ export default function OwnerStore() {
     { key: 'n', header: 'Product', cell: (p) => <div><p className="font-semibold">{p.name}</p><p className="text-xs text-muted">{p.sku}</p></div> },
     { key: 'c', header: 'Category', hide: 'md', cell: (p) => <Pill tone="muted">{p.category.toLowerCase()}</Pill> },
     { key: 'p', header: 'Price', align: 'right', cell: (p) => <span className="font-semibold">{formatMoney(p.price).replace(/\.00$/, '')}</span> },
-    { key: 's', header: 'Stock', hide: 'sm', cell: (p) => <div className="flex items-center gap-2"><div className="w-20"><Meter value={p.stock} max={45} tone={p.stock === 0 ? 'rust' : p.stock <= p.threshold ? 'sun' : 'olive'} /></div><span className="w-7 text-right tabular-nums">{p.stock}</span></div> },
+    { key: 's', header: 'Stock', hide: 'sm', cell: (p) => <div className="w-20"><Meter value={p.stock} max={45} tone={p.stock === 0 ? 'rust' : p.stock <= p.threshold ? 'sun' : 'olive'} /></div> },
     { key: 'st', header: 'Status', cell: (p) => (p.stock === 0 ? <Pill tone="rust">Out</Pill> : p.stock <= p.threshold ? <Pill tone="sun">Low</Pill> : <Pill tone="green">OK</Pill>) },
     { key: 'x', header: '', align: 'right', cell: (p) => (
       <span className="inline-flex items-center gap-0.5">
-        <button type="button" className={btn.quiet} onClick={() => { demo.adjustProductStock(p.id, 10); toast(`+10 ${p.name}`); }}>+10</button>
+        <StockStepper name={p.name} stock={p.stock} onChange={(d) => demo.adjustProductStock(p.id, d)} className="mr-1" />
         <button type="button" className={btn.quiet} aria-label={`Edit ${p.name}`} onClick={() => setEdit(p)}><Pencil className="size-3.5" /></button>
         <button type="button" className={btn.danger} aria-label={`Delete ${p.name}`} onClick={() => setDel(p)}><Trash2 className="size-3.5" /></button>
       </span>

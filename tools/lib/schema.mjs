@@ -6,7 +6,7 @@
 //   ALTER TABLE t DROP COLUMN c[, DROP COLUMN d ..] | ADD COLUMN c <def> (incl. GENERATED ALWAYS AS (..) STORED) | ADD CONSTRAINT n <def>
 //     | DROP CONSTRAINT n | ALTER COLUMN c TYPE y [USING ..] / SET DEFAULT .. / DROP DEFAULT
 //   DROP TABLE | CREATE [UNIQUE] INDEX | DROP INDEX | CREATE VIEW | DROP VIEW | COMMENT ON TABLE|COLUMN|VIEW|FUNCTION
-//   CREATE TYPE .. AS ENUM | ALTER TYPE x RENAME TO y | DROP TYPE a[, b ..] | DROP SEQUENCE a[, b ..]
+//   CREATE TYPE .. AS ENUM | ALTER TYPE x RENAME TO y | ALTER TYPE x ADD VALUE 'V' | DROP TYPE a[, b ..] | DROP SEQUENCE a[, b ..]
 // Keep later migrations to that style (no ';' or '--' inside string literals) or extend applyMigration() below.
 // Anything else (DO blocks, UPDATE, INSERT, REVOKE, triggers, CREATE FUNCTION, CREATE TEMP TABLE ...) is ignored: it does not
 // change the shape. A schema-changing statement outside the supported subset FAILS LOUDLY instead of drifting silently.
@@ -123,6 +123,9 @@ function applyMigration(model, sqlText, file) {
       delete views[m[1]];
     } else if ((m = st.match(/^CREATE TYPE (\w+) AS ENUM \((.*)\)$/))) {
       enums[m[1]] = enumValues(m[2]);
+    } else if ((m = st.match(/^ALTER TYPE (\w+) ADD VALUE '(\w+)'$/))) {
+      if (!enums[m[1]]) throw new Error(`${file}: ALTER TYPE ${m[1]}: unknown enum`);
+      enums[m[1]].push(m[2]);
     } else if ((m = st.match(/^ALTER TYPE (\w+) RENAME TO (\w+)$/))) {
       if (!enums[m[1]]) throw new Error(`${file}: ALTER TYPE ${m[1]}: unknown enum`);
       enums[m[2]] = enums[m[1]]; delete enums[m[1]];
@@ -144,20 +147,18 @@ function applyMigration(model, sqlText, file) {
       if (c) c.description = [c.description, unquote(m[3])].filter(Boolean).join(' ');
     } else if (/^COMMENT ON FUNCTION\b/.test(st)) {
       // functions are not part of the table model
-    } else if (/^(ALTER TABLE \w+ (DROP|ADD|ALTER|RENAME|SET)\b|COMMENT ON\b|DROP (TABLE|TYPE|VIEW|SEQUENCE)\b|ALTER TYPE\b|CREATE TABLE\b|CREATE TYPE\b)/.test(st)) {
+    } else if (/^CREATE TABLE \w+ \(/.test(st)) {
+      // parsed from the raw text by parseCreateTables (keeps the column comments)
+    } else if (/^(ALTER TABLE \w+ (DROP|ADD|ALTER|RENAME|SET)\b|COMMENT ON\b|DROP (TABLE|TYPE|VIEW|SEQUENCE)\b|ALTER TYPE\b|CREATE TYPE\b)/.test(st)) {
       // a statement that changes the schema's shape but is not in the supported subset: fail loudly instead of drifting silently
       throw new Error(`${file}: statement not supported by tools/lib/schema.mjs (extend applyMigration): ${st.slice(0, 100)}`);
     }
   }
 }
 
-export function parseSchema() {
-  const migrations = readMigrations();
-  const first = protectComments(migrations[0].sql);
-  const enums = {};
-  for (const m of first.matchAll(/CREATE TYPE (\w+) AS ENUM \(([\s\S]*?)\);/g)) enums[m[1]] = enumValues(m[2]);
-  const sequences = [...first.matchAll(/CREATE SEQUENCE (\w+)/g)].map((m) => m[1]);
-  const tables = {};
+/** Parses every CREATE TABLE in `text` (comments already protected) into `tables`. */
+function parseCreateTables(text, tables) {
+  const first = text;
   const re = /CREATE TABLE (\w+) \(/g;
   let m;
   while ((m = re.exec(first))) {
@@ -187,6 +188,16 @@ export function parseSchema() {
     }
     tables[name] = { name, columns, constraints, fks, comment: '' };
   }
+}
+
+export function parseSchema() {
+  const migrations = readMigrations();
+  const first = protectComments(migrations[0].sql);
+  const enums = {};
+  for (const m of first.matchAll(/CREATE TYPE (\w+) AS ENUM \(([\s\S]*?)\);/g)) enums[m[1]] = enumValues(m[2]);
+  const sequences = [...first.matchAll(/CREATE SEQUENCE (\w+)/g)].map((m) => m[1]);
+  const tables = {};
+  parseCreateTables(first, tables);
   // Indexes and every schema-evolving statement, in migration order (a later migration may drop and recreate anything).
   const model = { tables, enums, sequences, indexes: {}, views: {} };
   migrations.forEach((mg, n) => {
@@ -195,7 +206,10 @@ export function parseSchema() {
         const x = st.match(/^CREATE (UNIQUE )?INDEX (\w+) ON (\w+) (.+)$/);
         if (x) model.indexes[x[2]] = { unique: !!x[1], name: x[2], table: x[3], def: x[4] };
       }
-    } else applyMigration(model, mg.sql, mg.file);
+    } else {
+      applyMigration(model, mg.sql, mg.file);
+      parseCreateTables(protectComments(mg.sql), tables); // tables created by a later migration (after its ALTERs: a new table already uses the final enums)
+    }
   });
   return { enums, tables, sequences, indexes: Object.values(model.indexes), views: Object.values(model.views) };
 }

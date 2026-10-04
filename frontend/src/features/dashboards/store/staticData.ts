@@ -17,8 +17,9 @@ import plansJson from '@mock/membership-plans.json';
 import payrollJson from '@mock/payroll-payments.json';
 import shiftsJson from '@mock/staff-shifts.json';
 import staffJson from '@mock/staff.json';
+import applicationsJson from '@mock/employee-applications.json';
 import usersJson from '@mock/users.json';
-import { DEMO_TODAY, type DCourt, type DMember } from './types';
+import { DEMO_TODAY, type DApplication, type DCourt, type DMember, type DStaff } from './types';
 
 const as = <T,>(v: unknown) => v as T;
 const users = as<User[]>(usersJson);
@@ -32,6 +33,9 @@ const staffRaw = as<Staff[]>(staffJson);
 const shiftsRaw = as<StaffShift[]>(shiftsJson);
 const leaveRaw = as<LeaveRequest[]>(leaveJson);
 const payrollRaw = as<PayrollPayment[]>(payrollJson);
+
+/** Deactivated courts (owner only, live mode): kept out of every booking list, shown on the owner's court catalogue so they can be reactivated. */
+export const inactiveCourts: DCourt[] = [];
 
 export const courts: DCourt[] = as<Court[]>(courtsJson)
   .filter((c) => c.is_active)
@@ -81,6 +85,8 @@ function realMember(m: Member): DMember {
     shop_pct: live ? parseFloat(plan.shop_discount_percent) : 0,
     bar_pct: live ? parseFloat(plan.bar_discount_percent) : 0,
     max_plays: plan?.max_plays_per_day ?? 2,
+    active: u.is_active,
+    address: m.address,
     synthetic: false,
   };
 }
@@ -119,6 +125,8 @@ function syntheticMembers(count: number): DMember[] {
       shop_pct: plan && !expired ? parseFloat(plan.shop_discount_percent) : 0,
       bar_pct: plan && !expired ? parseFloat(plan.bar_discount_percent) : 0,
       max_plays: 2,
+      active: true,
+      address: null,
       synthetic: true,
     });
   }
@@ -156,15 +164,20 @@ const EXTRA_STAFF = [
   { name: 'Farah Khan', designation: 'Bar & Café Associate', area: 'BAR', salary: 24000, phone: '+919820000014', role: 'BAR' },
 ];
 
-export const staff = [
-  ...staffRaw.map((s) => {
+export const staff: DStaff[] = [
+  ...staffRaw.map((s): DStaff => {
     const u = users.find((x) => x.id === s.user_id)!;
     const shift = shiftsRaw.find((x) => x.staff_id === s.id && x.shift_date === DEMO_TODAY);
     const pay = payrollRaw.filter((p) => p.staff_id === s.id).sort((a, b) => b.pay_period.localeCompare(a.pay_period))[0];
-    return { id: s.id, name: u.full_name, designation: s.designation, role: u.role as string, area: u.role === 'KITCHEN_MANAGER' ? 'BAR' : u.role === 'FRONT_DESK' ? 'COURTS' : 'MANAGEMENT', salary: parseFloat(s.monthly_salary), phone: u.phone ?? '', shift: shift ? `${shift.start_time.slice(0, 5)}–${shift.end_time.slice(0, 5)}` : 'Off today', payroll: pay ? (pay.paid_on ? 'PAID' : 'PENDING') : 'PENDING', on_duty: !!shift && shift.start_time <= '17:15:00' && shift.end_time > '17:15:00' };
+    return { id: s.id, user_id: s.user_id, name: u.full_name, email: u.email, designation: s.designation, role: u.role as string, area: u.role === 'KITCHEN_MANAGER' ? 'BAR' : u.role === 'FRONT_DESK' ? 'COURTS' : u.role === 'STORE_MANAGER' ? 'SHOP' : 'MANAGEMENT', salary: parseFloat(s.monthly_salary), phone: u.phone ?? '', shift: shift ? `${shift.start_time.slice(0, 5)}–${shift.end_time.slice(0, 5)}` : 'Off today', payroll: pay ? (pay.paid_on ? 'PAID' : 'PENDING') : 'PENDING', on_duty: !!shift && shift.start_time <= '17:15:00' && shift.end_time > '17:15:00', active: u.is_active };
   }),
-  ...EXTRA_STAFF.map((s, i) => ({ id: `xs-${i}`, name: s.name, designation: s.designation, role: s.role, area: s.area, salary: s.salary, phone: s.phone, shift: i % 2 ? '14:00–22:00' : '06:00–14:00', payroll: 'PENDING' as const, on_duty: i % 2 === 1 })),
+  ...EXTRA_STAFF.map((s, i): DStaff => ({ id: `xs-${i}`, name: s.name, email: '', designation: s.designation, role: s.role, area: s.area, salary: s.salary, phone: s.phone, shift: i % 2 ? '14:00–22:00' : '06:00–14:00', payroll: 'PENDING', on_duty: i % 2 === 1, active: true })),
 ];
+
+/** Job applications waiting for (or already decided by) the owner. Live mode refills this in place from the API. */
+export const applications: DApplication[] = (applicationsJson as unknown as { id: string; full_name: string; email: string; phone: string | null; status: DApplication['status']; approved_role: string | null; applied_at: string; reviewed_at: string | null; decision_note: string | null }[])
+  .map((a) => ({ id: a.id, name: a.full_name, email: a.email, phone: a.phone ?? '', status: a.status, role: a.approved_role, applied_at: a.applied_at, reviewed_at: a.reviewed_at, reviewed_by: a.reviewed_at ? 'Owner' : null, note: a.decision_note }))
+  .sort((a, b) => b.applied_at.localeCompare(a.applied_at));
 
 export const leaveRequests = leaveRaw.map((l) => ({ id: l.id, staff: staff.find((s) => s.id === l.staff_id)?.name ?? 'Staff', type: 'LEAVE', from: l.start_date, to: l.end_date, status: l.status, reason: l.reason }));
 

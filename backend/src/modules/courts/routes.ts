@@ -22,7 +22,7 @@ const fields = {
 router.get('/', optionalAuth, validateQuery(z.object({ sport_type: enumOf(SPORT_TYPE).optional(), include_inactive: queryBool.optional() })),
   asyncHandler(async (req, res) => {
     const q = req.query as { sport_type?: never; include_inactive?: boolean };
-    const staff = !!req.user && req.user.role !== USER_ROLE.MEMBER && req.user.role !== USER_ROLE.BUSINESS_CLIENT;
+    const staff = !!req.user && req.user.role !== USER_ROLE.MEMBER;
     if (q.include_inactive && !staff) throw new AppError('FORBIDDEN');
     ok(res, await CourtsService.list(q.sport_type, !!q.include_inactive));
   }));

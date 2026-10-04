@@ -16,7 +16,7 @@ export const USER_ROLE = {
   MEMBER: 'MEMBER',
   FRONT_DESK: 'FRONT_DESK',
   KITCHEN_MANAGER: 'KITCHEN_MANAGER',
-  BUSINESS_CLIENT: 'BUSINESS_CLIENT',
+  STORE_MANAGER: 'STORE_MANAGER',
   OWNER_ADMIN: 'OWNER_ADMIN',
 } as const;
 
@@ -45,6 +45,7 @@ export const SPORT_TYPE = {
 export const BOOKING_TYPE = {
   REGULAR: 'REGULAR', // a member or a walk-in guest plays
   MAINTENANCE: 'MAINTENANCE', // court blocked by owner
+  TRIAL: 'TRIAL', // a visitor's free trial hour, booked on the public website
 } as const;
 
 /** DERIVED by the view `court_booking_totals`: CANCELLED when cancelled_at is set, COMPLETED once end_at has passed. */
@@ -137,6 +138,22 @@ export const REVENUE_CATEGORY = {
 export const INVOICE_TYPE = {
   BUSINESS: 'BUSINESS',
   MEMBERSHIP: 'MEMBERSHIP',
+} as const;
+
+/** Stored state of a job application (a decision is final; the applicant is not an employee until APPROVED). */
+export const APPLICATION_STATUS = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+} as const;
+
+/** Kinds of club event (the owner creates them, members register). */
+export const EVENT_KIND = {
+  TOURNAMENT: 'TOURNAMENT',
+  CLINIC: 'CLINIC',
+  CAMP: 'CAMP',
+  MIXER: 'MIXER',
+  SOCIAL: 'SOCIAL',
 } as const;
 
 /** Stored invoice lifecycle. Whether a SENT invoice is paid / overdue is DERIVED (INVOICE_PAYMENT_STATE). */
@@ -245,6 +262,8 @@ export type PaymentTxnStatus = ValueOf<typeof PAYMENT_TXN_STATUS>;
 export type PaymentSourceType = ValueOf<typeof PAYMENT_SOURCE_TYPE>;
 export type RevenueCategory = ValueOf<typeof REVENUE_CATEGORY>;
 export type InvoiceType = ValueOf<typeof INVOICE_TYPE>;
+export type ApplicationStatus = ValueOf<typeof APPLICATION_STATUS>;
+export type EventKind = ValueOf<typeof EVENT_KIND>;
 export type InvoiceStatus = ValueOf<typeof INVOICE_STATUS>;
 export type InvoicePaymentState = ValueOf<typeof INVOICE_PAYMENT_STATE>;
 export type EnquiryType = ValueOf<typeof ENQUIRY_TYPE>;

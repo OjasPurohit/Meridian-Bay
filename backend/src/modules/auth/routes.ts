@@ -32,6 +32,8 @@ const signupBody: Schema<AuthSignupRequest> = strictObject({
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be a date (YYYY-MM-DD).')
     .refine((v) => v < new Date().toISOString().slice(0, 10), 'Must be in the past.')
     .optional(),
+  address: z.string().trim().min(1).max(500).optional(),
+  membership_plan_id: z.string().uuid().optional(),
 });
 const changePasswordBody: Schema<AuthChangePasswordRequest> = strictObject({ current_password: z.string().min(1).max(200), new_password: password });
 

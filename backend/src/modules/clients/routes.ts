@@ -1,14 +1,11 @@
 /**
  * HTTP mapping for business clients: route -> validate -> service. Roles copy tools/api/endpoints.mjs:
  *   clients.list / create / get / update  OWNER_ADMIN
- *   clients.me                            BUSINESS_CLIENT
- * `/me` is registered before `/:id` so it is not captured as an id.
  */
 import { Router } from 'express';
 import type { ClientsCreateRequest } from '@shared/types/requests.generated';
 import { USER_ROLE } from '@shared/constants/enums';
 import { requireAuth, requireRole } from '../../kernel/auth';
-import { AppError } from '../../kernel/errors';
 import { asyncHandler, created, ok, page } from '../../kernel/http';
 import { idParams, validateBody, validateParams, validateQuery } from '../../kernel/validate';
 import { createClientBody, listClientsQuery, updateClientBody, type ClientsListInput, type ClientsUpdateInput } from './schema';
@@ -37,17 +34,6 @@ router.post(
   validateBody(createClientBody),
   asyncHandler(async (req, res) => {
     created(res, await ClientsService.create(req.body as ClientsCreateRequest));
-  }),
-);
-
-// clients.me
-router.get(
-  '/me',
-  requireAuth,
-  requireRole(USER_ROLE.BUSINESS_CLIENT),
-  asyncHandler(async (req, res) => {
-    if (!req.user) throw new AppError('AUTH_UNAUTHORIZED');
-    ok(res, await ClientsService.me(req.user.id));
   }),
 );
 

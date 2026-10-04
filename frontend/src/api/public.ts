@@ -9,6 +9,7 @@ import type { SportType } from '@shared/constants/enums';
 
 import { apiRequest, isBackendConfigured } from './client';
 import settingsJson from '@mock/club-settings.json';
+import barMenuJson from '@mock/bar-menu-items.json';
 import courtsJson from '@mock/courts.json';
 import plansJson from '@mock/membership-plans.json';
 import productsJson from '@mock/products.json';
@@ -93,9 +94,15 @@ export function listPlans(): Promise<MembershipPlan[]> {
   );
 }
 
-/** Public Bar & café board lives in features/bar-cafe/menu.ts. The kitchen POS menu comes from the API (bar_menu_items) or, in preview mode, mock-data/kitchen-menu-items.json. */
+/**
+ * THE café menu: the `bar_menu_items` table. The public page, the member kitchen screen and the kitchen POS all read these
+ * same records (the dashboards through /bar/menu in store/live.ts). With a backend this never falls back to mock rows:
+ * a failure is the caller's to show, so the page can never display a menu the database does not hold. Preview mode (no
+ * backend) uses mock-data/bar-menu-items.json, the same rows the seed loads.
+ */
 export function listMenu(): Promise<BarMenuItem[]> {
-  return resolve([]);
+  if (!isBackendConfigured) return resolve((barMenuJson as unknown as BarMenuItem[]).filter((i) => i.is_available));
+  return apiRequest<BarMenuItem[]>('GET', '/bar/menu');
 }
 
 export type StockStatus = 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK';
@@ -104,16 +111,14 @@ export interface CatalogueProduct extends Product {
   stock_status: StockStatus;
 }
 
-/** Sports gear only — the shop never lists café items (those live in the bar & café menu). */
-export function listProducts(): Promise<CatalogueProduct[]> {
-  return live(
-    async () => {
-      const rows = await apiRequest<{ id: string; sku: string; name: string; category: Product['category']; brand: string | null; description: string | null; price: string; image_url: string | null; stock_status: StockStatus }[]>('GET', '/shop/products');
-      // The public API shows a stock status, not quantities: give the page a quantity that reads the same way.
-      return rows.map((p) => ({ ...p, stock_quantity: p.stock_status === 'OUT_OF_STOCK' ? 0 : p.stock_status === 'LOW_STOCK' ? 1 : 100, low_stock_threshold: 5, is_active: true, created_at: '', updated_at: '' }) as CatalogueProduct);
-    },
-    mockProducts,
-  );
+/** Sports gear only — the shop never lists café items (those live in the bar & café menu). The catalogue is the
+ *  `products` table (the same rows the store manager edits). With a backend this never falls back to mock rows: a
+ *  failure is the caller's to show, so the page can never display a catalogue the database does not hold. */
+export async function listProducts(): Promise<CatalogueProduct[]> {
+  if (!isBackendConfigured) return mockProducts();
+  const rows = await apiRequest<{ id: string; sku: string; name: string; category: Product['category']; brand: string | null; description: string | null; price: string; image_url: string | null; stock_status: StockStatus }[]>('GET', '/shop/products');
+  // The public API shows a stock status, not quantities: give the page a quantity that reads the same way.
+  return rows.map((p) => ({ ...p, stock_quantity: p.stock_status === 'OUT_OF_STOCK' ? 0 : p.stock_status === 'LOW_STOCK' ? 1 : 100, low_stock_threshold: 5, is_active: true, created_at: '', updated_at: '' }) as CatalogueProduct);
 }
 
 function mockProducts(): CatalogueProduct[] {
@@ -155,6 +160,23 @@ export async function createEnquiry(body: EnquiriesCreateRequest): Promise<{ enq
     return Promise.reject(new Error('Preferred time must be in the future.'));
   }
   return new Promise((ok) => setTimeout(() => ok({ enquiry_number: 'DEMO', persisted: false }), 600));
+}
+
+export interface TrialBookingResult {
+  booking_number: string;
+  court_name: string;
+  start_at: string;
+  persisted: boolean;
+}
+
+/** A visitor's free trial hour. With a backend: POST /bookings/trial takes a real court slot (it shows in the owner and front-desk calendars). Without one: validated here, kept nowhere. */
+export async function bookTrial(body: { name: string; phone: string; email?: string; sport_type: SportType; start_at: string }): Promise<TrialBookingResult> {
+  if (isBackendConfigured) {
+    const b = await apiRequest<{ booking_number: string; court_name: string; start_at: string }>('POST', '/bookings/trial', body);
+    return { booking_number: b.booking_number, court_name: b.court_name, start_at: b.start_at, persisted: true };
+  }
+  if (new Date(body.start_at) <= new Date()) return Promise.reject(new Error('Preferred time must be in the future.'));
+  return new Promise((ok) => setTimeout(() => ok({ booking_number: 'DEMO', court_name: 'a court', start_at: body.start_at, persisted: false }), 600));
 }
 
 export const SPORT_LABEL: Record<SportType, string> = {

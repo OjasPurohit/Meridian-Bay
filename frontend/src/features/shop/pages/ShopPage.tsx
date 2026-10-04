@@ -138,9 +138,24 @@ export default function ShopPage() {
   const [priceFor, setPriceFor] = useState<string>('');
   const root = useRef<HTMLDivElement>(null);
 
+  const [loadError, setLoadError] = useState(false);
+
   useEffect(() => {
-    listProducts().then(setProducts);
-    listPlans().then(setPlans);
+    let on = true;
+    // the catalogue is the products table: loaded on arrival and again whenever the tab is shown, so a product the store
+    // manager just added is here without a manual reload
+    const load = () =>
+      listProducts()
+        .then((rows) => on && (setProducts(rows), setLoadError(false)))
+        .catch(() => on && setLoadError(true));
+    void load();
+    listPlans().then((p) => on && setPlans(p));
+    const onVisible = () => document.visibilityState === 'visible' && void load();
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      on = false;
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, []);
   useReveal(root, [products.length]);
 
@@ -208,6 +223,7 @@ export default function ShopPage() {
             </div>
             {pricePlan && <p className="w-full text-xs text-muted">Member prices are applied at checkout for the member’s own orders. Walk-ins and guests pay list price.</p>}
           </fieldset>
+          {loadError && products.length === 0 && <p role="alert" className="py-14 text-center text-muted">The shop catalogue could not be loaded just now. Please try again in a moment.</p>}
           {grouped.map((c) => (
             <section key={c.key} id={c.id} aria-labelledby={`${c.id}-title`} className="scroll-mt-36 py-14 md:py-20">
               <div className="flex items-end justify-between gap-6 border-b border-line pb-5" data-reveal>

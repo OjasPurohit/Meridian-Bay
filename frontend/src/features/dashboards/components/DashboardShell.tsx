@@ -34,12 +34,12 @@ export function useLoad<T>(load: () => Promise<T>, deps: unknown[] = []) {
  * enforces access). Without one, dashboards open as clearly labelled previews of seed data.
  */
 export function Gate({ role, children }: { role: UserRole; children: ReactNode }) {
-  const { session, restoring } = useAuth();
+  const { session, restoring, endedReason } = useAuth();
   if (!isBackendConfigured) return <>{children}</>;
   if (restoring) return <Loading label="Checking your session" />;
   if (!session)
     return (
-      <Notice title="Please log in" body={`The ${roleInfo(role).label.toLowerCase()} dashboard needs a signed-in account.`}>
+      <Notice title={endedReason === 'ACCOUNT_DISABLED' ? 'This account has been deactivated' : 'Please log in'} body={endedReason === 'ACCOUNT_DISABLED' ? 'The club has switched this account off, so you have been signed out.' : endedReason ? 'Your session ended, so you have been signed out. Please log in again.' : `The ${roleInfo(role).label.toLowerCase()} dashboard needs a signed-in account.`}>
         <button type="button" onClick={openLoginMenu} className="inline-flex min-h-11 items-center rounded-full border border-ink/25 px-5 font-semibold hover:border-ink">
           Log in
         </button>
@@ -66,7 +66,9 @@ function LiveData({ session, children }: { session: AuthSession; children: React
       on = false;
       stopLive();
     };
-  }, [session]);
+    // keyed by the token: a re-rendered session object for the same login must not stop and restart the live store
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session.token]);
   if (!ready) return <Loading label="Loading your data" />;
   return <>{children}</>;
 }

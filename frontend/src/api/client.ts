@@ -19,6 +19,9 @@ export class ApiError extends Error {
   }
 }
 
+/** Dispatched on `window` when the server says the session is over (expired token, deactivated account). */
+export const SESSION_ENDED_EVENT = 'auth:session-ended';
+
 let authToken: string | null = null;
 export function setAuthToken(token: string | null) {
   authToken = token;

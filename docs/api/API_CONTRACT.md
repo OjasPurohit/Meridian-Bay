@@ -42,9 +42,9 @@ interface PageMeta { page: number; page_size: number; total: number; total_pages
 |---|---|---|---|---|
 | auth | `POST` | `/auth/signup` | PUBLIC | [auth.signup](#authsignup) |
 | auth | `POST` | `/auth/login` | PUBLIC | [auth.login](#authlogin) |
-| auth | `POST` | `/auth/logout` | MEMBER, FRONT_DESK, KITCHEN_MANAGER, BUSINESS_CLIENT, OWNER_ADMIN | [auth.logout](#authlogout) |
-| auth | `GET` | `/auth/me` | MEMBER, FRONT_DESK, KITCHEN_MANAGER, BUSINESS_CLIENT, OWNER_ADMIN | [auth.me](#authme) |
-| auth | `POST` | `/auth/change-password` | MEMBER, FRONT_DESK, KITCHEN_MANAGER, BUSINESS_CLIENT, OWNER_ADMIN | [auth.changePassword](#authchangePassword) |
+| auth | `POST` | `/auth/logout` | MEMBER, FRONT_DESK, KITCHEN_MANAGER, STORE_MANAGER, OWNER_ADMIN | [auth.logout](#authlogout) |
+| auth | `GET` | `/auth/me` | MEMBER, FRONT_DESK, KITCHEN_MANAGER, STORE_MANAGER, OWNER_ADMIN | [auth.me](#authme) |
+| auth | `POST` | `/auth/change-password` | MEMBER, FRONT_DESK, KITCHEN_MANAGER, STORE_MANAGER, OWNER_ADMIN | [auth.changePassword](#authchangePassword) |
 | public | `GET` | `/public/club` | PUBLIC | [public.club](#publicclub) |
 | members | `GET` | `/members` | FRONT_DESK, OWNER_ADMIN | [members.list](#memberslist) |
 | members | `POST` | `/members` | FRONT_DESK, OWNER_ADMIN | [members.create](#memberscreate) |
@@ -68,25 +68,27 @@ interface PageMeta { page: number; page_size: number; total: number; total_pages
 | courts | `DELETE` | `/courts/blocks/:booking_id` | OWNER_ADMIN | [courts.unblock](#courtsunblock) |
 | bookings | `GET` | `/bookings/price` | MEMBER, FRONT_DESK, OWNER_ADMIN | [bookings.price](#bookingsprice) |
 | bookings | `POST` | `/bookings` | MEMBER, FRONT_DESK, OWNER_ADMIN | [bookings.create](#bookingscreate) |
+| bookings | `POST` | `/bookings/trial` | PUBLIC | [bookings.trial](#bookingstrial) |
 | bookings | `GET` | `/bookings` | MEMBER (own only), FRONT_DESK, OWNER_ADMIN | [bookings.list](#bookingslist) |
 | bookings | `GET` | `/bookings/:id` | MEMBER (own only), FRONT_DESK, OWNER_ADMIN | [bookings.get](#bookingsget) |
 | bookings | `POST` | `/bookings/:id/cancel` | MEMBER (own only), FRONT_DESK, OWNER_ADMIN | [bookings.cancel](#bookingscancel) |
 | shop | `GET` | `/shop/products` | PUBLIC | [shop.products](#shopproducts) |
 | shop | `GET` | `/shop/products/:id` | PUBLIC | [shop.product](#shopproduct) |
-| shop | `POST` | `/shop/products` | OWNER_ADMIN | [shop.productCreate](#shopproductCreate) |
-| shop | `PATCH` | `/shop/products/:id` | OWNER_ADMIN | [shop.productUpdate](#shopproductUpdate) |
+| shop | `POST` | `/shop/products` | STORE_MANAGER, OWNER_ADMIN | [shop.productCreate](#shopproductCreate) |
+| shop | `PATCH` | `/shop/products/:id` | STORE_MANAGER, OWNER_ADMIN | [shop.productUpdate](#shopproductUpdate) |
 | shop | `DELETE` | `/shop/products/:id` | OWNER_ADMIN | [shop.productDelete](#shopproductDelete) |
-| shop | `POST` | `/shop/orders` | MEMBER, FRONT_DESK, OWNER_ADMIN | [shop.orderCreate](#shoporderCreate) |
-| shop | `GET` | `/shop/orders` | MEMBER (own only), FRONT_DESK, OWNER_ADMIN | [shop.orderList](#shoporderList) |
-| shop | `GET` | `/shop/orders/:id` | MEMBER (own only), FRONT_DESK, OWNER_ADMIN | [shop.orderGet](#shoporderGet) |
-| shop | `PATCH` | `/shop/orders/:id/status` | FRONT_DESK, OWNER_ADMIN | [shop.orderStatus](#shoporderStatus) |
-| shop | `POST` | `/shop/orders/:id/cancel` | MEMBER (own only), FRONT_DESK, OWNER_ADMIN | [shop.orderCancel](#shoporderCancel) |
-| inventory | `GET` | `/inventory` | FRONT_DESK, OWNER_ADMIN | [inventory.list](#inventorylist) |
-| inventory | `GET` | `/inventory/low-stock` | FRONT_DESK, OWNER_ADMIN | [inventory.lowStock](#inventorylowStock) |
-| inventory | `POST` | `/inventory/adjustments` | OWNER_ADMIN | [inventory.adjust](#inventoryadjust) |
+| shop | `POST` | `/shop/orders` | MEMBER, FRONT_DESK, STORE_MANAGER, OWNER_ADMIN | [shop.orderCreate](#shoporderCreate) |
+| shop | `GET` | `/shop/orders` | MEMBER (own only), FRONT_DESK, STORE_MANAGER, OWNER_ADMIN | [shop.orderList](#shoporderList) |
+| shop | `GET` | `/shop/orders/:id` | MEMBER (own only), FRONT_DESK, STORE_MANAGER, OWNER_ADMIN | [shop.orderGet](#shoporderGet) |
+| shop | `PATCH` | `/shop/orders/:id/status` | FRONT_DESK, STORE_MANAGER, OWNER_ADMIN | [shop.orderStatus](#shoporderStatus) |
+| shop | `POST` | `/shop/orders/:id/cancel` | MEMBER (own only), FRONT_DESK, STORE_MANAGER, OWNER_ADMIN | [shop.orderCancel](#shoporderCancel) |
+| inventory | `GET` | `/inventory` | FRONT_DESK, STORE_MANAGER, OWNER_ADMIN | [inventory.list](#inventorylist) |
+| inventory | `GET` | `/inventory/low-stock` | FRONT_DESK, STORE_MANAGER, OWNER_ADMIN | [inventory.lowStock](#inventorylowStock) |
+| inventory | `POST` | `/inventory/adjustments` | STORE_MANAGER, OWNER_ADMIN | [inventory.adjust](#inventoryadjust) |
 | bar | `GET` | `/bar/menu` | PUBLIC | [bar.menu](#barmenu) |
 | bar | `POST` | `/bar/menu-items` | OWNER_ADMIN | [bar.menuCreate](#barmenuCreate) |
 | bar | `PATCH` | `/bar/menu-items/:id` | OWNER_ADMIN | [bar.menuUpdate](#barmenuUpdate) |
+| bar | `GET` | `/bar/member-lookup` | FRONT_DESK, KITCHEN_MANAGER, OWNER_ADMIN | [bar.memberLookup](#barmemberLookup) |
 | bar | `POST` | `/bar/orders` | FRONT_DESK, OWNER_ADMIN | [bar.orderCreate](#barorderCreate) |
 | bar | `GET` | `/bar/orders` | MEMBER (own only), FRONT_DESK, OWNER_ADMIN | [bar.orderList](#barorderList) |
 | bar | `GET` | `/bar/orders/:id` | MEMBER (own only), FRONT_DESK, OWNER_ADMIN | [bar.orderGet](#barorderGet) |
@@ -101,32 +103,39 @@ interface PageMeta { page: number; page_size: number; total: number; total_pages
 | enquiries | `PATCH` | `/enquiries/:id` | FRONT_DESK, OWNER_ADMIN | [enquiries.update](#enquiriesupdate) |
 | clients | `GET` | `/business-clients` | OWNER_ADMIN | [clients.list](#clientslist) |
 | clients | `POST` | `/business-clients` | OWNER_ADMIN | [clients.create](#clientscreate) |
-| clients | `GET` | `/business-clients/me` | BUSINESS_CLIENT | [clients.me](#clientsme) |
 | clients | `GET` | `/business-clients/:id` | OWNER_ADMIN | [clients.get](#clientsget) |
 | clients | `PATCH` | `/business-clients/:id` | OWNER_ADMIN | [clients.update](#clientsupdate) |
-| invoices | `GET` | `/invoices` | BUSINESS_CLIENT (own only), MEMBER (own only), OWNER_ADMIN | [invoices.list](#invoiceslist) |
+| invoices | `GET` | `/invoices` | MEMBER (own only), OWNER_ADMIN | [invoices.list](#invoiceslist) |
 | invoices | `POST` | `/invoices` | OWNER_ADMIN | [invoices.create](#invoicescreate) |
-| invoices | `GET` | `/invoices/:id` | BUSINESS_CLIENT (own only), MEMBER (own only), OWNER_ADMIN | [invoices.get](#invoicesget) |
+| invoices | `GET` | `/invoices/:id` | MEMBER (own only), OWNER_ADMIN | [invoices.get](#invoicesget) |
 | invoices | `PATCH` | `/invoices/:id` | OWNER_ADMIN | [invoices.update](#invoicesupdate) |
 | invoices | `POST` | `/invoices/:id/send` | OWNER_ADMIN | [invoices.send](#invoicessend) |
 | invoices | `POST` | `/invoices/:id/void` | OWNER_ADMIN | [invoices.void](#invoicesvoid) |
-| payments | `POST` | `/payments` | MEMBER (own only), BUSINESS_CLIENT (own only), FRONT_DESK, OWNER_ADMIN | [payments.create](#paymentscreate) |
-| payments | `GET` | `/payments` | MEMBER (own only), BUSINESS_CLIENT (own only), FRONT_DESK (own only), OWNER_ADMIN | [payments.list](#paymentslist) |
-| payments | `GET` | `/payments/:id` | MEMBER (own only), BUSINESS_CLIENT (own only), FRONT_DESK (own only), OWNER_ADMIN | [payments.get](#paymentsget) |
+| payments | `POST` | `/payments` | MEMBER (own only), FRONT_DESK, KITCHEN_MANAGER, STORE_MANAGER, OWNER_ADMIN | [payments.create](#paymentscreate) |
+| payments | `GET` | `/payments` | MEMBER (own only), FRONT_DESK (own only), KITCHEN_MANAGER (own only), STORE_MANAGER (own only), OWNER_ADMIN | [payments.list](#paymentslist) |
+| payments | `GET` | `/payments/:id` | MEMBER (own only), FRONT_DESK (own only), KITCHEN_MANAGER (own only), STORE_MANAGER (own only), OWNER_ADMIN | [payments.get](#paymentsget) |
 | payments | `POST` | `/payments/:id/refund` | OWNER_ADMIN | [payments.refund](#paymentsrefund) |
 | staff | `GET` | `/staff` | OWNER_ADMIN | [staff.list](#stafflist) |
 | staff | `POST` | `/staff` | OWNER_ADMIN | [staff.create](#staffcreate) |
-| staff | `GET` | `/staff/:id` | FRONT_DESK (own only), KITCHEN_MANAGER (own only), OWNER_ADMIN | [staff.get](#staffget) |
+| staff | `GET` | `/staff/:id` | FRONT_DESK (own only), KITCHEN_MANAGER (own only), STORE_MANAGER (own only), OWNER_ADMIN | [staff.get](#staffget) |
 | staff | `PATCH` | `/staff/:id` | OWNER_ADMIN | [staff.update](#staffupdate) |
-| staff | `GET` | `/staff/shifts` | FRONT_DESK, KITCHEN_MANAGER (own only), OWNER_ADMIN | [staff.shifts](#staffshifts) |
+| staff | `POST` | `/staff/applications` | PUBLIC | [staff.applicationCreate](#staffapplicationCreate) |
+| staff | `GET` | `/staff/applications` | OWNER_ADMIN | [staff.applicationList](#staffapplicationList) |
+| staff | `POST` | `/staff/applications/:id/approve` | OWNER_ADMIN | [staff.applicationApprove](#staffapplicationApprove) |
+| staff | `POST` | `/staff/applications/:id/reject` | OWNER_ADMIN | [staff.applicationReject](#staffapplicationReject) |
+| events | `GET` | `/events` | MEMBER, FRONT_DESK, KITCHEN_MANAGER, STORE_MANAGER, OWNER_ADMIN | [events.list](#eventslist) |
+| events | `POST` | `/events` | OWNER_ADMIN | [events.create](#eventscreate) |
+| events | `POST` | `/events/:id/registrations` | MEMBER | [events.register](#eventsregister) |
+| events | `DELETE` | `/events/:id/registrations` | MEMBER | [events.unregister](#eventsunregister) |
+| staff | `GET` | `/staff/shifts` | FRONT_DESK, KITCHEN_MANAGER (own only), STORE_MANAGER (own only), OWNER_ADMIN | [staff.shifts](#staffshifts) |
 | staff | `POST` | `/staff/shifts` | OWNER_ADMIN | [staff.shiftCreate](#staffshiftCreate) |
 | staff | `PATCH` | `/staff/shifts/:id` | OWNER_ADMIN | [staff.shiftUpdate](#staffshiftUpdate) |
 | staff | `DELETE` | `/staff/shifts/:id` | OWNER_ADMIN | [staff.shiftDelete](#staffshiftDelete) |
-| staff | `GET` | `/staff/leave-requests` | FRONT_DESK (own only), KITCHEN_MANAGER (own only), OWNER_ADMIN | [staff.leaveList](#staffleaveList) |
-| staff | `POST` | `/staff/leave-requests` | FRONT_DESK, KITCHEN_MANAGER | [staff.leaveCreate](#staffleaveCreate) |
+| staff | `GET` | `/staff/leave-requests` | FRONT_DESK (own only), KITCHEN_MANAGER (own only), STORE_MANAGER (own only), OWNER_ADMIN | [staff.leaveList](#staffleaveList) |
+| staff | `POST` | `/staff/leave-requests` | FRONT_DESK, KITCHEN_MANAGER, STORE_MANAGER | [staff.leaveCreate](#staffleaveCreate) |
 | staff | `POST` | `/staff/leave-requests/:id/decision` | OWNER_ADMIN | [staff.leaveDecide](#staffleaveDecide) |
-| staff | `POST` | `/staff/leave-requests/:id/cancel` | FRONT_DESK (own only), KITCHEN_MANAGER (own only), OWNER_ADMIN | [staff.leaveCancel](#staffleaveCancel) |
-| staff | `GET` | `/staff/payroll` | FRONT_DESK (own only), KITCHEN_MANAGER (own only), OWNER_ADMIN | [staff.payrollList](#staffpayrollList) |
+| staff | `POST` | `/staff/leave-requests/:id/cancel` | FRONT_DESK (own only), KITCHEN_MANAGER (own only), STORE_MANAGER (own only), OWNER_ADMIN | [staff.leaveCancel](#staffleaveCancel) |
+| staff | `GET` | `/staff/payroll` | FRONT_DESK (own only), KITCHEN_MANAGER (own only), STORE_MANAGER (own only), OWNER_ADMIN | [staff.payrollList](#staffpayrollList) |
 | staff | `POST` | `/staff/payroll` | OWNER_ADMIN | [staff.payrollCreate](#staffpayrollCreate) |
 | staff | `POST` | `/staff/payroll/:id/pay` | OWNER_ADMIN | [staff.payrollPay](#staffpayrollPay) |
 | reports | `GET` | `/reports/dashboard` | OWNER_ADMIN | [reports.dashboard](#reportsdashboard) |
@@ -141,7 +150,7 @@ interface PageMeta { page: number; page_size: number; total: number; total_pages
 | settings | `GET` | `/settings` | OWNER_ADMIN | [settings.list](#settingslist) |
 | settings | `PATCH` | `/settings/:key` | OWNER_ADMIN | [settings.update](#settingsupdate) |
 
-**100 endpoints** across 17 modules.
+**109 endpoints** across 18 modules.
 
 ## 3. Module ownership
 
@@ -153,6 +162,7 @@ interface PageMeta { page: number; page_size: number; total: number; total_pages
 | Membership plans & memberships (`memberships`) | Dev 2 — Membership, Courts & Front Desk | /memberships |
 | Courts & availability (`courts`) | Dev 2 — Membership, Courts & Front Desk | /courts |
 | Court bookings (`bookings`) | Dev 2 — Membership, Courts & Front Desk | /bookings |
+| Events (`events`) | Dev 4 — Owner, Finance & Reporting | /events |
 | Shop (`shop`) | Dev 3 — Commerce, Cafe & Kitchen | /shop |
 | Inventory (`inventory`) | Dev 3 — Commerce, Cafe & Kitchen | /inventory |
 | Cafe (`bar`) | Dev 3 — Commerce, Cafe & Kitchen | /bar |
@@ -176,16 +186,16 @@ interface PageMeta { page: number; page_size: number; total: number; total_pages
 <a id="authsignup"></a>
 #### `POST /api/v1/auth/signup` — auth.signup
 
-Visitor creates an account (role MEMBER, no plan yet) and is logged in.
+Visitor joins as a member: account + the chosen membership, paid online, in one step; the member is logged in.
 
 | | |
 |---|---|
 | **Auth** | None (PUBLIC) |
 | **Roles** | PUBLIC |
 | **Success** | 201 · `data: AuthSession` |
-| **Requirements** | FR-AUTH-001 |
+| **Requirements** | FR-AUTH-001, FR-MEM-012 |
 | **Governing rules** | [R-SEC-02](../business-rules/BUSINESS_RULES.md), [R-MEM-05](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `users`, `members` |
+| **Tables touched** | `users`, `members`, `memberships`, `payments` |
 
 **Request body** — type `AuthSignupRequest`
 
@@ -195,9 +205,11 @@ Visitor creates an account (role MEMBER, no plan yet) and is logged in.
 | `email` | email | **yes** | unique (case-insensitive) |
 | `phone` | phone | **yes** |  |
 | `password` | string | **yes** | min 8 chars, >=1 letter and >=1 digit |
-| `date_of_birth` | date | no | must be in the past |
+| `date_of_birth` | date | no | must be in the past; REQUIRED for a JUNIOR plan |
+| `address` | text | no |  |
+| `membership_plan_id` | uuid | no | the plan to buy now (paid ONLINE through the mock gateway). Omit to join without a plan. |
 
-**Rules / behaviour:** Creates `users` (role MEMBER) + `members` in one transaction. No membership is created: until a plan is bought the member pays walk-in rates.
+**Rules / behaviour:** Creates `users` (role MEMBER) + `members` (+ `memberships` + `payments` when a plan is given) in ONE transaction: if the payment fails nothing is created. The password is stored only as a bcrypt hash.
 
 **Errors**
 
@@ -205,6 +217,10 @@ Visitor creates an account (role MEMBER, no plan yet) and is logged in.
 |---|---|---|
 | `VALIDATION_ERROR` | 400 | Request validation failed. |
 | `EMAIL_TAKEN` | 409 | An account with this email already exists. |
+| `APPLICATION_PENDING` | 409 | A job application for this email is already waiting for the owner. Log in to see its status. |
+| `MEMBERSHIP_PLAN_NOT_FOUND` | 404 | Membership plan not found. |
+| `JUNIOR_AGE_INVALID` | 422 | Junior plan requires the member to be under 18. |
+| `PAYMENT_FAILED` | 402 | Payment could not be completed. |
 
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
@@ -274,20 +290,6 @@ POST /api/v1/auth/signup
       "phone": "+919811100001",
       "role": "MEMBER",
       "is_active": true
-    },
-    "business_client": {
-      "id": "04000000-0000-4000-8000-000000000001",
-      "user_id": "01000000-0000-4000-8000-000000000006",
-      "company_name": "TechNova Solutions Pvt Ltd",
-      "contact_name": "Sanjay Gupta",
-      "email": "sanjay.gupta@technova.example",
-      "phone": "+919820000006",
-      "gstin": "27AABCT1234F1Z5",
-      "billing_address": "5th Floor, Cyber Park, Hinjewadi, Pune 411057",
-      "notes": "Quarterly corporate sports day + cricket net bookings",
-      "is_active": true,
-      "created_at": "2026-07-05T05:30:00.000Z",
-      "updated_at": "2026-07-05T05:30:00.000Z"
     }
   }
 }
@@ -308,16 +310,16 @@ POST /api/v1/auth/signup
 <a id="authlogin"></a>
 #### `POST /api/v1/auth/login` — auth.login
 
-Authenticate and receive a JWT plus the role-based landing route.
+Authenticate and receive a JWT plus the role-based landing route, or the EMPLOYEE_APPLICATION_PENDING state.
 
 | | |
 |---|---|
 | **Auth** | None (PUBLIC) |
 | **Roles** | PUBLIC |
 | **Success** | 200 · `data: AuthSession` |
-| **Requirements** | FR-AUTH-002, FR-AUTH-003 |
+| **Requirements** | FR-AUTH-002, FR-AUTH-003, FR-AUTH-008 |
 | **Governing rules** | [R-SEC-02](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `users` |
+| **Tables touched** | `users`, `employee_applications` |
 
 **Request body** — type `AuthLoginRequest`
 
@@ -326,7 +328,7 @@ Authenticate and receive a JWT plus the role-based landing route.
 | `email` | email | **yes** |  |
 | `password` | string | **yes** |  |
 
-**Rules / behaviour:** `redirect_to` = ROLE_HOME_ROUTE[user.role]. Never reveal whether the email exists (always AUTH_INVALID).
+**Rules / behaviour:** `redirect_to` = ROLE_HOME_ROUTE[user.role]. Active users are checked first. If there is no such user but a PENDING job application for the email whose bcrypt hash matches, the answer is `{state: EMPLOYEE_APPLICATION_PENDING, redirect_to: /employee-application-pending}`: NO token, NO role. Never reveal whether the email exists (always AUTH_INVALID).
 
 **Errors**
 
@@ -417,7 +419,7 @@ End the session (stateless JWT: the client discards the token).
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | MEMBER, FRONT_DESK, KITCHEN_MANAGER, BUSINESS_CLIENT, OWNER_ADMIN |
+| **Roles** | MEMBER, FRONT_DESK, KITCHEN_MANAGER, STORE_MANAGER, OWNER_ADMIN |
 | **Success** | 200 · `data: null` |
 | **Requirements** | FR-AUTH-004 |
 | **Governing rules** | — |
@@ -462,11 +464,11 @@ Current user + role profile + landing route. Re-issues a fresh token.
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | MEMBER, FRONT_DESK, KITCHEN_MANAGER, BUSINESS_CLIENT, OWNER_ADMIN |
+| **Roles** | MEMBER, FRONT_DESK, KITCHEN_MANAGER, STORE_MANAGER, OWNER_ADMIN |
 | **Success** | 200 · `data: AuthSession` |
 | **Requirements** | FR-AUTH-002 |
 | **Governing rules** | — |
-| **Tables touched** | `users`, `members`, `staff`, `business_clients` |
+| **Tables touched** | `users`, `members`, `staff` |
 
 **Errors**
 
@@ -533,20 +535,6 @@ GET /api/v1/auth/me
       "phone": "+919811100001",
       "role": "MEMBER",
       "is_active": true
-    },
-    "business_client": {
-      "id": "04000000-0000-4000-8000-000000000001",
-      "user_id": "01000000-0000-4000-8000-000000000006",
-      "company_name": "TechNova Solutions Pvt Ltd",
-      "contact_name": "Sanjay Gupta",
-      "email": "sanjay.gupta@technova.example",
-      "phone": "+919820000006",
-      "gstin": "27AABCT1234F1Z5",
-      "billing_address": "5th Floor, Cyber Park, Hinjewadi, Pune 411057",
-      "notes": "Quarterly corporate sports day + cricket net bookings",
-      "is_active": true,
-      "created_at": "2026-07-05T05:30:00.000Z",
-      "updated_at": "2026-07-05T05:30:00.000Z"
     }
   }
 }
@@ -572,7 +560,7 @@ Change own password (clears must_change_password).
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | MEMBER, FRONT_DESK, KITCHEN_MANAGER, BUSINESS_CLIENT, OWNER_ADMIN |
+| **Roles** | MEMBER, FRONT_DESK, KITCHEN_MANAGER, STORE_MANAGER, OWNER_ADMIN |
 | **Success** | 200 · `data: null` |
 | **Requirements** | FR-AUTH-006 |
 | **Governing rules** | [R-SEC-02](../business-rules/BUSINESS_RULES.md) |
@@ -2273,6 +2261,7 @@ Add a court.
 | `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
 | `VALIDATION_ERROR` | 400 | Request validation failed. |
 | `FORBIDDEN` | 403 | You do not have permission to perform this action. |
+| `COURT_NAME_TAKEN` | 409 | A court with this name already exists. |
 
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
@@ -2307,14 +2296,14 @@ POST /api/v1/courts
 }
 ```
 
-**Example error (HTTP 400)**
+**Example error (HTTP 409)**
 
 ```json
 {
   "success": false,
   "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Request validation failed."
+    "code": "COURT_NAME_TAKEN",
+    "message": "A court with this name already exists."
   }
 }
 ```
@@ -2354,6 +2343,7 @@ Edit court / change rate / deactivate.
 | `VALIDATION_ERROR` | 400 | Request validation failed. |
 | `FORBIDDEN` | 403 | You do not have permission to perform this action. |
 | `COURT_NOT_FOUND` | 404 | Court not found. |
+| `COURT_NAME_TAKEN` | 409 | A court with this name already exists. |
 
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
@@ -2384,14 +2374,14 @@ PATCH /api/v1/courts/08000000-0000-4000-8000-000000000001
 }
 ```
 
-**Example error (HTTP 404)**
+**Example error (HTTP 409)**
 
 ```json
 {
   "success": false,
   "error": {
-    "code": "COURT_NOT_FOUND",
-    "message": "Court not found."
+    "code": "COURT_NAME_TAKEN",
+    "message": "A court with this name already exists."
   }
 }
 ```
@@ -2463,6 +2453,7 @@ POST /api/v1/courts/09000000-0000-4000-8000-000000000001/blocks
       "cancelled_at": null,
       "created_at": "2026-09-26T12:30:00.000Z",
       "updated_at": "2026-09-26T12:30:00.000Z",
+      "guest_email": null,
       "status": "CONFIRMED",
       "amount_due": "1250.00",
       "amount_paid": "1250.00",
@@ -2536,6 +2527,7 @@ DELETE /api/v1/courts/blocks/09000000-0000-4000-8000-000000000001
     "cancelled_at": null,
     "created_at": "2026-09-26T12:30:00.000Z",
     "updated_at": "2026-09-26T12:30:00.000Z",
+    "guest_email": null,
     "status": "CONFIRMED",
     "amount_due": "1250.00",
     "amount_paid": "1250.00",
@@ -2808,6 +2800,100 @@ POST /api/v1/bookings
 }
 ```
 
+<a id="bookingstrial"></a>
+#### `POST /api/v1/bookings/trial` — bookings.trial
+
+A visitor books a free trial hour from the public website: the first free active court of the chosen sport takes the slot.
+
+| | |
+|---|---|
+| **Auth** | None (PUBLIC) |
+| **Roles** | PUBLIC |
+| **Success** | 201 · `data: BookingDetail` |
+| **Requirements** | FR-PUB-006, FR-COURT-004 |
+| **Governing rules** | — |
+| **Tables touched** | `court_bookings` |
+
+**Request body** — type `BookingsTrialRequest`
+
+| Field | Type | Required | Rules |
+|---|---|---|---|
+| `name` | string | **yes** |  |
+| `phone` | phone | **yes** |  |
+| `email` | email | no |  |
+| `sport_type` | enum SPORT_TYPE | **yes** |  |
+| `start_at` | datetime | **yes** | on a :00/:30 boundary, in the future, inside opening hours |
+
+**Rules / behaviour:** Transaction: lock the phone number (advisory) -> at most one upcoming TRIAL per phone (TRIAL_ALREADY_BOOKED) -> pick the first active court of the sport (by name) with no standing booking in the slot, else BOOKING_CONFLICT -> INSERT booking_type TRIAL (list_price 0, so amount due is 0 and nothing is paid). The same table, calendar and exclusion constraint as every other court booking; owner and front desk see it in their calendars.
+
+**Errors**
+
+| Code | HTTP | Meaning here |
+|---|---|---|
+| `VALIDATION_ERROR` | 400 | Request validation failed. |
+| `INVALID_SLOT` | 422 | Start time must be on a 30-minute boundary, in the future, within opening hours. |
+| `COURT_UNAVAILABLE` | 409 | Court is closed, inactive, blocked, or outside opening hours. |
+| `BOOKING_CONFLICT` | 409 | This court is already booked for that time. |
+| `TRIAL_ALREADY_BOOKED` | 409 | This phone number already has an upcoming trial booked. |
+
+**Example (generated from the types and seed data — shape is exact, values illustrative)**
+
+```http
+POST /api/v1/bookings/trial
+```
+
+```json
+{
+  "name": "Aarav Kapoor",
+  "phone": "+919811100001",
+  "sport_type": "TENNIS",
+  "start_at": "2026-10-10T12:30:00.000Z"
+}
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "09000000-0000-4000-8000-000000000001",
+    "booking_number": "BK-000001",
+    "court_id": "08000000-0000-4000-8000-000000000001",
+    "booking_type": "REGULAR",
+    "member_id": "02000000-0000-4000-8000-000000000003",
+    "guest_name": null,
+    "guest_phone": null,
+    "start_at": "2026-09-27T12:30:00.000Z",
+    "end_at": "2026-09-27T13:30:00.000Z",
+    "list_price": "800.00",
+    "discount_amount": "400.00",
+    "cancelled_at": null,
+    "created_at": "2026-09-26T12:30:00.000Z",
+    "updated_at": "2026-09-26T12:30:00.000Z",
+    "guest_email": null,
+    "status": "CONFIRMED",
+    "amount_due": "1250.00",
+    "amount_paid": "1250.00",
+    "payment_status": "PENDING",
+    "court_name": "Aarav Kapoor",
+    "sport_type": "TENNIS",
+    "member_name": "Aarav Kapoor",
+    "member_code": "CCM-00001"
+  }
+}
+```
+
+**Example error (HTTP 422)**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INVALID_SLOT",
+    "message": "Start time must be on a 30-minute boundary, in the future, within opening hours."
+  }
+}
+```
+
 <a id="bookingslist"></a>
 #### `GET /api/v1/bookings` — bookings.list
 
@@ -2869,6 +2955,7 @@ GET /api/v1/bookings
       "cancelled_at": null,
       "created_at": "2026-09-26T12:30:00.000Z",
       "updated_at": "2026-09-26T12:30:00.000Z",
+      "guest_email": null,
       "status": "CONFIRMED",
       "amount_due": "1250.00",
       "amount_paid": "1250.00",
@@ -2948,6 +3035,7 @@ GET /api/v1/bookings/09000000-0000-4000-8000-000000000001
     "cancelled_at": null,
     "created_at": "2026-09-26T12:30:00.000Z",
     "updated_at": "2026-09-26T12:30:00.000Z",
+    "guest_email": null,
     "status": "CONFIRMED",
     "amount_due": "1250.00",
     "amount_paid": "1250.00",
@@ -3035,6 +3123,7 @@ POST /api/v1/bookings/09000000-0000-4000-8000-000000000001/cancel
       "cancelled_at": null,
       "created_at": "2026-09-26T12:30:00.000Z",
       "updated_at": "2026-09-26T12:30:00.000Z",
+      "guest_email": null,
       "status": "CONFIRMED",
       "amount_due": "1250.00",
       "amount_paid": "1250.00",
@@ -3058,6 +3147,280 @@ POST /api/v1/bookings/09000000-0000-4000-8000-000000000001/cancel
   "error": {
     "code": "BOOKING_NOT_CANCELLABLE",
     "message": "This booking can no longer be cancelled."
+  }
+}
+```
+
+---
+
+### Module: Events
+
+*Owner: Dev 4 (Owner, Finance & Reporting)*
+
+<a id="eventslist"></a>
+#### `GET /api/v1/events` — events.list
+
+All club events, soonest first. Every role reads the same rows; a member also gets `is_registered`.
+
+| | |
+|---|---|
+| **Auth** | Bearer JWT |
+| **Roles** | MEMBER, FRONT_DESK, KITCHEN_MANAGER, STORE_MANAGER, OWNER_ADMIN |
+| **Success** | 200 · `data: EventView[]` |
+| **Requirements** | FR-EVT-002 |
+| **Governing rules** | — |
+| **Tables touched** | `events`, `event_registrations` |
+
+**Errors**
+
+| Code | HTTP | Meaning here |
+|---|---|---|
+| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
+
+**Example (generated from the types and seed data — shape is exact, values illustrative)**
+
+```http
+GET /api/v1/events
+```
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "00002762-0000-4000-8000-000000312662",
+      "title": "Friday Social Doubles",
+      "kind": "TOURNAMENT",
+      "description": "Sample text",
+      "location": "string",
+      "start_at": "2026-10-03T12:30:00.000Z",
+      "end_at": "2026-10-03T12:30:00.000Z",
+      "capacity": 3,
+      "fee": "1250.00",
+      "registered_count": 3,
+      "is_registered": true
+    }
+  ]
+}
+```
+
+**Example error (HTTP 401)**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "AUTH_UNAUTHORIZED",
+    "message": "Authentication required or token expired."
+  }
+}
+```
+
+<a id="eventscreate"></a>
+#### `POST /api/v1/events` — events.create
+
+Create an event.
+
+| | |
+|---|---|
+| **Auth** | Bearer JWT |
+| **Roles** | OWNER_ADMIN |
+| **Success** | 201 · `data: EventView` |
+| **Requirements** | FR-EVT-001 |
+| **Governing rules** | — |
+| **Tables touched** | `events` |
+
+**Request body** — type `EventsCreateRequest`
+
+| Field | Type | Required | Rules |
+|---|---|---|---|
+| `title` | string | **yes** |  |
+| `kind` | enum EVENT_KIND | **yes** |  |
+| `description` | text | no |  |
+| `location` | string | **yes** |  |
+| `start_at` | datetime | **yes** |  |
+| `end_at` | datetime | **yes** | > start_at |
+| `capacity` | int | **yes** | >= 1 |
+| `fee` | money | no | default 0.00 |
+
+**Errors**
+
+| Code | HTTP | Meaning here |
+|---|---|---|
+| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
+| `VALIDATION_ERROR` | 400 | Request validation failed. |
+| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
+
+**Example (generated from the types and seed data — shape is exact, values illustrative)**
+
+```http
+POST /api/v1/events
+```
+
+```json
+{
+  "title": "Friday Social Doubles",
+  "kind": "TOURNAMENT",
+  "location": "string",
+  "start_at": "2026-10-10T12:30:00.000Z",
+  "end_at": "2026-10-10T12:30:00.000Z",
+  "capacity": 1
+}
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "00002762-0000-4000-8000-000000312662",
+    "title": "Friday Social Doubles",
+    "kind": "TOURNAMENT",
+    "description": "Sample text",
+    "location": "string",
+    "start_at": "2026-10-03T12:30:00.000Z",
+    "end_at": "2026-10-03T12:30:00.000Z",
+    "capacity": 3,
+    "fee": "1250.00",
+    "registered_count": 3,
+    "is_registered": true
+  }
+}
+```
+
+**Example error (HTTP 400)**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Request validation failed."
+  }
+}
+```
+
+<a id="eventsregister"></a>
+#### `POST /api/v1/events/:id/registrations` — events.register
+
+Register the calling member for an event (idempotent).
+
+| | |
+|---|---|
+| **Auth** | Bearer JWT |
+| **Roles** | MEMBER |
+| **Success** | 201 · `data: EventView` |
+| **Requirements** | FR-EVT-002 |
+| **Governing rules** | — |
+| **Tables touched** | `events`, `event_registrations` |
+| **Path params** | `id` (uuid) |
+
+**Rules / behaviour:** Capacity is checked inside a transaction that locks the event row.
+
+**Errors**
+
+| Code | HTTP | Meaning here |
+|---|---|---|
+| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
+| `VALIDATION_ERROR` | 400 | Request validation failed. |
+| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
+| `EVENT_NOT_FOUND` | 404 | Event not found. |
+| `EVENT_FULL` | 409 | This event is full. |
+| `EVENT_ENDED` | 409 | This event has already ended. |
+
+**Example (generated from the types and seed data — shape is exact, values illustrative)**
+
+```http
+POST /api/v1/events/18000000-0000-4000-8000-000000000001/registrations
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "00002762-0000-4000-8000-000000312662",
+    "title": "Friday Social Doubles",
+    "kind": "TOURNAMENT",
+    "description": "Sample text",
+    "location": "string",
+    "start_at": "2026-10-03T12:30:00.000Z",
+    "end_at": "2026-10-03T12:30:00.000Z",
+    "capacity": 3,
+    "fee": "1250.00",
+    "registered_count": 3,
+    "is_registered": true
+  }
+}
+```
+
+**Example error (HTTP 409)**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "EVENT_FULL",
+    "message": "This event is full."
+  }
+}
+```
+
+<a id="eventsunregister"></a>
+#### `DELETE /api/v1/events/:id/registrations` — events.unregister
+
+Cancel the calling member registration.
+
+| | |
+|---|---|
+| **Auth** | Bearer JWT |
+| **Roles** | MEMBER |
+| **Success** | 200 · `data: EventView` |
+| **Requirements** | FR-EVT-002 |
+| **Governing rules** | — |
+| **Tables touched** | `event_registrations` |
+| **Path params** | `id` (uuid) |
+
+**Errors**
+
+| Code | HTTP | Meaning here |
+|---|---|---|
+| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
+| `VALIDATION_ERROR` | 400 | Request validation failed. |
+| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
+| `EVENT_NOT_FOUND` | 404 | Event not found. |
+
+**Example (generated from the types and seed data — shape is exact, values illustrative)**
+
+```http
+DELETE /api/v1/events/19000000-0000-4000-8000-000000000001/registrations
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "00002762-0000-4000-8000-000000312662",
+    "title": "Friday Social Doubles",
+    "kind": "TOURNAMENT",
+    "description": "Sample text",
+    "location": "string",
+    "start_at": "2026-10-03T12:30:00.000Z",
+    "end_at": "2026-10-03T12:30:00.000Z",
+    "capacity": 3,
+    "fee": "1250.00",
+    "registered_count": 3,
+    "is_registered": true
+  }
+}
+```
+
+**Example error (HTTP 404)**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "EVENT_NOT_FOUND",
+    "message": "Event not found."
   }
 }
 ```
@@ -3217,7 +3580,7 @@ Create a product (optionally with opening stock).
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | OWNER_ADMIN |
+| **Roles** | STORE_MANAGER, OWNER_ADMIN |
 | **Success** | 201 · `data: ProductView` |
 | **Requirements** | FR-SHOP-002, FR-INV-003 |
 | **Governing rules** | [R-SHOP-09](../business-rules/BUSINESS_RULES.md) |
@@ -3302,7 +3665,7 @@ Edit a product. Stock is NEVER edited here: use /inventory/adjustments.
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | OWNER_ADMIN |
+| **Roles** | STORE_MANAGER, OWNER_ADMIN |
 | **Success** | 200 · `data: ProductView` |
 | **Requirements** | FR-SHOP-002 |
 | **Governing rules** | [R-SHOP-09](../business-rules/BUSINESS_RULES.md) |
@@ -3445,7 +3808,7 @@ Place a shop order: member online order (pickup/delivery) or staff counter sale.
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | MEMBER, FRONT_DESK, OWNER_ADMIN |
+| **Roles** | MEMBER, FRONT_DESK, STORE_MANAGER, OWNER_ADMIN |
 | **Success** | 201 · `data: ShopOrderDetail` |
 | **Requirements** | FR-SHOP-003, FR-SHOP-004, FR-SHOP-005, FR-SHOP-006, FR-SHOP-007, FR-SHOP-008, FR-INV-001, FR-FIN-001 |
 | **Governing rules** | [R-SHOP-01](../business-rules/BUSINESS_RULES.md), [R-SHOP-02](../business-rules/BUSINESS_RULES.md), [R-SHOP-04](../business-rules/BUSINESS_RULES.md), [R-SHOP-05](../business-rules/BUSINESS_RULES.md), [R-SHOP-06](../business-rules/BUSINESS_RULES.md), [R-FIN-11](../business-rules/BUSINESS_RULES.md) |
@@ -3570,7 +3933,7 @@ List shop orders (members see their own).
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | MEMBER (own only), FRONT_DESK, OWNER_ADMIN |
+| **Roles** | MEMBER (own only), FRONT_DESK, STORE_MANAGER, OWNER_ADMIN |
 | **Success** | 200 · `data: ShopOrderDetail[]` + `meta: PageMeta` |
 | **Requirements** | FR-SHOP-011, FR-SHOP-009 |
 | **Governing rules** | — |
@@ -3667,7 +4030,7 @@ Order detail with lines.
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | MEMBER (own only), FRONT_DESK, OWNER_ADMIN |
+| **Roles** | MEMBER (own only), FRONT_DESK, STORE_MANAGER, OWNER_ADMIN |
 | **Success** | 200 · `data: ShopOrderDetail` |
 | **Requirements** | FR-SHOP-011, FR-SHOP-009 |
 | **Governing rules** | — |
@@ -3746,7 +4109,7 @@ Advance an order: PLACED -> CONFIRMED -> READY_FOR_PICKUP | OUT_FOR_DELIVERY -> 
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK, OWNER_ADMIN |
+| **Roles** | FRONT_DESK, STORE_MANAGER, OWNER_ADMIN |
 | **Success** | 200 · `data: ShopOrderDetail` |
 | **Requirements** | FR-SHOP-009, FR-SHOP-005, FR-SHOP-006 |
 | **Governing rules** | [R-SHOP-07](../business-rules/BUSINESS_RULES.md) |
@@ -3840,7 +4203,7 @@ Cancel an order: restores stock and refunds.
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | MEMBER (own only), FRONT_DESK, OWNER_ADMIN |
+| **Roles** | MEMBER (own only), FRONT_DESK, STORE_MANAGER, OWNER_ADMIN |
 | **Success** | 200 · `data: ShopOrderDetail` |
 | **Requirements** | FR-SHOP-010, FR-INV-001 |
 | **Governing rules** | [R-SHOP-08](../business-rules/BUSINESS_RULES.md) |
@@ -3928,7 +4291,7 @@ Stock levels for every product (same shelf for counter and online).
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK, OWNER_ADMIN |
+| **Roles** | FRONT_DESK, STORE_MANAGER, OWNER_ADMIN |
 | **Success** | 200 · `data: InventoryItem[]` + `meta: PageMeta` |
 | **Requirements** | FR-INV-001, FR-INV-002 |
 | **Governing rules** | [R-SHOP-03](../business-rules/BUSINESS_RULES.md) |
@@ -4002,7 +4365,7 @@ Products at or below their low-stock threshold (includes out of stock).
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK, OWNER_ADMIN |
+| **Roles** | FRONT_DESK, STORE_MANAGER, OWNER_ADMIN |
 | **Success** | 200 · `data: InventoryItem[]` |
 | **Requirements** | FR-INV-002 |
 | **Governing rules** | [R-SHOP-03](../business-rules/BUSINESS_RULES.md) |
@@ -4061,7 +4424,7 @@ Restock or correct the stock of a product.
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | OWNER_ADMIN |
+| **Roles** | STORE_MANAGER, OWNER_ADMIN |
 | **Success** | 201 · `data: InventoryItem` |
 | **Requirements** | FR-INV-003 |
 | **Governing rules** | [R-SHOP-02](../business-rules/BUSINESS_RULES.md), [R-SHOP-03](../business-rules/BUSINESS_RULES.md) |
@@ -4341,6 +4704,71 @@ PATCH /api/v1/bar/menu-items/0d000000-0000-4000-8000-000000000001
   "error": {
     "code": "MENU_ITEM_NOT_FOUND",
     "message": "Menu item not found."
+  }
+}
+```
+
+<a id="barmemberLookup"></a>
+#### `GET /api/v1/bar/member-lookup` — bar.memberLookup
+
+Counter lookup of a member for the café till: identifies the customer and returns the café discount, nothing else (not the member list).
+
+| | |
+|---|---|
+| **Auth** | Bearer JWT |
+| **Roles** | FRONT_DESK, KITCHEN_MANAGER, OWNER_ADMIN |
+| **Success** | 200 · `data: MemberPosLookup[]` |
+| **Requirements** | FR-BAR-003, FR-BAR-004 |
+| **Governing rules** | — |
+| **Tables touched** | `members`, `users`, `memberships`, `membership_plans` |
+
+**Query parameters**
+
+| Field | Type | Required | Rules |
+|---|---|---|---|
+| `q` | string | **yes** | member number (CCM-00001), e-mail, phone digits (6+) or part of the name (3+ letters); at most 5 matches |
+
+**Rules / behaviour:** Active accounts only. Returns member id, member number, name, membership status, plan name and bar_discount_percent (0 without an active membership). The order itself is still priced by the server from member_id (R-BAR-01).
+
+**Errors**
+
+| Code | HTTP | Meaning here |
+|---|---|---|
+| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
+| `VALIDATION_ERROR` | 400 | Request validation failed. |
+| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
+
+**Example (generated from the types and seed data — shape is exact, values illustrative)**
+
+```http
+GET /api/v1/bar/member-lookup?q=string
+```
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "member_id": "02000000-0000-4000-8000-000000000001",
+      "member_code": "CCM-00001",
+      "full_name": "Aarav Kapoor",
+      "membership_status": "unknown",
+      "plan_name": "Aarav Kapoor",
+      "membership_type": "GOLD",
+      "bar_discount_percent": "15.00"
+    }
+  ]
+}
+```
+
+**Example error (HTTP 400)**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Request validation failed."
   }
 }
 ```
@@ -4940,7 +5368,7 @@ GET /api/v1/kitchen/orders/0e000000-0000-4000-8000-000000000001
 <a id="kitchenstatus"></a>
 #### `PATCH /api/v1/kitchen/orders/:id/status` — kitchen.status
 
-Move an order forward: NEW -> PREPARING -> READY -> SERVED (or reject a NEW order with CANCELLED).
+Move an order along: NEW -> PREPARING -> READY -> SERVED (reject a NEW order with CANCELLED; a READY order may go back to PREPARING).
 
 | | |
 |---|---|
@@ -5379,7 +5807,6 @@ GET /api/v1/business-clients
   "data": [
     {
       "id": "04000000-0000-4000-8000-000000000001",
-      "user_id": "01000000-0000-4000-8000-000000000006",
       "company_name": "TechNova Solutions Pvt Ltd",
       "contact_name": "Sanjay Gupta",
       "email": "sanjay.gupta@technova.example",
@@ -5420,16 +5847,16 @@ GET /api/v1/business-clients
 <a id="clientscreate"></a>
 #### `POST /api/v1/business-clients` — clients.create
 
-Register a business client (optionally with a portal login).
+Register a business client (a company the club invoices; it has no login).
 
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
 | **Roles** | OWNER_ADMIN |
 | **Success** | 201 · `data: BusinessClientDetail` |
-| **Requirements** | FR-INVC-001, FR-AUTH-007 |
+| **Requirements** | FR-INVC-001 |
 | **Governing rules** | [R-INVC-05](../business-rules/BUSINESS_RULES.md) |
-| **Tables touched** | `business_clients`, `users` |
+| **Tables touched** | `business_clients` |
 
 **Request body** — type `ClientsCreateRequest`
 
@@ -5442,8 +5869,6 @@ Register a business client (optionally with a portal login).
 | `gstin` | string | no | 15-char GSTIN |
 | `billing_address` | text | no |  |
 | `notes` | text | no |  |
-| `create_login` | bool | no | true => creates users(role BUSINESS_CLIENT) |
-| `initial_password` | string | no | required when create_login = true |
 
 **Errors**
 
@@ -5452,7 +5877,6 @@ Register a business client (optionally with a portal login).
 | `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
 | `VALIDATION_ERROR` | 400 | Request validation failed. |
 | `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-| `EMAIL_TAKEN` | 409 | An account with this email already exists. |
 
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
@@ -5473,7 +5897,6 @@ POST /api/v1/business-clients
   "success": true,
   "data": {
     "id": "04000000-0000-4000-8000-000000000001",
-    "user_id": "01000000-0000-4000-8000-000000000006",
     "company_name": "TechNova Solutions Pvt Ltd",
     "contact_name": "Sanjay Gupta",
     "email": "sanjay.gupta@technova.example",
@@ -5492,78 +5915,14 @@ POST /api/v1/business-clients
 }
 ```
 
-**Example error (HTTP 409)**
+**Example error (HTTP 400)**
 
 ```json
 {
   "success": false,
   "error": {
-    "code": "EMAIL_TAKEN",
-    "message": "An account with this email already exists."
-  }
-}
-```
-
-<a id="clientsme"></a>
-#### `GET /api/v1/business-clients/me` — clients.me
-
-Own client profile + totals (business dashboard header).
-
-| | |
-|---|---|
-| **Auth** | Bearer JWT |
-| **Roles** | BUSINESS_CLIENT |
-| **Success** | 200 · `data: BusinessClientDetail` |
-| **Requirements** | FR-INVC-008 |
-| **Governing rules** | — |
-| **Tables touched** | `business_clients`, `invoices` |
-
-**Errors**
-
-| Code | HTTP | Meaning here |
-|---|---|---|
-| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
-| `BUSINESS_CLIENT_NOT_FOUND` | 404 | Business client not found. |
-
-**Example (generated from the types and seed data — shape is exact, values illustrative)**
-
-```http
-GET /api/v1/business-clients/me
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "04000000-0000-4000-8000-000000000001",
-    "user_id": "01000000-0000-4000-8000-000000000006",
-    "company_name": "TechNova Solutions Pvt Ltd",
-    "contact_name": "Sanjay Gupta",
-    "email": "sanjay.gupta@technova.example",
-    "phone": "+919820000006",
-    "gstin": "27AABCT1234F1Z5",
-    "billing_address": "5th Floor, Cyber Park, Hinjewadi, Pune 411057",
-    "notes": "Quarterly corporate sports day + cricket net bookings",
-    "is_active": true,
-    "created_at": "2026-07-05T05:30:00.000Z",
-    "updated_at": "2026-07-05T05:30:00.000Z",
-    "invoice_count": 3,
-    "total_invoiced": "1250.00",
-    "total_paid": "1250.00",
-    "total_outstanding": "1250.00"
-  }
-}
-```
-
-**Example error (HTTP 404)**
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "BUSINESS_CLIENT_NOT_FOUND",
-    "message": "Business client not found."
+    "code": "VALIDATION_ERROR",
+    "message": "Request validation failed."
   }
 }
 ```
@@ -5603,7 +5962,6 @@ GET /api/v1/business-clients/04000000-0000-4000-8000-000000000001
   "success": true,
   "data": {
     "id": "04000000-0000-4000-8000-000000000001",
-    "user_id": "01000000-0000-4000-8000-000000000006",
     "company_name": "TechNova Solutions Pvt Ltd",
     "contact_name": "Sanjay Gupta",
     "email": "sanjay.gupta@technova.example",
@@ -5686,7 +6044,6 @@ PATCH /api/v1/business-clients/04000000-0000-4000-8000-000000000001
   "success": true,
   "data": {
     "id": "04000000-0000-4000-8000-000000000001",
-    "user_id": "01000000-0000-4000-8000-000000000006",
     "company_name": "TechNova Solutions Pvt Ltd",
     "contact_name": "Sanjay Gupta",
     "email": "sanjay.gupta@technova.example",
@@ -5726,12 +6083,12 @@ PATCH /api/v1/business-clients/04000000-0000-4000-8000-000000000001
 <a id="invoiceslist"></a>
 #### `GET /api/v1/invoices` — invoices.list
 
-List invoices (a business client sees only theirs; a member only their membership invoices).
+List invoices (the owner sees all; a member only their membership invoices).
 
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | BUSINESS_CLIENT (own only), MEMBER (own only), OWNER_ADMIN |
+| **Roles** | MEMBER (own only), OWNER_ADMIN |
 | **Success** | 200 · `data: InvoiceView[]` + `meta: PageMeta` |
 | **Requirements** | FR-INVC-005, FR-INVC-008, FR-FIN-006, FR-INVC-009 |
 | **Governing rules** | [R-INVC-03](../business-rules/BUSINESS_RULES.md), [R-FIN-08](../business-rules/BUSINESS_RULES.md) |
@@ -5917,7 +6274,7 @@ Invoice with lines, payments and outstanding amount.
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | BUSINESS_CLIENT (own only), MEMBER (own only), OWNER_ADMIN |
+| **Roles** | MEMBER (own only), OWNER_ADMIN |
 | **Success** | 200 · `data: InvoiceDetail` |
 | **Requirements** | FR-INVC-005, FR-INVC-008 |
 | **Governing rules** | — |
@@ -5997,7 +6354,6 @@ GET /api/v1/invoices/11000000-0000-4000-8000-000000000001
     ],
     "client": {
       "id": "04000000-0000-4000-8000-000000000001",
-      "user_id": "01000000-0000-4000-8000-000000000006",
       "company_name": "TechNova Solutions Pvt Ltd",
       "contact_name": "Sanjay Gupta",
       "email": "sanjay.gupta@technova.example",
@@ -6130,7 +6486,6 @@ PATCH /api/v1/invoices/11000000-0000-4000-8000-000000000001
     ],
     "client": {
       "id": "04000000-0000-4000-8000-000000000001",
-      "user_id": "01000000-0000-4000-8000-000000000006",
       "company_name": "TechNova Solutions Pvt Ltd",
       "contact_name": "Sanjay Gupta",
       "email": "sanjay.gupta@technova.example",
@@ -6247,7 +6602,6 @@ POST /api/v1/invoices/11000000-0000-4000-8000-000000000001/send
     ],
     "client": {
       "id": "04000000-0000-4000-8000-000000000001",
-      "user_id": "01000000-0000-4000-8000-000000000006",
       "company_name": "TechNova Solutions Pvt Ltd",
       "contact_name": "Sanjay Gupta",
       "email": "sanjay.gupta@technova.example",
@@ -6364,7 +6718,6 @@ POST /api/v1/invoices/11000000-0000-4000-8000-000000000001/void
     ],
     "client": {
       "id": "04000000-0000-4000-8000-000000000001",
-      "user_id": "01000000-0000-4000-8000-000000000006",
       "company_name": "TechNova Solutions Pvt Ltd",
       "contact_name": "Sanjay Gupta",
       "email": "sanjay.gupta@technova.example",
@@ -6406,7 +6759,7 @@ Record a payment against a court booking, membership, shop order, cafe order or 
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | MEMBER (own only), BUSINESS_CLIENT (own only), FRONT_DESK, OWNER_ADMIN |
+| **Roles** | MEMBER (own only), FRONT_DESK, KITCHEN_MANAGER, STORE_MANAGER, OWNER_ADMIN |
 | **Success** | 201 · `data: PaymentView` |
 | **Requirements** | FR-FIN-001, FR-FIN-002, FR-INVC-004, FR-FIN-010 |
 | **Governing rules** | [R-FIN-01](../business-rules/BUSINESS_RULES.md), [R-FIN-02](../business-rules/BUSINESS_RULES.md), [R-FIN-04](../business-rules/BUSINESS_RULES.md), [R-FIN-05](../business-rules/BUSINESS_RULES.md), [R-FIN-11](../business-rules/BUSINESS_RULES.md), [R-INVC-02](../business-rules/BUSINESS_RULES.md) |
@@ -6419,7 +6772,7 @@ Record a payment against a court booking, membership, shop order, cafe order or 
 | `source_type` | enum PAYMENT_SOURCE_TYPE | **yes** |  |
 | `source_id` | uuid | **yes** |  |
 | `amount` | money | no | default = remaining due. Partial payments allowed ONLY for INVOICE; every other source must equal the full amount due |
-| `payment_method` | enum PAYMENT_METHOD | **yes** | MEMBER / BUSINESS_CLIENT: ONLINE only. FRONT_DESK: CASH \| CARD \| UPI. OWNER_ADMIN: any |
+| `payment_method` | enum PAYMENT_METHOD | **yes** | MEMBER: ONLINE only. FRONT_DESK: CASH \| CARD \| UPI. OWNER_ADMIN: any |
 | `gateway_reference` | string | no |  |
 | `notes` | text | no |  |
 
@@ -6431,7 +6784,6 @@ Record a payment against a court booking, membership, shop order, cafe order or 
 |---|---|---|
 | `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
 | `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
 | `PAYMENT_FAILED` | 402 | Payment could not be completed. |
 | `PAYMENT_AMOUNT_MISMATCH` | 422 | Payment amount does not match the amount due. |
 | `ALREADY_PAID` | 409 | This item is already fully paid. |
@@ -6508,7 +6860,7 @@ Payment history. Members / clients: own. Front desk: payments they received. Own
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | MEMBER (own only), BUSINESS_CLIENT (own only), FRONT_DESK (own only), OWNER_ADMIN |
+| **Roles** | MEMBER (own only), FRONT_DESK (own only), KITCHEN_MANAGER (own only), STORE_MANAGER (own only), OWNER_ADMIN |
 | **Success** | 200 · `data: PaymentView[]` + `meta: PageMeta` |
 | **Requirements** | FR-FIN-004, FR-INVC-005, FR-FIN-003 |
 | **Governing rules** | [R-FIN-01](../business-rules/BUSINESS_RULES.md) |
@@ -6535,7 +6887,6 @@ Payment history. Members / clients: own. Front desk: payments they received. Own
 |---|---|---|
 | `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
 | `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
 
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
 
@@ -6603,7 +6954,7 @@ One payment = the receipt.
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | MEMBER (own only), BUSINESS_CLIENT (own only), FRONT_DESK (own only), OWNER_ADMIN |
+| **Roles** | MEMBER (own only), FRONT_DESK (own only), KITCHEN_MANAGER (own only), STORE_MANAGER (own only), OWNER_ADMIN |
 | **Success** | 200 · `data: PaymentView` |
 | **Requirements** | FR-FIN-004 |
 | **Governing rules** | — |
@@ -6616,7 +6967,6 @@ One payment = the receipt.
 |---|---|---|
 | `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
 | `VALIDATION_ERROR` | 400 | Request validation failed. |
-| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
 | `PAYMENT_NOT_FOUND` | 404 | Payment not found. |
 
 **Example (generated from the types and seed data — shape is exact, values illustrative)**
@@ -6845,7 +7195,7 @@ GET /api/v1/staff
 <a id="staffcreate"></a>
 #### `POST /api/v1/staff` — staff.create
 
-Create a staff account (front desk, kitchen manager or another owner) and employee record.
+Create a staff account (front desk, kitchen, store manager or another owner) and employee record.
 
 | | |
 |---|---|
@@ -6863,7 +7213,7 @@ Create a staff account (front desk, kitchen manager or another owner) and employ
 | `full_name` | string | **yes** |  |
 | `email` | email | **yes** |  |
 | `phone` | phone | no |  |
-| `role` | enum USER_ROLE | **yes** | FRONT_DESK \| KITCHEN_MANAGER \| OWNER_ADMIN only |
+| `role` | enum USER_ROLE | **yes** | FRONT_DESK \| KITCHEN_MANAGER \| STORE_MANAGER \| OWNER_ADMIN only |
 | `password` | string | **yes** |  |
 | `designation` | string | **yes** |  |
 | `monthly_salary` | money | **yes** |  |
@@ -6935,7 +7285,7 @@ Employee record.
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK (own only), KITCHEN_MANAGER (own only), OWNER_ADMIN |
+| **Roles** | FRONT_DESK (own only), KITCHEN_MANAGER (own only), STORE_MANAGER (own only), OWNER_ADMIN |
 | **Success** | 200 · `data: StaffView` |
 | **Requirements** | FR-STAFF-001, FR-STAFF-007 |
 | **Governing rules** | — |
@@ -7065,6 +7415,299 @@ PATCH /api/v1/staff/03000000-0000-4000-8000-000000000001
 }
 ```
 
+<a id="staffapplicationCreate"></a>
+#### `POST /api/v1/staff/applications` — staff.applicationCreate
+
+A visitor applies to work at the club. Nothing is granted until the owner approves; the applicant can log in to see the status.
+
+| | |
+|---|---|
+| **Auth** | None (PUBLIC) |
+| **Roles** | PUBLIC |
+| **Success** | 201 · `data: EmployeeApplicationPending` |
+| **Requirements** | FR-AUTH-008, FR-STAFF-008 |
+| **Governing rules** | — |
+| **Tables touched** | `employee_applications` |
+
+**Request body** — type `StaffApplicationCreateRequest`
+
+| Field | Type | Required | Rules |
+|---|---|---|---|
+| `full_name` | string | **yes** | 2-120 chars |
+| `email` | email | **yes** |  |
+| `phone` | phone | **yes** |  |
+| `password` | string | **yes** | min 8 chars, >=1 letter and >=1 digit; kept only as a bcrypt hash until the owner decides |
+
+**Rules / behaviour:** Creates a PENDING `employee_applications` row. No `users` / `staff` row exists yet. One PENDING application per email.
+
+**Errors**
+
+| Code | HTTP | Meaning here |
+|---|---|---|
+| `VALIDATION_ERROR` | 400 | Request validation failed. |
+| `EMAIL_TAKEN` | 409 | An account with this email already exists. |
+| `APPLICATION_PENDING` | 409 | A job application for this email is already waiting for the owner. Log in to see its status. |
+
+**Example (generated from the types and seed data — shape is exact, values illustrative)**
+
+```http
+POST /api/v1/staff/applications
+```
+
+```json
+{
+  "full_name": "Aarav Kapoor",
+  "email": "visitor@example.com",
+  "phone": "+919811100001",
+  "password": "Password@123"
+}
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "state": "unknown",
+    "full_name": "Aarav Kapoor",
+    "email": "name@example.com",
+    "applied_at": "2026-10-03T12:30:00.000Z",
+    "redirect_to": "unknown"
+  }
+}
+```
+
+**Example error (HTTP 409)**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "EMAIL_TAKEN",
+    "message": "An account with this email already exists."
+  }
+}
+```
+
+<a id="staffapplicationList"></a>
+#### `GET /api/v1/staff/applications` — staff.applicationList
+
+Job applications, newest first (never includes password hashes).
+
+| | |
+|---|---|
+| **Auth** | Bearer JWT |
+| **Roles** | OWNER_ADMIN |
+| **Success** | 200 · `data: EmployeeApplicationView[]` |
+| **Requirements** | FR-STAFF-008 |
+| **Governing rules** | — |
+| **Tables touched** | `employee_applications`, `users` |
+
+**Query parameters**
+
+| Field | Type | Required | Rules |
+|---|---|---|---|
+| `status` | enum APPLICATION_STATUS | no |  |
+
+**Errors**
+
+| Code | HTTP | Meaning here |
+|---|---|---|
+| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
+| `VALIDATION_ERROR` | 400 | Request validation failed. |
+| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
+
+**Example (generated from the types and seed data — shape is exact, values illustrative)**
+
+```http
+GET /api/v1/staff/applications
+```
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "00002762-0000-4000-8000-000000312662",
+      "full_name": "Aarav Kapoor",
+      "email": "name@example.com",
+      "phone": "+919811100001",
+      "status": "PENDING",
+      "approved_role": "MEMBER",
+      "applied_at": "2026-10-03T12:30:00.000Z",
+      "reviewed_at": "2026-10-03T12:30:00.000Z",
+      "reviewed_by_user_id": "01000000-0000-4000-8000-000000000001",
+      "decision_note": "Sample text",
+      "reviewed_by_name": "Aarav Kapoor"
+    }
+  ]
+}
+```
+
+**Example error (HTTP 400)**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Request validation failed."
+  }
+}
+```
+
+<a id="staffapplicationApprove"></a>
+#### `POST /api/v1/staff/applications/:id/approve` — staff.applicationApprove
+
+Approve an application and choose the role: creates the login (same email and password) and the staff record.
+
+| | |
+|---|---|
+| **Auth** | Bearer JWT |
+| **Roles** | OWNER_ADMIN |
+| **Success** | 200 · `data: EmployeeApplicationView` |
+| **Requirements** | FR-STAFF-008 |
+| **Governing rules** | — |
+| **Tables touched** | `employee_applications`, `users`, `staff` |
+| **Path params** | `id` (uuid) |
+
+**Request body** — type `StaffApplicationApproveRequest`
+
+| Field | Type | Required | Rules |
+|---|---|---|---|
+| `role` | enum USER_ROLE | **yes** | FRONT_DESK \| KITCHEN_MANAGER \| STORE_MANAGER |
+| `designation` | string | no | default: the role name |
+| `monthly_salary` | money | no | default 0.00 |
+
+**Rules / behaviour:** One transaction: lock the PENDING application, create `users` (bcrypt hash copied, role, active) + `staff`, mark it APPROVED with approved_role / reviewer / reviewed_at, clear the stored hash.
+
+**Errors**
+
+| Code | HTTP | Meaning here |
+|---|---|---|
+| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
+| `VALIDATION_ERROR` | 400 | Request validation failed. |
+| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
+| `APPLICATION_NOT_FOUND` | 404 | Job application not found. |
+| `INVALID_STATUS_TRANSITION` | 409 | This status change is not allowed. |
+| `EMAIL_TAKEN` | 409 | An account with this email already exists. |
+
+**Example (generated from the types and seed data — shape is exact, values illustrative)**
+
+```http
+POST /api/v1/staff/applications/17000000-0000-4000-8000-000000000001/approve
+```
+
+```json
+{
+  "role": "FRONT_DESK"
+}
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "00002762-0000-4000-8000-000000312662",
+    "full_name": "Aarav Kapoor",
+    "email": "name@example.com",
+    "phone": "+919811100001",
+    "status": "PENDING",
+    "approved_role": "MEMBER",
+    "applied_at": "2026-10-03T12:30:00.000Z",
+    "reviewed_at": "2026-10-03T12:30:00.000Z",
+    "reviewed_by_user_id": "01000000-0000-4000-8000-000000000001",
+    "decision_note": "Sample text",
+    "reviewed_by_name": "Aarav Kapoor"
+  }
+}
+```
+
+**Example error (HTTP 409)**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INVALID_STATUS_TRANSITION",
+    "message": "This status change is not allowed."
+  }
+}
+```
+
+<a id="staffapplicationReject"></a>
+#### `POST /api/v1/staff/applications/:id/reject` — staff.applicationReject
+
+Decline an application. No account is created.
+
+| | |
+|---|---|
+| **Auth** | Bearer JWT |
+| **Roles** | OWNER_ADMIN |
+| **Success** | 200 · `data: EmployeeApplicationView` |
+| **Requirements** | FR-STAFF-008 |
+| **Governing rules** | — |
+| **Tables touched** | `employee_applications` |
+| **Path params** | `id` (uuid) |
+
+**Request body** — type `StaffApplicationRejectRequest`
+
+| Field | Type | Required | Rules |
+|---|---|---|---|
+| `note` | string | no | shown on the owner dashboard |
+
+**Rules / behaviour:** Marks the application REJECTED and clears the stored hash; the applicant gets no access.
+
+**Errors**
+
+| Code | HTTP | Meaning here |
+|---|---|---|
+| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
+| `VALIDATION_ERROR` | 400 | Request validation failed. |
+| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
+| `APPLICATION_NOT_FOUND` | 404 | Job application not found. |
+| `INVALID_STATUS_TRANSITION` | 409 | This status change is not allowed. |
+
+**Example (generated from the types and seed data — shape is exact, values illustrative)**
+
+```http
+POST /api/v1/staff/applications/17000000-0000-4000-8000-000000000001/reject
+```
+
+```json
+{}
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "00002762-0000-4000-8000-000000312662",
+    "full_name": "Aarav Kapoor",
+    "email": "name@example.com",
+    "phone": "+919811100001",
+    "status": "PENDING",
+    "approved_role": "MEMBER",
+    "applied_at": "2026-10-03T12:30:00.000Z",
+    "reviewed_at": "2026-10-03T12:30:00.000Z",
+    "reviewed_by_user_id": "01000000-0000-4000-8000-000000000001",
+    "decision_note": "Sample text",
+    "reviewed_by_name": "Aarav Kapoor"
+  }
+}
+```
+
+**Example error (HTTP 409)**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INVALID_STATUS_TRANSITION",
+    "message": "This status change is not allowed."
+  }
+}
+```
+
 <a id="staffshifts"></a>
 #### `GET /api/v1/staff/shifts` — staff.shifts
 
@@ -7073,7 +7716,7 @@ Shift roster for a date range (front desk sees everyone read-only; kitchen only 
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK, KITCHEN_MANAGER (own only), OWNER_ADMIN |
+| **Roles** | FRONT_DESK, KITCHEN_MANAGER (own only), STORE_MANAGER (own only), OWNER_ADMIN |
 | **Success** | 200 · `data: ShiftView[]` |
 | **Requirements** | FR-STAFF-002, FR-STAFF-005, FR-STAFF-007 |
 | **Governing rules** | — |
@@ -7344,7 +7987,7 @@ Leave requests (staff see their own; owner sees all).
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK (own only), KITCHEN_MANAGER (own only), OWNER_ADMIN |
+| **Roles** | FRONT_DESK (own only), KITCHEN_MANAGER (own only), STORE_MANAGER (own only), OWNER_ADMIN |
 | **Success** | 200 · `data: LeaveView[]` + `meta: PageMeta` |
 | **Requirements** | FR-STAFF-003, FR-STAFF-004 |
 | **Governing rules** | — |
@@ -7421,7 +8064,7 @@ Request leave (status PENDING).
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK, KITCHEN_MANAGER |
+| **Roles** | FRONT_DESK, KITCHEN_MANAGER, STORE_MANAGER |
 | **Success** | 201 · `data: LeaveView` |
 | **Requirements** | FR-STAFF-003 |
 | **Governing rules** | [R-HR-02](../business-rules/BUSINESS_RULES.md) |
@@ -7569,7 +8212,7 @@ Cancel a PENDING or future APPROVED leave request.
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK (own only), KITCHEN_MANAGER (own only), OWNER_ADMIN |
+| **Roles** | FRONT_DESK (own only), KITCHEN_MANAGER (own only), STORE_MANAGER (own only), OWNER_ADMIN |
 | **Success** | 200 · `data: LeaveView` |
 | **Requirements** | FR-STAFF-003 |
 | **Governing rules** | [R-HR-02](../business-rules/BUSINESS_RULES.md) |
@@ -7630,7 +8273,7 @@ Salary payments (staff: own history).
 | | |
 |---|---|
 | **Auth** | Bearer JWT |
-| **Roles** | FRONT_DESK (own only), KITCHEN_MANAGER (own only), OWNER_ADMIN |
+| **Roles** | FRONT_DESK (own only), KITCHEN_MANAGER (own only), STORE_MANAGER (own only), OWNER_ADMIN |
 | **Success** | 200 · `data: PayrollView[]` + `meta: PageMeta` |
 | **Requirements** | FR-STAFF-006, FR-FIN-008, FR-STAFF-007 |
 | **Governing rules** | — |

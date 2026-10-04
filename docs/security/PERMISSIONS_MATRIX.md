@@ -10,7 +10,7 @@ Server-side authorisation rules (R-SEC-01) — enforced by middleware/service ch
 
 ## 1. Feature × role
 
-| Feature | Member | Guest (walk-in) | Visitor | Front Desk | Kitchen | Business Client | Owner/Admin |
+| Feature | Member | Guest (walk-in) | Visitor | Front Desk | Kitchen | Store Manager | Owner/Admin |
 |---|---|---|---|---|---|---|---|
 | Authentication | V U | — | C | V U | V U | V U | V U |
 | Public website | — | — | V | — | — | — | — |
@@ -18,21 +18,23 @@ Server-side authorisation rules (R-SEC-01) — enforced by middleware/service ch
 | Membership plans | — | — | V | — | — | — | C U |
 | Memberships | c | — | — | V C U | — | — | V C U |
 | Courts | — | — | V | — | — | — | C U D |
-| Court bookings | V C u | *via Front Desk* | — | V C U | — | — | V C U |
-| Shop catalogue | — | — | V | — | — | — | C U D |
-| Shop orders | v C u | *via Front Desk* | — | V C U | — | — | V C U |
-| Inventory | — | — | — | V | — | — | V C |
+| Court bookings | V C u | *via Front Desk* | C | V C U | — | — | V C U |
+| Shop catalogue | — | — | V | — | — | C U | C U D |
+| Shop orders | v C u | *via Front Desk* | — | V C U | — | V C U | V C U |
+| Inventory | — | — | — | V | — | V C | V C |
 | Cafe menu | — | — | V | — | — | — | C U |
-| Cafe orders | v | *via Front Desk* | — | V C U | — | — | V C U |
+| Cafe orders | v | *via Front Desk* | — | V C U | V | — | V C U |
 | Kitchen orders | — | — | — | — | V U | — | V U |
 | Enquiries | — | *via Front Desk* | C | V C U | — | — | V C U |
-| Business clients | — | — | — | — | — | V | V C U |
-| Invoices | v | — | — | — | — | v | V C U A |
-| Payments | v c | *via Front Desk* | — | v C | — | v c | V C A |
-| Staff records | — | — | — | v | v | — | V C U |
-| Shifts | — | — | — | V | v | — | V C U D |
-| Leave | — | — | — | v C u | v C u | — | V U A |
-| Payroll | — | — | — | v | v | — | V C U |
+| Business clients | — | — | — | — | — | — | V C U |
+| Invoices | v | — | — | — | — | — | V C U A |
+| Payments | v c | *via Front Desk* | — | v C | v C | v C | V C A |
+| Staff records | — | — | — | v | v | v | V C U |
+| Job applications | — | — | C | — | — | — | V A |
+| Events | V C D | — | — | V | V | V | V C |
+| Shifts | — | — | — | V | v | v | V C U D |
+| Leave | — | — | — | v C u | v C u | v C u | V U A |
+| Payroll | — | — | — | v | v | v | V C U |
 | Reports | — | — | — | — | — | — | V |
 | Club settings | — | — | — | — | — | — | V U |
 
@@ -70,25 +72,27 @@ Server-side authorisation rules (R-SEC-01) — enforced by middleware/service ch
 | `DELETE /courts/blocks/:booking_id` | courts.unblock |  |  |  |  | ● |
 | `GET /bookings/price` | bookings.price | ● | ● |  |  | ● |
 | `POST /bookings` | bookings.create | ● | ● |  |  | ● |
+| `POST /bookings/trial` | bookings.trial **PUBLIC** | ● | ● | ● | ● | ● |
 | `GET /bookings` | bookings.list | ○ | ● |  |  | ● |
 | `GET /bookings/:id` | bookings.get | ○ | ● |  |  | ● |
 | `POST /bookings/:id/cancel` | bookings.cancel | ○ | ● |  |  | ● |
 | `GET /shop/products` | shop.products **PUBLIC** | ● | ● | ● | ● | ● |
 | `GET /shop/products/:id` | shop.product **PUBLIC** | ● | ● | ● | ● | ● |
-| `POST /shop/products` | shop.productCreate |  |  |  |  | ● |
-| `PATCH /shop/products/:id` | shop.productUpdate |  |  |  |  | ● |
+| `POST /shop/products` | shop.productCreate |  |  |  | ● | ● |
+| `PATCH /shop/products/:id` | shop.productUpdate |  |  |  | ● | ● |
 | `DELETE /shop/products/:id` | shop.productDelete |  |  |  |  | ● |
-| `POST /shop/orders` | shop.orderCreate | ● | ● |  |  | ● |
-| `GET /shop/orders` | shop.orderList | ○ | ● |  |  | ● |
-| `GET /shop/orders/:id` | shop.orderGet | ○ | ● |  |  | ● |
-| `PATCH /shop/orders/:id/status` | shop.orderStatus |  | ● |  |  | ● |
-| `POST /shop/orders/:id/cancel` | shop.orderCancel | ○ | ● |  |  | ● |
-| `GET /inventory` | inventory.list |  | ● |  |  | ● |
-| `GET /inventory/low-stock` | inventory.lowStock |  | ● |  |  | ● |
-| `POST /inventory/adjustments` | inventory.adjust |  |  |  |  | ● |
+| `POST /shop/orders` | shop.orderCreate | ● | ● |  | ● | ● |
+| `GET /shop/orders` | shop.orderList | ○ | ● |  | ● | ● |
+| `GET /shop/orders/:id` | shop.orderGet | ○ | ● |  | ● | ● |
+| `PATCH /shop/orders/:id/status` | shop.orderStatus |  | ● |  | ● | ● |
+| `POST /shop/orders/:id/cancel` | shop.orderCancel | ○ | ● |  | ● | ● |
+| `GET /inventory` | inventory.list |  | ● |  | ● | ● |
+| `GET /inventory/low-stock` | inventory.lowStock |  | ● |  | ● | ● |
+| `POST /inventory/adjustments` | inventory.adjust |  |  |  | ● | ● |
 | `GET /bar/menu` | bar.menu **PUBLIC** | ● | ● | ● | ● | ● |
 | `POST /bar/menu-items` | bar.menuCreate |  |  |  |  | ● |
 | `PATCH /bar/menu-items/:id` | bar.menuUpdate |  |  |  |  | ● |
+| `GET /bar/member-lookup` | bar.memberLookup |  | ● | ● |  | ● |
 | `POST /bar/orders` | bar.orderCreate |  | ● |  |  | ● |
 | `GET /bar/orders` | bar.orderList | ○ | ● |  |  | ● |
 | `GET /bar/orders/:id` | bar.orderGet | ○ | ● |  |  | ● |
@@ -103,32 +107,39 @@ Server-side authorisation rules (R-SEC-01) — enforced by middleware/service ch
 | `PATCH /enquiries/:id` | enquiries.update |  | ● |  |  | ● |
 | `GET /business-clients` | clients.list |  |  |  |  | ● |
 | `POST /business-clients` | clients.create |  |  |  |  | ● |
-| `GET /business-clients/me` | clients.me |  |  |  | ● |  |
 | `GET /business-clients/:id` | clients.get |  |  |  |  | ● |
 | `PATCH /business-clients/:id` | clients.update |  |  |  |  | ● |
-| `GET /invoices` | invoices.list | ○ |  |  | ○ | ● |
+| `GET /invoices` | invoices.list | ○ |  |  |  | ● |
 | `POST /invoices` | invoices.create |  |  |  |  | ● |
-| `GET /invoices/:id` | invoices.get | ○ |  |  | ○ | ● |
+| `GET /invoices/:id` | invoices.get | ○ |  |  |  | ● |
 | `PATCH /invoices/:id` | invoices.update |  |  |  |  | ● |
 | `POST /invoices/:id/send` | invoices.send |  |  |  |  | ● |
 | `POST /invoices/:id/void` | invoices.void |  |  |  |  | ● |
-| `POST /payments` | payments.create | ○ | ● |  | ○ | ● |
-| `GET /payments` | payments.list | ○ | ○ |  | ○ | ● |
-| `GET /payments/:id` | payments.get | ○ | ○ |  | ○ | ● |
+| `POST /payments` | payments.create | ○ | ● | ● | ● | ● |
+| `GET /payments` | payments.list | ○ | ○ | ○ | ○ | ● |
+| `GET /payments/:id` | payments.get | ○ | ○ | ○ | ○ | ● |
 | `POST /payments/:id/refund` | payments.refund |  |  |  |  | ● |
 | `GET /staff` | staff.list |  |  |  |  | ● |
 | `POST /staff` | staff.create |  |  |  |  | ● |
-| `GET /staff/:id` | staff.get |  | ○ | ○ |  | ● |
+| `GET /staff/:id` | staff.get |  | ○ | ○ | ○ | ● |
 | `PATCH /staff/:id` | staff.update |  |  |  |  | ● |
-| `GET /staff/shifts` | staff.shifts |  | ● | ○ |  | ● |
+| `POST /staff/applications` | staff.applicationCreate **PUBLIC** | ● | ● | ● | ● | ● |
+| `GET /staff/applications` | staff.applicationList |  |  |  |  | ● |
+| `POST /staff/applications/:id/approve` | staff.applicationApprove |  |  |  |  | ● |
+| `POST /staff/applications/:id/reject` | staff.applicationReject |  |  |  |  | ● |
+| `GET /events` | events.list | ● | ● | ● | ● | ● |
+| `POST /events` | events.create |  |  |  |  | ● |
+| `POST /events/:id/registrations` | events.register | ● |  |  |  |  |
+| `DELETE /events/:id/registrations` | events.unregister | ● |  |  |  |  |
+| `GET /staff/shifts` | staff.shifts |  | ● | ○ | ○ | ● |
 | `POST /staff/shifts` | staff.shiftCreate |  |  |  |  | ● |
 | `PATCH /staff/shifts/:id` | staff.shiftUpdate |  |  |  |  | ● |
 | `DELETE /staff/shifts/:id` | staff.shiftDelete |  |  |  |  | ● |
-| `GET /staff/leave-requests` | staff.leaveList |  | ○ | ○ |  | ● |
-| `POST /staff/leave-requests` | staff.leaveCreate |  | ● | ● |  |  |
+| `GET /staff/leave-requests` | staff.leaveList |  | ○ | ○ | ○ | ● |
+| `POST /staff/leave-requests` | staff.leaveCreate |  | ● | ● | ● |  |
 | `POST /staff/leave-requests/:id/decision` | staff.leaveDecide |  |  |  |  | ● |
-| `POST /staff/leave-requests/:id/cancel` | staff.leaveCancel |  | ○ | ○ |  | ● |
-| `GET /staff/payroll` | staff.payrollList |  | ○ | ○ |  | ● |
+| `POST /staff/leave-requests/:id/cancel` | staff.leaveCancel |  | ○ | ○ | ○ | ● |
+| `GET /staff/payroll` | staff.payrollList |  | ○ | ○ | ○ | ● |
 | `POST /staff/payroll` | staff.payrollCreate |  |  |  |  | ● |
 | `POST /staff/payroll/:id/pay` | staff.payrollPay |  |  |  |  | ● |
 | `GET /reports/dashboard` | reports.dashboard |  |  |  |  | ● |
@@ -150,7 +161,7 @@ Server-side authorisation rules (R-SEC-01) — enforced by middleware/service ch
 | 1 | **Own-record scoping** — MEMBER may only read/modify rows whose `member_id` is theirs (bookings, shop orders, cafe orders, payments, memberships, invoices). Business client: rows whose `business_client_id` is theirs. Staff self-service endpoints: rows whose `staff_id` is theirs. | service layer query filter (`WHERE member_id = :caller_member_id`) |
 | 2 | **Kitchen isolation** — KITCHEN_MANAGER receives the `KitchenOrder` projection only: no prices, totals, discounts, payment data, member contact info. | `/kitchen/*` returns `KitchenOrder` DTOs; no other bar/finance endpoint allows the role |
 | 3 | **Staff acting for guests** — FRONT_DESK may create bookings/orders/payments for members and walk-ins; walk-in data is stored as `guest_name` / `guest_phone`. | bookings, shop, cafe, payments services |
-| 4 | **Payment method by role** — MEMBER and BUSINESS_CLIENT may only pay with `ONLINE`; FRONT_DESK with `CASH`/`CARD`/`UPI`; OWNER_ADMIN any. | `POST /payments` |
+| 4 | **Payment method by role** — MEMBER may only pay with `ONLINE`; FRONT_DESK, KITCHEN_MANAGER and STORE_MANAGER with `CASH`/`CARD`/`UPI`; OWNER_ADMIN any. | `POST /payments` |
 | 5 | **Refunds** — Only OWNER_ADMIN refunds manually. Cancellation flows refund automatically by policy. | `POST /payments/:id/refund` |
 | 6 | **Financial visibility** — Revenue, tax, payroll, invoices-of-others and reports are OWNER_ADMIN only. FRONT_DESK sees only payments they received (`:own`) and the bar daily summary. | `/reports/*`, `/payments`, `/staff/payroll` |
 | 7 | **Account creation** — Only OWNER_ADMIN creates staff, kitchen and business-client accounts; FRONT_DESK registers members; public signup creates MEMBER only. | `/staff`, `/business-clients`, `/members`, `/auth/signup` |

@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react';
 import { Check, Gift } from 'lucide-react';
 
+import { isBackendConfigured } from '@/api/client';
 import { formatMoney } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { Capacity, DateBlock, EventFacts, eventPhase, eventPrice, KIND, PlanPriceTable, taken } from '../../components/EventBits';
 import { useMe } from '../../components/MemberBits';
+import { admin } from '../../store/admin';
 import { demo, useDemo } from '../../store/demoStore';
 import type { DEvent } from '../../store/types';
 import { btn, Empty, Modal, PageHeader, PageSkeleton, Pill, usePageReady, useToast } from '../../ui/kit';
@@ -50,7 +52,13 @@ export default function MemberEvents() {
   const current = useMemo(() => s.events.filter((e) => eventPhase(e) === 'LIVE'), [s.events]);
   const upcoming = useMemo(() => s.events.filter((e) => eventPhase(e) === 'UPCOMING'), [s.events]);
 
-  const toggle = (e: DEvent) => {
+  const toggle = async (e: DEvent) => {
+    const joined = e.registered.includes(me.id);
+    if (isBackendConfigured) {
+      // saved in the database first; the card changes when the refetch brings the new state back
+      const r = await (joined ? admin.unregisterFromEvent(e.id) : admin.registerForEvent(e.id));
+      return toast(r.ok ? (joined ? `Registration cancelled for ${e.title}` : `You’re registered for ${e.title}`) : r.message, r.ok ? undefined : 'warn');
+    }
     const r = demo.toggleEvent(e.id, me.id);
     if (!r.ok) return toast(r.message, 'warn');
     toast(r.value.registered.includes(me.id) ? `You’re registered for ${e.title}` : `Registration cancelled for ${e.title}`);
@@ -67,7 +75,7 @@ export default function MemberEvents() {
       {current.length > 0 && (
         <>
           <h2 className="display mb-3 text-2xl">Happening now</h2>
-          <ul className="mb-8 grid gap-5 lg:grid-cols-2">{current.map((e) => <EventCard key={e.id} e={e} live joined={e.registered.includes(me.id)} price={eventPrice(e, me)} onOpen={() => setOpen(e)} onToggle={() => toggle(e)} />)}</ul>
+          <ul className="mb-8 grid gap-5 lg:grid-cols-2">{current.map((e) => <EventCard key={e.id} e={e} live joined={e.registered.includes(me.id)} price={eventPrice(e, me)} onOpen={() => setOpen(e)} onToggle={() => void toggle(e)} />)}</ul>
         </>
       )}
 
@@ -77,13 +85,13 @@ export default function MemberEvents() {
       ) : (
         <ul className="grid gap-5 lg:grid-cols-2 2xl:grid-cols-3">
           {upcoming.map((e, i) => (
-            <div key={e.id} style={{ ['--d' as string]: `${i * 60}ms` }} className="contents"><EventCard e={e} joined={e.registered.includes(me.id)} price={eventPrice(e, me)} onOpen={() => setOpen(e)} onToggle={() => toggle(e)} /></div>
+            <div key={e.id} style={{ ['--d' as string]: `${i * 60}ms` }} className="contents"><EventCard e={e} joined={e.registered.includes(me.id)} price={eventPrice(e, me)} onOpen={() => setOpen(e)} onToggle={() => void toggle(e)} /></div>
           ))}
         </ul>
       )}
 
       <Modal open={!!live} onClose={() => setOpen(null)} eyebrow={live ? KIND[live.kind].label : ''} title={live?.title ?? ''} width="max-w-2xl"
-        footer={live && <button type="button" className={cn(live.registered.includes(me.id) ? btn.secondary : btn.primary, 'w-full')} onClick={() => toggle(live)}>{live.registered.includes(me.id) ? 'Cancel registration' : `Register · ${eventPrice(live, me) === 0 ? 'free' : formatMoney(eventPrice(live, me))}`}</button>}>
+        footer={live && <button type="button" className={cn(live.registered.includes(me.id) ? btn.secondary : btn.primary, 'w-full')} onClick={() => void toggle(live)}>{live.registered.includes(me.id) ? 'Cancel registration' : `Register · ${eventPrice(live, me) === 0 ? 'free' : formatMoney(eventPrice(live, me))}`}</button>}>
         {live && (
           <div className="space-y-5">
             <p className="leading-relaxed text-muted">{live.description}</p>

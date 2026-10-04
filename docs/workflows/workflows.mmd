@@ -204,7 +204,7 @@ sequenceDiagram
   actor O as Owner
   actor B as Business client
   participant API as API
-  O->>API: POST /business-clients (optional portal login)
+  O->>API: POST /business-clients (a company to invoice, no login)
   O->>API: POST /invoices {business_client_id, items (tax-exclusive), due_date, send_now}
   B->>API: GET /invoices (own), GET /invoices/:id
   B->>API: POST /payments {INVOICE, amount (partial ok), ONLINE}

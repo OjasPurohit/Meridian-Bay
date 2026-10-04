@@ -24,12 +24,15 @@ export const SLOT_INTERVAL_MINUTES = 30 as const; // a new slot starts every 30 
 export const SESSION_DURATION_MINUTES = 60 as const; // every session lasts 1 hour
 export const SLOT_START_MINUTES_ALLOWED = [0, 30] as const;
 
+/** Roles an owner may give an approved job applicant (the owner account itself is never created this way). */
+export const EMPLOYEE_ROLES = ['FRONT_DESK', 'KITCHEN_MANAGER', 'STORE_MANAGER'] as const;
+
 // ---------- role -> landing route after login ----------
 export const ROLE_HOME_ROUTE: Record<UserRole, string> = {
   MEMBER: '/member',
   FRONT_DESK: '/front-desk',
   KITCHEN_MANAGER: '/kitchen',
-  BUSINESS_CLIENT: '/business',
+  STORE_MANAGER: '/store-manager',
   OWNER_ADMIN: '/owner',
 };
 
@@ -51,7 +54,7 @@ export type SettingKey = (typeof SETTING_KEYS)[number];
 export const ORDER_TRANSITIONS: Record<OrderStatus, readonly OrderStatus[]> = {
   NEW: ['PREPARING', 'CANCELLED'],
   PREPARING: ['READY'],
-  READY: ['SERVED'],
+  READY: ['PREPARING', 'SERVED'], // READY -> PREPARING: the kitchen may take a ticket back when the hand-off went wrong
   SERVED: [],
   CANCELLED: [],
 };

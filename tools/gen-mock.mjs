@@ -17,8 +17,8 @@ const PRODUCT_IMAGES = (() => {
     return {};
   }
 })();
-// Frontend-only demo files (not a table): the kitchen POS menu used in preview mode.
-const FRONTEND_ONLY = new Set(['kitchen-menu-items.json']);
+// Frontend-only files that are not tables (none today: the café menu is the bar_menu_items table everywhere).
+const FRONTEND_ONLY = new Set([]);
 import { toPaise, fromPaise, percentOf, taxInclusive } from '../shared/lib/money.ts';
 import { istToUtc, istDate as istDateOf, addDays as addDaysShared, termEndDate } from '../shared/lib/time.ts';
 
@@ -83,7 +83,7 @@ const userSpecs = [
   ['arjun', 'arjun.mehta@championsclub.example', 'FRONT_DESK', 'Arjun Mehta', '+919820000003'],
   ['pooja', 'pooja.iyer@championsclub.example', 'FRONT_DESK', 'Pooja Iyer', '+919820000004'],
   ['ramesh', 'kitchen@championsclub.example', 'KITCHEN_MANAGER', 'Ramesh Patil', '+919820000005'],
-  ['sanjay', 'sanjay.gupta@technova.example', 'BUSINESS_CLIENT', 'Sanjay Gupta', '+919820000006'],
+  ['sanjay', 'sanjay.gupta@championsclub.example', 'STORE_MANAGER', 'Sanjay Gupta', '+919820000006'],
 ];
 const memberSpecs = [
   // key, name, phone, dob, plan, startOffset
@@ -108,13 +108,32 @@ for (const [k, name, phone] of memberSpecs)
 
 const staffSpecs = [
   ['owner', 'Owner', '0.00'], ['neha', 'Front Desk Executive', '28000.00'], ['arjun', 'Front Desk Executive', '28000.00'],
-  ['pooja', 'Cafe & Counter Associate', '24000.00'], ['ramesh', 'Kitchen Manager', '35000.00'],
+  ['pooja', 'Cafe & Counter Associate', '24000.00'], ['ramesh', 'Kitchen Manager', '35000.00'], ['sanjay', 'Store Manager', '38000.00'],
 ];
 staffSpecs.forEach(([k, des, sal], i) =>
   add('staff', { id: uid('staff', k), user_id: uid('users', k), designation: des, monthly_salary: sal, joined_on: d(-400 + i * 20), created_at: T0, updated_at: T0 }));
 
-add('business_clients', { id: uid('business_clients', 'technova'), user_id: uid('users', 'sanjay'), company_name: 'TechNova Solutions Pvt Ltd', contact_name: 'Sanjay Gupta', email: 'sanjay.gupta@technova.example', phone: '+919820000006', gstin: '27AABCT1234F1Z5', billing_address: '5th Floor, Cyber Park, Hinjewadi, Pune 411057', notes: 'Quarterly corporate sports day + cricket net bookings', is_active: true, created_at: ts(-90, '11:00'), updated_at: ts(-90, '11:00') });
-add('business_clients', { id: uid('business_clients', 'greenfield'), user_id: null, company_name: 'Greenfield Corp', contact_name: 'Meera Pillai', email: 'accounts@greenfield.example', phone: '+919820000007', gstin: '27AAACG9876K1Z2', billing_address: '12 Industrial Estate, Chakan, Pune 410501', notes: 'Invoiced only; no portal login', is_active: true, created_at: ts(-60, '11:00'), updated_at: ts(-60, '11:00') });
+add('business_clients', { id: uid('business_clients', 'technova'), company_name: 'TechNova Solutions Pvt Ltd', contact_name: 'Sanjay Gupta', email: 'sanjay.gupta@technova.example', phone: '+919820000006', gstin: '27AABCT1234F1Z5', billing_address: '5th Floor, Cyber Park, Hinjewadi, Pune 411057', notes: 'Quarterly corporate sports day + cricket net bookings', is_active: true, created_at: ts(-90, '11:00'), updated_at: ts(-90, '11:00') });
+add('business_clients', { id: uid('business_clients', 'greenfield'), company_name: 'Greenfield Corp', contact_name: 'Meera Pillai', email: 'accounts@greenfield.example', phone: '+919820000007', gstin: '27AAACG9876K1Z2', billing_address: '12 Industrial Estate, Chakan, Pune 410501', notes: 'Invoiced only', is_active: true, created_at: ts(-60, '11:00'), updated_at: ts(-60, '11:00') });
+
+// Club events (the owner creates more in the app) and a few member registrations.
+const eventRow = (k, title, kind, description, startOff, startAt, endOff, endAt, location, capacity, fee) =>
+  add('events', { id: uid('events', k), title, kind, description, location, start_at: ts(startOff, startAt), end_at: ts(endOff, endAt), capacity, fee, created_at: T0, updated_at: T0 });
+eventRow('camp', 'Junior Coaching Camp', 'CAMP', 'Five mornings of drills, match play and fitness for players under 18, led by our head coaches. Happening now — a few seats left for the final sessions.', -2, '07:00', 2, '09:00', 'Badminton Courts 1–2 and Tennis Court 2', 24, '3500.00');
+eventRow('padel', 'Padel Beginners Clinic', 'CLINIC', 'Learn the rules, walls and doubles tactics in a relaxed two-hour clinic. Rackets provided.', 7, '09:00', 7, '11:00', 'Padel Court 1', 12, '800.00');
+eventRow('open', 'Autumn Open — Tennis Tournament', 'TOURNAMENT', 'Our flagship weekend tournament: singles and doubles draws, seeded brackets, live scoring and a finals-night dinner at the café.', 14, '08:00', 15, '19:00', 'Tennis Courts 1 & 2 · finals on Court 1', 32, '1500.00');
+eventRow('mixer', 'Members’ Mixer & Live Music', 'MIXER', 'An evening on the café terrace: live acoustic set, tasting plates and a chance to meet your playing partners.', 21, '19:00', 21, '22:00', 'Bar & Café terrace', 80, '0.00');
+for (const [e, m, off] of [['padel', 'aarav', -3], ['padel', 'priya', -2], ['open', 'aarav', -4], ['mixer', 'priya', -1]])
+  add('event_registrations', { id: uid('event_registrations', `${e}-${m}`), event_id: uid('events', e), member_id: uid('members', m), registered_at: ts(off, '12:00') });
+
+// Job applications: two waiting for the owner, one declined, one approved (that person is the front-desk user `pooja`).
+// Only PENDING applications keep a password hash (so the applicant can log in to the "under review" page).
+const application = (k, name, email, phone, status, off, role = null, note = null) =>
+  add('employee_applications', { id: uid('employee_applications', k), full_name: name, email, phone, password_hash: status === 'PENDING' ? PW_HASH : null, status, approved_role: role, applied_at: ts(off, '11:30'), reviewed_at: status === 'PENDING' ? null : ts(off + 2, '16:00'), reviewed_by_user_id: status === 'PENDING' ? null : uid('users', 'owner'), decision_note: note });
+application('devika', 'Devika Rao', 'devika.rao@example.com', '+919811200001', 'PENDING', -1);
+application('manish', 'Manish Kulkarni', 'manish.kulkarni@example.com', '+919811200002', 'PENDING', -2);
+application('zoya', 'Zoya Khan', 'zoya.khan@example.com', '+919811200003', 'REJECTED', -20, null, 'No opening for this role at the moment.');
+application('pooja', 'Pooja Iyer', 'pooja.iyer@championsclub.example', '+919820000004', 'APPROVED', -380, 'FRONT_DESK');
 
 // ================================================================== PLANS / MEMBERSHIPS
 const PLAN = {
@@ -215,7 +234,7 @@ function makeBooking(spec) {
   const created = Math.min(startMs - DAY, NOW_MS - 2 * 3600000);
   const cancelled = status === 'CANCELLED';
   const key = `b_${off}_${hhmm}_${courtKey}`;
-  const row = add('court_bookings', { id: uid('court_bookings', key), booking_number: `BK-${String(data.court_bookings.length + 1).padStart(6, '0')}`, court_id: uid('courts', courtKey), booking_type: maint ? 'MAINTENANCE' : 'REGULAR', member_id: memberKey ? uid('members', memberKey) : null, guest_name: gname, guest_phone: gphone, start_at: iso(startMs), end_at: iso(startMs + 3600000), list_price: M(lst), discount_amount: M(dsc), cancelled_at: cancelled ? iso(startMs - 5 * 3600000) : null, created_at: iso(created), updated_at: iso(created) });
+  const row = add('court_bookings', { id: uid('court_bookings', key), booking_number: `BK-${String(data.court_bookings.length + 1).padStart(6, '0')}`, court_id: uid('courts', courtKey), booking_type: maint ? 'MAINTENANCE' : 'REGULAR', member_id: memberKey ? uid('members', memberKey) : null, guest_name: gname, guest_phone: gphone, guest_email: null, start_at: iso(startMs), end_at: iso(startMs + 3600000), list_price: M(lst), discount_amount: M(dsc), cancelled_at: cancelled ? iso(startMs - 5 * 3600000) : null, created_at: iso(created), updated_at: iso(created) });
   if (!cancelled) live.push({ court: courtKey, s: startMs, e: startMs + 3600000, member: memberKey, date });
   if (due > 0 && method !== 'PENDING') {
     const paidAt = status === 'COMPLETED' && method !== 'ONLINE' ? iso(startMs) : iso(created + 600000);
@@ -436,7 +455,7 @@ const wanted = new Set(tableIndex.map((t) => t.replace(/_/g, '-') + '.json'));
 for (const f of readdirSync(path.join(ROOT, 'mock-data'))) if (f.endsWith('.json') && !wanted.has(f) && !FRONTEND_ONLY.has(f)) { unlinkSync(path.join(ROOT, 'mock-data', f)); console.log('removed stale mock-data/' + f); }
 
 // ---- seed.sql (insert order = FK-safe)
-const ORDER = ['users', 'members', 'staff', 'business_clients', 'membership_plans', 'memberships', 'enquiries', 'courts', 'court_bookings', 'products', 'shop_orders', 'shop_order_items', 'bar_menu_items', 'bar_orders', 'bar_order_items', 'payments', 'invoices', 'invoice_items', 'staff_shifts', 'leave_requests', 'payroll_payments', 'club_settings'];
+const ORDER = ['users', 'members', 'staff', 'employee_applications', 'events', 'event_registrations', 'business_clients', 'membership_plans', 'memberships', 'enquiries', 'courts', 'court_bookings', 'products', 'shop_orders', 'shop_order_items', 'bar_menu_items', 'bar_orders', 'bar_order_items', 'payments', 'invoices', 'invoice_items', 'staff_shifts', 'leave_requests', 'payroll_payments', 'club_settings'];
 if (ORDER.length !== tableIndex.length || tableIndex.some((t) => !ORDER.includes(t))) throw new Error('seed ORDER must list every table: ' + tableIndex.filter((t) => !ORDER.includes(t)));
 const lit = (v, col) => {
   if (v === null) return 'NULL';

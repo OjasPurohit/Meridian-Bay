@@ -56,7 +56,6 @@ Views are created with `security_invoker` and grant nothing to Supabase `anon` /
 erDiagram
   users ||--o{ members : "user_id"
   users ||--o{ staff : "user_id"
-  users ||--o{ business_clients : "user_id"
   members ||--o{ memberships : "member_id"
   membership_plans ||--o{ memberships : "membership_plan_id"
   membership_plans ||--o{ enquiries : "membership_plan_id"
@@ -77,6 +76,9 @@ erDiagram
   staff ||--o{ staff_shifts : "staff_id"
   staff ||--o{ leave_requests : "staff_id"
   staff ||--o{ payroll_payments : "staff_id"
+  users ||--o{ employee_applications : "reviewed_by_user_id"
+  events ||--o{ event_registrations : "event_id"
+  members ||--o{ event_registrations : "member_id"
   users {
     uuid id PK
     text email
@@ -93,7 +95,6 @@ erDiagram
   }
   business_clients {
     uuid id PK
-    uuid user_id FK
     text email
   }
   membership_plans {
@@ -193,13 +194,29 @@ erDiagram
   club_settings {
     uuid id PK
   }
+  employee_applications {
+    uuid id PK
+    text full_name
+    text email
+    application_status status
+    uuid reviewed_by_user_id FK
+  }
+  events {
+    uuid id PK
+    timestamptz start_at
+    timestamptz end_at
+  }
+  event_registrations {
+    uuid id PK
+    uuid event_id FK
+    uuid member_id FK
+  }
 ```
 
-## Enumerations (22)
+## Enumerations (24)
 
 | Postgres type | Values | TypeScript |
 |---|---|---|
-| `user_role` | `MEMBER`, `FRONT_DESK`, `KITCHEN_MANAGER`, `BUSINESS_CLIENT`, `OWNER_ADMIN` | `USER_ROLE` |
 | `membership_type` | `GOLD`, `SILVER`, `JUNIOR` | `MEMBERSHIP_TYPE` |
 | `sport_type` | `TENNIS`, `CRICKET`, `PADEL`, `BADMINTON` | `SPORT_TYPE` |
 | `product_category` | `RACKET`, `BALL`, `SHOES`, `ACCESSORY`, `APPAREL` | `PRODUCT_CATEGORY` |
@@ -212,7 +229,7 @@ erDiagram
 | `enquiry_type` | `GENERAL`, `TRIAL`, `MEMBERSHIP`, `BUSINESS` | `ENQUIRY_TYPE` |
 | `shift_area` | `FRONT_DESK`, `BAR`, `KITCHEN`, `SHOP`, `COURTS` | `SHIFT_AREA` |
 | `leave_status` | `PENDING`, `APPROVED`, `REJECTED`, `CANCELLED` | `LEAVE_STATUS` |
-| `booking_type` | `REGULAR`, `MAINTENANCE` | `BOOKING_TYPE` |
+| `booking_type` | `REGULAR`, `MAINTENANCE`, `TRIAL` | `BOOKING_TYPE` |
 | `order_status` | `NEW`, `PREPARING`, `READY`, `SERVED`, `CANCELLED` | `ORDER_STATUS` |
 | `payment_source_type` | `COURT_BOOKING`, `MEMBERSHIP`, `SHOP_ORDER`, `BAR_ORDER`, `INVOICE` | `PAYMENT_SOURCE_TYPE` |
 | `invoice_status` | `DRAFT`, `SENT`, `VOID` | `INVOICE_STATUS` |
@@ -221,15 +238,18 @@ erDiagram
 | `payment_status` | `PENDING`, `PARTIALLY_PAID`, `PAID`, `REFUNDED`, `NOT_REQUIRED` | `PAYMENT_STATUS` |
 | `payment_txn_status` | `SUCCEEDED`, `PARTIALLY_REFUNDED`, `REFUNDED` | `PAYMENT_TXN_STATUS` |
 | `invoice_payment_state` | `UNPAID`, `PARTIALLY_PAID`, `PAID`, `OVERDUE` | `INVOICE_PAYMENT_STATE` |
+| `user_role` | `MEMBER`, `FRONT_DESK`, `KITCHEN_MANAGER`, `STORE_MANAGER`, `OWNER_ADMIN` | `USER_ROLE` |
+| `application_status` | `PENDING`, `APPROVED`, `REJECTED` | `APPLICATION_STATUS` |
+| `event_kind` | `TOURNAMENT`, `CLINIC`, `CAMP`, `MIXER`, `SOCIAL` | `EVENT_KIND` |
 
-## Tables (22)
+## Tables (25)
 
 | Table | Owner | Purpose |
 |---|---|---|
-| [`users`](#users) | Dev 1 | Login identity + role for every person (member, staff, kitchen, business client, owner). One table, one auth path; account on/off lives here (is_active). |
+| [`users`](#users) | Dev 1 | Login identity + role for every person (member, front desk, kitchen, store manager, owner). One table, one auth path; account on/off lives here (is_active). |
 | [`members`](#members) | Dev 2 | Club profile of a user with role MEMBER (member code, date of birth, emergency contact). Gold/Silver/Junior is NOT stored here: see memberships. |
-| [`staff`](#staff) | Dev 4 | Employee record (designation, salary, hire date) for FRONT_DESK / KITCHEN_MANAGER / OWNER_ADMIN users. |
-| [`business_clients`](#business_clients) | Dev 4 | Companies invoiced by the club; optional portal login via user_id. |
+| [`staff`](#staff) | Dev 4 | Employee record (designation, salary, hire date) for FRONT_DESK / KITCHEN_MANAGER / STORE_MANAGER / OWNER_ADMIN users. |
+| [`business_clients`](#business_clients) | Dev 4 | Companies invoiced by the club (no login). |
 | [`membership_plans`](#membership_plans) | Dev 2 | Gold / Silver / Junior definitions: price, discounts, plays per day, max age, benefits (all behaviour is data-driven). |
 | [`memberships`](#memberships) | Dev 2 | One row per membership TERM: member + plan + start/end date + price paid. ACTIVE / EXPIRED is derived from the dates (views membership_terms, member_membership_status), never stored. |
 | [`enquiries`](#enquiries) | Dev 1 | Contact and trial requests from the website or the desk: a plain inbox (handled_at NULL = still waiting). |
@@ -248,10 +268,13 @@ erDiagram
 | [`leave_requests`](#leave_requests) | Dev 4 | Staff leave with approval workflow. |
 | [`payroll_payments`](#payroll_payments) | Dev 4 | Monthly salary payments to employees (paid_on NULL = pending). |
 | [`club_settings`](#club_settings) | Dev 4 | Owner-editable policy values (hours, tax rates, delivery fee, cut-offs). |
+| [`employee_applications`](#employee_applications) | Dev 4 | Job applications: PENDING until the owner approves (creating users + staff) or rejects. Not an employee. The applicant bcrypt hash exists only while PENDING. |
+| [`events`](#events) | Dev 4 | Club events (tournament, clinic, camp, mixer, social) the owner creates; every role reads the same rows. |
+| [`event_registrations`](#event_registrations) | Dev 4 | Which member registered for which event (one row per member and event; capacity is enforced from the count). |
 
 ### users
 
-Login identity + role for every person (member, staff, kitchen, business client, owner). One table, one auth path; account on/off lives here (is_active).  
+Login identity + role for every person (member, front desk, kitchen, store manager, owner). One table, one auth path; account on/off lives here (is_active).  
 *Owner: Dev 1*
 
 | Column | Type | Null | Default | References | Notes |
@@ -293,7 +316,7 @@ Club profile of a user with role MEMBER (member code, date of birth, emergency c
 
 ### staff
 
-Employee record (designation, salary, hire date) for FRONT_DESK / KITCHEN_MANAGER / OWNER_ADMIN users.  
+Employee record (designation, salary, hire date) for FRONT_DESK / KITCHEN_MANAGER / STORE_MANAGER / OWNER_ADMIN users.  
 *Owner: Dev 4*
 
 | Column | Type | Null | Default | References | Notes |
@@ -308,13 +331,12 @@ Employee record (designation, salary, hire date) for FRONT_DESK / KITCHEN_MANAGE
 
 ### business_clients
 
-Companies invoiced by the club; optional portal login via user_id.  
+Companies invoiced by the club (no login).  
 *Owner: Dev 4*
 
 | Column | Type | Null | Default | References | Notes |
 |---|---|---|---|---|---|
 | `id` | uuid |  | yes |  | PK |
-| `user_id` | uuid | yes |  | `users.id` | unique; null = invoiced but no portal login |
 | `company_name` | text |  |  |  |  |
 | `contact_name` | text |  |  |  |  |
 | `email` | text |  |  |  |  |
@@ -443,6 +465,7 @@ The ONLY table holding court occupancy (regular bookings and maintenance blocks)
 | `cancelled_at` | timestamptz | yes |  |  | NULL = the booking stands. The exclusion constraint only guards bookings that are not cancelled. |
 | `created_at` | timestamptz |  | yes |  |  |
 | `updated_at` | timestamptz |  | yes |  |  |
+| `guest_email` | text | yes |  |  |  |
 
 **Constraints & indexes**
 
@@ -738,3 +761,72 @@ Owner-editable policy values (hours, tax rates, delivery fee, cut-offs).
 | `is_public` | boolean |  | yes |  | exposed by GET /public/club |
 | `created_at` | timestamptz |  | yes |  |  |
 | `updated_at` | timestamptz |  | yes |  |  |
+
+### employee_applications
+
+Job applications: PENDING until the owner approves (creating users + staff) or rejects. Not an employee. The applicant bcrypt hash exists only while PENDING.  
+*Owner: Dev 4*
+
+| Column | Type | Null | Default | References | Notes |
+|---|---|---|---|---|---|
+| `id` | uuid |  | yes |  | PK |
+| `full_name` | text |  |  |  |  |
+| `email` | text |  |  |  |  |
+| `phone` | text | yes |  |  |  |
+| `password_hash` | text | yes |  |  | bcrypt; only while PENDING, cleared on a decision |
+| `status` | application_status |  | yes |  |  |
+| `approved_role` | user_role | yes |  |  | set on APPROVED: FRONT_DESK \| KITCHEN_MANAGER \| STORE_MANAGER |
+| `applied_at` | timestamptz |  | yes |  |  |
+| `reviewed_at` | timestamptz | yes |  |  |  |
+| `reviewed_by_user_id` | uuid | yes |  | `users.id` |  |
+| `decision_note` | text | yes |  |  |  |
+
+**Constraints & indexes**
+
+- `CHECK ((status = 'PENDING') = (password_hash IS NOT NULL))`
+- `CHECK ((status = 'PENDING') = (reviewed_at IS NULL))`
+- `CHECK ((status = 'APPROVED') = (approved_role IS NOT NULL))`
+- `CHECK (approved_role IS NULL OR approved_role IN ('FRONT_DESK','KITCHEN_MANAGER','STORE_MANAGER'))`
+- UNIQUE INDEX `employee_applications_pending_email_key` (lower(email)) WHERE status = 'PENDING'
+- INDEX `employee_applications_status_idx` (status, applied_at DESC)
+
+### events
+
+Club events (tournament, clinic, camp, mixer, social) the owner creates; every role reads the same rows.  
+*Owner: Dev 4*
+
+| Column | Type | Null | Default | References | Notes |
+|---|---|---|---|---|---|
+| `id` | uuid |  | yes |  | PK |
+| `title` | text |  |  |  |  |
+| `kind` | event_kind |  |  |  |  |
+| `description` | text | yes |  |  |  |
+| `location` | text |  |  |  |  |
+| `start_at` | timestamptz |  |  |  |  |
+| `end_at` | timestamptz |  |  |  |  |
+| `capacity` | integer |  |  |  |  |
+| `fee` | numeric(12,2) |  | yes |  |  |
+| `created_at` | timestamptz |  | yes |  |  |
+| `updated_at` | timestamptz |  | yes |  |  |
+
+**Constraints & indexes**
+
+- `CHECK (end_at > start_at)`
+- INDEX `events_start_idx` (start_at)
+
+### event_registrations
+
+Which member registered for which event (one row per member and event; capacity is enforced from the count).  
+*Owner: Dev 4*
+
+| Column | Type | Null | Default | References | Notes |
+|---|---|---|---|---|---|
+| `id` | uuid |  | yes |  | PK |
+| `event_id` | uuid |  |  | `events.id` |  |
+| `member_id` | uuid |  |  | `members.id` |  |
+| `registered_at` | timestamptz |  | yes |  |  |
+
+**Constraints & indexes**
+
+- `UNIQUE (event_id, member_id)`
+- INDEX `event_registrations_member_idx` (member_id)

@@ -20,7 +20,7 @@ Conventions used below: *IST date* = `shared/lib/time.ts#istDate`; amounts are r
 | R-FIN-08 | **Outstanding** = `Σ (total_amount − amount_paid)` over SENT invoices that are not fully paid (view `invoice_totals`). **Overdue** = those with `due_date < today (IST)`. Unpaid bookings/orders (payment status `PENDING`) are "pending at desk", reported separately, not as outstanding invoices. |
 | R-FIN-09 | **Rounding:** half-up to the paisa, at each derived field (discount, tax, delivery), never on running totals. `discount_amount = percentOf(list, pct)`; amount due = `list − discount`. Money strings always have 2 decimals. |
 | R-FIN-10 | **Payroll:** one `payroll_payments` row per employee per month (`pay_period` = first of month, unique). Amount defaults to `monthly_salary`; `paid_on IS NULL` means pending. Payroll is an *expense* shown in the finance report; it is not in `payments`. |
-| R-FIN-11 | Payment method by role (enforced on `POST /payments`): MEMBER & BUSINESS_CLIENT → `ONLINE`; FRONT_DESK → `CASH`/`CARD`/`UPI`; OWNER_ADMIN → any. Online = mock gateway in v1 (ADR-011). |
+| R-FIN-11 | Payment method by role (enforced on `POST /payments`): MEMBER → `ONLINE`; FRONT_DESK, KITCHEN_MANAGER (cafe orders), STORE_MANAGER (shop orders) → `CASH`/`CARD`/`UPI`; OWNER_ADMIN → any. Online = mock gateway in v1 (ADR-011). |
 
 ## Membership
 
@@ -76,7 +76,7 @@ Conventions used below: *IST date* = `shared/lib/time.ts#istDate`; amounts are r
 | R-BAR-03 | **A cafe order is one kitchen ticket.** It belongs to a member or a named guest and/or carries a free-text `table_label` (at least one of the three, DB CHECK). There are no table or tab records (ADR-016). |
 | R-BAR-04 | **Every order is paid by itself:** at once (`payment_method` on creation) or later at the desk with `POST /payments` (`BAR_ORDER`). Total = `subtotal − discount_amount` and the payment status come from the view `bar_order_totals`. |
 | R-BAR-05 | Methods: CASH, CARD, UPI at the desk (guests too). |
-| R-BAR-07 | **Kitchen states** (`ORDER_TRANSITIONS`): `NEW → PREPARING → READY → SERVED`; `NEW → CANCELLED`. `bar_orders.status` is the only record of progress. |
+| R-BAR-07 | **Kitchen states** (`ORDER_TRANSITIONS`): `NEW → PREPARING → READY → SERVED`; `NEW → CANCELLED`; and `READY → PREPARING` (the kitchen may take a ticket back when the hand-off went wrong; nothing else goes backwards). `bar_orders.status` is the only record of progress. |
 | R-BAR-08 | Staff may cancel a cafe order only while `NEW`; a paid cancelled order is refunded. |
 | R-BAR-09 | **Daily cafe revenue** (closing report) = payments for `BAR_ORDER` sources by IST `paid_at` date, net of refunds, split by method, plus the staff on the BAR shift. |
 | R-BAR-10 | Out of scope: alcohol licensing / age checks (the seed menu has no alcohol). |

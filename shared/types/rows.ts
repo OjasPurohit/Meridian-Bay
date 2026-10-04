@@ -60,7 +60,6 @@ export interface Staff {
 
 export interface BusinessClient {
   id: Uuid;
-  user_id: Uuid | null;
   company_name: string;
   contact_name: string;
   email: string;
@@ -108,6 +107,45 @@ export interface Membership {
   updated_at: IsoDateTime;
 }
 
+// ------------------------------------------------------------------ events
+export interface Event {
+  id: Uuid;
+  title: string;
+  kind: E.EventKind;
+  description: string | null;
+  location: string;
+  start_at: IsoDateTime;
+  end_at: IsoDateTime;
+  capacity: number;
+  fee: Money;
+  created_at: IsoDateTime;
+  updated_at: IsoDateTime;
+}
+
+export interface EventRegistration {
+  id: Uuid;
+  event_id: Uuid;
+  member_id: Uuid;
+  registered_at: IsoDateTime;
+}
+
+// ------------------------------------------------------------------ job applications
+/** A job application is NOT an employee. `password_hash` exists only while PENDING (so the applicant can log in to the
+ *  "under review" page) and is cleared on a decision. Approval creates the users + staff rows. */
+export interface EmployeeApplication {
+  id: Uuid;
+  full_name: string;
+  email: string;
+  phone: string | null;
+  password_hash: string | null; // NEVER returned by the API
+  status: E.ApplicationStatus;
+  approved_role: E.UserRole | null;
+  applied_at: IsoDateTime;
+  reviewed_at: IsoDateTime | null;
+  reviewed_by_user_id: Uuid | null;
+  decision_note: string | null;
+}
+
 // ------------------------------------------------------------------ enquiries
 /** A contact / trial request from the website or the desk. `handled_at IS NULL` means it is still new. */
 export interface Enquiry {
@@ -150,6 +188,7 @@ export interface CourtBooking {
   member_id: Uuid | null;
   guest_name: string | null;
   guest_phone: string | null;
+  guest_email: string | null;
   start_at: IsoDateTime;
   end_at: IsoDateTime;
   list_price: Money;

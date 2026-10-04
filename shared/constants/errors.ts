@@ -13,6 +13,8 @@ export const ERROR_CODES = {
   AUTH_UNAUTHORIZED: { status: 401, group: 'Auth', message: 'Authentication required or token expired.' },
   FORBIDDEN: { status: 403, group: 'Auth', message: 'You do not have permission to perform this action.' },
   EMAIL_TAKEN: { status: 409, group: 'Auth', message: 'An account with this email already exists.' },
+  APPLICATION_PENDING: { status: 409, group: 'Auth', message: 'A job application for this email is already waiting for the owner. Log in to see its status.' },
+  APPLICATION_NOT_FOUND: { status: 404, group: 'Staff', message: 'Job application not found.' },
   ACCOUNT_DISABLED: { status: 403, group: 'Auth', message: 'This account has been deactivated.' },
   NOT_FOUND: { status: 404, group: 'Generic', message: 'Resource not found.' },
   INVALID_STATUS_TRANSITION: { status: 409, group: 'Generic', message: 'This status change is not allowed.' },
@@ -66,6 +68,11 @@ export const ERROR_CODES = {
   LEAVE_NOT_FOUND: { status: 404, group: 'Staff', message: 'Leave request not found.' },
   LEAVE_OVERLAP: { status: 409, group: 'Staff', message: 'Leave overlaps with an existing leave request.' },
   PAYROLL_EXISTS: { status: 409, group: 'Staff', message: 'Payroll for this period already exists.' },
+  TRIAL_ALREADY_BOOKED: { status: 409, group: 'Courts', message: 'This phone number already has an upcoming trial booked.' },
+  COURT_NAME_TAKEN: { status: 409, group: 'Courts', message: 'A court with this name already exists.' },
+  EVENT_NOT_FOUND: { status: 404, group: 'Events', message: 'Event not found.' },
+  EVENT_FULL: { status: 409, group: 'Events', message: 'This event is full.' },
+  EVENT_ENDED: { status: 409, group: 'Events', message: 'This event has already ended.' },
 
   // ---- settings ----
   SETTING_NOT_FOUND: { status: 404, group: 'Misc', message: 'Setting not found.' },

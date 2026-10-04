@@ -12,7 +12,9 @@ export interface AuthSignupRequest {
   email: string; // unique (case-insensitive)
   phone: string;
   password: string; // min 8 chars, >=1 letter and >=1 digit
-  date_of_birth?: IsoDate; // must be in the past
+  date_of_birth?: IsoDate; // must be in the past; REQUIRED for a JUNIOR plan
+  address?: string;
+  membership_plan_id?: Uuid; // the plan to buy now (paid ONLINE through the mock gateway). Omit to join without a plan.
 }
 
 /** POST /api/v1/auth/login (auth.login) */
@@ -186,6 +188,15 @@ export interface BookingsCreateRequest {
   payment_method?: E.PaymentMethod; // omit = pay later at the desk (payment_status PENDING). MEMBER callers pay ONLINE or later at desk.
 }
 
+/** POST /api/v1/bookings/trial (bookings.trial) */
+export interface BookingsTrialRequest {
+  name: string;
+  phone: string;
+  email?: string;
+  sport_type: E.SportType;
+  start_at: IsoDateTime; // on a :00/:30 boundary, in the future, inside opening hours
+}
+
 /** GET /api/v1/bookings (bookings.list) */
 export interface BookingsListQuery {
   from?: IsoDate;
@@ -298,6 +309,11 @@ export interface BarMenuUpdateRequest {
   sort_order?: number;
 }
 
+/** GET /api/v1/bar/member-lookup (bar.memberLookup) */
+export interface BarMemberLookupQuery {
+  q: string; // member number (CCM-00001), e-mail, phone digits (6+) or part of the name (3+ letters); at most 5 matches
+}
+
 /** POST /api/v1/bar/orders (bar.orderCreate) */
 export interface BarOrderCreateRequest {
   table_label?: string; // free text, e.g. "T3" or "Court side"
@@ -377,8 +393,6 @@ export interface ClientsCreateRequest {
   gstin?: string; // 15-char GSTIN
   billing_address?: string;
   notes?: string;
-  create_login?: boolean; // true => creates users(role BUSINESS_CLIENT)
-  initial_password?: string; // required when create_login = true
 }
 
 /** PATCH /api/v1/business-clients/:id (clients.update) */
@@ -430,7 +444,7 @@ export interface PaymentsCreateRequest {
   source_type: E.PaymentSourceType;
   source_id: Uuid;
   amount?: Money; // default = remaining due. Partial payments allowed ONLY for INVOICE; every other source must equal the full amount due
-  payment_method: E.PaymentMethod; // MEMBER / BUSINESS_CLIENT: ONLINE only. FRONT_DESK: CASH | CARD | UPI. OWNER_ADMIN: any
+  payment_method: E.PaymentMethod; // MEMBER: ONLINE only. FRONT_DESK: CASH | CARD | UPI. OWNER_ADMIN: any
   gateway_reference?: string;
   notes?: string;
 }
@@ -465,7 +479,7 @@ export interface StaffCreateRequest {
   full_name: string;
   email: string;
   phone?: string;
-  role: E.UserRole; // FRONT_DESK | KITCHEN_MANAGER | OWNER_ADMIN only
+  role: E.UserRole; // FRONT_DESK | KITCHEN_MANAGER | STORE_MANAGER | OWNER_ADMIN only
   password: string;
   designation: string;
   monthly_salary: Money;
@@ -479,6 +493,43 @@ export interface StaffUpdateRequest {
   designation?: string;
   monthly_salary?: Money;
   is_active?: boolean;
+}
+
+/** POST /api/v1/staff/applications (staff.applicationCreate) */
+export interface StaffApplicationCreateRequest {
+  full_name: string; // 2-120 chars
+  email: string;
+  phone: string;
+  password: string; // min 8 chars, >=1 letter and >=1 digit; kept only as a bcrypt hash until the owner decides
+}
+
+/** GET /api/v1/staff/applications (staff.applicationList) */
+export interface StaffApplicationListQuery {
+  status?: E.ApplicationStatus;
+}
+
+/** POST /api/v1/staff/applications/:id/approve (staff.applicationApprove) */
+export interface StaffApplicationApproveRequest {
+  role: E.UserRole; // FRONT_DESK | KITCHEN_MANAGER | STORE_MANAGER
+  designation?: string; // default: the role name
+  monthly_salary?: Money; // default 0.00
+}
+
+/** POST /api/v1/staff/applications/:id/reject (staff.applicationReject) */
+export interface StaffApplicationRejectRequest {
+  note?: string; // shown on the owner dashboard
+}
+
+/** POST /api/v1/events (events.create) */
+export interface EventsCreateRequest {
+  title: string;
+  kind: E.EventKind;
+  description?: string;
+  location: string;
+  start_at: IsoDateTime;
+  end_at: IsoDateTime; // > start_at
+  capacity: number; // >= 1
+  fee?: Money; // default 0.00
 }
 
 /** GET /api/v1/staff/shifts (staff.shifts) */

@@ -21,9 +21,8 @@ useTestEnv();
 
 const config = loadConfig({ JWT_SECRET: TEST_JWT_SECRET, DATABASE_URL: 'postgresql://t:t@127.0.0.1:1/none' });
 
-// Seed identities (mock-data): TechNova has a portal login, Greenfield does not.
+// Seed identities (mock-data): business clients are invoiced companies; they have no login.
 const TECHNOVA_ID = '04000000-0000-4000-8000-000000000001';
-const TECHNOVA_USER_ID = '01000000-0000-4000-8000-000000000006';
 const GREENFIELD_ID = '04000000-0000-4000-8000-000000000002';
 const UNKNOWN_ID = '04000000-0000-4000-8000-0000000000ff';
 
@@ -32,7 +31,7 @@ const SUBJECTS: Record<UserRole, { sub: string; extra: Record<string, string> }>
   FRONT_DESK: { sub: 'a0000000-0000-4000-8000-000000000002', extra: { staff_id: 'a1000000-0000-4000-8000-000000000002' } },
   KITCHEN_MANAGER: { sub: 'a0000000-0000-4000-8000-000000000003', extra: { staff_id: 'a1000000-0000-4000-8000-000000000003' } },
   MEMBER: { sub: 'a0000000-0000-4000-8000-000000000004', extra: { member_id: 'a2000000-0000-4000-8000-000000000004' } },
-  BUSINESS_CLIENT: { sub: TECHNOVA_USER_ID, extra: { business_client_id: TECHNOVA_ID } },
+  STORE_MANAGER: { sub: 'a0000000-0000-4000-8000-000000000005', extra: { staff_id: 'a1000000-0000-4000-8000-000000000005' } },
 };
 
 const tokenFor = (role: UserRole, sub = SUBJECTS[role].sub, extra: Record<string, string> = SUBJECTS[role].extra) =>
@@ -104,9 +103,8 @@ describe('GET /business-clients (clients.list)', () => {
     const technova = r.body.data.find((c: { id: string }) => c.id === TECHNOVA_ID);
     assert.deepEqual(Object.keys(technova).sort(), [
       'billing_address', 'company_name', 'contact_name', 'created_at', 'email', 'gstin', 'id', 'invoice_count', 'is_active',
-      'notes', 'phone', 'total_invoiced', 'total_outstanding', 'total_paid', 'updated_at', 'user_id',
+      'notes', 'phone', 'total_invoiced', 'total_outstanding', 'total_paid', 'updated_at',
     ]);
-    assert.equal(technova.user_id, TECHNOVA_USER_ID);
     assert.match(technova.created_at, /^\d{4}-\d{2}-\d{2}T.*\.\d{3}Z$/);
   });
 
@@ -173,7 +171,6 @@ describe('POST /business-clients (clients.create)', () => {
     const c = r.body.data;
     assert.match(c.id, /^[0-9a-f-]{36}$/);
     assert.equal(c.company_name, 'Acme Sports Ltd');
-    assert.equal(c.user_id, null);
     assert.equal(c.is_active, true);
     assert.equal(c.phone, null);
     assert.equal(c.invoice_count, 0);
@@ -191,7 +188,7 @@ describe('POST /business-clients (clients.create)', () => {
     assert.deepEqual(
       { ...r.body.data, id: undefined, created_at: undefined, updated_at: undefined },
       {
-        id: undefined, user_id: null, company_name: 'Zenith Corp', contact_name: 'Anita Rao', email: 'anita.rao@zenith.example',
+        id: undefined, company_name: 'Zenith Corp', contact_name: 'Anita Rao', email: 'anita.rao@zenith.example',
         phone: '+919811111111', gstin: '27AABCZ1234F1Z5', billing_address: '1 Park Street, Pune', notes: 'Annual tournament sponsor',
         is_active: true, created_at: undefined, updated_at: undefined, invoice_count: 0, total_invoiced: '0.00', total_paid: '0.00', total_outstanding: '0.00',
       },
@@ -206,11 +203,7 @@ describe('POST /business-clients (clients.create)', () => {
       ['bad GSTIN', { ...minimal, gstin: 'SHORT' }, 'gstin'],
       ['bad phone', { ...minimal, phone: 'call me' }, 'phone'],
       ['unknown field', { ...minimal, role: 'OWNER_ADMIN' }, 'role'],
-      ['create_login without a password', { ...minimal, create_login: true }, 'initial_password'],
-      ['weak password (no digit)', { ...minimal, create_login: true, initial_password: 'onlyletters' }, 'initial_password'],
-      ['weak password (too short)', { ...minimal, create_login: true, initial_password: 'a1' }, 'initial_password'],
-      ['password without create_login', { ...minimal, initial_password: 'Passw0rd!x' }, 'initial_password'],
-      ['create_login must be a boolean', { ...minimal, create_login: 'yes' }, 'create_login'],
+      ['login fields are gone', { ...minimal, create_login: true, initial_password: 'Passw0rd!x' }, 'create_login'],
     ];
     for (const [label, body, field] of cases) {
       const r = await owner('POST', '', body);
@@ -222,52 +215,7 @@ describe('POST /business-clients (clients.create)', () => {
     assert.equal((await query(`SELECT 1 FROM business_clients WHERE company_name = ''`)).rowCount, 0);
   });
 
-  it('create_login: creates a BUSINESS_CLIENT user with a bcrypt hash, links it, and never leaks the password or hash', async () => {
-    logged.length = 0;
-    const password = 'Sup3r-Secret-Pw';
-    const r = await owner('POST', '', { company_name: 'Login Co', contact_name: 'Lola Singh', email: 'Lola@Login.example', phone: '+919822222222', create_login: true, initial_password: password });
-    assert.equal(r.status, 201);
-    const c = r.body.data;
-    assert.ok(c.user_id, 'client is linked to the new user');
-
-    const user = (await query('SELECT * FROM users WHERE id = $1', [c.user_id])).rows[0]!;
-    assert.equal(user.role, 'BUSINESS_CLIENT');
-    assert.equal(user.email, 'lola@login.example');
-    assert.equal(user.full_name, 'Lola Singh');
-    assert.equal(user.phone, '+919822222222');
-    assert.equal(user.is_active, true);
-    assert.equal(user.must_change_password, true, 'owner-chosen password must be changed at first login (R-SEC-02)');
-    assert.match(user.password_hash, /^\$2[aby]\$\d{2}\$/);
-    assert.notEqual(user.password_hash, password);
-    assert.equal(await bcrypt.compare(password, user.password_hash), true);
-    assert.equal(await bcrypt.compare('wrong-password1', user.password_hash), false);
-
-    assert.ok(!r.raw.includes(password) && !r.raw.includes(user.password_hash) && !/password/i.test(r.raw), 'response contains no password or hash');
-    assert.ok(!logged.join('\n').includes(password), 'password must not be logged');
-  });
-
-  it('create_login: the new portal user can use /me; a client without a login cannot', async () => {
-    const created = await owner('POST', '', { company_name: 'Portal Co', contact_name: 'Pia', email: 'pia@portal.example', create_login: true, initial_password: 'Portal-Pass1' });
-    const me = await call('GET', '/me', { token: tokenFor('BUSINESS_CLIENT', created.body.data.user_id, {}) });
-    assert.equal(me.status, 200);
-    assert.equal(me.body.data.id, created.body.data.id);
-    assert.equal(me.body.data.company_name, 'Portal Co');
-  });
-
-  it('create_login with an email that already has an account => 409 EMAIL_TAKEN and nothing is created (case-insensitive)', async () => {
-    const before = (await query<{ n: number }>('SELECT count(*) AS n FROM business_clients')).rows[0]!.n;
-    const users = (await query<{ n: number }>('SELECT count(*) AS n FROM users')).rows[0]!.n;
-    for (const email of ['owner@championsclub.example', 'OWNER@ChampionsClub.example']) {
-      const r = await owner('POST', '', { company_name: 'Dup Co', contact_name: 'Dup', email, create_login: true, initial_password: 'Dup-Pass-123' });
-      assert.equal(r.status, 409);
-      assert.deepEqual(r.body, { success: false, error: { code: 'EMAIL_TAKEN', message: 'An account with this email already exists.' } });
-      await settle();
-    }
-    assert.equal((await query<{ n: number }>('SELECT count(*) AS n FROM business_clients')).rows[0]!.n, before, 'client insert rolled back');
-    assert.equal((await query<{ n: number }>('SELECT count(*) AS n FROM users')).rows[0]!.n, users);
-  });
-
-  it('a client WITHOUT login may reuse an existing account email (no account is created)', async () => {
+  it('a client may share an email with an existing account (a client has no account)', async () => {
     const r = await owner('POST', '', { company_name: 'Shared Mail Co', contact_name: 'Sam', email: 'owner@championsclub.example' });
     assert.equal(r.status, 201);
   });
@@ -279,7 +227,6 @@ describe('GET /business-clients/:id (clients.get)', () => {
     const r = await owner('GET', `/${GREENFIELD_ID}`);
     assert.equal(r.status, 200);
     assert.equal(r.body.data.company_name, 'Greenfield Corp');
-    assert.equal(r.body.data.user_id, null);
   });
 
   it('unknown id => 404 BUSINESS_CLIENT_NOT_FOUND; malformed id => 400 VALIDATION_ERROR', async () => {
@@ -289,24 +236,6 @@ describe('GET /business-clients/:id (clients.get)', () => {
     const bad = await owner('GET', '/not-a-uuid');
     assert.equal(bad.status, 400);
     assert.equal(errorCode(bad), 'VALIDATION_ERROR');
-  });
-});
-
-// ------------------------------------------------------------------ me
-describe('GET /business-clients/me (clients.me)', () => {
-  it('a business client sees their own record (not :id "me")', async () => {
-    const r = await call('GET', '/me', { role: 'BUSINESS_CLIENT' });
-    assert.equal(r.status, 200);
-    assert.equal(r.body.data.id, TECHNOVA_ID);
-    assert.equal(r.body.data.invoice_count, 2);
-  });
-
-  it('a BUSINESS_CLIENT account with no client record => 404 BUSINESS_CLIENT_NOT_FOUND', async () => {
-    const orphan = 'a0000000-0000-4000-8000-0000000000bb';
-    knownUsers.set(orphan, 'BUSINESS_CLIENT');
-    const r = await call('GET', '/me', { token: tokenFor('BUSINESS_CLIENT', orphan, {}) });
-    assert.equal(r.status, 404);
-    assert.equal(errorCode(r), 'BUSINESS_CLIENT_NOT_FOUND');
   });
 });
 
@@ -386,9 +315,9 @@ describe('authorization (tools/api/endpoints.mjs roles, PERMISSIONS_MATRIX)', ()
     }
   });
 
-  it('owner-only endpoints => 403 FORBIDDEN for MEMBER, FRONT_DESK, KITCHEN_MANAGER and BUSINESS_CLIENT', async () => {
+  it('owner-only endpoints => 403 FORBIDDEN for MEMBER, FRONT_DESK, KITCHEN_MANAGER and STORE_MANAGER', async () => {
     const before = (await query<{ n: number }>('SELECT count(*) AS n FROM business_clients')).rows[0]!.n;
-    for (const role of ['MEMBER', 'FRONT_DESK', 'KITCHEN_MANAGER', 'BUSINESS_CLIENT'] as const) {
+    for (const role of ['MEMBER', 'FRONT_DESK', 'KITCHEN_MANAGER', 'STORE_MANAGER'] as const) {
       for (const [method, p, body] of ownerOnlyRoutes) {
         const r = await call(method, p, { role, body });
         assert.equal(r.status, 403, `${role} ${method} ${p}`);
@@ -396,12 +325,6 @@ describe('authorization (tools/api/endpoints.mjs roles, PERMISSIONS_MATRIX)', ()
       }
     }
     assert.equal((await query<{ n: number }>('SELECT count(*) AS n FROM business_clients')).rows[0]!.n, before, 'forbidden POST created nothing');
-  });
-
-  it('/me is BUSINESS_CLIENT only: owner, front desk, kitchen and member get 403', async () => {
-    for (const role of ['OWNER_ADMIN', 'FRONT_DESK', 'KITCHEN_MANAGER', 'MEMBER'] as const) {
-      assert.equal((await call('GET', '/me', { role })).status, 403, role);
-    }
   });
 
   it('a deactivated account is rejected with ACCOUNT_DISABLED', async () => {
@@ -420,7 +343,7 @@ describe('contract conformance (tools/api/endpoints.mjs)', () => {
   it('implements exactly the clients endpoints of the contract, with the same roles', async () => {
     const mod = (await import(pathToFileURL(path.resolve(import.meta.dirname, '../../../../../tools/api/endpoints.mjs')).href)) as { endpoints: ContractEndpoint[] };
     const contract = mod.endpoints.filter((e) => e.module === 'clients');
-    assert.equal(contract.length, 5);
+    assert.equal(contract.length, 4);
 
     const stack = (clientsModule.router as unknown as { stack: RouterLayer[] }).stack;
     const implemented = stack.flatMap(({ route }) =>

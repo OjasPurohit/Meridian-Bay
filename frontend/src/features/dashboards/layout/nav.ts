@@ -1,4 +1,4 @@
-import { BarChart3, Boxes, CalendarDays, ChefHat, ClipboardList, CreditCard, Handshake, History, LayoutDashboard, LineChart, Package, ReceiptText, ShoppingBag, Store, Ticket, Trophy, UserCog, Users, Utensils, Wallet, type LucideIcon, ConciergeBell, FileBarChart, MessageSquare, IdCard, Dumbbell } from 'lucide-react';
+import { BarChart3, Boxes, CalendarDays, ChefHat, ClipboardList, CreditCard, History, LayoutDashboard, LineChart, Package, ReceiptText, ShoppingBag, Store, Ticket, Trophy, UserCog, Users, Utensils, Wallet, type LucideIcon, ConciergeBell, FileBarChart, MessageSquare, IdCard, Dumbbell } from 'lucide-react';
 
 import type { UserRole } from '@shared/constants/enums';
 import { ROLE_HOME_ROUTE } from '@shared/constants/rules';
@@ -26,12 +26,8 @@ export const NAV: Record<UserRole, NavItem[]> = {
     { to: `${h.FRONT_DESK}/members`, label: 'Members', icon: IdCard },
     { to: `${h.FRONT_DESK}/payments`, label: 'Payments', icon: Wallet },
   ],
-  BUSINESS_CLIENT: [
-    { to: h.BUSINESS_CLIENT, label: 'Overview', icon: LayoutDashboard, end: true },
-    { to: `${h.BUSINESS_CLIENT}/invoices`, label: 'Invoices', icon: ReceiptText },
-    { to: `${h.BUSINESS_CLIENT}/history`, label: 'History', icon: History },
-    { to: `${h.BUSINESS_CLIENT}/partners`, label: 'Dealers / Partners', icon: Handshake },
-    { to: `${h.BUSINESS_CLIENT}/store`, label: 'Store', icon: Store },
+  STORE_MANAGER: [
+    { to: h.STORE_MANAGER, label: 'Store & inventory', icon: Store, end: true },
   ],
   KITCHEN_MANAGER: [
     { to: h.KITCHEN_MANAGER, label: 'POS', icon: ConciergeBell, end: true },
