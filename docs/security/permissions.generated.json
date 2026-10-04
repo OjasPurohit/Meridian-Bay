@@ -392,6 +392,14 @@
       "OWNER_ADMIN"
     ]
   },
+  "bar.menuStock": {
+    "method": "POST",
+    "path": "/api/v1/bar/menu-items/:id/stock-adjustments",
+    "roles": [
+      "KITCHEN_MANAGER",
+      "OWNER_ADMIN"
+    ]
+  },
   "bar.memberLookup": {
     "method": "GET",
     "path": "/api/v1/bar/member-lookup",

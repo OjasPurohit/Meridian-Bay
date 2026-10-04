@@ -564,6 +564,8 @@ Cafe menu.
 | `sort_order` | integer |  | yes |  |  |
 | `created_at` | timestamptz |  | yes |  |  |
 | `updated_at` | timestamptz |  | yes |  |  |
+| `stock_quantity` | integer |  | yes |  |  |
+| `low_stock_threshold` | integer |  | yes |  |  |
 
 ### bar_orders
 

@@ -360,6 +360,8 @@ function onAction(action: string, args: unknown[], result: unknown) {
       return void (canEditShop() ? send(() => apiRequest('DELETE', `/shop/products/${args[0] as string}`)) : refreshLive());
     case 'adjustProductStock':
       return void (canEditShop() ? send(() => post('/inventory/adjustments', { product_id: args[0], quantity_change: args[1] })) : refreshLive());
+    case 'adjustMenuStock':
+      return void send(() => post(`/bar/menu-items/${args[0] as string}/stock-adjustments`, { quantity_change: args[1] })); // kitchen + owner; a refusal is reverted by the refetch
     case 'placeKitchenOrder': {
       const i = args[0] as KitchenInput;
       return void send(() =>

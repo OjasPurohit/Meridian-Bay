@@ -149,6 +149,33 @@ async function actor(label, demoLabel) {
   check('DB: the payment is 68.00', (await q("SELECT amount::text a FROM payments WHERE source_type = 'BAR_ORDER' AND source_id = $1", [order[0].id]))[0]?.a === '68.00');
   check('kitchen member lookup stays narrow (no member list for the kitchen role)', (await api('GET', '/members', await apiLogin('kitchen@championsclub.example'))).error?.code === 'FORBIDDEN');
 
+  // ---------------------------------------------------------------- D2. kitchen stock: real +1 / -1 on bar_menu_items
+  await kitchen.goto(WEB + '/kitchen/stock', { waitUntil: 'networkidle' });
+  await kitchen.waitForTimeout(1500);
+  const stockOf = async () => (await q("SELECT stock_quantity n FROM bar_menu_items WHERE name = 'Cold Coffee'"))[0].n;
+  const cell = () => kitchen.locator('tr', { hasText: 'Cold Coffee' }).locator('span[aria-live=polite]').innerText().then((t) => Number(t));
+  const s0 = await stockOf();
+  check('kitchen stock page has no "not tracked" and shows the DB quantity', !/not tracked/i.test(await text(kitchen)) && (await cell()) === s0, `db ${s0}`);
+  await kitchen.getByRole('button', { name: 'Add 1 Cold Coffee' }).click();
+  await kitchen.waitForTimeout(2500);
+  check('+1: DB and UI both up by exactly 1', (await stockOf()) === s0 + 1 && (await cell()) === s0 + 1, `db ${await stockOf()}`);
+  await kitchen.reload({ waitUntil: 'networkidle' });
+  await kitchen.waitForTimeout(1500);
+  check('refresh keeps the new quantity', (await cell()) === s0 + 1);
+  await kitchen.getByRole('button', { name: 'Remove 1 Cold Coffee' }).click();
+  await kitchen.waitForTimeout(2500);
+  check('-1: DB and UI back to the start', (await stockOf()) === s0 && (await cell()) === s0, `db ${await stockOf()}`);
+  const kTok = await apiLogin('kitchen@championsclub.example');
+  const cc = (await q("SELECT id FROM bar_menu_items WHERE name = 'Cold Coffee'"))[0].id;
+  check('API refuses a change that would go below zero', (await api('POST', `/bar/menu-items/${cc}/stock-adjustments`, kTok, { quantity_change: -(s0 + 5) })).error?.code === 'VALIDATION_ERROR' && (await stockOf()) === s0);
+  check('kitchen still has no store inventory access', (await api('GET', '/inventory', kTok)).error?.code === 'FORBIDDEN');
+  const sTok = await apiLogin('sanjay.gupta@championsclub.example').catch(() => null);
+  if (sTok) {
+    const pr = (await api('GET', '/inventory', sTok)).data[0];
+    check('store manager inventory adjustment still works', (await api('POST', '/inventory/adjustments', sTok, { product_id: pr.product_id, quantity_change: 1 })).success === true);
+    await api('POST', '/inventory/adjustments', sTok, { product_id: pr.product_id, quantity_change: -1 });
+  }
+
   // ---------------------------------------------------------------- E. every owner page, no error screen
   for (const p of ['', '/analytics', '/members', '/memberships', '/bookings', '/store', '/kitchen', '/payments', '/staff', '/events', '/enquiries', '/reports']) {
     await owner.goto(WEB + '/owner' + p, { waitUntil: 'networkidle' });

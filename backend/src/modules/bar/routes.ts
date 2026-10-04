@@ -31,6 +31,9 @@ router.post('/menu-items', ...counter, validateBody(strictObject({ ...menuFields
 router.patch('/menu-items/:id', ...counter, validateParams(idParams), validateBody(strictObject({ ...Object.fromEntries(Object.entries(menuFields).map(([k, v]) => [k, v.optional()])), is_available: z.boolean().optional() } as never)),
   asyncHandler(async (req, res) => ok(res, await BarService.menuUpdate(req.params.id!, req.body as Record<string, unknown>))));
 
+router.post('/menu-items/:id/stock-adjustments', requireAuth, requireRole(R.KITCHEN_MANAGER, R.OWNER_ADMIN), validateParams(idParams), validateBody(strictObject({ quantity_change: z.number().int().refine((n) => n !== 0, 'Must not be zero.') })),
+  asyncHandler(async (req, res) => ok(res, await BarService.menuStock(req.params.id!, (req.body as { quantity_change: number }).quantity_change))));
+
 router.get('/member-lookup', ...counter, validateQuery(z.object({ q: z.string().trim().min(2).max(60) })),
   asyncHandler(async (req, res) => ok(res, await BarService.memberLookup((req.query as { q: string }).q))));
 router.post('/orders', requireAuth, requireRole(R.MEMBER, R.FRONT_DESK, R.KITCHEN_MANAGER, R.OWNER_ADMIN), validateBody(strictObject({

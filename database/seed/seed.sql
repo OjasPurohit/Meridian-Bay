@@ -4,25 +4,25 @@ BEGIN;
 
 -- users (19)
 INSERT INTO users (id, email, password_hash, role, full_name, phone, is_active, must_change_password, created_at, updated_at) VALUES
-  ('01000000-0000-4000-8000-000000000001', 'owner@championsclub.example', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'OWNER_ADMIN', 'Vikram Malhotra', '+919820000001', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000002', 'neha.sharma@championsclub.example', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'FRONT_DESK', 'Neha Sharma', '+919820000002', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000003', 'arjun.mehta@championsclub.example', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'FRONT_DESK', 'Arjun Mehta', '+919820000003', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000004', 'pooja.iyer@championsclub.example', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'FRONT_DESK', 'Pooja Iyer', '+919820000004', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000005', 'kitchen@championsclub.example', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'KITCHEN_MANAGER', 'Ramesh Patil', '+919820000005', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000006', 'sanjay.gupta@championsclub.example', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'STORE_MANAGER', 'Sanjay Gupta', '+919820000006', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000007', 'aarav.kapoor@example.com', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'MEMBER', 'Aarav Kapoor', '+919811100001', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000008', 'priya.nair@example.com', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'MEMBER', 'Priya Nair', '+919811100002', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000009', 'rohan.desai@example.com', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'MEMBER', 'Rohan Desai', '+919811100003', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000010', 'ananya.iyer@example.com', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'MEMBER', 'Ananya Iyer', '+919811100004', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000011', 'kabir.singh@example.com', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'MEMBER', 'Kabir Singh', '+919811100005', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000012', 'meera.joshi@example.com', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'MEMBER', 'Meera Joshi', '+919811100006', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000013', 'ishaan.verma@example.com', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'MEMBER', 'Ishaan Verma', '+919811100007', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000014', 'diya.reddy@example.com', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'MEMBER', 'Diya Reddy', '+919811100008', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000015', 'karan.bhatia@example.com', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'MEMBER', 'Karan Bhatia', '+919811100009', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000016', 'sneha.kulkarni@example.com', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'MEMBER', 'Sneha Kulkarni', '+919811100010', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000017', 'rahul.menon@example.com', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'MEMBER', 'Rahul Menon', '+919811100011', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000018', 'tanvi.shah@example.com', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'MEMBER', 'Tanvi Shah', '+919811100012', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000019', 'vihaan.patel@example.com', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'MEMBER', 'Vihaan Patel', '+919811100013', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z');
+  ('01000000-0000-4000-8000-000000000001', 'owner@championsclub.example', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'OWNER_ADMIN', 'Vikram Malhotra', '+919820000001', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000002', 'neha.sharma@championsclub.example', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'FRONT_DESK', 'Neha Sharma', '+919820000002', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000003', 'arjun.mehta@championsclub.example', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'FRONT_DESK', 'Arjun Mehta', '+919820000003', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000004', 'pooja.iyer@championsclub.example', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'FRONT_DESK', 'Pooja Iyer', '+919820000004', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000005', 'kitchen@championsclub.example', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'KITCHEN_MANAGER', 'Ramesh Patil', '+919820000005', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000006', 'sanjay.gupta@championsclub.example', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'STORE_MANAGER', 'Sanjay Gupta', '+919820000006', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000007', 'aarav.kapoor@example.com', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'MEMBER', 'Aarav Kapoor', '+919811100001', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000008', 'priya.nair@example.com', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'MEMBER', 'Priya Nair', '+919811100002', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000009', 'rohan.desai@example.com', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'MEMBER', 'Rohan Desai', '+919811100003', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000010', 'ananya.iyer@example.com', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'MEMBER', 'Ananya Iyer', '+919811100004', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000011', 'kabir.singh@example.com', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'MEMBER', 'Kabir Singh', '+919811100005', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000012', 'meera.joshi@example.com', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'MEMBER', 'Meera Joshi', '+919811100006', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000013', 'ishaan.verma@example.com', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'MEMBER', 'Ishaan Verma', '+919811100007', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000014', 'diya.reddy@example.com', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'MEMBER', 'Diya Reddy', '+919811100008', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000015', 'karan.bhatia@example.com', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'MEMBER', 'Karan Bhatia', '+919811100009', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000016', 'sneha.kulkarni@example.com', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'MEMBER', 'Sneha Kulkarni', '+919811100010', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000017', 'rahul.menon@example.com', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'MEMBER', 'Rahul Menon', '+919811100011', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000018', 'tanvi.shah@example.com', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'MEMBER', 'Tanvi Shah', '+919811100012', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000019', 'vihaan.patel@example.com', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'MEMBER', 'Vihaan Patel', '+919811100013', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z');
 
 -- members (13)
 INSERT INTO members (id, user_id, member_code, date_of_birth, address, emergency_contact_name, emergency_contact_phone, photo_url, joined_on, created_at, updated_at) VALUES
@@ -51,8 +51,8 @@ INSERT INTO staff (id, user_id, designation, monthly_salary, joined_on, created_
 
 -- employee_applications (4)
 INSERT INTO employee_applications (id, full_name, email, phone, password_hash, status, approved_role, applied_at, reviewed_at, reviewed_by_user_id, decision_note) VALUES
-  ('17000000-0000-4000-8000-000000000001', 'Devika Rao', 'devika.rao@example.com', '+919811200001', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'PENDING', NULL, '2026-10-02T06:00:00.000Z', NULL, NULL, NULL),
-  ('17000000-0000-4000-8000-000000000002', 'Manish Kulkarni', 'manish.kulkarni@example.com', '+919811200002', '$2b$10$D2nY/UFQanKecLrh1ewMh.y29ReYWIix4KonPpMUXhZlykMDNlg.q', 'PENDING', NULL, '2026-10-01T06:00:00.000Z', NULL, NULL, NULL),
+  ('17000000-0000-4000-8000-000000000001', 'Devika Rao', 'devika.rao@example.com', '+919811200001', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'PENDING', NULL, '2026-10-02T06:00:00.000Z', NULL, NULL, NULL),
+  ('17000000-0000-4000-8000-000000000002', 'Manish Kulkarni', 'manish.kulkarni@example.com', '+919811200002', '$2b$10$Eq66ewqkNB7rmV97We66y.UgNCCQ5tCnkjxxupNG7wQblCumT4WPa', 'PENDING', NULL, '2026-10-01T06:00:00.000Z', NULL, NULL, NULL),
   ('17000000-0000-4000-8000-000000000003', 'Zoya Khan', 'zoya.khan@example.com', '+919811200003', NULL, 'REJECTED', NULL, '2026-09-13T06:00:00.000Z', '2026-09-15T10:30:00.000Z', '01000000-0000-4000-8000-000000000001', 'No opening for this role at the moment.'),
   ('17000000-0000-4000-8000-000000000004', 'Pooja Iyer', 'pooja.iyer@championsclub.example', '+919820000004', NULL, 'APPROVED', 'FRONT_DESK', '2025-09-18T06:00:00.000Z', '2025-09-20T10:30:00.000Z', '01000000-0000-4000-8000-000000000001', NULL);
 
@@ -213,21 +213,21 @@ INSERT INTO shop_order_items (id, shop_order_id, product_id, product_name, unit_
   ('0c000000-0000-4000-8000-000000000014', '0b000000-0000-4000-8000-000000000010', '0a000000-0000-4000-8000-000000000004', 'Head Delta Pro Padel Racket', '8499.00', 1, '2026-10-03T06:35:00.000Z');
 
 -- bar_menu_items (14)
-INSERT INTO bar_menu_items (id, name, category, description, price, is_available, sort_order, created_at, updated_at) VALUES
-  ('0d000000-0000-4000-8000-000000000001', 'Filter Coffee', 'DRINK', 'South-Indian style filter coffee', '80.00', true, 1, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('0d000000-0000-4000-8000-000000000002', 'Cold Coffee', 'DRINK', 'Blended iced coffee with ice cream', '140.00', true, 2, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('0d000000-0000-4000-8000-000000000003', 'Fresh Lime Soda', 'DRINK', NULL, '90.00', true, 3, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('0d000000-0000-4000-8000-000000000004', 'Fresh Orange Juice', 'DRINK', NULL, '130.00', true, 4, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('0d000000-0000-4000-8000-000000000005', 'Energy Drink', 'DRINK', NULL, '160.00', true, 5, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('0d000000-0000-4000-8000-000000000006', 'Protein Shake', 'DRINK', 'Whey shake with banana (post-match recovery)', '220.00', true, 6, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('0d000000-0000-4000-8000-000000000007', 'Soft Drink', 'DRINK', NULL, '60.00', true, 7, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('0d000000-0000-4000-8000-000000000008', 'Veg Club Sandwich', 'SNACK', 'Triple-decker grilled sandwich with fries', '150.00', true, 8, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('0d000000-0000-4000-8000-000000000009', 'Paneer Tikka Sandwich', 'SNACK', 'Tandoori paneer, mint chutney, grilled', '180.00', true, 9, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('0d000000-0000-4000-8000-000000000010', 'French Fries', 'SNACK', NULL, '130.00', true, 10, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('0d000000-0000-4000-8000-000000000011', 'Chicken Wings (6 pcs)', 'FOOD', 'Spicy peri-peri wings with dip', '320.00', true, 11, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('0d000000-0000-4000-8000-000000000012', 'Veg Burger', 'FOOD', 'Crispy veg patty, cheese, house sauce', '180.00', true, 12, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('0d000000-0000-4000-8000-000000000013', 'Penne Arrabbiata', 'FOOD', 'Penne in spicy tomato sauce (kitchen out of stock today)', '260.00', false, 13, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('0d000000-0000-4000-8000-000000000014', 'Light Lunch Thali', 'FOOD', 'Dal, sabzi, roti, rice and curd', '280.00', true, 14, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z');
+INSERT INTO bar_menu_items (id, name, category, description, price, is_available, sort_order, created_at, updated_at, stock_quantity, low_stock_threshold) VALUES
+  ('0d000000-0000-4000-8000-000000000001', 'Filter Coffee', 'DRINK', 'South-Indian style filter coffee', '80.00', true, 1, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z', 24, 10),
+  ('0d000000-0000-4000-8000-000000000002', 'Cold Coffee', 'DRINK', 'Blended iced coffee with ice cream', '140.00', true, 2, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z', 41, 10),
+  ('0d000000-0000-4000-8000-000000000003', 'Fresh Lime Soda', 'DRINK', NULL, '90.00', true, 3, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z', 58, 10),
+  ('0d000000-0000-4000-8000-000000000004', 'Fresh Orange Juice', 'DRINK', NULL, '130.00', true, 4, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z', 75, 10),
+  ('0d000000-0000-4000-8000-000000000005', 'Energy Drink', 'DRINK', NULL, '160.00', true, 5, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z', 32, 10),
+  ('0d000000-0000-4000-8000-000000000006', 'Protein Shake', 'DRINK', 'Whey shake with banana (post-match recovery)', '220.00', true, 6, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z', 49, 10),
+  ('0d000000-0000-4000-8000-000000000007', 'Soft Drink', 'DRINK', NULL, '60.00', true, 7, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z', 66, 10),
+  ('0d000000-0000-4000-8000-000000000008', 'Veg Club Sandwich', 'SNACK', 'Triple-decker grilled sandwich with fries', '150.00', true, 8, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z', 83, 10),
+  ('0d000000-0000-4000-8000-000000000009', 'Paneer Tikka Sandwich', 'SNACK', 'Tandoori paneer, mint chutney, grilled', '180.00', true, 9, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z', 40, 10),
+  ('0d000000-0000-4000-8000-000000000010', 'French Fries', 'SNACK', NULL, '130.00', true, 10, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z', 57, 10),
+  ('0d000000-0000-4000-8000-000000000011', 'Chicken Wings (6 pcs)', 'FOOD', 'Spicy peri-peri wings with dip', '320.00', true, 11, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z', 7, 10),
+  ('0d000000-0000-4000-8000-000000000012', 'Veg Burger', 'FOOD', 'Crispy veg patty, cheese, house sauce', '180.00', true, 12, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z', 31, 10),
+  ('0d000000-0000-4000-8000-000000000013', 'Penne Arrabbiata', 'FOOD', 'Penne in spicy tomato sauce (kitchen out of stock today)', '260.00', false, 13, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z', 0, 10),
+  ('0d000000-0000-4000-8000-000000000014', 'Light Lunch Thali', 'FOOD', 'Dal, sabzi, roti, rice and curd', '280.00', true, 14, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z', 65, 10);
 
 -- bar_orders (22)
 INSERT INTO bar_orders (id, order_number, member_id, guest_name, status, discount_amount, notes, created_at, updated_at, table_label) VALUES

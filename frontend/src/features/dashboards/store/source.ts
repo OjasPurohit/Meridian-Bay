@@ -4,7 +4,7 @@ import barMenuJson from '@mock/bar-menu-items.json';
 import businessClientsJson from '@mock/business-clients.json';
 import productsJson from '@mock/products.json';
 import { mockRows, type BarOrderRow, type BookingRow, type InvoiceRow, type PaymentRow, type ShopOrderRow } from './derive';
-import { ALL_MEMBERS, rng } from './staticData';
+import { ALL_MEMBERS } from './staticData';
 import type { DBooking, DInvoice, DKOrder, DMenuItem, DPayment, DProduct, DShopOrder } from './types';
 
 const as = <T,>(v: unknown) => v as T;
@@ -88,7 +88,6 @@ export function seedShopOrders(src: Source): DShopOrder[] {
 }
 
 export function seedMenu(src: Source): DMenuItem[] {
-  const r = rng(4242);
   return src.menu.map((m) => ({
     id: m.id,
     name: m.name,
@@ -96,8 +95,8 @@ export function seedMenu(src: Source): DMenuItem[] {
     description: m.description,
     price: num(m.price),
     available: m.is_available,
-    stock: m.is_available ? (m.name.startsWith('Chicken') ? 7 : 24 + Math.floor(r() * 60)) : 0,
-    threshold: 10,
+    stock: m.stock_quantity,
+    threshold: m.low_stock_threshold,
   }));
 }
 

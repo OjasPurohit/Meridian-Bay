@@ -309,6 +309,11 @@ export interface BarMenuUpdateRequest {
   sort_order?: number;
 }
 
+/** POST /api/v1/bar/menu-items/:id/stock-adjustments (bar.menuStock) */
+export interface BarMenuStockRequest {
+  quantity_change: number; // non-zero; negative allowed only if the result stays >= 0 (else VALIDATION_ERROR)
+}
+
 /** GET /api/v1/bar/member-lookup (bar.memberLookup) */
 export interface BarMemberLookupQuery {
   q: string; // member number (CCM-00001), e-mail, phone digits (6+) or part of the name (3+ letters); at most 5 matches

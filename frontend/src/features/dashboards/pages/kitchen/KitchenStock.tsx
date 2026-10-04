@@ -1,6 +1,5 @@
 import { AlertTriangle, Boxes, PackagePlus } from 'lucide-react';
 
-import { isBackendConfigured } from '@/api/client';
 import { StockStepper } from '../../components/StockStepper';
 import { demo, useDemo } from '../../store/demoStore';
 import type { DMenuItem } from '../../store/types';
@@ -18,8 +17,7 @@ export function StockTable() {
       header: 'Adjust',
       align: 'right',
       cell: (m) => (
-        isBackendConfigured ? <span className="text-xs text-muted">not tracked</span> : <StockStepper name={m.name} stock={m.stock} onChange={(d) => demo.adjustMenuStock(m.id, d)} />
-
+        <StockStepper name={m.name} stock={m.stock} onChange={(d) => demo.adjustMenuStock(m.id, d)} />
       ),
     },
   ];

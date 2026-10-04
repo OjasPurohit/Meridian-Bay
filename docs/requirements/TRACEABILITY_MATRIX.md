@@ -75,7 +75,7 @@ Every requirement → user(s) → module → API → database entity. API and ta
 | FR-BAR-008 | MUST | Front desk | Cafe | `POST /bar/orders` | `bar_orders`, `bar_order_items`, `payments` |
 | FR-BAR-009 | MUST | Front desk, Owner | Cafe | `GET /bar/orders`<br>`GET /bar/daily-summary`<br>`GET /reports/bar` | `bar_orders`, `bar_order_items`, `payments`, `staff_shifts` |
 | FR-BAR-010 | SHOULD | Front desk | Cafe | `POST /bar/orders/:id/cancel` | `bar_orders`, `payments` |
-| FR-BAR-011 | MUST | Owner | Cafe | `POST /bar/menu-items`<br>`PATCH /bar/menu-items/:id` | `bar_menu_items` |
+| FR-BAR-011 | MUST | Owner | Cafe | `POST /bar/menu-items`<br>`PATCH /bar/menu-items/:id`<br>`POST /bar/menu-items/:id/stock-adjustments` | `bar_menu_items` |
 | FR-BAR-012 | SHOULD | Member | Cafe | `GET /bar/orders`<br>`GET /bar/orders/:id` | `bar_orders`, `bar_order_items` |
 | FR-BAR-013 | MUST | System | Cafe | `POST /bar/orders` | `bar_orders`, `bar_order_items`, `payments` |
 | FR-KIT-001 | MUST | Kitchen manager | Kitchen orders | `POST /bar/orders`<br>`GET /kitchen/orders` | `bar_orders`, `bar_order_items`, `payments` |
@@ -211,6 +211,7 @@ Every requirement → user(s) → module → API → database entity. API and ta
 | `GET /bar/menu` (bar.menu) | FR-BAR-001, FR-PUB-005 |
 | `POST /bar/menu-items` (bar.menuCreate) | FR-BAR-011 |
 | `PATCH /bar/menu-items/:id` (bar.menuUpdate) | FR-BAR-011 |
+| `POST /bar/menu-items/:id/stock-adjustments` (bar.menuStock) | FR-BAR-011 |
 | `GET /bar/member-lookup` (bar.memberLookup) | FR-BAR-003, FR-BAR-004 |
 | `POST /bar/orders` (bar.orderCreate) | FR-BAR-003, FR-BAR-004, FR-BAR-005, FR-BAR-008, FR-BAR-013, FR-KIT-001 |
 | `GET /bar/orders` (bar.orderList) | FR-BAR-012, FR-BAR-009 |

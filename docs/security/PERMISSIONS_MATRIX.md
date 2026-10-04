@@ -22,7 +22,7 @@ Server-side authorisation rules (R-SEC-01) — enforced by middleware/service ch
 | Shop catalogue | — | — | V | — | — | C U | C U D |
 | Shop orders | v C u | *via Front Desk* | — | V C U | — | V C U | V C U |
 | Inventory | — | — | — | V | — | V C | V C |
-| Cafe menu | — | — | V | — | — | — | C U |
+| Cafe menu | — | — | V | — | U | — | C U |
 | Cafe orders | v | *via Front Desk* | — | V C U | V | — | V C U |
 | Kitchen orders | — | — | — | — | V U | — | V U |
 | Enquiries | — | *via Front Desk* | C | V C U | — | — | V C U |
@@ -92,6 +92,7 @@ Server-side authorisation rules (R-SEC-01) — enforced by middleware/service ch
 | `GET /bar/menu` | bar.menu **PUBLIC** | ● | ● | ● | ● | ● |
 | `POST /bar/menu-items` | bar.menuCreate |  |  |  |  | ● |
 | `PATCH /bar/menu-items/:id` | bar.menuUpdate |  |  |  |  | ● |
+| `POST /bar/menu-items/:id/stock-adjustments` | bar.menuStock |  |  | ● |  | ● |
 | `GET /bar/member-lookup` | bar.memberLookup |  | ● | ● |  | ● |
 | `POST /bar/orders` | bar.orderCreate |  | ● |  |  | ● |
 | `GET /bar/orders` | bar.orderList | ○ | ● |  |  | ● |

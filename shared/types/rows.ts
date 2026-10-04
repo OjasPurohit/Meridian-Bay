@@ -250,6 +250,9 @@ export interface BarMenuItem {
   price: Money;
   is_available: boolean;
   sort_order: number;
+  /** Portions on hand; cafe orders take it off, the kitchen adjusts it. */
+  stock_quantity: number;
+  low_stock_threshold: number;
   created_at: IsoDateTime;
   updated_at: IsoDateTime;
 }

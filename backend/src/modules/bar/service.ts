@@ -81,6 +81,16 @@ export const BarService = {
     return rows[0];
   },
 
+  /** Kitchen stock: +/- on the quantity on hand; the CHECK keeps it from going below zero. */
+  async menuStock(id: string, change: number): Promise<BarMenuItem> {
+    const { rows } = await query<BarMenuItem>('UPDATE bar_menu_items SET stock_quantity = stock_quantity + $2 WHERE id = $1 AND stock_quantity + $2 >= 0 RETURNING *', [id, change]);
+    if (!rows[0]) {
+      const exists = (await query('SELECT 1 FROM bar_menu_items WHERE id = $1', [id])).rowCount;
+      throw exists ? new AppError('VALIDATION_ERROR', { fields: { quantity_change: 'Stock cannot go below zero.' } }) : new AppError('MENU_ITEM_NOT_FOUND');
+    }
+    return rows[0];
+  },
+
   async orderCreate(user: AuthUser, body: BarOrderCreateRequest): Promise<BarOrderDetail> {
     const member_id = user.role === USER_ROLE.MEMBER ? (user.member_id ?? null) : (body.member_id ?? null);
     if (user.role === USER_ROLE.MEMBER && (body.member_id || body.guest_name || body.payment_method)) throw new AppError('FORBIDDEN');
@@ -96,6 +106,9 @@ export const BarService = {
         const item = (await tx.query<BarMenuItem>('SELECT * FROM bar_menu_items WHERE id = $1', [l.bar_menu_item_id])).rows[0];
         if (!item) throw new AppError('MENU_ITEM_NOT_FOUND', { bar_menu_item_id: l.bar_menu_item_id });
         if (!item.is_available) throw new AppError('MENU_ITEM_UNAVAILABLE', { name: item.name });
+        // stock comes off the menu item atomically; zero rows = not enough left
+        const taken = await tx.query('UPDATE bar_menu_items SET stock_quantity = stock_quantity - $2 WHERE id = $1 AND stock_quantity >= $2', [item.id, l.quantity]);
+        if (!taken.rowCount) throw new AppError('OUT_OF_STOCK', { items: [{ bar_menu_item_id: item.id, name: item.name, requested: l.quantity, available: item.stock_quantity }] });
         lines.push({ item, qty: l.quantity, notes: l.notes ?? null });
         subtotal += toPaise(item.price) * l.quantity;
       }
@@ -211,6 +224,7 @@ async function setStatus(tx: Tx, id: string, to: OrderStatus): Promise<void> {
   if (!ORDER_TRANSITIONS[cur.status].includes(to)) throw new AppError('INVALID_STATUS_TRANSITION', { from: cur.status, to });
   await tx.query('UPDATE bar_orders SET status = $2 WHERE id = $1', [id, to]);
   if (to === 'CANCELLED') {
+    await tx.query('UPDATE bar_menu_items m SET stock_quantity = m.stock_quantity + i.quantity FROM bar_order_items i WHERE i.bar_order_id = $1 AND i.bar_menu_item_id = m.id', [id]);
     const pays = (await tx.query<{ id: string; amount: string; refunded_amount: string }>(`SELECT id, amount, refunded_amount FROM payments WHERE source_type = 'BAR_ORDER' AND source_id = $1`, [id])).rows;
     for (const p of pays) {
       const left = toPaise(p.amount) - toPaise(p.refunded_amount);

@@ -75,7 +75,7 @@ Source of truth: [shared/constants/errors.ts](../../shared/constants/errors.ts).
 
 | Code | HTTP | Default message | Used by |
 |---|---|---|---|
-| `MENU_ITEM_NOT_FOUND` | 404 | Menu item not found. | bar.menuUpdate, bar.orderCreate |
+| `MENU_ITEM_NOT_FOUND` | 404 | Menu item not found. | bar.menuUpdate, bar.menuStock, bar.orderCreate |
 | `MENU_ITEM_UNAVAILABLE` | 409 | Menu item is currently unavailable. | bar.orderCreate |
 
 ## Finance

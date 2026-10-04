@@ -330,7 +330,7 @@ const MENU = {
   wings: ['Chicken Wings (6 pcs)', 'FOOD', '320.00'], burger: ['Veg Burger', 'FOOD', '180.00'], pasta: ['Penne Arrabbiata', 'FOOD', '260.00'], thali: ['Light Lunch Thali', 'FOOD', '280.00'],
 };
 const MENU_DESC = { filter_coffee: 'South-Indian style filter coffee', cold_coffee: 'Blended iced coffee with ice cream', protein: 'Whey shake with banana (post-match recovery)', veg_sand: 'Triple-decker grilled sandwich with fries', paneer_sand: 'Tandoori paneer, mint chutney, grilled', wings: 'Spicy peri-peri wings with dip', burger: 'Crispy veg patty, cheese, house sauce', pasta: 'Penne in spicy tomato sauce (kitchen out of stock today)', thali: 'Dal, sabzi, roti, rice and curd' };
-Object.entries(MENU).forEach(([k, [n, c, p]], i) => add('bar_menu_items', { id: uid('bar_menu_items', k), name: n, category: c, description: MENU_DESC[k] ?? null, price: p, is_available: k !== 'pasta' ? true : false, sort_order: i + 1, created_at: T0, updated_at: T0 }));
+Object.entries(MENU).forEach(([k, [n, c, p]], i) => add('bar_menu_items', { id: uid('bar_menu_items', k), name: n, category: c, description: MENU_DESC[k] ?? null, price: p, is_available: k !== 'pasta' ? true : false, sort_order: i + 1, stock_quantity: k === 'pasta' ? 0 : k === 'wings' ? 7 : 24 + ((i * 17) % 60), low_stock_threshold: 10, created_at: T0, updated_at: T0 }));
 
 // A cafe order is paid by itself. Customers who "ran a tab" before the simplification simply paid each of their orders when they left:
 // SETTLE says when and how those orders were paid; orders of customers still sitting at the table are unpaid.

@@ -88,6 +88,7 @@ interface PageMeta { page: number; page_size: number; total: number; total_pages
 | bar | `GET` | `/bar/menu` | PUBLIC | [bar.menu](#barmenu) |
 | bar | `POST` | `/bar/menu-items` | OWNER_ADMIN | [bar.menuCreate](#barmenuCreate) |
 | bar | `PATCH` | `/bar/menu-items/:id` | OWNER_ADMIN | [bar.menuUpdate](#barmenuUpdate) |
+| bar | `POST` | `/bar/menu-items/:id/stock-adjustments` | KITCHEN_MANAGER, OWNER_ADMIN | [bar.menuStock](#barmenuStock) |
 | bar | `GET` | `/bar/member-lookup` | FRONT_DESK, KITCHEN_MANAGER, OWNER_ADMIN | [bar.memberLookup](#barmemberLookup) |
 | bar | `POST` | `/bar/orders` | FRONT_DESK, OWNER_ADMIN | [bar.orderCreate](#barorderCreate) |
 | bar | `GET` | `/bar/orders` | MEMBER (own only), FRONT_DESK, OWNER_ADMIN | [bar.orderList](#barorderList) |
@@ -150,7 +151,7 @@ interface PageMeta { page: number; page_size: number; total: number; total_pages
 | settings | `GET` | `/settings` | OWNER_ADMIN | [settings.list](#settingslist) |
 | settings | `PATCH` | `/settings/:key` | OWNER_ADMIN | [settings.update](#settingsupdate) |
 
-**109 endpoints** across 18 modules.
+**110 endpoints** across 18 modules.
 
 ## 3. Module ownership
 
@@ -4541,7 +4542,9 @@ GET /api/v1/bar/menu
       "is_available": true,
       "sort_order": 1,
       "created_at": "2026-03-17T04:30:00.000Z",
-      "updated_at": "2026-03-17T04:30:00.000Z"
+      "updated_at": "2026-03-17T04:30:00.000Z",
+      "stock_quantity": 24,
+      "low_stock_threshold": 10
     }
   ]
 }
@@ -4617,7 +4620,9 @@ POST /api/v1/bar/menu-items
     "is_available": true,
     "sort_order": 1,
     "created_at": "2026-03-17T04:30:00.000Z",
-    "updated_at": "2026-03-17T04:30:00.000Z"
+    "updated_at": "2026-03-17T04:30:00.000Z",
+    "stock_quantity": 24,
+    "low_stock_threshold": 10
   }
 }
 ```
@@ -4691,7 +4696,84 @@ PATCH /api/v1/bar/menu-items/0d000000-0000-4000-8000-000000000001
     "is_available": true,
     "sort_order": 1,
     "created_at": "2026-03-17T04:30:00.000Z",
-    "updated_at": "2026-03-17T04:30:00.000Z"
+    "updated_at": "2026-03-17T04:30:00.000Z",
+    "stock_quantity": 24,
+    "low_stock_threshold": 10
+  }
+}
+```
+
+**Example error (HTTP 404)**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "MENU_ITEM_NOT_FOUND",
+    "message": "Menu item not found."
+  }
+}
+```
+
+<a id="barmenuStock"></a>
+#### `POST /api/v1/bar/menu-items/:id/stock-adjustments` — bar.menuStock
+
+Kitchen stock: restock or correct the quantity on hand of one menu item.
+
+| | |
+|---|---|
+| **Auth** | Bearer JWT |
+| **Roles** | KITCHEN_MANAGER, OWNER_ADMIN |
+| **Success** | 200 · `data: BarMenuItem` |
+| **Requirements** | FR-BAR-011 |
+| **Governing rules** | — |
+| **Tables touched** | `bar_menu_items` |
+| **Path params** | `id` (uuid) |
+
+**Request body** — type `BarMenuStockRequest`
+
+| Field | Type | Required | Rules |
+|---|---|---|---|
+| `quantity_change` | int | **yes** | non-zero; negative allowed only if the result stays >= 0 (else VALIDATION_ERROR) |
+
+**Rules / behaviour:** `UPDATE bar_menu_items SET stock_quantity = stock_quantity + :change WHERE id = :id AND stock_quantity + :change >= 0`. Cafe orders take stock off the same column (R-SHOP-02 style, OUT_OF_STOCK when short) and a cancelled order puts it back. Shop products are not reachable from here: the kitchen manager has no access to /inventory.
+
+**Errors**
+
+| Code | HTTP | Meaning here |
+|---|---|---|
+| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
+| `VALIDATION_ERROR` | 400 | Request validation failed. |
+| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
+| `MENU_ITEM_NOT_FOUND` | 404 | Menu item not found. |
+
+**Example (generated from the types and seed data — shape is exact, values illustrative)**
+
+```http
+POST /api/v1/bar/menu-items/0d000000-0000-4000-8000-000000000001/stock-adjustments
+```
+
+```json
+{
+  "quantity_change": 1
+}
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "0d000000-0000-4000-8000-000000000001",
+    "name": "Filter Coffee",
+    "category": "DRINK",
+    "description": "South-Indian style filter coffee",
+    "price": "80.00",
+    "is_available": true,
+    "sort_order": 1,
+    "created_at": "2026-03-17T04:30:00.000Z",
+    "updated_at": "2026-03-17T04:30:00.000Z",
+    "stock_quantity": 24,
+    "low_stock_threshold": 10
   }
 }
 ```

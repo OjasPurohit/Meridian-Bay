@@ -802,3 +802,44 @@ describe('cafe till: member lookup and the authoritative member price', () => {
     assert.deepEqual([pct.GOLD, pct.SILVER, pct.JUNIOR], ['15.00', '10.00', '5.00']);
   });
 });
+
+describe('kitchen stock: the kitchen manager adjusts cafe stock one at a time, in the database', () => {
+  const stockOf = async (id: string) => (await query('SELECT stock_quantity AS n FROM bar_menu_items WHERE id = $1', [id])).rows[0].n as number;
+  const adjust = (who: Parameters<typeof call>[0], id: string, change: number) => call(who, 'POST', `/bar/menu-items/${id}/stock-adjustments`, { quantity_change: change });
+
+  it('+1 and -1 persist; stock never goes below zero; the menu returns the quantity', async () => {
+    const item = (await call('kitchen', 'GET', '/bar/menu?include_unavailable=true')).body.data.find((m: any) => m.name === 'Cold Coffee');
+    const before = await stockOf(item.id);
+    assert.equal(item.stock_quantity, before);
+    assert.equal((await adjust('kitchen', item.id, 1)).body.data.stock_quantity, before + 1);
+    assert.equal(await stockOf(item.id), before + 1);
+    assert.equal((await adjust('kitchen', item.id, -1)).body.data.stock_quantity, before);
+    assert.equal((await adjust('kitchen', item.id, -(before + 1))).body.error.code, 'VALIDATION_ERROR');
+    assert.equal(await stockOf(item.id), before, 'a refused change leaves the stock alone');
+    assert.equal((await adjust('kitchen', item.id, 0)).body.error.code, 'VALIDATION_ERROR');
+    assert.equal((await adjust('kitchen', '00000000-0000-4000-8000-000000000000', 1)).body.error.code, 'MENU_ITEM_NOT_FOUND');
+  });
+
+  it('owner may adjust too; members, desk and store manager may not; the store inventory stays closed to the kitchen', async () => {
+    const item = (await call(null, 'GET', '/bar/menu')).body.data[0];
+    assert.equal((await adjust('owner', item.id, 1)).status, 200);
+    assert.equal((await adjust('owner', item.id, -1)).status, 200);
+    for (const who of ['member', 'desk', 'store'] as const) assert.equal((await adjust(who, item.id, 1)).body.error.code, 'FORBIDDEN', who);
+    assert.equal((await adjust(null, item.id, 1)).body.error.code, 'AUTH_UNAUTHORIZED');
+    assert.equal((await call('kitchen', 'GET', '/inventory')).body.error.code, 'FORBIDDEN');
+    const p = (await call('store', 'GET', '/inventory')).body.data[0];
+    assert.equal((await call('store', 'POST', '/inventory/adjustments', { product_id: p.product_id, quantity_change: 1 })).status, 200, 'store manager adjustment still works');
+  });
+
+  it('a cafe order takes its quantity off the stock, a cancel puts it back, and too many is OUT_OF_STOCK', async () => {
+    const item = (await call(null, 'GET', '/bar/menu')).body.data.find((m: any) => m.name === 'Soft Drink');
+    const before = await stockOf(item.id);
+    const o = (await call('kitchen', 'POST', '/bar/orders', { guest_name: 'Stock test', items: [{ bar_menu_item_id: item.id, quantity: 2 }] })).body.data;
+    assert.equal(await stockOf(item.id), before - 2);
+    assert.equal((await call('kitchen', 'POST', `/bar/orders/${o.id}/cancel`)).status, 200);
+    assert.equal(await stockOf(item.id), before);
+    const r = await call('kitchen', 'POST', '/bar/orders', { guest_name: 'Too many', items: [{ bar_menu_item_id: item.id, quantity: 100 }] });
+    assert.equal(r.body.error.code, 'OUT_OF_STOCK');
+    assert.equal(await stockOf(item.id), before);
+  });
+});
