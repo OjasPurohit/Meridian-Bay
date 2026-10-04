@@ -191,7 +191,7 @@ export interface BookingsCreateRequest {
 /** POST /api/v1/bookings/trial (bookings.trial) */
 export interface BookingsTrialRequest {
   name: string;
-  phone: string;
+  phone: string; // exactly 10 digits
   email?: string;
   sport_type: E.SportType;
   start_at: IsoDateTime; // on a :00/:30 boundary, in the future, inside opening hours

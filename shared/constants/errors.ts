@@ -69,6 +69,7 @@ export const ERROR_CODES = {
   LEAVE_OVERLAP: { status: 409, group: 'Staff', message: 'Leave overlaps with an existing leave request.' },
   PAYROLL_EXISTS: { status: 409, group: 'Staff', message: 'Payroll for this period already exists.' },
   TRIAL_ALREADY_BOOKED: { status: 409, group: 'Courts', message: 'This phone number already has an upcoming trial booked.' },
+  TRIAL_REQUEST_CLOSED: { status: 409, group: 'Courts', message: 'This trial request is not waiting for a decision.' },
   COURT_NAME_TAKEN: { status: 409, group: 'Courts', message: 'A court with this name already exists.' },
   EVENT_NOT_FOUND: { status: 404, group: 'Events', message: 'Event not found.' },
   EVENT_FULL: { status: 409, group: 'Events', message: 'This event is full.' },

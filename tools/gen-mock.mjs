@@ -202,7 +202,7 @@ Object.entries(courts).forEach(([k, [name, sport, desc, surface, rate]], i) =>
 const enq = (k, o) => {
   const handled = !!o.handled;
   delete o.handled;
-  return add('enquiries', { id: uid('enquiries', k), enquiry_type: 'GENERAL', email: null, message: null, membership_plan_id: null, sport_type: null, preferred_start_at: null, ...o, handled_at: handled ? (o.updated_at ?? o.created_at) : null, updated_at: o.updated_at ?? o.created_at });
+  return add('enquiries', { id: uid('enquiries', k), enquiry_type: 'GENERAL', email: null, message: null, membership_plan_id: null, sport_type: null, preferred_start_at: null, trial_booking_id: null, ...o, handled_at: handled ? (o.updated_at ?? o.created_at) : null, updated_at: o.updated_at ?? o.created_at });
 };
 enq('e_general', { name: 'Anita Deshmukh', phone: '+919900100001', email: 'anita.d@example.com', message: 'What are your timings and do you offer coaching for beginners?', created_at: ts(0, '09:40') });
 enq('e_trial', { enquiry_type: 'TRIAL', handled: true, name: 'Siddharth Rao', phone: '+919900100002', email: 'sid.rao@example.com', message: 'Would like to try a tennis session this week.', sport_type: 'TENNIS', preferred_start_at: ts(2, '18:00'), created_at: ts(-1, '20:15'), updated_at: ts(0, '10:00') });

@@ -1498,3 +1498,14 @@ ALTER TABLE court_bookings ADD COLUMN guest_email text;
 ALTER TABLE bar_menu_items ADD COLUMN stock_quantity integer NOT NULL DEFAULT 40 CHECK (stock_quantity >= 0);
 
 ALTER TABLE bar_menu_items ADD COLUMN low_stock_threshold integer NOT NULL DEFAULT 10 CHECK (low_stock_threshold >= 0);
+
+-- ===== 0009_trial_requests.sql =====
+-- =====================================================================================
+-- 0009 — A public trial is a request the owner approves
+--
+-- The website no longer takes a court by itself: it files an enquiry of type TRIAL (sport + preferred time). The owner
+-- approves it (a TRIAL court booking is created and shows in every calendar) or declines it. trial_booking_id is the
+-- booking an approval created; handled_at set with no booking = declined. Nothing existing is touched.
+-- =====================================================================================
+
+ALTER TABLE enquiries ADD COLUMN trial_booking_id uuid REFERENCES court_bookings(id);

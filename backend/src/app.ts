@@ -84,7 +84,9 @@ export async function createApp(options: CreateAppOptions = {}): Promise<Express
 
   app.use(
     cors({
-      origin: config.cors_origins,
+      // Dev servers hop ports (5173 -> 5174) when one is taken; outside production any localhost port is fine.
+      origin: (origin, done) =>
+        done(null, !origin || config.cors_origins.includes(origin) || (config.node_env !== 'production' && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin))),
       methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Authorization', 'Content-Type', 'Idempotency-Key', 'X-Request-Id'],
       exposedHeaders: ['Content-Disposition', 'X-Request-Id'],

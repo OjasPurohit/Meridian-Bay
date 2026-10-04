@@ -508,6 +508,20 @@
       "OWNER_ADMIN"
     ]
   },
+  "enquiries.approveTrial": {
+    "method": "POST",
+    "path": "/api/v1/enquiries/:id/approve-trial",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "enquiries.declineTrial": {
+    "method": "POST",
+    "path": "/api/v1/enquiries/:id/decline-trial",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
   "clients.list": {
     "method": "GET",
     "path": "/api/v1/business-clients",

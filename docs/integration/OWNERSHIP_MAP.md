@@ -4,7 +4,7 @@
 
 | Developer | Focus | API modules | Tables | UI |
 |---|---|---|---|---|
-| **Dev 1** | Platform, Identity & Public Experience | `auth`, `public`, `enquiries` (10 endpoints) | `users`, `enquiries` | Public website, login/signup, Member dashboard, enquiry inbox |
+| **Dev 1** | Platform, Identity & Public Experience | `auth`, `public`, `enquiries` (12 endpoints) | `users`, `enquiries` | Public website, login/signup, Member dashboard, enquiry inbox |
 | **Dev 2** | Membership, Courts & Front Desk | `members`, `memberships`, `courts`, `bookings` (26 endpoints) | `members`, `membership_plans`, `memberships`, `courts`, `court_bookings` | Front Desk dashboard (member registration/search, bookings), member booking screens, court/plan admin screens |
 | **Dev 3** | Commerce, Cafe & Kitchen | `shop`, `inventory`, `bar`, `kitchen` (26 endpoints) | `products`, `shop_orders`, `shop_order_items`, `bar_menu_items`, `bar_orders`, `bar_order_items` | Shop pages (public + member + counter POS), Cafe order screen, Kitchen dashboard, stock & menu admin screens |
 | **Dev 4** | Owner, Finance & Reporting | `events`, `clients`, `invoices`, `payments`, `staff`, `reports`, `settings` (48 endpoints) | `events`, `event_registrations`, `payments`, `invoices`, `invoice_items`, `business_clients`, `staff`, `employee_applications`, `staff_shifts`, `leave_requests`, `payroll_payments`, `club_settings` | Owner dashboard, reports, finance, invoices/business-client portal, staff/HR/payroll/leave, settings, payments service |

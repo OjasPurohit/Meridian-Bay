@@ -25,7 +25,7 @@ Server-side authorisation rules (R-SEC-01) — enforced by middleware/service ch
 | Cafe menu | — | — | V | — | U | — | C U |
 | Cafe orders | v | *via Front Desk* | — | V C U | V | — | V C U |
 | Kitchen orders | — | — | — | — | V U | — | V U |
-| Enquiries | — | *via Front Desk* | C | V C U | — | — | V C U |
+| Enquiries | — | *via Front Desk* | C | V C U | — | — | V C U A |
 | Business clients | — | — | — | — | — | — | V C U |
 | Invoices | v | — | — | — | — | — | V C U A |
 | Payments | v c | *via Front Desk* | — | v C | v C | v C | V C A |
@@ -106,6 +106,8 @@ Server-side authorisation rules (R-SEC-01) — enforced by middleware/service ch
 | `GET /enquiries` | enquiries.list |  | ● |  |  | ● |
 | `GET /enquiries/:id` | enquiries.get |  | ● |  |  | ● |
 | `PATCH /enquiries/:id` | enquiries.update |  | ● |  |  | ● |
+| `POST /enquiries/:id/approve-trial` | enquiries.approveTrial |  |  |  |  | ● |
+| `POST /enquiries/:id/decline-trial` | enquiries.declineTrial |  |  |  |  | ● |
 | `GET /business-clients` | clients.list |  |  |  |  | ● |
 | `POST /business-clients` | clients.create |  |  |  |  | ● |
 | `GET /business-clients/:id` | clients.get |  |  |  |  | ● |

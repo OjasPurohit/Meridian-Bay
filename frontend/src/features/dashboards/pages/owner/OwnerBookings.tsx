@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react';
-import { CalendarCheck, Gauge, Pencil, Plus, Power, Undo2, Wallet } from 'lucide-react';
+import { CalendarCheck, ChevronLeft, ChevronRight, Gauge, Pencil, Plus, Power, Undo2, Wallet } from 'lucide-react';
 
 import { SPORT_TYPE } from '@shared/constants/enums';
 import { isBackendConfigured } from '@/api/client';
 import { formatRupees } from '@/lib/format';
 import { CourtCalendar } from '../../components/CourtCalendar';
+import { RangeCalendar, rangeLabel, shiftRange, type CalendarView } from '../../components/RangeCalendar';
+import { TrialRequests } from '../../components/TrialRequests';
 import { admin } from '../../store/admin';
 import { dayOf, useDemo } from '../../store/demoStore';
 import { periodTotals } from '../../store/selectors';
@@ -12,7 +14,7 @@ import { courts, inactiveCourts } from '../../store/staticData';
 import { DEMO_TODAY, type DCourt } from '../../store/types';
 import { FormModal, type FieldDef } from '../../ui/forms';
 import { HBars } from '../../ui/charts';
-import { btn, DataTable, Kpi, PageHeader, PageSkeleton, Pill, Section, usePageReady, useToast, type Column } from '../../ui/kit';
+import { btn, Chips, DataTable, Kpi, PageHeader, PageSkeleton, Pill, Section, usePageReady, useToast, type Column } from '../../ui/kit';
 import { BookingsTable } from '../desk/DeskBookings';
 
 const SPORTS = Object.values(SPORT_TYPE).map((v) => ({ value: v, label: v.charAt(0) + v.slice(1).toLowerCase() }));
@@ -31,6 +33,9 @@ export default function OwnerBookings() {
   const [adding, setAdding] = useState(false);
   const [edit, setEdit] = useState<DCourt | null>(null);
   const s = useDemo();
+  const [view, setView] = useState<CalendarView>('day');
+  const [calDate, setCalDate] = useState(DEMO_TODAY);
+  const [calSport, setCalSport] = useState('ALL');
   const { cur } = periodTotals('MONTH');
   const todays = s.bookings.filter((b) => b.kind === 'REGULAR' && b.status !== 'CANCELLED' && dayOf(b.start_at) === DEMO_TODAY).length;
   const util = useMemo(
@@ -79,7 +84,30 @@ export default function OwnerBookings() {
         <Kpi icon={Wallet} label="Court revenue · 30 d" value={cur.court} format={(n) => formatRupees(Math.round(n))} delay={140} />
         <Kpi tone="sun" icon={Undo2} label="Cancellations" value={cancelled} note="in the schedule window" delay={210} />
       </div>
-      <Section eyebrow="Schedule" title="Court calendar" className="!p-4 sm:!p-6"><CourtCalendar mode="desk" /></Section>
+      <TrialRequests />
+      <Section eyebrow="Schedule" title="Court calendar" className="!p-4 sm:!p-6">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <Chips value={view} onChange={setView} options={[{ value: 'day', label: 'Day' }, { value: 'week', label: 'Week' }, { value: 'month', label: 'Month' }]} />
+          {view !== 'day' && (
+            <div className="flex items-center gap-2">
+              <button type="button" aria-label={`Previous ${view}`} className={btn.secondary} onClick={() => setCalDate(shiftRange(view, calDate, -1))}><ChevronLeft className="size-4" /></button>
+              <span className="display min-w-44 text-center text-xl" aria-live="polite">{rangeLabel(view, calDate)}</span>
+              <button type="button" aria-label={`Next ${view}`} className={btn.secondary} onClick={() => setCalDate(shiftRange(view, calDate, 1))}><ChevronRight className="size-4" /></button>
+              <button type="button" className={btn.secondary} onClick={() => setCalDate(DEMO_TODAY)}>{view === 'week' ? 'This week' : 'This month'}</button>
+            </div>
+          )}
+        </div>
+        {view === 'day' ? (
+          <CourtCalendar mode="desk" date={calDate} onDateChange={setCalDate} sport={calSport} onSportChange={setCalSport} />
+        ) : (
+          <>
+            <div className="mb-4">
+              <Chips value={calSport} onChange={setCalSport} options={['ALL', ...new Set(courts.map((c) => c.sport))].map((v) => ({ value: v, label: v === 'ALL' ? 'All courts' : v.charAt(0) + v.slice(1).toLowerCase() }))} />
+            </div>
+            <RangeCalendar view={view} date={calDate} sport={calSport} onPickDay={(d) => { setCalDate(d); setView('day'); }} />
+          </>
+        )}
+      </Section>
       <Section eyebrow="Catalogue" title="Courts" className="mt-6" delay={40}><DataTable columns={ccols} rows={[...courts]} rowKey={(c) => c.id} /></Section>
       {isBackendConfigured && inactiveCourts.length > 0 && (
         <Section eyebrow="Not bookable" title="Deactivated courts" className="mt-6" delay={50}>

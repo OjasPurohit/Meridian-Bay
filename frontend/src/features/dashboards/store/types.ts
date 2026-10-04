@@ -1,3 +1,5 @@
+import { istDate } from '@shared/lib/time';
+import { isBackendConfigured } from '@/api/client';
 import type { BookingStatus, MembershipType, MenuCategory, OrderFulfillment, OrderStatus, PaymentMethod, ProductCategory, ShopOrderStatus, SportType } from '@shared/constants/enums';
 
 /**
@@ -6,9 +8,21 @@ import type { BookingStatus, MembershipType, MenuCategory, OrderFulfillment, Ord
  * rounding goes through shared/lib/money.ts. Everything is fictional.
  */
 
-/** The seed is generated relative to this instant (see mock-data/README.md): Sat 3 Oct 2026, 17:15 IST. */
-export const DEMO_NOW = '2026-10-03T11:45:00.000Z';
-export const DEMO_TODAY = '2026-10-03';
+/**
+ * "Now" and "today" for every dashboard. Preview mode (no backend) stays on the sample clock the seed was generated for
+ * (Sat 3 Oct 2026, 17:15 IST). Live mode runs on the REAL clock: the API judges slots, payments and bookings by it, so a
+ * frozen date made "today" payments, today's bookings and bookable slots disagree with the server. Exported `let`s are live
+ * bindings; syncClock() refreshes them on every live load.
+ */
+export let DEMO_NOW = '2026-10-03T11:45:00.000Z';
+export let DEMO_TODAY = '2026-10-03';
+export function syncClock(): void {
+  if (!isBackendConfigured) return;
+  const now = new Date();
+  DEMO_NOW = now.toISOString();
+  DEMO_TODAY = istDate(now);
+}
+syncClock();
 
 export interface DCourt {
   id: string;

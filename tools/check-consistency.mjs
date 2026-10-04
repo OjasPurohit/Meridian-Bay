@@ -308,7 +308,7 @@ section('14. schema columns never populated by the seed');
 {
   const EXPECTED_NULL = {
     // column -> why the seed leaves it empty (documented in mock-data/README.md "Intentionally empty columns")
-    'members.photo_url': 'upload feature (FR-MEM-015, NICE)', 'courts.image_url': 'no image hosting in the mock', 'court_bookings.guest_email': 'only public trial bookings carry an email; the seed has none',
+    'members.photo_url': 'upload feature (FR-MEM-015, NICE)', 'courts.image_url': 'no image hosting in the mock', 'court_bookings.guest_email': 'only public trial bookings carry an email; the seed has none', 'enquiries.trial_booking_id': 'set only when the owner approves a website trial request; the seed has none',
   };
   const empty = [];
   for (const t of Object.values(schema.tables)) {

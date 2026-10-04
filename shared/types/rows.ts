@@ -161,6 +161,8 @@ export interface Enquiry {
   created_at: IsoDateTime;
   updated_at: IsoDateTime;
   handled_at: IsoDateTime | null;
+  /** Trial requests: the booking the owner's approval created (handled with none = declined). */
+  trial_booking_id: Uuid | null;
 }
 
 // ------------------------------------------------------------------ courts / bookings

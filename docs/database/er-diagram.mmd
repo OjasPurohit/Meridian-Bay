@@ -5,6 +5,7 @@ erDiagram
   members ||--o{ memberships : "member_id"
   membership_plans ||--o{ memberships : "membership_plan_id"
   membership_plans ||--o{ enquiries : "membership_plan_id"
+  court_bookings ||--o{ enquiries : "trial_booking_id"
   courts ||--o{ court_bookings : "court_id"
   members ||--o{ court_bookings : "member_id"
   members ||--o{ shop_orders : "member_id"
@@ -61,6 +62,7 @@ erDiagram
     text email
     uuid membership_plan_id FK
     sport_type sport_type
+    uuid trial_booking_id FK
   }
   courts {
     uuid id PK

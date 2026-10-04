@@ -155,7 +155,7 @@ export const planCards = plans.map((p) => ({ id: p.id, type: p.membership_type, 
 export const enquiries = enquiriesRaw
   .slice()
   .sort((a, b) => b.created_at.localeCompare(a.created_at))
-  .map((e) => ({ id: e.id, name: e.name, phone: e.phone, email: e.email, type: e.enquiry_type, status: (e.handled_at ? 'HANDLED' : 'NEW') as 'NEW' | 'HANDLED', message: e.message, created_at: e.created_at }));
+  .map((e) => ({ id: e.id, name: e.name, phone: e.phone, email: e.email, type: e.enquiry_type, status: (e.handled_at ? 'HANDLED' : 'NEW') as 'NEW' | 'HANDLED', message: e.message, created_at: e.created_at, sport: e.sport_type, preferred: e.preferred_start_at, booking_id: e.trial_booking_id }));
 
 const EXTRA_STAFF = [
   { name: 'Imran Sheikh', designation: 'Head Tennis Coach', area: 'COURTS', salary: 52000, phone: '+919820000011', role: 'COACH' },

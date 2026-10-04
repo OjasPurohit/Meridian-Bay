@@ -102,6 +102,8 @@ interface PageMeta { page: number; page_size: number; total: number; total_pages
 | enquiries | `GET` | `/enquiries` | FRONT_DESK, OWNER_ADMIN | [enquiries.list](#enquirieslist) |
 | enquiries | `GET` | `/enquiries/:id` | FRONT_DESK, OWNER_ADMIN | [enquiries.get](#enquiriesget) |
 | enquiries | `PATCH` | `/enquiries/:id` | FRONT_DESK, OWNER_ADMIN | [enquiries.update](#enquiriesupdate) |
+| enquiries | `POST` | `/enquiries/:id/approve-trial` | OWNER_ADMIN | [enquiries.approveTrial](#enquiriesapproveTrial) |
+| enquiries | `POST` | `/enquiries/:id/decline-trial` | OWNER_ADMIN | [enquiries.declineTrial](#enquiriesdeclineTrial) |
 | clients | `GET` | `/business-clients` | OWNER_ADMIN | [clients.list](#clientslist) |
 | clients | `POST` | `/business-clients` | OWNER_ADMIN | [clients.create](#clientscreate) |
 | clients | `GET` | `/business-clients/:id` | OWNER_ADMIN | [clients.get](#clientsget) |
@@ -151,7 +153,7 @@ interface PageMeta { page: number; page_size: number; total: number; total_pages
 | settings | `GET` | `/settings` | OWNER_ADMIN | [settings.list](#settingslist) |
 | settings | `PATCH` | `/settings/:key` | OWNER_ADMIN | [settings.update](#settingsupdate) |
 
-**110 endpoints** across 18 modules.
+**112 endpoints** across 18 modules.
 
 ## 3. Module ownership
 
@@ -2804,28 +2806,28 @@ POST /api/v1/bookings
 <a id="bookingstrial"></a>
 #### `POST /api/v1/bookings/trial` — bookings.trial
 
-A visitor books a free trial hour from the public website: the first free active court of the chosen sport takes the slot.
+A visitor asks for a free trial hour from the public website. Nothing is booked yet: the request waits for the owner (see enquiries.approveTrial).
 
 | | |
 |---|---|
 | **Auth** | None (PUBLIC) |
 | **Roles** | PUBLIC |
-| **Success** | 201 · `data: BookingDetail` |
+| **Success** | 201 · `data: EnquiryView` |
 | **Requirements** | FR-PUB-006, FR-COURT-004 |
 | **Governing rules** | — |
-| **Tables touched** | `court_bookings` |
+| **Tables touched** | `enquiries` |
 
 **Request body** — type `BookingsTrialRequest`
 
 | Field | Type | Required | Rules |
 |---|---|---|---|
 | `name` | string | **yes** |  |
-| `phone` | phone | **yes** |  |
+| `phone` | string | **yes** | exactly 10 digits |
 | `email` | email | no |  |
 | `sport_type` | enum SPORT_TYPE | **yes** |  |
 | `start_at` | datetime | **yes** | on a :00/:30 boundary, in the future, inside opening hours |
 
-**Rules / behaviour:** Transaction: lock the phone number (advisory) -> at most one upcoming TRIAL per phone (TRIAL_ALREADY_BOOKED) -> pick the first active court of the sport (by name) with no standing booking in the slot, else BOOKING_CONFLICT -> INSERT booking_type TRIAL (list_price 0, so amount due is 0 and nothing is paid). The same table, calendar and exclusion constraint as every other court booking; owner and front desk see it in their calendars.
+**Rules / behaviour:** Transaction: lock the phone number (advisory) -> at most one open trial per phone, i.e. no waiting TRIAL request and no upcoming TRIAL booking (TRIAL_ALREADY_BOOKED) -> require that some active court of the sport is free in the slot, else BOOKING_CONFLICT -> INSERT an enquiry of type TRIAL (sport_type, preferred_start_at, handled_at NULL). The slot is NOT held until the owner approves.
 
 **Errors**
 
@@ -2856,29 +2858,20 @@ POST /api/v1/bookings/trial
 {
   "success": true,
   "data": {
-    "id": "09000000-0000-4000-8000-000000000001",
-    "booking_number": "BK-000001",
-    "court_id": "08000000-0000-4000-8000-000000000001",
-    "booking_type": "REGULAR",
-    "member_id": "02000000-0000-4000-8000-000000000003",
-    "guest_name": null,
-    "guest_phone": null,
-    "start_at": "2026-09-27T12:30:00.000Z",
-    "end_at": "2026-09-27T13:30:00.000Z",
-    "list_price": "800.00",
-    "discount_amount": "400.00",
-    "cancelled_at": null,
-    "created_at": "2026-09-26T12:30:00.000Z",
-    "updated_at": "2026-09-26T12:30:00.000Z",
-    "guest_email": null,
-    "status": "CONFIRMED",
-    "amount_due": "1250.00",
-    "amount_paid": "1250.00",
-    "payment_status": "PENDING",
-    "court_name": "Aarav Kapoor",
-    "sport_type": "TENNIS",
-    "member_name": "Aarav Kapoor",
-    "member_code": "CCM-00001"
+    "id": "07000000-0000-4000-8000-000000000001",
+    "enquiry_type": "GENERAL",
+    "name": "Anita Deshmukh",
+    "email": "anita.d@example.com",
+    "phone": "+919900100001",
+    "message": "What are your timings and do you offer coaching for beginners?",
+    "membership_plan_id": null,
+    "sport_type": null,
+    "preferred_start_at": null,
+    "created_at": "2026-10-03T04:10:00.000Z",
+    "updated_at": "2026-10-03T04:10:00.000Z",
+    "handled_at": null,
+    "trial_booking_id": null,
+    "plan_name": "Aarav Kapoor"
   }
 }
 ```
@@ -5676,6 +5669,7 @@ GET /api/v1/enquiries
       "created_at": "2026-10-03T04:10:00.000Z",
       "updated_at": "2026-10-03T04:10:00.000Z",
       "handled_at": null,
+      "trial_booking_id": null,
       "plan_name": "Aarav Kapoor"
     }
   ],
@@ -5746,6 +5740,7 @@ GET /api/v1/enquiries/07000000-0000-4000-8000-000000000001
     "created_at": "2026-10-03T04:10:00.000Z",
     "updated_at": "2026-10-03T04:10:00.000Z",
     "handled_at": null,
+    "trial_booking_id": null,
     "plan_name": "Aarav Kapoor"
   }
 }
@@ -5823,6 +5818,7 @@ PATCH /api/v1/enquiries/07000000-0000-4000-8000-000000000001
     "created_at": "2026-10-03T04:10:00.000Z",
     "updated_at": "2026-10-03T04:10:00.000Z",
     "handled_at": null,
+    "trial_booking_id": null,
     "plan_name": "Aarav Kapoor"
   }
 }
@@ -5836,6 +5832,143 @@ PATCH /api/v1/enquiries/07000000-0000-4000-8000-000000000001
   "error": {
     "code": "ENQUIRY_NOT_FOUND",
     "message": "Enquiry not found."
+  }
+}
+```
+
+<a id="enquiriesapproveTrial"></a>
+#### `POST /api/v1/enquiries/:id/approve-trial` — enquiries.approveTrial
+
+Approve a trial request: the first free active court of the sport is booked for the visitor as a free TRIAL court booking (shows in the owner and front-desk calendars).
+
+| | |
+|---|---|
+| **Auth** | Bearer JWT |
+| **Roles** | OWNER_ADMIN |
+| **Success** | 200 · `data: EnquiryView` |
+| **Requirements** | FR-ENQ-004, FR-COURT-004 |
+| **Governing rules** | — |
+| **Tables touched** | `enquiries`, `court_bookings` |
+| **Path params** | `id` (uuid) |
+
+**Rules / behaviour:** One transaction: lock the enquiry (must be TRIAL, still waiting) -> re-check the slot and pick a free court (BOOKING_CONFLICT if it was taken meanwhile: the owner declines or the desk rebooks) -> INSERT court_bookings (booking_type TRIAL, list_price 0, guest name / phone / email from the request) -> set handled_at and trial_booking_id.
+
+**Errors**
+
+| Code | HTTP | Meaning here |
+|---|---|---|
+| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
+| `VALIDATION_ERROR` | 400 | Request validation failed. |
+| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
+| `ENQUIRY_NOT_FOUND` | 404 | Enquiry not found. |
+| `TRIAL_REQUEST_CLOSED` | 409 | This trial request is not waiting for a decision. |
+| `BOOKING_CONFLICT` | 409 | This court is already booked for that time. |
+| `INVALID_SLOT` | 422 | Start time must be on a 30-minute boundary, in the future, within opening hours. |
+| `COURT_UNAVAILABLE` | 409 | Court is closed, inactive, blocked, or outside opening hours. |
+
+**Example (generated from the types and seed data — shape is exact, values illustrative)**
+
+```http
+POST /api/v1/enquiries/07000000-0000-4000-8000-000000000001/approve-trial
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "07000000-0000-4000-8000-000000000001",
+    "enquiry_type": "GENERAL",
+    "name": "Anita Deshmukh",
+    "email": "anita.d@example.com",
+    "phone": "+919900100001",
+    "message": "What are your timings and do you offer coaching for beginners?",
+    "membership_plan_id": null,
+    "sport_type": null,
+    "preferred_start_at": null,
+    "created_at": "2026-10-03T04:10:00.000Z",
+    "updated_at": "2026-10-03T04:10:00.000Z",
+    "handled_at": null,
+    "trial_booking_id": null,
+    "plan_name": "Aarav Kapoor"
+  }
+}
+```
+
+**Example error (HTTP 409)**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "TRIAL_REQUEST_CLOSED",
+    "message": "This trial request is not waiting for a decision."
+  }
+}
+```
+
+<a id="enquiriesdeclineTrial"></a>
+#### `POST /api/v1/enquiries/:id/decline-trial` — enquiries.declineTrial
+
+Decline a trial request: it is marked handled and no booking is made.
+
+| | |
+|---|---|
+| **Auth** | Bearer JWT |
+| **Roles** | OWNER_ADMIN |
+| **Success** | 200 · `data: EnquiryView` |
+| **Requirements** | FR-ENQ-004 |
+| **Governing rules** | — |
+| **Tables touched** | `enquiries` |
+| **Path params** | `id` (uuid) |
+
+**Rules / behaviour:** handled_at = now, trial_booking_id stays NULL (that is what tells declined from approved).
+
+**Errors**
+
+| Code | HTTP | Meaning here |
+|---|---|---|
+| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
+| `VALIDATION_ERROR` | 400 | Request validation failed. |
+| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
+| `ENQUIRY_NOT_FOUND` | 404 | Enquiry not found. |
+| `TRIAL_REQUEST_CLOSED` | 409 | This trial request is not waiting for a decision. |
+
+**Example (generated from the types and seed data — shape is exact, values illustrative)**
+
+```http
+POST /api/v1/enquiries/07000000-0000-4000-8000-000000000001/decline-trial
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "07000000-0000-4000-8000-000000000001",
+    "enquiry_type": "GENERAL",
+    "name": "Anita Deshmukh",
+    "email": "anita.d@example.com",
+    "phone": "+919900100001",
+    "message": "What are your timings and do you offer coaching for beginners?",
+    "membership_plan_id": null,
+    "sport_type": null,
+    "preferred_start_at": null,
+    "created_at": "2026-10-03T04:10:00.000Z",
+    "updated_at": "2026-10-03T04:10:00.000Z",
+    "handled_at": null,
+    "trial_booking_id": null,
+    "plan_name": "Aarav Kapoor"
+  }
+}
+```
+
+**Example error (HTTP 409)**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "TRIAL_REQUEST_CLOSED",
+    "message": "This trial request is not waiting for a decision."
   }
 }
 ```

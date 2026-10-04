@@ -24,7 +24,7 @@ Seven actors, **five logins**: `MEMBER` (Gold / Silver / Junior are *plans*, not
 
 ## 5. Modules
 
-Membership · Court booking · Shop · Inventory · Cafe · Kitchen · Enquiries · Finance/Payments · Invoicing/Business clients · Staff/HR · Reporting · Settings · Events — 110 endpoints across 18 API modules. Flows (18, with Mermaid): [USER_FLOWS.md](docs/workflows/USER_FLOWS.md) · [workflows.mmd](docs/workflows/workflows.mmd).
+Membership · Court booking · Shop · Inventory · Cafe · Kitchen · Enquiries · Finance/Payments · Invoicing/Business clients · Staff/HR · Reporting · Settings · Events — 112 endpoints across 18 API modules. Flows (18, with Mermaid): [USER_FLOWS.md](docs/workflows/USER_FLOWS.md) · [workflows.mmd](docs/workflows/workflows.mmd).
 
 ## 6. Database
 

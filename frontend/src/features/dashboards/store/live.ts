@@ -16,7 +16,7 @@ import type { BarOrderRow, BookingRow, InvoiceRow, PaymentRow, ShopOrderRow } fr
 import { buildState } from './seed';
 import { DAILY, ALL_MEMBERS, REAL_MEMBERS, applications as applicationsRef, courts as courtsRef, inactiveCourts as inactiveCourtsRef, enquiries as enquiriesRef, leaveRequests, plans as plansRef, planCards, staff as staffRef, DAYS } from './staticData';
 import { hooks, replaceState, type BookInput, type KitchenInput, type ShopInput } from './demoStore';
-import { DEMO_TODAY, type DemoState, type DEvent, type DMember, type DStaff } from './types';
+import { DEMO_TODAY, syncClock, type DemoState, type DEvent, type DMember, type DStaff } from './types';
 import type { PaymentMethod } from '@shared/constants/enums';
 
 let session: AuthSession | null = null;
@@ -137,6 +137,7 @@ function fillAnalytics(payments: PaymentView[], bookings: BookingDetail[], membe
 }
 
 async function load(s: AuthSession): Promise<void> {
+  syncClock(); // live mode: today / now are the real ones, refreshed on every load
   const role = s.user.role;
   const staffRole = role === 'FRONT_DESK' || role === 'KITCHEN_MANAGER' || role === 'OWNER_ADMIN';
   const today = DEMO_TODAY;
@@ -211,7 +212,7 @@ async function load(s: AuthSession): Promise<void> {
       payroll = pay;
       replaceAll(clientRegistry, clients);
       replaceAll(applicationsRef, apps.map((a) => ({ id: a.id, name: a.full_name, email: a.email, phone: a.phone ?? '', status: a.status, role: a.approved_role, applied_at: a.applied_at, reviewed_at: a.reviewed_at, reviewed_by: a.reviewed_by_name, note: a.decision_note })));
-      replaceAll(enquiriesRef as unknown[], enq.map((e) => ({ id: e.id, name: e.name, phone: e.phone, email: e.email, type: e.enquiry_type, status: e.handled_at ? 'HANDLED' : 'NEW', message: e.message, created_at: e.created_at })));
+      replaceAll(enquiriesRef as unknown[], enq.map((e) => ({ id: e.id, name: e.name, phone: e.phone, email: e.email, type: e.enquiry_type, status: e.handled_at ? 'HANDLED' : 'NEW', message: e.message, created_at: e.created_at, sport: e.sport_type, preferred: e.preferred_start_at, booking_id: e.trial_booking_id })));
       const shifts = await safe(get<{ staff_id: string; start_time: string; end_time: string }[]>(`/staff/shifts?from=${today}&to=${today}`), []);
       replaceAll(staffRef, staff.map((m): DStaff => {
         const sh = shifts.find((x) => x.staff_id === m.id);
@@ -291,13 +292,24 @@ export function stopLive() {
 const post = (path: string, body?: unknown) => apiRequest('POST', path, body ?? {});
 const patch = (path: string, body: unknown) => apiRequest('PATCH', path, body);
 
-async function send(job: () => Promise<unknown>) {
-  try {
-    await job();
-  } catch (e) {
-    report(e instanceof ApiError ? e.message : 'That change could not be saved.');
-  }
-  await refreshLiveFresh(); // the server's answer is the truth: this also reverts an optimistic change it refused
+let lastWrite: Promise<string | null> = Promise.resolve(null);
+/** Resolves to null once the most recent write was saved by the server, or to the server's refusal message. Instant in preview mode. */
+export const awaitLastWrite = () => lastWrite;
+
+function send(job: () => Promise<unknown>): Promise<string | null> {
+  const run = (async () => {
+    let refused: string | null = null;
+    try {
+      await job();
+    } catch (e) {
+      refused = e instanceof ApiError ? e.message : 'That change could not be saved.';
+      report(refused);
+    }
+    await refreshLiveFresh(); // the server's answer is the truth: this also reverts an optimistic change it refused
+    return refused;
+  })();
+  lastWrite = run;
+  return run;
 }
 
 const isMember = () => session?.user.role === 'MEMBER';

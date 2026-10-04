@@ -53,27 +53,47 @@ async function actor(label, demoLabel) {
   const n30 = Math.floor(Math.random() * 28); // a fresh half-hour slot per run (06:00-19:30), so reruns on one scratch DB never collide
   const hm = `${String(6 + Math.floor(n30 / 2)).padStart(2, '0')}:${n30 % 2 ? '30' : '00'}`;
   const trialName = 'Tara Trial ' + stamp;
-  const phone = '98765' + stamp;
+  const phone = '9' + stamp + '123'; // exactly 10 digits
   const pub = await actor('public');
   await pub.goto(WEB + '/#visit', { waitUntil: 'networkidle' });
   await pub.waitForTimeout(800);
   await pub.locator('#visit input[name=name]').fill(trialName);
-  await pub.locator('#visit input[name=phone]').fill(phone);
   await pub.locator('#visit input[name=email]').fill(`tara.${stamp}@example.com`);
   await pub.locator('#visit select[name=sport]').selectOption('PADEL');
   await pub.locator('#visit input[name=preferred]').fill(`${ymd}T${hm}`);
+  for (const bad of ['880545', '98765432101']) {
+    await pub.locator('#visit input[name=phone]').fill(bad);
+    await pub.getByRole('button', { name: /Book my free trial/ }).click();
+    await pub.waitForTimeout(500);
+    check(`phone "${bad}" is refused with a clear 10-digit message`, /valid 10-digit phone number/.test(await text(pub)) && (await q("SELECT count(*)::int n FROM enquiries WHERE phone = $1", [bad]))[0].n === 0);
+  }
+  await pub.locator('#visit input[name=phone]').fill(phone);
   await pub.getByRole('button', { name: /Book my free trial/ }).click();
   await pub.waitForTimeout(2500);
   const done = await text(pub);
-  check('public page confirms the trial booking with a real court', /You.re booked/.test(done) && /Padel Court/.test(done), done.match(/Your free trial hour[^.]*\./)?.[0] ?? '');
+  check('public page says the request was received (not booked)', /Request received/.test(done) && /owner reviews every trial request/.test(done), done.match(/You asked for[^.]*\./)?.[0] ?? '');
+  const reqRow = await q("SELECT id, enquiry_type::text t, sport_type::text sport, handled_at, trial_booking_id, email, to_char(preferred_start_at AT TIME ZONE 'Asia/Kolkata', 'YYYY-MM-DD HH24:MI') ist FROM enquiries WHERE name = $1", [trialName]);
+  check('DB: a waiting TRIAL request with sport, time and email', reqRow.length === 1 && reqRow[0].t === 'TRIAL' && reqRow[0].sport === 'PADEL' && reqRow[0].ist === `${ymd} ${hm}` && !reqRow[0].handled_at && reqRow[0].email === `tara.${stamp}@example.com`, JSON.stringify(reqRow[0]));
+  check('DB: no court is booked before the owner approves', (await q("SELECT count(*)::int n FROM court_bookings WHERE guest_name = $1", [trialName]))[0].n === 0);
+
+  // owner: sees the request, approves it
+  const approver = await actor('owner-approve', 'Demo Admin');
+  await approver.goto(WEB + '/owner/enquiries', { waitUntil: 'networkidle' });
+  await approver.waitForTimeout(1500);
+  check('owner Enquiries shows the request awaiting approval', /Needs your approval/i.test(await text(approver)) && (await text(approver)).includes(trialName));
+  await approver.getByRole('button', { name: `Approve ${trialName}'s trial` }).click();
+  await approver.waitForTimeout(3000);
   const row = await q("SELECT b.id, b.booking_type::text t, b.guest_email, b.list_price::text lp, c.name court, c.sport_type::text sport, to_char(b.start_at AT TIME ZONE 'Asia/Kolkata', 'YYYY-MM-DD HH24:MI') ist FROM court_bookings b JOIN courts c ON c.id = b.court_id WHERE b.guest_name = $1", [trialName]);
-  check('DB: TRIAL court booking on a padel court at the chosen IST time, free, email kept', row.length === 1 && row[0].t === 'TRIAL' && row[0].sport === 'PADEL' && row[0].ist === `${ymd} ${hm}` && row[0].lp === '0.00' && row[0].guest_email === `tara.${stamp}@example.com`, JSON.stringify(row[0]));
+  check('DB: approval created a TRIAL court booking on a padel court at the chosen IST time, free, email kept', row.length === 1 && row[0].t === 'TRIAL' && row[0].sport === 'PADEL' && row[0].ist === `${ymd} ${hm}` && row[0].lp === '0.00' && row[0].guest_email === `tara.${stamp}@example.com`, JSON.stringify(row[0]));
+  const closed = await q("SELECT handled_at, trial_booking_id FROM enquiries WHERE id = $1", [reqRow[0].id]);
+  check('DB: the request is closed and linked to that booking', !!closed[0].handled_at && closed[0].trial_booking_id === row[0].id);
+  check('owner Enquiries no longer lists it as awaiting approval', !/Needs your approval/i.test(await text(approver)) || !(await approver.locator('li', { hasText: trialName }).count()));
   check('DB: no payment fabricated for the trial', (await q("SELECT count(*)::int n FROM payments WHERE source_id = $1", [row[0].id]))[0].n === 0);
 
-  // the same slot is now taken on that court: the next visitor gets the other padel court, then a clear error
+  // the only padel court is now taken at that time: the next visitor gets a clear message and nothing is filed
   await pub.getByRole('button', { name: /Book another trial/ }).click();
   await pub.locator('#visit input[name=name]').fill('Second Visitor ' + stamp);
-  await pub.locator('#visit input[name=phone]').fill('98764' + stamp);
+  await pub.locator('#visit input[name=phone]').fill('8' + stamp + '123');
   await pub.locator('#visit select[name=sport]').selectOption('PADEL');
   await pub.locator('#visit input[name=preferred]').fill(`${ymd}T${hm}`);
   await pub.getByRole('button', { name: /Book my free trial/ }).click();
@@ -82,12 +102,12 @@ async function actor(label, demoLabel) {
   check('the only padel court is not booked twice; the second visitor sees a clear message', taken[0].n === 1 && /No court is free/.test(await text(pub)), String(taken[0].n));
 
   // ---------------------------------------------------------------- B. owner + front desk calendars
-  const dayOffset = Math.round((Date.parse(ymd) - Date.parse('2026-10-03')) / 86400000);
+  const dayOffset = Math.round((Date.parse(ymd) - Date.parse(new Date(Date.now() + 5.5 * 3600000).toISOString().slice(0, 10))) / 86400000);
   for (const [label, demo, home] of [['owner', 'Demo Admin', '/owner/bookings'], ['front desk', 'Demo Front Desk', '/front-desk']]) {
     const p = await actor(label, demo);
     await p.goto(WEB + home, { waitUntil: 'networkidle' });
     await p.waitForTimeout(1500);
-    const tab = p.locator('[role=tablist][aria-label="Choose a day"] [role=tab]').nth(3 + dayOffset); // the strip starts three days before DEMO_TODAY
+    const tab = p.locator('[role=tablist][aria-label="Choose a day"] [role=tab]').nth(3 + dayOffset); // the strip starts three days before today (the dashboards run on the real clock in live mode)
     await tab.click();
     await p.waitForTimeout(800);
     const hit = p.locator('button[title*="' + trialName + '"]');

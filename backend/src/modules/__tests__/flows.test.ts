@@ -714,7 +714,7 @@ describe('live repairs: stock by one, menu from the kitchen, member date of birt
   });
 });
 
-describe('book a trial: a public visitor takes a real court slot that every calendar shows', () => {
+describe('book a trial: a public request the owner approves, then every calendar shows it', () => {
   const nextSlot = async () => {
     const date = new Date(Date.now() + 5 * 86_400_000).toISOString().slice(0, 10);
     const av = (await call(null, 'GET', `/courts/availability?date=${date}`)).body.data;
@@ -722,12 +722,26 @@ describe('book a trial: a public visitor takes a real court slot that every cale
     assert.ok(tennis.length >= 2, 'the seed has at least two tennis courts');
     return tennis[0].slots.find((s: any) => s.status === 'AVAILABLE' && tennis.every((c: any) => c.slots.find((x: any) => x.start_at === s.start_at)?.status === 'AVAILABLE')).start_at as string;
   };
+  const request = (name: string, phone: string, start_at: string, sport = 'TENNIS') => call(null, 'POST', '/bookings/trial', { name, phone, email: 'tara@example.com', sport_type: sport, start_at });
 
-  it('books a free trial without logging in; it is a TRIAL court booking with amount due 0 and no payment', async () => {
+  it('a request books nothing: it waits in the owner inbox; approval creates the free TRIAL booking that owner and desk both see', async () => {
     const start_at = await nextSlot();
-    const r = await call(null, 'POST', '/bookings/trial', { name: 'Tara Trial', phone: '9876543201', email: 'tara@example.com', sport_type: 'TENNIS', start_at });
+    const r = await request('Tara Trial', '9876543201', start_at);
     assert.equal(r.status, 201, r.text);
-    const b = r.body.data;
+    const e = r.body.data;
+    assert.equal(e.enquiry_type, 'TRIAL');
+    assert.equal(e.handled_at, null);
+    assert.equal(e.trial_booking_id, null);
+    assert.equal((await query("SELECT count(*)::int AS n FROM court_bookings WHERE booking_type = 'TRIAL' AND guest_phone = '9876543201'")).rows[0].n, 0, 'no court is taken before approval');
+    assert.ok((await call('owner', 'GET', '/enquiries?handled=false&enquiry_type=TRIAL')).body.data.find((x: any) => x.id === e.id), 'owner sees the request');
+
+    for (const who of ['desk', 'store', 'member', 'kitchen'] as const) assert.equal((await call(who, 'POST', `/enquiries/${e.id}/approve-trial`, {})).body.error.code, 'FORBIDDEN', who);
+    assert.equal((await call(null, 'POST', `/enquiries/${e.id}/approve-trial`, {})).body.error.code, 'AUTH_UNAUTHORIZED');
+
+    const ok = await call('owner', 'POST', `/enquiries/${e.id}/approve-trial`, {});
+    assert.equal(ok.status, 200, ok.text);
+    assert.ok(ok.body.data.handled_at && ok.body.data.trial_booking_id);
+    const b = (await call('owner', 'GET', `/bookings/${ok.body.data.trial_booking_id}`)).body.data;
     assert.equal(b.booking_type, 'TRIAL');
     assert.equal(b.sport_type, 'TENNIS');
     assert.equal(b.guest_name, 'Tara Trial');
@@ -739,30 +753,61 @@ describe('book a trial: a public visitor takes a real court slot that every cale
       const list = (await call(who, 'GET', '/bookings?booking_type=TRIAL&page_size=100')).body.data;
       assert.ok(list.find((x: any) => x.id === b.id), `${who} sees the trial in the bookings list`);
     }
-    const av = (await call('owner', 'GET', `/courts/availability?date=${istDate(start_at)}`)).body.data;
+    const day = istDate(start_at);
+    const addD = (d: string, n: number) => new Date(Date.parse(`${d}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
+    const monthEnd = new Date(Date.UTC(+day.slice(0, 4), +day.slice(5, 7), 0)).toISOString().slice(0, 10);
+    for (const [label, from, to] of [['day', day, day], ['week window', addD(day, -3), addD(day, 3)], ['month window', `${day.slice(0, 7)}-01`, monthEnd]] as const) {
+      for (const who of ['owner', 'desk'] as const) {
+        const hit = (await call(who, 'GET', `/bookings?from=${from}&to=${to}&page_size=100`)).body.data;
+        assert.ok(hit.find((x: any) => x.id === b.id), `${who}: the approved trial is inside the ${label}`);
+      }
+    }
+    const before = (await call('owner', 'GET', `/bookings?from=${addD(day, -9)}&to=${addD(day, -1)}&page_size=100`)).body.data;
+    assert.ok(!before.find((x: any) => x.id === b.id), 'a range that ends the day before does not include it');
+    const av = (await call('owner', 'GET', `/courts/availability?date=${day}`)).body.data;
     assert.ok(av.flatMap((c: any) => c.slots).some((s: any) => s.booking_id === b.id), 'the slot shows as booked with the trial booking id');
+    assert.equal((await call('owner', 'POST', `/enquiries/${e.id}/approve-trial`, {})).body.error.code, 'TRIAL_REQUEST_CLOSED', 'a decided request cannot be decided twice');
   });
 
-  it('uses the next free court of the sport, then reports a conflict; one upcoming trial per phone; slots and input are validated', async () => {
+  it('declining books nothing; one open trial per phone; the phone must be exactly 10 digits; slots and input are validated', async () => {
     const start_at = await nextSlot();
-    const one = await call(null, 'POST', '/bookings/trial', { name: 'Uma', phone: '9876543202', sport_type: 'TENNIS', start_at });
-    const two = await call(null, 'POST', '/bookings/trial', { name: 'Vik', phone: '9876543203', sport_type: 'TENNIS', start_at });
-    assert.equal(one.status, 201, one.text);
-    assert.equal(two.status, 201, two.text);
-    assert.notEqual(one.body.data.court_id, two.body.data.court_id, 'two visitors never share a court');
-    assert.equal((await call(null, 'POST', '/bookings/trial', { name: 'Wes', phone: '9876543204', sport_type: 'TENNIS', start_at })).body.error.code, 'BOOKING_CONFLICT');
-    const other = await nextSlot();
-    assert.equal((await call(null, 'POST', '/bookings/trial', { name: 'Uma again', phone: '9876543202', sport_type: 'TENNIS', start_at: other })).body.error.code, 'TRIAL_ALREADY_BOOKED');
-    assert.equal((await call(null, 'POST', '/bookings/trial', { name: 'Bad', phone: '9876543299', sport_type: 'TENNIS', start_at: new Date(Date.now() - 86_400_000).toISOString() })).body.error.code, 'INVALID_SLOT');
-    assert.equal((await call(null, 'POST', '/bookings/trial', { name: 'Bad', phone: 'abc', sport_type: 'TENNIS', start_at: other })).body.error.code, 'VALIDATION_ERROR');
-    assert.equal((await call(null, 'POST', '/bookings/trial', { name: 'Bad', phone: '9876543298', sport_type: 'GOLF', start_at: other })).body.error.code, 'VALIDATION_ERROR');
+    const one = (await request('Uma', '9876543202', start_at)).body.data;
+    assert.equal((await request('Uma again', '9876543202', await nextSlot())).body.error.code, 'TRIAL_ALREADY_BOOKED', 'a waiting request blocks a second one');
+    const d = await call('owner', 'POST', `/enquiries/${one.id}/decline-trial`, {});
+    assert.equal(d.status, 200, d.text);
+    assert.ok(d.body.data.handled_at);
+    assert.equal(d.body.data.trial_booking_id, null);
+    assert.equal((await query("SELECT count(*)::int AS n FROM court_bookings WHERE booking_type = 'TRIAL' AND guest_phone = '9876543202'")).rows[0].n, 0);
+    assert.equal((await call('owner', 'POST', `/enquiries/${one.id}/decline-trial`, {})).body.error.code, 'TRIAL_REQUEST_CLOSED');
+    assert.equal((await request('Uma later', '9876543202', start_at)).status, 201, 'after a decline the visitor may ask again');
+
+    for (const bad of ['880545', '98765432011', '+919876543205', '98765abcde', '']) {
+      const r = await request('Bad', bad, start_at);
+      assert.equal(r.body.error.code, 'VALIDATION_ERROR', `phone "${bad}"`);
+      assert.match(JSON.stringify(r.body.error.details), /10-digit/);
+    }
+    assert.equal((await request('Bad', '9876543299', new Date(Date.now() - 86_400_000).toISOString())).body.error.code, 'INVALID_SLOT');
+    assert.equal((await request('Bad', '9876543298', start_at, 'GOLF')).body.error.code, 'VALIDATION_ERROR');
   });
 
-  it('the front desk can cancel a trial and free its court', async () => {
+  it('approving fails with BOOKING_CONFLICT when the courts were taken meanwhile; a request is refused up front when nothing is free', async () => {
     const start_at = await nextSlot();
-    const t1 = (await call(null, 'POST', '/bookings/trial', { name: 'Xena', phone: '9876543205', sport_type: 'TENNIS', start_at })).body.data;
-    assert.equal((await call('desk', 'POST', `/bookings/${t1.id}/cancel`, {})).status, 200);
-    assert.equal((await query('SELECT cancelled_at IS NOT NULL AS c FROM court_bookings WHERE id = $1', [t1.id])).rows[0].c, true);
+    const reqs = [(await request('Vik', '9876543203', start_at)).body.data, (await request('Wes', '9876543204', start_at)).body.data, (await request('Yan', '9876543206', start_at)).body.data];
+    assert.ok(reqs.every(Boolean), 'requests do not hold a court, so they can all be filed');
+    assert.equal((await call('owner', 'POST', `/enquiries/${reqs[0].id}/approve-trial`, {})).status, 200);
+    assert.equal((await call('owner', 'POST', `/enquiries/${reqs[1].id}/approve-trial`, {})).status, 200);
+    const third = await call('owner', 'POST', `/enquiries/${reqs[2].id}/approve-trial`, {});
+    assert.equal(third.body.error.code, 'BOOKING_CONFLICT');
+    assert.equal((await query('SELECT handled_at IS NULL AS open FROM enquiries WHERE id = $1', [reqs[2].id])).rows[0].open, true, 'a failed approval leaves the request open');
+    assert.equal((await request('Zed', '9876543207', start_at)).body.error.code, 'BOOKING_CONFLICT');
+  });
+
+  it('the front desk can cancel an approved trial and free its court', async () => {
+    const start_at = await nextSlot();
+    const e = (await request('Xena', '9876543208', start_at)).body.data;
+    const t1 = (await call('owner', 'POST', `/enquiries/${e.id}/approve-trial`, {})).body.data;
+    assert.equal((await call('desk', 'POST', `/bookings/${t1.trial_booking_id}/cancel`, {})).status, 200);
+    assert.equal((await query('SELECT cancelled_at IS NOT NULL AS c FROM court_bookings WHERE id = $1', [t1.trial_booking_id])).rows[0].c, true);
   });
 });
 

@@ -29,6 +29,7 @@ type Status = { kind: 'idle' } | { kind: 'sending' } | { kind: 'sent'; name: str
 
 const TRIAL_ERRORS: Record<string, string> = {
   BOOKING_CONFLICT: 'No court is free for that sport at that time. Please pick another time.',
+  TRIAL_ALREADY_BOOKED: 'This phone number already has a trial request or an upcoming trial. We will be in touch.',
   INVALID_SLOT: 'Please choose a future time on the hour or half hour.',
   COURT_UNAVAILABLE: 'That time is outside our opening hours. Please pick another time.',
 };
@@ -57,12 +58,17 @@ export function EnquirySection({ club, plans }: { club: PublicClubInfo | null; p
     const name = String(f.get('name') ?? '').trim();
     const phone = String(f.get('phone') ?? '').trim();
     const when = String(f.get('preferred') ?? '');
+    const digits = phone.replace(/[\s()-]/g, '');
+    if (!/^\d{10}$/.test(digits)) {
+      setStatus({ kind: 'error', message: 'Enter a valid 10-digit phone number (digits only, no +91 or spaces).' });
+      return;
+    }
     setStatus({ kind: 'sending' });
     try {
       if (type === 'TRIAL') {
         const trial = await bookTrial({
           name,
-          phone: phone.replace(/[\s()-]/g, ''),
+          phone: digits,
           email: String(f.get('email') ?? '').trim() || undefined,
           sport_type: String(f.get('sport')) as SportType,
           start_at: new Date(when).toISOString(),
@@ -72,7 +78,7 @@ export function EnquirySection({ club, plans }: { club: PublicClubInfo | null; p
       }
       const sentEnquiry = await createEnquiry({
         name,
-        phone,
+        phone: digits,
         email: String(f.get('email') ?? '').trim() || undefined,
         enquiry_type: type,
         message: String(f.get('message') ?? '').trim() || undefined,
@@ -80,7 +86,8 @@ export function EnquirySection({ club, plans }: { club: PublicClubInfo | null; p
       });
       setStatus({ kind: 'sent', name: name.split(' ')[0], persisted: sentEnquiry.persisted });
     } catch (err) {
-      setStatus({ kind: 'error', message: err instanceof ApiError && TRIAL_ERRORS[err.code] ? TRIAL_ERRORS[err.code]! : err instanceof Error ? err.message : 'Something went wrong. Please try again.' });
+      const fieldMsg = err instanceof ApiError ? Object.values((err.details?.fields ?? {}) as Record<string, string>)[0] : undefined;
+      setStatus({ kind: 'error', message: err instanceof ApiError && TRIAL_ERRORS[err.code] ? TRIAL_ERRORS[err.code]! : fieldMsg ?? (err instanceof Error ? err.message : 'Something went wrong. Please try again.') });
     }
   }
 
@@ -144,9 +151,9 @@ export function EnquirySection({ club, plans }: { club: PublicClubInfo | null; p
                 </span>
                 {status.trial?.persisted ? (
                   <>
-                    <p className="display mt-6 text-4xl">You&rsquo;re booked, {status.name}.</p>
+                    <p className="display mt-6 text-4xl">Request received, {status.name}.</p>
                     <p className="mt-4 max-w-md leading-relaxed text-muted">
-                      Your free trial hour is on <strong>{status.trial.court_name}</strong>, {formatDateIst(status.trial.start_at)} at {formatClockIst(status.trial.start_at)} IST. Booking {status.trial.booking_number}. Just turn up; the front desk has it on the calendar.
+                      You asked for a free {SPORT_LABEL[status.trial.sport_type]} trial hour on <strong>{formatDateIst(status.trial.start_at)} at {formatClockIst(status.trial.start_at)} IST</strong>. The club owner reviews every trial request; once it is approved a court is booked for you and the front desk will confirm by phone. Nothing is reserved until then.
                     </p>
                   </>
                 ) : status.persisted ? (
@@ -193,7 +200,7 @@ export function EnquirySection({ club, plans }: { club: PublicClubInfo | null; p
                   </label>
                   <label>
                     <span className={label}>Phone</span>
-                    <input name="phone" type="tel" required autoComplete="tel" inputMode="tel" pattern="[+0-9 ()-]{8,}" className={field} />
+                    <input name="phone" type="tel" required autoComplete="tel" inputMode="numeric" placeholder="10-digit mobile number" className={field} />
                   </label>
                   <label>
                     <span className={label}>

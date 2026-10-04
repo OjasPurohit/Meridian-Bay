@@ -52,13 +52,14 @@ Source of truth: [shared/constants/errors.ts](../../shared/constants/errors.ts).
 | Code | HTTP | Default message | Used by |
 |---|---|---|---|
 | `COURT_NOT_FOUND` | 404 | Court not found. | courts.availability, courts.update, courts.block, bookings.price, bookings.create |
-| `COURT_UNAVAILABLE` | 409 | Court is closed, inactive, blocked, or outside opening hours. | bookings.create, bookings.trial |
-| `INVALID_SLOT` | 422 | Start time must be on a 30-minute boundary, in the future, within opening hours. | courts.block, bookings.price, bookings.create, bookings.trial |
+| `COURT_UNAVAILABLE` | 409 | Court is closed, inactive, blocked, or outside opening hours. | bookings.create, bookings.trial, enquiries.approveTrial |
+| `INVALID_SLOT` | 422 | Start time must be on a 30-minute boundary, in the future, within opening hours. | courts.block, bookings.price, bookings.create, bookings.trial, enquiries.approveTrial |
 | `BOOKING_NOT_FOUND` | 404 | Booking not found. | courts.unblock, bookings.get, bookings.cancel, payments.create |
-| `BOOKING_CONFLICT` | 409 | This court is already booked for that time. | courts.block, bookings.create, bookings.trial |
+| `BOOKING_CONFLICT` | 409 | This court is already booked for that time. | courts.block, bookings.create, bookings.trial, enquiries.approveTrial |
 | `DAILY_BOOKING_LIMIT` | 409 | Member has reached the maximum plays allowed per day. | bookings.create |
 | `BOOKING_NOT_CANCELLABLE` | 409 | This booking can no longer be cancelled. | bookings.cancel |
 | `TRIAL_ALREADY_BOOKED` | 409 | This phone number already has an upcoming trial booked. | bookings.trial |
+| `TRIAL_REQUEST_CLOSED` | 409 | This trial request is not waiting for a decision. | enquiries.approveTrial, enquiries.declineTrial |
 | `COURT_NAME_TAKEN` | 409 | A court with this name already exists. | courts.create, courts.update |
 
 ## Shop
@@ -95,7 +96,7 @@ Source of truth: [shared/constants/errors.ts](../../shared/constants/errors.ts).
 
 | Code | HTTP | Default message | Used by |
 |---|---|---|---|
-| `ENQUIRY_NOT_FOUND` | 404 | Enquiry not found. | enquiries.get, enquiries.update |
+| `ENQUIRY_NOT_FOUND` | 404 | Enquiry not found. | enquiries.get, enquiries.update, enquiries.approveTrial, enquiries.declineTrial |
 
 ## Events
 

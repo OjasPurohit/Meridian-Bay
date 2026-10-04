@@ -37,6 +37,7 @@ const run = async (label, script, args = [], env = {}, expectFail = false) => {
   return r;
 };
 
+const MIGRATIONS = readdirSync(path.join(root, 'database/migrations')).filter((x) => /^\d{4}_.+\.sql$/.test(x)).length;
 console.log('database scripts against in-memory Postgres:');
 await run('migrate (fresh database)', 'database/migrate.mjs');
 await run('migrate again is a no-op', 'database/migrate.mjs');
@@ -59,8 +60,8 @@ await run('reset refused for a non-local host (Supabase-like URL)', 'database/re
 await run('reset (local, ALLOW_DB_RESET=true) rebuilds + reseeds', 'database/reset.mjs', [], { ALLOW_DB_RESET: 'true' });
 const n = (await db.query('SELECT count(*)::int AS n FROM payments')).rows[0].n;
 const m = (await db.query('SELECT count(*)::int AS n FROM schema_migrations')).rows[0].n;
-console.log(`  ${n > 0 && m === 8 ? '✔' : '✘'} after reset: payments=${n}, schema_migrations=${m}`);
-if (!(n > 0 && m === 8)) fails++;
+console.log(`  ${n > 0 && m === MIGRATIONS ? '✔' : '✘'} after reset: payments=${n}, schema_migrations=${m}`);
+if (!(n > 0 && m === MIGRATIONS)) fails++;
 
 await server.stop();
 await db.close();

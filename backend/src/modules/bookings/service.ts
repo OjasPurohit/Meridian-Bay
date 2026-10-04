@@ -4,7 +4,7 @@
  * impossible by the exclusion constraint court_bookings_no_overlap (mapped to BOOKING_CONFLICT by the kernel).
  */
 import { PAYMENT_METHOD, USER_ROLE, type PaymentMethod, type SportType } from '@shared/constants/enums';
-import type { BookingCancelResult, BookingDetail, CourtAvailability, PriceBreakdown } from '@shared/types/api';
+import type { BookingCancelResult, BookingDetail, CourtAvailability, EnquiryView, PriceBreakdown } from '@shared/types/api';
 import type { Court } from '@shared/types/rows';
 import type { BookingsCreateRequest } from '@shared/types/requests.generated';
 import { fromPaise, percentOf, taxInclusive, toPaise } from '@shared/lib/money';
@@ -89,6 +89,14 @@ async function checkSlot(start_at: string): Promise<void> {
   if (!starts.includes(start)) throw new AppError('COURT_UNAVAILABLE', { reason: 'Outside opening hours.' });
 }
 
+/** The pending TRIAL enquiry, locked for a decision. */
+async function lockTrial(tx: Tx, id: string) {
+  const e = (await tx.query<EnquiryView>('SELECT * FROM enquiries WHERE id = $1 FOR UPDATE', [id])).rows[0];
+  if (!e) throw new AppError('ENQUIRY_NOT_FOUND');
+  if (e.enquiry_type !== 'TRIAL' || e.handled_at || !e.sport_type || !e.preferred_start_at) throw new AppError('TRIAL_REQUEST_CLOSED');
+  return e;
+}
+
 export const BookingsService = {
   async price(user: AuthUser, q: { court_id: string; start_at: string; member_id?: string }): Promise<PriceBreakdown> {
     const court = await courtById(pool, q.court_id);
@@ -130,29 +138,62 @@ export const BookingsService = {
     return (await bookingDetail(pool, id))!;
   },
 
-  /** Public: a visitor's free trial hour. Takes the first free active court of the sport; the exclusion constraint stays the final arbiter. */
-  async trial(body: { name: string; phone: string; email?: string; sport_type: string; start_at: string }): Promise<BookingDetail> {
+  /** The first active court of the sport with no standing booking in the slot (null when none is free). */
+  async freeCourtFor(db: Tx, sport: string, start: Date): Promise<string | null> {
+    const end = new Date(start.getTime() + 3_600_000);
+    const r = await db.query<{ id: string }>(
+      `SELECT c.id FROM courts c WHERE c.is_active AND c.sport_type = $1
+          AND NOT EXISTS (SELECT 1 FROM court_bookings b WHERE b.court_id = c.id AND b.cancelled_at IS NULL AND b.start_at < $3 AND b.end_at > $2)
+        ORDER BY c.name LIMIT 1`,
+      [sport, start.toISOString(), end.toISOString()],
+    );
+    return r.rows[0]?.id ?? null;
+  },
+
+  /** Public: a visitor asks for a free trial hour. Nothing is booked yet: it waits in the owner's inbox as a TRIAL enquiry. */
+  async trialRequest(body: { name: string; phone: string; email?: string; sport_type: string; start_at: string }): Promise<EnquiryView> {
     await checkSlot(body.start_at);
     const start = new Date(body.start_at);
-    const end = new Date(start.getTime() + 3_600_000);
-    const id = await withTransaction(async (tx) => {
+    return withTransaction(async (tx) => {
       await advisoryLock(tx, `trial:${body.phone}`);
-      const open = (await tx.query<{ n: number }>(`SELECT count(*)::int AS n FROM court_bookings WHERE booking_type = 'TRIAL' AND guest_phone = $1 AND cancelled_at IS NULL AND start_at > now()`, [body.phone])).rows[0]!.n;
-      if (open > 0) throw new AppError('TRIAL_ALREADY_BOOKED');
-      const court = (await tx.query<{ id: string }>(
-        `SELECT c.id FROM courts c WHERE c.is_active AND c.sport_type = $1
-            AND NOT EXISTS (SELECT 1 FROM court_bookings b WHERE b.court_id = c.id AND b.cancelled_at IS NULL AND b.start_at < $3 AND b.end_at > $2)
-          ORDER BY c.name LIMIT 1`,
-        [body.sport_type, start.toISOString(), end.toISOString()],
-      )).rows[0];
-      if (!court) throw new AppError('BOOKING_CONFLICT', { reason: 'No court is free for that sport at that time.' });
-      return (await tx.query<{ id: string }>(
+      const open = (await tx.query<{ n: number }>(
+        `SELECT (SELECT count(*) FROM court_bookings WHERE booking_type = 'TRIAL' AND guest_phone = $1 AND cancelled_at IS NULL AND start_at > now())
+              + (SELECT count(*) FROM enquiries WHERE enquiry_type = 'TRIAL' AND phone = $1 AND handled_at IS NULL) AS n`,
+        [body.phone],
+      )).rows[0]!.n;
+      if (Number(open) > 0) throw new AppError('TRIAL_ALREADY_BOOKED');
+      if (!(await this.freeCourtFor(tx, body.sport_type, start))) throw new AppError('BOOKING_CONFLICT', { reason: 'No court is free for that sport at that time.' });
+      const { rows } = await tx.query<EnquiryView>(
+        `INSERT INTO enquiries (enquiry_type, name, email, phone, message, sport_type, preferred_start_at) VALUES ('TRIAL', $1, $2, $3, 'Free trial hour requested from the website.', $4, $5) RETURNING *, NULL::text AS plan_name`,
+        [body.name, body.email ?? null, body.phone, body.sport_type, start.toISOString()],
+      );
+      return rows[0]!;
+    });
+  },
+
+  /** Owner: approve a trial request. Books the first free court of the sport as a free TRIAL booking and closes the request. */
+  async trialApprove(enquiryId: string): Promise<EnquiryView> {
+    return withTransaction(async (tx) => {
+      const e = await lockTrial(tx, enquiryId);
+      await checkSlot(e.preferred_start_at!);
+      const start = new Date(e.preferred_start_at!);
+      const court = await this.freeCourtFor(tx, e.sport_type!, start);
+      if (!court) throw new AppError('BOOKING_CONFLICT', { reason: 'No court is free for that sport at that time any more. Decline the request or ask the visitor for another time.' });
+      const bk = (await tx.query<{ id: string }>(
         `INSERT INTO court_bookings (court_id, booking_type, guest_name, guest_phone, guest_email, start_at, end_at, list_price, discount_amount)
          VALUES ($1, 'TRIAL', $2, $3, $4, $5, $6, 0, 0) RETURNING id`,
-        [court.id, body.name, body.phone, body.email ?? null, start.toISOString(), end.toISOString()],
+        [court, e.name, e.phone, e.email, start.toISOString(), new Date(start.getTime() + 3_600_000).toISOString()],
       )).rows[0]!.id;
+      return (await tx.query<EnquiryView>(`UPDATE enquiries SET handled_at = now(), trial_booking_id = $2 WHERE id = $1 RETURNING *, NULL::text AS plan_name`, [enquiryId, bk])).rows[0]!;
     });
-    return (await bookingDetail(pool, id))!;
+  },
+
+  /** Owner: decline a trial request (handled, no booking). */
+  async trialDecline(enquiryId: string): Promise<EnquiryView> {
+    return withTransaction(async (tx) => {
+      await lockTrial(tx, enquiryId);
+      return (await tx.query<EnquiryView>(`UPDATE enquiries SET handled_at = now() WHERE id = $1 RETURNING *, NULL::text AS plan_name`, [enquiryId])).rows[0]!;
+    });
   },
 
   async list(user: AuthUser, q: { from?: string; to?: string; court_id?: string; member_id?: string; status?: string; booking_type?: string; upcoming?: boolean; page: number; page_size: number }) {

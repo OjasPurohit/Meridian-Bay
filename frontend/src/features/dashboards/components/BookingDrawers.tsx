@@ -5,6 +5,7 @@ import type { PaymentMethod } from '@shared/constants/enums';
 import { formatClockIst, formatDateIst, formatMoney, formatRupees } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { BOOKING_STATUS_LABEL } from '../status';
+import { awaitLastWrite } from '../store/live';
 import { courtById, courtPrice, dayOf, demo, playsUsed, useDemo } from '../store/demoStore';
 import { ALL_MEMBERS, memberById } from '../store/staticData';
 import { DEMO_NOW, type DCourt, type DMember } from '../store/types';
@@ -75,6 +76,7 @@ export function BookDrawer({ mode, memberId, pick, onClose }: { mode: CalendarMo
   const [method, setMethod] = useState<PaymentMethod | 'LATER'>(mode === 'member' ? 'ONLINE' : 'CASH');
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<{ number: string; free: boolean; due: number } | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     // fresh form for every slot
@@ -106,7 +108,7 @@ export function BookDrawer({ mode, memberId, pick, onClose }: { mode: CalendarMo
   const canConfirm = !atLimit && (mode === 'member' || (who === 'member' ? !!chosen : name.trim().length > 1));
   const free = price.due === 0;
 
-  const confirm = () => {
+  const confirm = async () => {
     const res = demo.bookCourt({
       court_id: court.id,
       start_at,
@@ -120,6 +122,13 @@ export function BookDrawer({ mode, memberId, pick, onClose }: { mode: CalendarMo
       return;
     }
     setError(null);
+    setSaving(true);
+    const refused = await awaitLastWrite(); // live mode: success is only what PostgreSQL accepted; the store has already reloaded from it
+    setSaving(false);
+    if (refused) {
+      setError(refused);
+      return;
+    }
     setDone({ number: res.value.number, free, due: price.due });
     toast(`Booked ${court.name} · ${formatClockIst(start_at)}`);
   };
@@ -142,8 +151,8 @@ export function BookDrawer({ mode, memberId, pick, onClose }: { mode: CalendarMo
                 <ShieldAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" /> {error}
               </p>
             )}
-            <button type="button" disabled={!canConfirm} onClick={confirm} className={cn(btn.primary, 'w-full')}>
-              {atLimit ? 'Daily limit reached' : mode === 'member' ? (free ? 'Confirm booking' : method === 'ONLINE' ? `Pay ${formatRupees(price.due)} & book` : 'Confirm booking') : free ? 'Create booking' : method === 'LATER' ? 'Create booking · pay later' : `Create booking · ${formatRupees(price.due)}`}
+            <button type="button" disabled={!canConfirm || saving} onClick={() => void confirm()} className={cn(btn.primary, 'w-full')}>
+              {saving ? 'Saving…' : atLimit ? 'Daily limit reached' : mode === 'member' ? (free ? 'Confirm booking' : method === 'ONLINE' ? `Pay ${formatRupees(price.due)} & book` : 'Confirm booking') : free ? 'Create booking' : method === 'LATER' ? 'Create booking · pay later' : `Create booking · ${formatRupees(price.due)}`}
             </button>
           </div>
         )
@@ -292,7 +301,7 @@ export function BookingDrawer({ mode, memberId, bookingId, onClose, allowDeskAct
               <div className="space-y-2">
                 <p className="eyebrow text-olive-mid">Collect {formatMoney(b.amount_due)}</p>
                 <Segmented size="sm" value={method} onChange={setMethod} options={[{ value: 'CASH', label: 'Cash' }, { value: 'CARD', label: 'Card' }, { value: 'UPI', label: 'UPI' }]} />
-                <button type="button" className={cn(btn.primary, 'w-full')} onClick={() => { demo.markBookingPaid(b.id, method); toast(`Payment of ${formatMoney(b.amount_due)} recorded.`); }}>
+                <button type="button" className={cn(btn.primary, 'w-full')} onClick={() => { demo.markBookingPaid(b.id, method); void awaitLastWrite().then((refused) => { if (!refused) toast(`Payment of ${formatMoney(b.amount_due)} recorded.`); }); }}>
                   Mark as paid
                 </button>
               </div>

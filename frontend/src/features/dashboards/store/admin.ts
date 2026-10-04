@@ -42,6 +42,10 @@ export const admin = {
   setStaffActive: (id: string, is_active: boolean) => run(() => patch(`/staff/${id}`, { is_active })),
   decideLeave: (id: string, decision: 'APPROVE' | 'REJECT', note?: string) => run(() => post(`/staff/leave-requests/${id}/decision`, { decision, ...(note ? { note } : {}) })),
 
+  // ---- website trial requests (owner decides; approval books the TRIAL court booking)
+  approveTrial: (id: string) => run(() => post(`/enquiries/${id}/approve-trial`, {})),
+  declineTrial: (id: string) => run(() => post(`/enquiries/${id}/decline-trial`, {})),
+
   // ---- courts (the `courts` table; every role's court list is refetched from it)
   createCourt: (o: { name: string; sport_type: string; walk_in_rate_per_hour: string; surface?: string; description?: string }) => run(() => post('/courts', o)),
   updateCourt: (id: string, o: { name?: string; walk_in_rate_per_hour?: string; surface?: string; description?: string; is_active?: boolean }) => run(() => patch(`/courts/${id}`, o)),

@@ -59,6 +59,7 @@ erDiagram
   members ||--o{ memberships : "member_id"
   membership_plans ||--o{ memberships : "membership_plan_id"
   membership_plans ||--o{ enquiries : "membership_plan_id"
+  court_bookings ||--o{ enquiries : "trial_booking_id"
   courts ||--o{ court_bookings : "court_id"
   members ||--o{ court_bookings : "member_id"
   members ||--o{ shop_orders : "member_id"
@@ -115,6 +116,7 @@ erDiagram
     text email
     uuid membership_plan_id FK
     sport_type sport_type
+    uuid trial_booking_id FK
   }
   courts {
     uuid id PK
@@ -420,6 +422,7 @@ Contact and trial requests from the website or the desk: a plain inbox (handled_
 | `created_at` | timestamptz |  | yes |  |  |
 | `updated_at` | timestamptz |  | yes |  |  |
 | `handled_at` | timestamptz | yes |  |  | NULL = new, waiting for the front desk. Set when somebody has dealt with the enquiry. |
+| `trial_booking_id` | uuid | yes |  | `court_bookings.id` |  |
 
 **Constraints & indexes**
 

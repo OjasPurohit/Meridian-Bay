@@ -163,20 +163,19 @@ export async function createEnquiry(body: EnquiriesCreateRequest): Promise<{ enq
 }
 
 export interface TrialBookingResult {
-  booking_number: string;
-  court_name: string;
   start_at: string;
+  sport_type: SportType;
   persisted: boolean;
 }
 
-/** A visitor's free trial hour. With a backend: POST /bookings/trial takes a real court slot (it shows in the owner and front-desk calendars). Without one: validated here, kept nowhere. */
+/** A visitor's request for a free trial hour. With a backend: POST /bookings/trial files it for the owner, who approves it (that books the court and fills the calendars). Without one: validated here, kept nowhere. */
 export async function bookTrial(body: { name: string; phone: string; email?: string; sport_type: SportType; start_at: string }): Promise<TrialBookingResult> {
   if (isBackendConfigured) {
-    const b = await apiRequest<{ booking_number: string; court_name: string; start_at: string }>('POST', '/bookings/trial', body);
-    return { booking_number: b.booking_number, court_name: b.court_name, start_at: b.start_at, persisted: true };
+    await apiRequest('POST', '/bookings/trial', body);
+    return { start_at: body.start_at, sport_type: body.sport_type, persisted: true };
   }
   if (new Date(body.start_at) <= new Date()) return Promise.reject(new Error('Preferred time must be in the future.'));
-  return new Promise((ok) => setTimeout(() => ok({ booking_number: 'DEMO', court_name: 'a court', start_at: body.start_at, persisted: false }), 600));
+  return new Promise((ok) => setTimeout(() => ok({ start_at: body.start_at, sport_type: body.sport_type, persisted: false }), 600));
 }
 
 export const SPORT_LABEL: Record<SportType, string> = {

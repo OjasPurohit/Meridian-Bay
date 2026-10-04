@@ -9,6 +9,7 @@ import { requireAuth, requireRole } from '../../kernel/auth';
 import { query } from '../../kernel/db';
 import { AppError } from '../../kernel/errors';
 import { asyncHandler, created, ok } from '../../kernel/http';
+import { BookingsService } from '../bookings/service';
 import { idParams, queryBool, strictObject, uuid, validateBody, validateParams, validateQuery, z } from '../../kernel/validate';
 
 export const router = Router();
@@ -52,6 +53,9 @@ router.get('/', ...staff, validateQuery(z.object({ handled: queryBool.optional()
     }
     ok(res, (await query<EnquiryView>(`${SELECT} ${c.length ? `WHERE ${c.join(' AND ')}` : ''} ORDER BY (e.handled_at IS NOT NULL), e.created_at DESC`, params)).rows);
   }));
+const owner = [requireAuth, requireRole(USER_ROLE.OWNER_ADMIN)];
+router.post('/:id/approve-trial', ...owner, validateParams(idParams), asyncHandler(async (req, res) => ok(res, await BookingsService.trialApprove(req.params.id!))));
+router.post('/:id/decline-trial', ...owner, validateParams(idParams), asyncHandler(async (req, res) => ok(res, await BookingsService.trialDecline(req.params.id!))));
 router.get('/:id', ...staff, validateParams(idParams), asyncHandler(async (req, res) => ok(res, await find(req.params.id!))));
 router.patch('/:id', ...staff, validateParams(idParams), validateBody(strictObject({ handled: z.boolean().optional(), name: text(120).optional(), phone: phone.optional(), email: z.string().trim().toLowerCase().email().optional(), message: text(2000).optional() })),
   asyncHandler(async (req, res) => {

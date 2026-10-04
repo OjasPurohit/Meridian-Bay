@@ -31,16 +31,22 @@ function istMinutes(iso: string) {
  *  - member: other people's bookings are visible as "Booked" only — never who booked (privacy);
  *  - desk:   every booking shows the customer, status and payment, and opens full details.
  */
-export function CourtCalendar({ mode, memberId }: { mode: CalendarMode; memberId?: string }) {
+export function CourtCalendar({ mode, memberId, date: dateProp, onDateChange, sport: sportProp, onSportChange }: { mode: CalendarMode; memberId?: string; date?: string; onDateChange?: (d: string) => void; sport?: string; onSportChange?: (s: string) => void }) {
   const s = useDemo();
-  const [date, setDate] = useState(DEMO_TODAY);
-  const [sport, setSport] = useState('ALL');
+  const [ownDate, setOwnDate] = useState(DEMO_TODAY);
+  const [ownSport, setOwnSport] = useState('ALL');
+  const date = dateProp ?? ownDate;
+  const setDate = onDateChange ?? setOwnDate;
+  const sport = sportProp ?? ownSport;
+  const setSport = onSportChange ?? setOwnSport;
   const [picked, setPicked] = useState<{ court: DCourt; start_at: string } | null>(null);
   const [openBooking, setOpenBooking] = useState<string | null>(null);
   const strip = useRef<HTMLDivElement>(null);
   const me = memberId ? ALL_MEMBERS.find((m) => m.id === memberId) : undefined;
 
-  const dates = useMemo(() => Array.from({ length: 18 }, (_, i) => addDays(DEMO_TODAY, i - 3)), []);
+  // the strip is today-centred; a date chosen elsewhere (the owner's month view) outside it re-centres the strip on that date
+  const anchor = date >= addDays(DEMO_TODAY, -3) && date <= addDays(DEMO_TODAY, 14) ? DEMO_TODAY : date;
+  const dates = useMemo(() => Array.from({ length: 18 }, (_, i) => addDays(anchor, i - 3)), [anchor]);
   const cols = useMemo(() => gridStarts(date), [date]);
   const visibleCourts = courts.filter((c) => sport === 'ALL' || c.sport === sport);
   const sports = ['ALL', ...new Set(courts.map((c) => c.sport))];

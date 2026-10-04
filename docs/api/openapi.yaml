@@ -512,6 +512,10 @@ components:
           type: string
           format: date-time
           nullable: true
+        trial_booking_id:
+          type: string
+          format: uuid
+          nullable: true
       required:
         - id
         - enquiry_type
@@ -525,6 +529,7 @@ components:
         - created_at
         - updated_at
         - handled_at
+        - trial_booking_id
     Court:
       type: object
       properties:
@@ -5382,9 +5387,9 @@ paths:
       operationId: bookings.trial
       tags:
         - Court bookings
-      summary: "A visitor books a free trial hour from the public website: the first free active court of the chosen sport takes the slot."
+      summary: "A visitor asks for a free trial hour from the public website. Nothing is booked yet: the request waits for the owner (see enquiries.approveTrial)."
       description: |-
-        Transaction: lock the phone number (advisory) -> at most one upcoming TRIAL per phone (TRIAL_ALREADY_BOOKED) -> pick the first active court of the sport (by name) with no standing booking in the slot, else BOOKING_CONFLICT -> INSERT booking_type TRIAL (list_price 0, so amount due is 0 and nothing is paid). The same table, calendar and exclusion constraint as every other court booking; owner and front desk see it in their calendars.
+        Transaction: lock the phone number (advisory) -> at most one open trial per phone, i.e. no waiting TRIAL request and no upcoming TRIAL booking (TRIAL_ALREADY_BOOKED) -> require that some active court of the sport is free in the slot, else BOOKING_CONFLICT -> INSERT an enquiry of type TRIAL (sport_type, preferred_start_at, handled_at NULL). The slot is NOT held until the owner approves.
 
         Requirements: FR-PUB-006, FR-COURT-004
       x-roles:
@@ -5394,7 +5399,7 @@ paths:
         - FR-PUB-006
         - FR-COURT-004
       x-tables:
-        - court_bookings
+        - enquiries
       security: []
       requestBody:
         required: true
@@ -5407,6 +5412,7 @@ paths:
                   type: string
                 phone:
                   type: string
+                  description: exactly 10 digits
                 email:
                   type: string
                   format: email
@@ -5442,7 +5448,7 @@ paths:
                     enum:
                       - true
                   data:
-                    $ref: "#/components/schemas/BookingDetail"
+                    $ref: "#/components/schemas/EnquiryView"
                   message:
                     type: string
         "400":
@@ -8201,6 +8207,164 @@ paths:
                 $ref: "#/components/schemas/ApiError"
         "404":
           description: ENQUIRY_NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /enquiries/{id}/approve-trial:
+    post:
+      operationId: enquiries.approveTrial
+      tags:
+        - Enquiries
+      summary: "Approve a trial request: the first free active court of the sport is booked for the visitor as a free TRIAL court booking (shows in the owner and front-desk calendars)."
+      description: |-
+        One transaction: lock the enquiry (must be TRIAL, still waiting) -> re-check the slot and pick a free court (BOOKING_CONFLICT if it was taken meanwhile: the owner declines or the desk rebooks) -> INSERT court_bookings (booking_type TRIAL, list_price 0, guest name / phone / email from the request) -> set handled_at and trial_booking_id.
+
+        Requirements: FR-ENQ-004, FR-COURT-004
+      x-roles:
+        - OWNER_ADMIN
+      x-owner: Dev 1
+      x-requirements:
+        - FR-ENQ-004
+        - FR-COURT-004
+      x-tables:
+        - enquiries
+        - court_bookings
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - data
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    $ref: "#/components/schemas/EnquiryView"
+                  message:
+                    type: string
+        "400":
+          description: VALIDATION_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: AUTH_UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: ENQUIRY_NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: TRIAL_REQUEST_CLOSED | BOOKING_CONFLICT | COURT_UNAVAILABLE
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "422":
+          description: INVALID_SLOT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /enquiries/{id}/decline-trial:
+    post:
+      operationId: enquiries.declineTrial
+      tags:
+        - Enquiries
+      summary: "Decline a trial request: it is marked handled and no booking is made."
+      description: |-
+        handled_at = now, trial_booking_id stays NULL (that is what tells declined from approved).
+
+        Requirements: FR-ENQ-004
+      x-roles:
+        - OWNER_ADMIN
+      x-owner: Dev 1
+      x-requirements:
+        - FR-ENQ-004
+      x-tables:
+        - enquiries
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - data
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    $ref: "#/components/schemas/EnquiryView"
+                  message:
+                    type: string
+        "400":
+          description: VALIDATION_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: AUTH_UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: ENQUIRY_NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: TRIAL_REQUEST_CLOSED
           content:
             application/json:
               schema:
