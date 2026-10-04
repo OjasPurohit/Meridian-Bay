@@ -33,12 +33,20 @@ const pub = async (body) => (await fetch(API + '/bookings/trial', { method: 'POS
   const q = async (sql, params) => (await db.query(sql, params)).rows;
 
   const ymd = new Date(Date.now() + 5.5 * 3600000 + 3 * 86400000).toISOString().slice(0, 10);
-  const n30 = Math.floor(Math.random() * 28);
-  const hm = `${String(6 + Math.floor(n30 / 2)).padStart(2, '0')}:${n30 % 2 ? '30' : '00'}`;
+  let n30 = Math.floor(Math.random() * 28);
+  let hm = `${String(6 + Math.floor(n30 / 2)).padStart(2, '0')}:${n30 % 2 ? '30' : '00'}`;
   const name = 'Cal Trial ' + stamp;
   const declineName = 'Cal Decline ' + stamp;
-  const r1 = await pub({ name, phone: '9' + stamp + '111', email: `cal.${stamp}@example.com`, sport_type: 'PADEL', start_at: `${ymd}T${hm}:00+05:30` });
-  const r2 = await pub({ name: declineName, phone: '8' + stamp + '222', sport_type: 'TENNIS', start_at: `${ymd}T${hm}:00+05:30` });
+  let r1, r2;
+  for (let tries = 0; tries < 8; tries++) {
+    // a random half-hour on the clone can already hold a padel / tennis booking: try another slot until both requests are accepted
+    r1 = await pub({ name, phone: '9' + stamp + '111', email: `cal.${stamp}@example.com`, sport_type: 'PADEL', start_at: `${ymd}T${hm}:00+05:30` });
+    r2 = r1.success ? await pub({ name: declineName, phone: '8' + stamp + '222', sport_type: 'TENNIS', start_at: `${ymd}T${hm}:00+05:30` }) : r1;
+    if (r1.success && r2.success) break;
+    if (r1.success) await db.query('DELETE FROM enquiries WHERE name = $1', [name]);
+    n30 = (n30 + 3) % 28;
+    hm = `${String(6 + Math.floor(n30 / 2)).padStart(2, '0')}:${n30 % 2 ? '30' : '00'}`;
+  }
   check('public requests are stored as pending enquiries', r1.success && r2.success && (await q("SELECT count(*)::int n FROM enquiries WHERE name = ANY($1) AND handled_at IS NULL AND trial_booking_id IS NULL", [[name, declineName]]))[0].n === 2, JSON.stringify([r1.error?.code, r2.error?.code]));
 
   const owner = await actor(browser, 'Demo Admin / Owner');

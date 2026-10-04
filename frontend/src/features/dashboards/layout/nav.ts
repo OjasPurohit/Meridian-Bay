@@ -1,4 +1,4 @@
-import { BarChart3, Boxes, CalendarDays, ChefHat, ClipboardList, CreditCard, History, LayoutDashboard, LineChart, Package, ReceiptText, ShoppingBag, Store, Ticket, Trophy, UserCog, Users, Utensils, Wallet, type LucideIcon, ConciergeBell, FileBarChart, MessageSquare, IdCard, Dumbbell } from 'lucide-react';
+import { CalendarOff, BarChart3, Boxes, CalendarDays, ChefHat, ClipboardList, CreditCard, History, LayoutDashboard, LineChart, Package, ReceiptText, ShoppingBag, Store, Ticket, Trophy, UserCog, Users, Utensils, Wallet, type LucideIcon, ConciergeBell, FileBarChart, MessageSquare, IdCard, Dumbbell } from 'lucide-react';
 
 import type { UserRole } from '@shared/constants/enums';
 import { ROLE_HOME_ROUTE } from '@shared/constants/rules';
@@ -25,9 +25,11 @@ export const NAV: Record<UserRole, NavItem[]> = {
     { to: `${h.FRONT_DESK}/bookings`, label: 'Bookings', icon: ClipboardList },
     { to: `${h.FRONT_DESK}/members`, label: 'Members', icon: IdCard },
     { to: `${h.FRONT_DESK}/payments`, label: 'Payments', icon: Wallet },
+    { to: `${h.FRONT_DESK}/leave`, label: 'Leave & pay', icon: CalendarOff },
   ],
   STORE_MANAGER: [
     { to: h.STORE_MANAGER, label: 'Store & inventory', icon: Store, end: true },
+    { to: `${h.STORE_MANAGER}/leave`, label: 'Leave & pay', icon: CalendarOff },
   ],
   KITCHEN_MANAGER: [
     { to: h.KITCHEN_MANAGER, label: 'POS', icon: ConciergeBell, end: true },
@@ -36,6 +38,7 @@ export const NAV: Record<UserRole, NavItem[]> = {
     { to: `${h.KITCHEN_MANAGER}/invoices`, label: 'Invoices', icon: ReceiptText },
     { to: `${h.KITCHEN_MANAGER}/stock`, label: 'Stock', icon: Boxes },
     { to: `${h.KITCHEN_MANAGER}/products`, label: 'Products', icon: Package },
+    { to: `${h.KITCHEN_MANAGER}/leave`, label: 'Leave & pay', icon: CalendarOff },
   ],
   OWNER_ADMIN: [
     { to: h.OWNER_ADMIN, label: 'Overview', icon: LayoutDashboard, end: true },

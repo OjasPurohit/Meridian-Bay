@@ -48,6 +48,8 @@ export default function OwnerStaff() {
   const [decline, setDecline] = useState<DApplication | null>(null);
   const [role, setRole] = useState<UserRole>('FRONT_DESK');
   const [note, setNote] = useState('');
+  const [rejecting, setRejecting] = useState<Leave | null>(null);
+  const [rejectNote, setRejectNote] = useState('');
   const [busy, setBusy] = useState(false);
   if (!ready) return <PageSkeleton rows={2} />;
 
@@ -98,10 +100,11 @@ export default function OwnerStaff() {
 
   const lcols: Column<Leave>[] = [
     { key: 's', header: 'Employee', cell: (l) => <span className="font-semibold">{l.staff}</span> },
-    { key: 't', header: 'Type', hide: 'sm', cell: (l) => <span className="capitalize text-muted">{l.type.toLowerCase()}</span> },
+    { key: 'sub', header: 'Asked', hide: 'md', cell: (l) => <span className="text-muted">{formatDateIst(l.submitted).replace(/^\w+, /, '').replace(/ \d{4}$/, '')}</span> },
     { key: 'd', header: 'Dates', cell: (l) => <span>{formatDateIst(l.from).replace(/^\w+, /, '').replace(/ \d{4}$/, '')}{l.to !== l.from ? ` – ${formatDateIst(l.to).replace(/^\w+, /, '').replace(/ \d{4}$/, '')}` : ''}</span> },
+    { key: 'rs', header: 'Reason', hide: 'lg', cell: (l) => <span className="line-clamp-2 max-w-48 text-xs text-muted">{l.reason ?? '—'}{l.note ? ` · Owner: ${l.note}` : ''}</span> },
     { key: 'st', header: 'Status', cell: (l) => <Pill tone={l.status === 'APPROVED' ? 'green' : l.status === 'REJECTED' ? 'rust' : 'sun'}>{l.status.toLowerCase()}</Pill> },
-    { key: 'a', header: '', align: 'right', cell: (l) => (l.status === 'PENDING' ? <span className="inline-flex gap-1"><button type="button" className={`${btn.primary} !min-h-9 !px-3`} onClick={() => void act(() => admin.decideLeave(l.id, 'APPROVE'), `${l.staff}’s leave approved`, () => undefined)}><Check className="size-4" /> Approve</button><button type="button" aria-label="Reject" className={`${btn.danger} border border-primary/30`} onClick={() => void act(() => admin.decideLeave(l.id, 'REJECT', 'Not possible on these dates'), `${l.staff}’s leave rejected`, () => undefined)}><X className="size-4" /></button></span> : null) },
+    { key: 'a', header: '', align: 'right', cell: (l) => (l.status === 'PENDING' ? <span className="inline-flex gap-1"><button type="button" className={`${btn.primary} !min-h-9 !px-3`} onClick={() => void act(() => admin.decideLeave(l.id, 'APPROVE'), `${l.staff}’s leave approved`, () => undefined)}><Check className="size-4" /> Approve</button><button type="button" aria-label="Reject" className={`${btn.danger} border border-primary/30`} onClick={() => { setRejectNote(''); setRejecting(l); }}><X className="size-4" /></button></span> : null) },
   ];
 
   return (
@@ -145,6 +148,12 @@ export default function OwnerStaff() {
             </label>
           ))}
         </fieldset>
+      </Modal>
+
+      <Modal open={!!rejecting} onClose={() => setRejecting(null)} eyebrow="Leave request" title={rejecting ? `Reject ${rejecting.staff}’s leave` : 'Reject leave'} width="max-w-md"
+        footer={<div className="flex justify-end gap-2"><button type="button" className={btn.secondary} onClick={() => setRejecting(null)}>Keep waiting</button><button type="button" disabled={busy || !rejectNote.trim()} className={btn.accent} onClick={() => rejecting && void act(() => admin.decideLeave(rejecting.id, 'REJECT', rejectNote.trim()), `${rejecting.staff}’s leave rejected`, () => setRejecting(null))}>Reject leave</button></div>}>
+        <p className="text-sm text-muted">The employee sees this reason on their dashboard.</p>
+        <textarea value={rejectNote} onChange={(e) => setRejectNote(e.target.value)} rows={3} maxLength={500} placeholder="Reason (required)" aria-label="Reason for rejecting" className="mt-4 w-full border border-line bg-chalk px-3 py-2 text-sm" />
       </Modal>
 
       <Modal open={!!decline} onClose={() => setDecline(null)} eyebrow="Job application" title={decline ? `Decline ${decline.name}` : 'Decline'} width="max-w-md"

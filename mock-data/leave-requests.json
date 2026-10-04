@@ -8,7 +8,9 @@
     "status": "PENDING",
     "decision_note": null,
     "created_at": "2026-09-29T03:30:00.000Z",
-    "updated_at": "2026-10-02T04:30:00.000Z"
+    "updated_at": "2026-10-02T04:30:00.000Z",
+    "decided_by_user_id": null,
+    "decided_at": null
   },
   {
     "id": "14000000-0000-4000-8000-000000000002",
@@ -19,7 +21,9 @@
     "status": "APPROVED",
     "decision_note": null,
     "created_at": "2026-09-29T03:30:00.000Z",
-    "updated_at": "2026-10-02T04:30:00.000Z"
+    "updated_at": "2026-10-02T04:30:00.000Z",
+    "decided_by_user_id": "01000000-0000-4000-8000-000000000001",
+    "decided_at": "2026-10-02T04:30:00.000Z"
   },
   {
     "id": "14000000-0000-4000-8000-000000000003",
@@ -30,7 +34,9 @@
     "status": "REJECTED",
     "decision_note": "Weekend tournament — need kitchen manager on site",
     "created_at": "2026-09-29T03:30:00.000Z",
-    "updated_at": "2026-10-02T04:30:00.000Z"
+    "updated_at": "2026-10-02T04:30:00.000Z",
+    "decided_by_user_id": "01000000-0000-4000-8000-000000000001",
+    "decided_at": "2026-10-02T04:30:00.000Z"
   },
   {
     "id": "14000000-0000-4000-8000-000000000004",
@@ -41,6 +47,8 @@
     "status": "APPROVED",
     "decision_note": null,
     "created_at": "2026-09-29T03:30:00.000Z",
-    "updated_at": "2026-10-02T04:30:00.000Z"
+    "updated_at": "2026-10-02T04:30:00.000Z",
+    "decided_by_user_id": "01000000-0000-4000-8000-000000000001",
+    "decided_at": "2026-10-02T04:30:00.000Z"
   }
 ]

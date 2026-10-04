@@ -33,6 +33,7 @@ const routes: FeatureRoute[] = [
   page(() => import('./pages/desk/DeskBookings'), `${F}/bookings`, 'FRONT_DESK'),
   page(() => import('./pages/desk/DeskMembers'), `${F}/members`, 'FRONT_DESK'),
   page(() => import('./pages/desk/DeskPayments'), `${F}/payments`, 'FRONT_DESK'),
+  page(() => import('./pages/staff/StaffLeave'), `${F}/leave`, 'FRONT_DESK'),
   // ---- kitchen manager
   page(() => import('./pages/kitchen/KitchenPos'), K, 'KITCHEN_MANAGER'),
   page(() => import('./pages/kitchen/KitchenOrders'), `${K}/orders`, 'KITCHEN_MANAGER'),
@@ -40,8 +41,10 @@ const routes: FeatureRoute[] = [
   page(() => import('./pages/kitchen/KitchenInvoices'), `${K}/invoices`, 'KITCHEN_MANAGER'),
   page(() => import('./pages/kitchen/KitchenStock'), `${K}/stock`, 'KITCHEN_MANAGER'),
   page(() => import('./pages/kitchen/KitchenProducts'), `${K}/products`, 'KITCHEN_MANAGER'),
+  page(() => import('./pages/staff/StaffLeave'), `${K}/leave`, 'KITCHEN_MANAGER'),
   // ---- store manager
   page(() => import('./pages/owner/OwnerStore'), S, 'STORE_MANAGER'),
+  page(() => import('./pages/staff/StaffLeave'), `${S}/leave`, 'STORE_MANAGER'),
   // ---- owner / admin
   page(() => import('./pages/owner/OwnerOverview'), O, 'OWNER_ADMIN'),
   page(() => import('./pages/owner/OwnerAnalytics'), `${O}/analytics`, 'OWNER_ADMIN'),

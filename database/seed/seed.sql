@@ -4,25 +4,25 @@ BEGIN;
 
 -- users (19)
 INSERT INTO users (id, email, password_hash, role, full_name, phone, is_active, must_change_password, created_at, updated_at) VALUES
-  ('01000000-0000-4000-8000-000000000001', 'owner@championsclub.example', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'OWNER_ADMIN', 'Vikram Malhotra', '+919820000001', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000002', 'neha.sharma@championsclub.example', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'FRONT_DESK', 'Neha Sharma', '+919820000002', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000003', 'arjun.mehta@championsclub.example', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'FRONT_DESK', 'Arjun Mehta', '+919820000003', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000004', 'pooja.iyer@championsclub.example', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'FRONT_DESK', 'Pooja Iyer', '+919820000004', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000005', 'kitchen@championsclub.example', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'KITCHEN_MANAGER', 'Ramesh Patil', '+919820000005', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000006', 'sanjay.gupta@championsclub.example', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'STORE_MANAGER', 'Sanjay Gupta', '+919820000006', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000007', 'aarav.kapoor@example.com', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'MEMBER', 'Aarav Kapoor', '+919811100001', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000008', 'priya.nair@example.com', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'MEMBER', 'Priya Nair', '+919811100002', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000009', 'rohan.desai@example.com', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'MEMBER', 'Rohan Desai', '+919811100003', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000010', 'ananya.iyer@example.com', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'MEMBER', 'Ananya Iyer', '+919811100004', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000011', 'kabir.singh@example.com', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'MEMBER', 'Kabir Singh', '+919811100005', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000012', 'meera.joshi@example.com', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'MEMBER', 'Meera Joshi', '+919811100006', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000013', 'ishaan.verma@example.com', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'MEMBER', 'Ishaan Verma', '+919811100007', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000014', 'diya.reddy@example.com', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'MEMBER', 'Diya Reddy', '+919811100008', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000015', 'karan.bhatia@example.com', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'MEMBER', 'Karan Bhatia', '+919811100009', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000016', 'sneha.kulkarni@example.com', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'MEMBER', 'Sneha Kulkarni', '+919811100010', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000017', 'rahul.menon@example.com', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'MEMBER', 'Rahul Menon', '+919811100011', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000018', 'tanvi.shah@example.com', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'MEMBER', 'Tanvi Shah', '+919811100012', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
-  ('01000000-0000-4000-8000-000000000019', 'vihaan.patel@example.com', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'MEMBER', 'Vihaan Patel', '+919811100013', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z');
+  ('01000000-0000-4000-8000-000000000001', 'owner@championsclub.example', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'OWNER_ADMIN', 'Vikram Malhotra', '+919820000001', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000002', 'neha.sharma@championsclub.example', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'FRONT_DESK', 'Neha Sharma', '+919820000002', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000003', 'arjun.mehta@championsclub.example', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'FRONT_DESK', 'Arjun Mehta', '+919820000003', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000004', 'pooja.iyer@championsclub.example', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'FRONT_DESK', 'Pooja Iyer', '+919820000004', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000005', 'kitchen@championsclub.example', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'KITCHEN_MANAGER', 'Ramesh Patil', '+919820000005', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000006', 'sanjay.gupta@championsclub.example', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'STORE_MANAGER', 'Sanjay Gupta', '+919820000006', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000007', 'aarav.kapoor@example.com', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'MEMBER', 'Aarav Kapoor', '+919811100001', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000008', 'priya.nair@example.com', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'MEMBER', 'Priya Nair', '+919811100002', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000009', 'rohan.desai@example.com', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'MEMBER', 'Rohan Desai', '+919811100003', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000010', 'ananya.iyer@example.com', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'MEMBER', 'Ananya Iyer', '+919811100004', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000011', 'kabir.singh@example.com', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'MEMBER', 'Kabir Singh', '+919811100005', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000012', 'meera.joshi@example.com', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'MEMBER', 'Meera Joshi', '+919811100006', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000013', 'ishaan.verma@example.com', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'MEMBER', 'Ishaan Verma', '+919811100007', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000014', 'diya.reddy@example.com', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'MEMBER', 'Diya Reddy', '+919811100008', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000015', 'karan.bhatia@example.com', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'MEMBER', 'Karan Bhatia', '+919811100009', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000016', 'sneha.kulkarni@example.com', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'MEMBER', 'Sneha Kulkarni', '+919811100010', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000017', 'rahul.menon@example.com', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'MEMBER', 'Rahul Menon', '+919811100011', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000018', 'tanvi.shah@example.com', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'MEMBER', 'Tanvi Shah', '+919811100012', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z'),
+  ('01000000-0000-4000-8000-000000000019', 'vihaan.patel@example.com', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'MEMBER', 'Vihaan Patel', '+919811100013', true, false, '2026-03-17T04:30:00.000Z', '2026-03-17T04:30:00.000Z');
 
 -- members (13)
 INSERT INTO members (id, user_id, member_code, date_of_birth, address, emergency_contact_name, emergency_contact_phone, photo_url, joined_on, created_at, updated_at) VALUES
@@ -51,8 +51,8 @@ INSERT INTO staff (id, user_id, designation, monthly_salary, joined_on, created_
 
 -- employee_applications (4)
 INSERT INTO employee_applications (id, full_name, email, phone, password_hash, status, approved_role, applied_at, reviewed_at, reviewed_by_user_id, decision_note) VALUES
-  ('17000000-0000-4000-8000-000000000001', 'Devika Rao', 'devika.rao@example.com', '+919811200001', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'PENDING', NULL, '2026-10-02T06:00:00.000Z', NULL, NULL, NULL),
-  ('17000000-0000-4000-8000-000000000002', 'Manish Kulkarni', 'manish.kulkarni@example.com', '+919811200002', '$2b$10$qzENDRcXWSDXsYG0ZwHw8.JNeN6VA2yAFcQoPBeqQDdweWgDG/vtm', 'PENDING', NULL, '2026-10-01T06:00:00.000Z', NULL, NULL, NULL),
+  ('17000000-0000-4000-8000-000000000001', 'Devika Rao', 'devika.rao@example.com', '+919811200001', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'PENDING', NULL, '2026-10-02T06:00:00.000Z', NULL, NULL, NULL),
+  ('17000000-0000-4000-8000-000000000002', 'Manish Kulkarni', 'manish.kulkarni@example.com', '+919811200002', '$2b$10$XzofMLras.0nr.cjHpqU1eTABKG07qoibmodM0HQqVAgYjslaZ4Cy', 'PENDING', NULL, '2026-10-01T06:00:00.000Z', NULL, NULL, NULL),
   ('17000000-0000-4000-8000-000000000003', 'Zoya Khan', 'zoya.khan@example.com', '+919811200003', NULL, 'REJECTED', NULL, '2026-09-13T06:00:00.000Z', '2026-09-15T10:30:00.000Z', '01000000-0000-4000-8000-000000000001', 'No opening for this role at the moment.'),
   ('17000000-0000-4000-8000-000000000004', 'Pooja Iyer', 'pooja.iyer@championsclub.example', '+919820000004', NULL, 'APPROVED', 'FRONT_DESK', '2025-09-18T06:00:00.000Z', '2025-09-20T10:30:00.000Z', '01000000-0000-4000-8000-000000000001', NULL);
 
@@ -420,11 +420,11 @@ INSERT INTO staff_shifts (id, staff_id, shift_date, start_time, end_time, area, 
   ('13000000-0000-4000-8000-000000000040', '03000000-0000-4000-8000-000000000005', '2026-10-09', '12:00:00', '22:00:00', 'KITCHEN', '2026-09-28T04:30:00.000Z', '2026-09-28T04:30:00.000Z');
 
 -- leave_requests (4)
-INSERT INTO leave_requests (id, staff_id, start_date, end_date, reason, status, decision_note, created_at, updated_at) VALUES
-  ('14000000-0000-4000-8000-000000000001', '03000000-0000-4000-8000-000000000003', '2026-10-13', '2026-10-14', 'Family function', 'PENDING', NULL, '2026-09-29T03:30:00.000Z', '2026-10-02T04:30:00.000Z'),
-  ('14000000-0000-4000-8000-000000000002', '03000000-0000-4000-8000-000000000004', '2026-09-21', '2026-09-22', 'Fever', 'APPROVED', NULL, '2026-09-29T03:30:00.000Z', '2026-10-02T04:30:00.000Z'),
-  ('14000000-0000-4000-8000-000000000003', '03000000-0000-4000-8000-000000000005', '2026-10-10', '2026-10-12', 'Personal travel', 'REJECTED', 'Weekend tournament — need kitchen manager on site', '2026-09-29T03:30:00.000Z', '2026-10-02T04:30:00.000Z'),
-  ('14000000-0000-4000-8000-000000000004', '03000000-0000-4000-8000-000000000002', '2026-10-23', '2026-10-23', 'Medical appointment', 'APPROVED', NULL, '2026-09-29T03:30:00.000Z', '2026-10-02T04:30:00.000Z');
+INSERT INTO leave_requests (id, staff_id, start_date, end_date, reason, status, decision_note, created_at, updated_at, decided_by_user_id, decided_at) VALUES
+  ('14000000-0000-4000-8000-000000000001', '03000000-0000-4000-8000-000000000003', '2026-10-13', '2026-10-14', 'Family function', 'PENDING', NULL, '2026-09-29T03:30:00.000Z', '2026-10-02T04:30:00.000Z', NULL, NULL),
+  ('14000000-0000-4000-8000-000000000002', '03000000-0000-4000-8000-000000000004', '2026-09-21', '2026-09-22', 'Fever', 'APPROVED', NULL, '2026-09-29T03:30:00.000Z', '2026-10-02T04:30:00.000Z', '01000000-0000-4000-8000-000000000001', '2026-10-02T04:30:00.000Z'),
+  ('14000000-0000-4000-8000-000000000003', '03000000-0000-4000-8000-000000000005', '2026-10-10', '2026-10-12', 'Personal travel', 'REJECTED', 'Weekend tournament — need kitchen manager on site', '2026-09-29T03:30:00.000Z', '2026-10-02T04:30:00.000Z', '01000000-0000-4000-8000-000000000001', '2026-10-02T04:30:00.000Z'),
+  ('14000000-0000-4000-8000-000000000004', '03000000-0000-4000-8000-000000000002', '2026-10-23', '2026-10-23', 'Medical appointment', 'APPROVED', NULL, '2026-09-29T03:30:00.000Z', '2026-10-02T04:30:00.000Z', '01000000-0000-4000-8000-000000000001', '2026-10-02T04:30:00.000Z');
 
 -- payroll_payments (10)
 INSERT INTO payroll_payments (id, staff_id, pay_period, amount, method, paid_on, created_at, updated_at) VALUES
@@ -438,6 +438,16 @@ INSERT INTO payroll_payments (id, staff_id, pay_period, amount, method, paid_on,
   ('15000000-0000-4000-8000-000000000008', '03000000-0000-4000-8000-000000000005', '2026-10-01', '35000.00', 'UPI', NULL, '2026-10-03T02:30:00.000Z', '2026-10-03T02:30:00.000Z'),
   ('15000000-0000-4000-8000-000000000009', '03000000-0000-4000-8000-000000000006', '2026-09-01', '38000.00', 'UPI', '2026-10-02', '2026-10-02T04:30:00.000Z', '2026-10-02T04:30:00.000Z'),
   ('15000000-0000-4000-8000-000000000010', '03000000-0000-4000-8000-000000000006', '2026-10-01', '38000.00', 'UPI', NULL, '2026-10-03T02:30:00.000Z', '2026-10-03T02:30:00.000Z');
+
+-- tax_inputs (3)
+INSERT INTO tax_inputs (id, input_date, supplier, reference, taxable_amount, tax_amount, is_eligible, notes, created_by_user_id, created_at, updated_at) VALUES
+  ('1a000000-0000-4000-8000-000000000001', '2026-10-01', 'Apex Sports Wholesale', 'ASW/2610/118', '84000.00', '15120.00', true, 'Racquets and shuttle restock for the shop', '01000000-0000-4000-8000-000000000001', '2026-10-01T06:30:00.000Z', '2026-10-01T06:30:00.000Z'),
+  ('1a000000-0000-4000-8000-000000000002', '2026-09-28', 'Fresh Basket Foods', 'FBF-8841', '21500.00', '1075.00', true, 'Cafe ingredients', '01000000-0000-4000-8000-000000000001', '2026-09-28T06:30:00.000Z', '2026-09-28T06:30:00.000Z'),
+  ('1a000000-0000-4000-8000-000000000003', '2026-09-24', 'Hotel Lakeside (staff dinner)', 'HL-5520', '6400.00', '320.00', false, 'Not eligible: personal / entertainment expense', '01000000-0000-4000-8000-000000000001', '2026-09-24T06:30:00.000Z', '2026-09-24T06:30:00.000Z');
+
+-- tax_periods (1)
+INSERT INTO tax_periods (id, period, reported_at, reported_by_user_id, notes) VALUES
+  ('1b000000-0000-4000-8000-000000000001', '2026-07-01', '2026-09-03T10:30:00.000Z', '01000000-0000-4000-8000-000000000001', 'Marked reported after the accountant filed it');
 
 -- club_settings (18)
 INSERT INTO club_settings (id, key, value, description, is_public, created_at, updated_at) VALUES

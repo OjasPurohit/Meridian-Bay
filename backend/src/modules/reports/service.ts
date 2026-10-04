@@ -4,8 +4,9 @@
  * Money leaves SQL as numeric(12,2) strings.
  */
 import type {
-  AmountByKey, BarDailySummary, CourtUtilizationReport, DateRange, FinanceReport, MembershipReport, OwnerDashboard, RevenueReport, ShopReport, TaxReport,
+  AmountByKey, BarDailySummary, CourtUtilizationReport, DateRange, FinanceReport, MembershipReport, OwnerDashboard, RevenueReport, ShopReport, TaxOverview, TaxReport,
 } from '@shared/types/api';
+import type { TaxInput } from '@shared/types/rows';
 import type { ReportPeriod, ReportGroupBy, ExportReport } from '@shared/constants/enums';
 import { addDays, istDate } from '@shared/lib/time';
 import { query } from '../../kernel/db';
@@ -50,6 +51,14 @@ export function checkRange(r: DateRange): void {
   const days = (Date.parse(r.to) - Date.parse(r.from)) / 86_400_000;
   if (days < 0 || days > 365) throw new AppError('VALIDATION_ERROR', { fields: { to: 'Must be on or after from, at most 366 days.' } });
 }
+
+const TAX_INPUT_COLS = `id, input_date::text AS input_date, supplier, reference, taxable_amount, tax_amount, is_eligible, notes, created_by_user_id, created_at, updated_at`;
+const PERIOD_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
+const monthRange = (period: string): DateRange => {
+  if (!PERIOD_RE.test(period)) throw new AppError('VALIDATION_ERROR', { fields: { period: 'Must be a month like 2026-10.' } });
+  const last = new Date(Date.UTC(Number(period.slice(0, 4)), Number(period.slice(5, 7)), 0)).getUTCDate();
+  return { from: `${period}-01`, to: `${period}-${String(last).padStart(2, '0')}` };
+};
 
 export const ReportsService = {
   async dashboard(period: ReportPeriod): Promise<OwnerDashboard> {
@@ -251,6 +260,59 @@ export const ReportsService = {
       return { revenue_category: x.revenue_category as TaxReport['rows'][number]['revenue_category'], gross_amount: x.gross, taxable_amount: (taxable / 100).toFixed(2), tax_rate: (taxable ? (tax / taxable) * 100 : 0).toFixed(2), tax_amount: x.tax };
     });
     return { range: r, rows: out, total_tax: (out.reduce((n, x) => n + Math.round(Number(x.tax_amount) * 100), 0) / 100).toFixed(2) };
+  },
+
+  /**
+   * Internal "Taxes to report" overview of one IST calendar month. Taxable revenue and tax collected are exactly the
+   * `tax()` figures (one revenue calculation, so Reports and this card always agree); input tax credit comes only from the
+   * owner's recorded `tax_inputs`; nothing is fabricated and nothing is filed anywhere.
+   */
+  async taxOverview(period: string): Promise<TaxOverview> {
+    const range = monthRange(period);
+    const t = await ReportsService.tax(range);
+    const paise = (v: string) => Math.round(Number(v) * 100);
+    const money = (n: number) => (n / 100).toFixed(2);
+    const inputs = await rows<TaxInput>(`SELECT ${TAX_INPUT_COLS} FROM tax_inputs WHERE input_date BETWEEN $1 AND $2 ORDER BY input_date DESC, created_at DESC`, [range.from, range.to]);
+    const collected = paise(t.total_tax);
+    const taxable = t.rows.reduce((n, x) => n + paise(x.taxable_amount), 0);
+    const credit = inputs.filter((i) => i.is_eligible).reduce((n, i) => n + paise(i.tax_amount), 0);
+    const reported = await rows<{ reported_at: string }>('SELECT reported_at FROM tax_periods WHERE period = $1::date', [range.from]);
+    const ended = todayIst() > range.to;
+    return {
+      period, from: range.from, to: range.to,
+      taxable_revenue: money(taxable), tax_collected: money(collected), input_tax_credit: money(credit),
+      estimated_payable: money(Math.max(0, collected - credit)), credit_balance: money(Math.max(0, credit - collected)),
+      status: reported.length ? 'REPORTED' : ended ? 'READY_TO_REPORT' : 'NOT_READY',
+      period_ended: ended, reported_at: reported[0]?.reported_at ?? null, by_category: t.rows, inputs,
+    };
+  },
+
+  async taxInputCreate(user_id: string, b: { input_date: string; supplier: string; reference?: string; taxable_amount: string; tax_amount: string; is_eligible?: boolean; notes?: string }): Promise<TaxInput> {
+    const r = await rows<TaxInput>(
+      `INSERT INTO tax_inputs (input_date, supplier, reference, taxable_amount, tax_amount, is_eligible, notes, created_by_user_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING ${TAX_INPUT_COLS}`,
+      [b.input_date, b.supplier, b.reference ?? null, b.taxable_amount, b.tax_amount, b.is_eligible ?? true, b.notes ?? null, user_id],
+    );
+    return r[0]!;
+  },
+
+  async taxInputDelete(id: string): Promise<void> {
+    const r = await query('DELETE FROM tax_inputs WHERE id = $1', [id]);
+    if (!r.rowCount) throw new AppError('NOT_FOUND');
+  },
+
+  /** Internal tracking flag only: a month can be marked once it has ended. */
+  async taxPeriodReport(user_id: string, period: string): Promise<TaxOverview> {
+    const range = monthRange(period);
+    if (todayIst() <= range.to) throw new AppError('VALIDATION_ERROR', { fields: { period: 'This month has not ended yet.' } });
+    await query('INSERT INTO tax_periods (period, reported_by_user_id) VALUES ($1::date, $2) ON CONFLICT (period) DO NOTHING', [range.from, user_id]);
+    return ReportsService.taxOverview(period);
+  },
+
+  async taxPeriodReopen(period: string): Promise<TaxOverview> {
+    const range = monthRange(period);
+    await query('DELETE FROM tax_periods WHERE period = $1::date', [range.from]);
+    return ReportsService.taxOverview(period);
   },
 
   /** CSV (RFC 4180, money as strings). */

@@ -94,7 +94,7 @@ Every requirement → user(s) → module → API → database entity. API and ta
 | FR-FIN-004 | MUST | Member, Business client | Finance & payments | `GET /payments`<br>`GET /payments/:id` | `payments` |
 | FR-FIN-005 | SHOULD | Owner | Finance & payments | `POST /payments/:id/refund` | `payments` |
 | FR-FIN-006 | MUST | Owner | Finance & payments | `GET /invoices`<br>`GET /reports/finance` | `invoices`, `invoice_items`, `payments`, `payroll_payments` |
-| FR-FIN-007 | MUST | Owner | Finance & payments | `GET /reports/tax` | `payments` |
+| FR-FIN-007 | MUST | Owner | Finance & payments | `GET /reports/tax`<br>`GET /reports/tax-overview`<br>`POST /reports/tax-inputs`<br>`DELETE /reports/tax-inputs/:id`<br>`POST /reports/tax-periods/:period/report`<br>`DELETE /reports/tax-periods/:period` | `payments`, `tax_inputs`, `tax_periods` |
 | FR-FIN-008 | MUST | Owner | Finance & payments | `GET /staff/payroll`<br>`POST /staff/payroll`<br>`POST /staff/payroll/:id/pay`<br>`GET /reports/finance` | `payroll_payments`, `staff`, `payments`, `invoices` |
 | FR-FIN-009 | MUST | Owner | Finance & payments | `GET /reports/dashboard` | `payments`, `memberships`, `court_bookings`, `shop_orders`, `bar_orders`, `enquiries`, `invoices`, `payroll_payments`, `leave_requests`, `products` |
 | FR-FIN-010 | SHOULD | Member, Business client | Finance & payments | `POST /payments` | `payments`, `court_bookings`, `shop_orders`, `bar_orders`, `invoices` |
@@ -121,7 +121,7 @@ Every requirement → user(s) → module → API → database entity. API and ta
 | FR-REP-004 | SHOULD | Owner | Reporting | `GET /reports/memberships` | `memberships`, `members`, `payments` |
 | FR-REP-005 | SHOULD | Owner | Reporting | `GET /reports/shop` | `shop_orders`, `shop_order_items`, `products` |
 | FR-REP-006 | MUST | Owner | Reporting | `GET /reports/bar` | `payments`, `bar_orders` |
-| FR-REP-007 | MUST | Owner | Reporting | `GET /reports/tax` | `payments` |
+| FR-REP-007 | MUST | Owner | Reporting | `GET /reports/tax`<br>`GET /reports/tax-overview`<br>`POST /reports/tax-inputs`<br>`DELETE /reports/tax-inputs/:id`<br>`POST /reports/tax-periods/:period/report`<br>`DELETE /reports/tax-periods/:period` | `payments`, `tax_inputs`, `tax_periods` |
 | FR-REP-008 | SHOULD | Owner | Reporting | `GET /reports/export` | `payments`, `court_bookings`, `members`, `shop_orders`, `bar_orders` |
 | FR-REP-009 | MUST | Owner | Reporting | `GET /reports/finance` | `payments`, `invoices`, `payroll_payments` |
 | FR-SET-001 | MUST | Owner | Club settings | `GET /settings`<br>`PATCH /settings/:key` | `club_settings` |
@@ -146,7 +146,7 @@ Every requirement → user(s) → module → API → database entity. API and ta
 | UR-OWN-001 | MUST | FR-REP-001, FR-REP-002, FR-FIN-003, FR-FIN-009 | Reporting, Finance & payments | `payments`, `memberships`, `court_bookings`, `shop_orders`, `bar_orders`, `enquiries`, `invoices`, `payroll_payments`, `leave_requests`, `products` |
 | UR-OWN-002 | MUST | FR-MEM-011, FR-COURT-015, FR-SHOP-002, FR-INV-003, FR-BAR-011, FR-SET-001 | Membership, Court booking, Shop, Inventory, Cafe, Club settings | `membership_plans`, `courts`, `products`, `bar_menu_items`, `club_settings` |
 | UR-OWN-003 | MUST | FR-INVC-001, FR-INVC-002, FR-INVC-003, FR-FIN-006, FR-FIN-008, FR-STAFF-004, FR-STAFF-006 | Business clients & invoicing, Finance & payments, Staff / HR | `business_clients`, `invoices`, `invoice_items`, `payments`, `payroll_payments`, `staff`, `leave_requests` |
-| UR-OWN-004 | MUST | FR-FIN-007, FR-REP-007, FR-REP-008 | Finance & payments, Reporting | `payments`, `court_bookings`, `members`, `shop_orders`, `bar_orders` |
+| UR-OWN-004 | MUST | FR-FIN-007, FR-REP-007, FR-REP-008 | Finance & payments, Reporting | `payments`, `tax_inputs`, `tax_periods`, `court_bookings`, `members`, `shop_orders`, `bar_orders` |
 | BR-001 | MUST | FR-COURT-002, FR-COURT-004, FR-MEM-001, FR-BAR-013, FR-PUB-003 | Court booking, Membership, Cafe, Public website | `courts`, `court_bookings`, `payments`, `enquiries`, `users`, `members`, `memberships`, `bar_orders`, `bar_order_items` |
 | BR-002 | MUST | FR-COURT-008, FR-COURT-009 | Court booking | `court_bookings`, `payments` |
 | BR-003 | MUST | FR-MEM-005, FR-MEM-006, FR-MEM-011 | Membership | `members`, `memberships`, `membership_plans`, `users` |
@@ -156,7 +156,7 @@ Every requirement → user(s) → module → API → database entity. API and ta
 | BR-007 | MUST | FR-FIN-001, FR-FIN-003, FR-REP-001 | Finance & payments, Reporting | `memberships`, `payments`, `shop_orders`, `shop_order_items`, `products`, `court_bookings`, `bar_orders`, `invoices`, `enquiries`, `payroll_payments`, `leave_requests` |
 | BR-008 | MUST | FR-INVC-002, FR-FIN-006, FR-INVC-009 | Business clients & invoicing, Finance & payments | `invoices`, `invoice_items`, `payments`, `payroll_payments` |
 | BR-009 | MUST | FR-STAFF-002, FR-STAFF-004, FR-STAFF-006 | Staff / HR | `staff_shifts`, `staff`, `leave_requests`, `payroll_payments` |
-| BR-010 | MUST | FR-FIN-007, FR-REP-007 | Finance & payments, Reporting | `payments` |
+| BR-010 | MUST | FR-FIN-007, FR-REP-007 | Finance & payments, Reporting | `payments`, `tax_inputs`, `tax_periods` |
 | BR-011 | SHOULD | FR-REP-008 | Reporting | `payments`, `court_bookings`, `members`, `shop_orders`, `bar_orders` |
 
 ## Reverse view: endpoint → requirements
@@ -272,6 +272,11 @@ Every requirement → user(s) → module → API → database entity. API and ta
 | `GET /reports/bar` (reports.bar) | FR-REP-006, FR-BAR-009 |
 | `GET /reports/finance` (reports.finance) | FR-REP-009, FR-FIN-006, FR-FIN-008 |
 | `GET /reports/tax` (reports.tax) | FR-REP-007, FR-FIN-007 |
+| `GET /reports/tax-overview` (reports.taxOverview) | FR-REP-007, FR-FIN-007 |
+| `POST /reports/tax-inputs` (reports.taxInputCreate) | FR-REP-007, FR-FIN-007 |
+| `DELETE /reports/tax-inputs/:id` (reports.taxInputDelete) | FR-REP-007, FR-FIN-007 |
+| `POST /reports/tax-periods/:period/report` (reports.taxPeriodReport) | FR-REP-007, FR-FIN-007 |
+| `DELETE /reports/tax-periods/:period` (reports.taxPeriodReopen) | FR-REP-007, FR-FIN-007 |
 | `GET /reports/export` (reports.export) | FR-REP-008 |
 | `GET /settings` (settings.list) | FR-SET-001 |
 | `PATCH /settings/:key` (settings.update) | FR-SET-001 |

@@ -96,14 +96,14 @@ export const StaffService = {
     return (await repo.leaveById(repo.pool, id))!;
   },
 
-  async leaveDecide(id: string, body: StaffLeaveDecideRequest): Promise<LeaveView> {
+  async leaveDecide(owner_user_id: string, id: string, body: StaffLeaveDecideRequest): Promise<LeaveView> {
     if (body.decision === 'REJECT' && !body.note?.trim()) throw new AppError('VALIDATION_ERROR', { fields: { note: 'Required when rejecting.' } });
     const to: LeaveStatus = body.decision === 'APPROVE' ? 'APPROVED' : 'REJECTED';
     await withTransaction(async (tx) => {
       const cur = await repo.leaveById(tx, id, true);
       if (!cur) throw new AppError('LEAVE_NOT_FOUND');
       if (!LEAVE_TRANSITIONS[cur.status].includes(to)) throw new AppError('INVALID_STATUS_TRANSITION', { from: cur.status, to });
-      await repo.setLeaveStatus(tx, id, to, body.note ?? null);
+      await repo.setLeaveStatus(tx, id, to, body.note ?? null, owner_user_id);
     });
     return (await repo.leaveById(repo.pool, id))!;
   },

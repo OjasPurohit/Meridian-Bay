@@ -412,10 +412,17 @@ payQueue.forEach((p, i) => add('payments', { id: uid('payments', i), payment_num
 const shiftPattern = [['neha', 'FRONT_DESK', '06:00:00', '14:00:00'], ['arjun', 'FRONT_DESK', '14:00:00', '22:00:00'], ['pooja', 'BAR', '16:00:00', '22:00:00'], ['ramesh', 'KITCHEN', '12:00:00', '22:00:00']];
 for (let off = -3; off <= 6; off++) for (const [k, area, s, e] of shiftPattern)
   add('staff_shifts', { id: uid('staff_shifts', `${k}_${off}`), staff_id: uid('staff', k), shift_date: d(off), start_time: s, end_time: e, area, created_at: ts(-5, '10:00'), updated_at: ts(-5, '10:00') });
-const leave = (k, staff, s, e, reason, status, note = null) => add('leave_requests', { id: uid('leave_requests', k), staff_id: uid('staff', staff), start_date: s, end_date: e, reason, status, decision_note: note, created_at: ts(-4, '09:00'), updated_at: ts(-1, '10:00') });
+const leave = (k, staff, s, e, reason, status, note = null) => add('leave_requests', { id: uid('leave_requests', k), staff_id: uid('staff', staff), start_date: s, end_date: e, reason, status, decision_note: note, decided_by_user_id: status === 'APPROVED' || status === 'REJECTED' ? uid('users', 'owner') : null, decided_at: status === 'APPROVED' || status === 'REJECTED' ? ts(-1, '10:00') : null, created_at: ts(-4, '09:00'), updated_at: ts(-1, '10:00') });
 leave('l1', 'arjun', d(10), d(11), 'Family function', 'PENDING');
 leave('l2', 'pooja', d(-12), d(-11), 'Fever', 'APPROVED');
 leave('l3', 'ramesh', d(7), d(9), 'Personal travel', 'REJECTED', 'Weekend tournament — need kitchen manager on site');
+
+// ---- tax overview sample inputs (fictional; a real database starts with none: input tax credit only ever comes from what the owner records)
+const taxIn = (k, off, supplier, reference, taxable, tax, eligible, notes) => add('tax_inputs', { id: uid('tax_inputs', k), input_date: d(off), supplier, reference, taxable_amount: taxable, tax_amount: tax, is_eligible: eligible, notes, created_by_user_id: uid('users', 'owner'), created_at: ts(off, '12:00'), updated_at: ts(off, '12:00') });
+taxIn('t1', -2, 'Apex Sports Wholesale', 'ASW/2610/118', '84000.00', '15120.00', true, 'Racquets and shuttle restock for the shop');
+taxIn('t2', -5, 'Fresh Basket Foods', 'FBF-8841', '21500.00', '1075.00', true, 'Cafe ingredients');
+taxIn('t3', -9, 'Hotel Lakeside (staff dinner)', 'HL-5520', '6400.00', '320.00', false, 'Not eligible: personal / entertainment expense');
+add('tax_periods', { id: uid('tax_periods', 'p1'), period: addDays(d(0).slice(0, 7) + '-01', -62).slice(0, 7) + '-01', reported_at: ts(-30, '16:00'), reported_by_user_id: uid('users', 'owner'), notes: 'Marked reported after the accountant filed it' });
 leave('l4', 'neha', d(20), d(20), 'Medical appointment', 'APPROVED');
 const firstOfMonth = (off) => { const x = new Date(Date.parse(d(off) + 'T00:00:00Z')); x.setUTCDate(1); return x.toISOString().slice(0, 10); };
 const thisMonth = firstOfMonth(0);
@@ -455,7 +462,7 @@ const wanted = new Set(tableIndex.map((t) => t.replace(/_/g, '-') + '.json'));
 for (const f of readdirSync(path.join(ROOT, 'mock-data'))) if (f.endsWith('.json') && !wanted.has(f) && !FRONTEND_ONLY.has(f)) { unlinkSync(path.join(ROOT, 'mock-data', f)); console.log('removed stale mock-data/' + f); }
 
 // ---- seed.sql (insert order = FK-safe)
-const ORDER = ['users', 'members', 'staff', 'employee_applications', 'events', 'event_registrations', 'business_clients', 'membership_plans', 'memberships', 'enquiries', 'courts', 'court_bookings', 'products', 'shop_orders', 'shop_order_items', 'bar_menu_items', 'bar_orders', 'bar_order_items', 'payments', 'invoices', 'invoice_items', 'staff_shifts', 'leave_requests', 'payroll_payments', 'club_settings'];
+const ORDER = ['users', 'members', 'staff', 'employee_applications', 'events', 'event_registrations', 'business_clients', 'membership_plans', 'memberships', 'enquiries', 'courts', 'court_bookings', 'products', 'shop_orders', 'shop_order_items', 'bar_menu_items', 'bar_orders', 'bar_order_items', 'payments', 'invoices', 'invoice_items', 'staff_shifts', 'leave_requests', 'payroll_payments', 'tax_inputs', 'tax_periods', 'club_settings'];
 if (ORDER.length !== tableIndex.length || tableIndex.some((t) => !ORDER.includes(t))) throw new Error('seed ORDER must list every table: ' + tableIndex.filter((t) => !ORDER.includes(t)));
 const lit = (v, col) => {
   if (v === null) return 'NULL';

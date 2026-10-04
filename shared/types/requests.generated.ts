@@ -653,6 +653,22 @@ export interface ReportsTaxQuery {
   to: IsoDate; // Inclusive IST business date; to >= from; max 366 days.
 }
 
+/** GET /api/v1/reports/tax-overview (reports.taxOverview) */
+export interface ReportsTaxOverviewQuery {
+  period: string; // YYYY-MM (IST calendar month)
+}
+
+/** POST /api/v1/reports/tax-inputs (reports.taxInputCreate) */
+export interface ReportsTaxInputCreateRequest {
+  input_date: IsoDate; // supplier invoice date
+  supplier: string;
+  reference?: string; // supplier invoice number
+  taxable_amount: Money;
+  tax_amount: Money;
+  is_eligible?: boolean; // default true; only eligible input tax counts as credit
+  notes?: string;
+}
+
 /** GET /api/v1/reports/export (reports.export) */
 export interface ReportsExportQuery {
   report: E.ExportReport;

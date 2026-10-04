@@ -22,10 +22,13 @@ erDiagram
   invoices ||--o{ invoice_items : "invoice_id"
   staff ||--o{ staff_shifts : "staff_id"
   staff ||--o{ leave_requests : "staff_id"
+  users ||--o{ leave_requests : "decided_by_user_id"
   staff ||--o{ payroll_payments : "staff_id"
   users ||--o{ employee_applications : "reviewed_by_user_id"
   events ||--o{ event_registrations : "event_id"
   members ||--o{ event_registrations : "member_id"
+  users ||--o{ tax_inputs : "created_by_user_id"
+  users ||--o{ tax_periods : "reported_by_user_id"
   users {
     uuid id PK
     text email
@@ -133,6 +136,7 @@ erDiagram
     uuid id PK
     uuid staff_id FK
     leave_status status
+    uuid decided_by_user_id FK
   }
   payroll_payments {
     uuid id PK
@@ -158,4 +162,12 @@ erDiagram
     uuid id PK
     uuid event_id FK
     uuid member_id FK
+  }
+  tax_inputs {
+    uuid id PK
+    uuid created_by_user_id FK
+  }
+  tax_periods {
+    uuid id PK
+    uuid reported_by_user_id FK
   }

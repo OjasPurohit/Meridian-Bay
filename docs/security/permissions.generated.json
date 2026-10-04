@@ -872,6 +872,41 @@
       "OWNER_ADMIN"
     ]
   },
+  "reports.taxOverview": {
+    "method": "GET",
+    "path": "/api/v1/reports/tax-overview",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "reports.taxInputCreate": {
+    "method": "POST",
+    "path": "/api/v1/reports/tax-inputs",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "reports.taxInputDelete": {
+    "method": "DELETE",
+    "path": "/api/v1/reports/tax-inputs/:id",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "reports.taxPeriodReport": {
+    "method": "POST",
+    "path": "/api/v1/reports/tax-periods/:period/report",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
+  "reports.taxPeriodReopen": {
+    "method": "DELETE",
+    "path": "/api/v1/reports/tax-periods/:period",
+    "roles": [
+      "OWNER_ADMIN"
+    ]
+  },
   "reports.export": {
     "method": "GET",
     "path": "/api/v1/reports/export",

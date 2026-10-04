@@ -126,7 +126,7 @@ export async function deleteShift(db: Tx, id: string): Promise<boolean> {
 
 // ------------------------------------------------------------------ leave
 const LEAVE_SELECT = `
-  SELECT l.id, l.staff_id, l.start_date::text AS start_date, l.end_date::text AS end_date, l.reason, l.status, l.decision_note, l.created_at, l.updated_at,
+  SELECT l.id, l.staff_id, l.start_date::text AS start_date, l.end_date::text AS end_date, l.reason, l.status, l.decision_note, l.decided_by_user_id, l.decided_at, l.created_at, l.updated_at,
          u.full_name AS staff_name
     FROM leave_requests l JOIN staff s ON s.id = l.staff_id JOIN users u ON u.id = s.user_id`;
 
@@ -163,8 +163,14 @@ export async function insertLeave(db: Tx, l: { staff_id: string; start_date: str
   return rows[0]!.id;
 }
 
-export async function setLeaveStatus(db: Tx, id: string, status: string, note: string | null): Promise<void> {
-  await db.query('UPDATE leave_requests SET status = $2, decision_note = coalesce($3, decision_note) WHERE id = $1', [id, status, note]);
+export async function setLeaveStatus(db: Tx, id: string, status: string, note: string | null, decided_by: string | null = null): Promise<void> {
+  // APPROVED / REJECTED record who decided and when; a cancel leaves the decision columns as they were.
+  await db.query(
+    `UPDATE leave_requests SET status = $2, decision_note = coalesce($3, decision_note),
+            decided_by_user_id = CASE WHEN $4::uuid IS NULL THEN decided_by_user_id ELSE $4::uuid END,
+            decided_at = CASE WHEN $4::uuid IS NULL THEN decided_at ELSE now() END WHERE id = $1`,
+    [id, status, note, decided_by],
+  );
 }
 
 // ------------------------------------------------------------------ payroll

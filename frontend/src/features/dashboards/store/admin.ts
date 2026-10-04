@@ -40,6 +40,9 @@ export const admin = {
   createStaff: (o: { full_name: string; email: string; phone?: string; role: UserRole; password: string; designation: string; monthly_salary: string }) => run(() => post('/staff', o)),
   updateStaff: (id: string, o: { full_name?: string; phone?: string; designation?: string; monthly_salary?: string }) => run(() => patch(`/staff/${id}`, o)),
   setStaffActive: (id: string, is_active: boolean) => run(() => patch(`/staff/${id}`, { is_active })),
+  // an employee asks for leave and may withdraw a request that is still open; the owner decides (decideLeave)
+  requestLeave: (o: { start_date: string; end_date: string; reason?: string }) => run(() => post('/staff/leave-requests', o)),
+  cancelLeave: (id: string) => run(() => post(`/staff/leave-requests/${id}/cancel`, {})),
   decideLeave: (id: string, decision: 'APPROVE' | 'REJECT', note?: string) => run(() => post(`/staff/leave-requests/${id}/decision`, { decision, ...(note ? { note } : {}) })),
 
   // ---- website trial requests (owner decides; approval books the TRIAL court booking)

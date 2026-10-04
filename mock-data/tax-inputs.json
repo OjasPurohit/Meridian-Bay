@@ -1,0 +1,41 @@
+[
+  {
+    "id": "1a000000-0000-4000-8000-000000000001",
+    "input_date": "2026-10-01",
+    "supplier": "Apex Sports Wholesale",
+    "reference": "ASW/2610/118",
+    "taxable_amount": "84000.00",
+    "tax_amount": "15120.00",
+    "is_eligible": true,
+    "notes": "Racquets and shuttle restock for the shop",
+    "created_by_user_id": "01000000-0000-4000-8000-000000000001",
+    "created_at": "2026-10-01T06:30:00.000Z",
+    "updated_at": "2026-10-01T06:30:00.000Z"
+  },
+  {
+    "id": "1a000000-0000-4000-8000-000000000002",
+    "input_date": "2026-09-28",
+    "supplier": "Fresh Basket Foods",
+    "reference": "FBF-8841",
+    "taxable_amount": "21500.00",
+    "tax_amount": "1075.00",
+    "is_eligible": true,
+    "notes": "Cafe ingredients",
+    "created_by_user_id": "01000000-0000-4000-8000-000000000001",
+    "created_at": "2026-09-28T06:30:00.000Z",
+    "updated_at": "2026-09-28T06:30:00.000Z"
+  },
+  {
+    "id": "1a000000-0000-4000-8000-000000000003",
+    "input_date": "2026-09-24",
+    "supplier": "Hotel Lakeside (staff dinner)",
+    "reference": "HL-5520",
+    "taxable_amount": "6400.00",
+    "tax_amount": "320.00",
+    "is_eligible": false,
+    "notes": "Not eligible: personal / entertainment expense",
+    "created_by_user_id": "01000000-0000-4000-8000-000000000001",
+    "created_at": "2026-09-24T06:30:00.000Z",
+    "updated_at": "2026-09-24T06:30:00.000Z"
+  }
+]

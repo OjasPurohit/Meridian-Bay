@@ -44,7 +44,7 @@ if (!noSeed) {
 
   // ---- structure of the simplified schema (ADR-016)
   const tables = (await q(`SELECT count(*)::int n FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'`))[0].n;
-  tables === 25 ? ok('25 tables') : bad(`expected 25 tables, found ${tables}`);
+  tables === 27 ? ok('27 tables') : bad(`expected 27 tables, found ${tables}`);
   await none('every retired table is gone (bar_tables, bar_tabs, order_status_events, quotes, enquiry_follow_ups, notifications, inventory_movements, social_*)',
     `SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('bar_tables','bar_tabs','order_status_events','quotes','enquiry_follow_ups','notifications','inventory_movements','social_sessions','social_session_participants')`);
   await none('no stored status / amount / total columns that the views derive',

@@ -10,6 +10,7 @@ import { DEMO_ICON } from '@/features/demo/DemoAccess';
 import { formatClockIst, formatDayIst } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { Gate } from '../components/DashboardShell';
+import { LeaveNotice } from '../components/LeaveNotice';
 import { isLive, onLiveError, refreshLive } from '../store/live';
 import { courtById, resetDemoData, useDemo } from '../store/demoStore';
 import { DEMO_NOW } from '../store/types';
@@ -260,6 +261,7 @@ function Shell({ role }: { role: UserRole }) {
         </header>
 
         <main id="main" key={pathname} className="anim-rise mx-auto w-full max-w-[1500px] flex-1 px-4 py-6 md:px-8 md:py-8">
+          {(role === 'FRONT_DESK' || role === 'KITCHEN_MANAGER' || role === 'STORE_MANAGER') && <LeaveNotice />}
           <Suspense fallback={<PageSkeleton />}>
             <Outlet />
           </Suspense>

@@ -888,3 +888,148 @@ describe('kitchen stock: the kitchen manager adjusts cafe stock one at a time, i
     assert.equal(await stockOf(item.id), before);
   });
 });
+
+describe('owner staff salary, staff leave decisions and the Taxes to report overview', () => {
+  const staffOf = (who: 'desk' | 'kitchen' | 'store') => sessions.get(who).staff.id as string;
+  const ownerUserId = () => sessions.get('owner').user.id as string;
+
+  it('salary: owner sees and changes it, payroll uses the current salary, a paid month never changes, staff see only their own', async () => {
+    const id = staffOf('desk');
+    const list = (await call('owner', 'GET', '/staff')).body.data;
+    assert.ok(list.every((s: any) => typeof s.monthly_salary === 'string'), 'owner sees every salary');
+    assert.equal((await call('owner', 'PATCH', `/staff/${id}`, { monthly_salary: '-5.00' })).body.error.code, 'VALIDATION_ERROR');
+    assert.equal((await call('owner', 'PATCH', `/staff/${id}`, { monthly_salary: '31000.00' })).body.data.monthly_salary, '31000.00');
+    assert.equal((await query('SELECT monthly_salary::text AS s FROM staff WHERE id = $1', [id])).rows[0].s, '31000.00', 'persisted in PostgreSQL');
+
+    const june = (await call('owner', 'POST', '/staff/payroll', { staff_id: id, pay_period: '2031-06-01', payment_method: 'UPI', mark_paid: true })).body.data;
+    assert.equal(june.amount, '31000.00', 'payroll takes the salary at the time');
+    await call('owner', 'PATCH', `/staff/${id}`, { monthly_salary: '40000.00' });
+    const july = (await call('owner', 'POST', '/staff/payroll', { staff_id: id, pay_period: '2031-07-01', payment_method: 'UPI' })).body.data;
+    assert.equal(july.amount, '40000.00', 'a later month uses the new salary');
+    const again = (await call('owner', 'GET', `/staff/payroll?staff_id=${id}&pay_period=2031-06-01`)).body.data[0];
+    assert.equal(again.amount, '31000.00', 'the historical payment keeps the amount actually paid');
+
+    assert.equal((await call('desk', 'GET', `/staff/${id}`)).body.data.monthly_salary, '40000.00', 'an employee sees their own salary');
+    assert.equal((await call('desk', 'GET', `/staff/${staffOf('kitchen')}`)).body.error.code, 'STAFF_NOT_FOUND', 'but not a colleague');
+    assert.equal((await call('desk', 'GET', '/staff')).status, 403);
+    assert.equal((await call('desk', 'PATCH', `/staff/${id}`, { monthly_salary: '1.00' })).status, 403);
+    assert.equal((await call('member', 'GET', '/staff/payroll')).status, 403);
+    assert.ok((await call('desk', 'GET', '/staff/payroll')).body.data.every((p: any) => p.staff_id === id), 'payroll history is own only');
+  });
+
+  it('leave: request -> PENDING row -> owner approves / rejects with a note -> the employee sees the outcome; shifts respect approved leave', async () => {
+    const id = staffOf('kitchen');
+    assert.equal((await call('member', 'POST', '/staff/leave-requests', { start_date: '2031-08-10', end_date: '2031-08-12' })).status, 403);
+    assert.equal((await call('member', 'GET', '/staff/leave-requests')).status, 403);
+    assert.equal((await call('owner', 'POST', '/staff/leave-requests', { start_date: '2031-08-10', end_date: '2031-08-12' })).status, 403, 'only employees request leave');
+    assert.equal((await call('kitchen', 'POST', '/staff/leave-requests', { start_date: '2031-08-12', end_date: '2031-08-10' })).body.error.code, 'VALIDATION_ERROR');
+
+    const r = await call('kitchen', 'POST', '/staff/leave-requests', { start_date: '2031-08-10', end_date: '2031-08-12', reason: 'Family wedding' });
+    assert.equal(r.status, 201, r.text);
+    const lv = r.body.data;
+    assert.equal(lv.status, 'PENDING');
+    assert.equal(lv.decided_at, null);
+    const row = (await query('SELECT status::text AS s, reason, decided_by_user_id FROM leave_requests WHERE id = $1', [lv.id])).rows[0];
+    assert.deepEqual([row.s, row.reason, row.decided_by_user_id], ['PENDING', 'Family wedding', null], 'persisted as PENDING');
+    assert.ok((await call('kitchen', 'GET', '/staff/leave-requests')).body.data.find((x: any) => x.id === lv.id), 'the employee sees their request');
+    assert.ok(!(await call('desk', 'GET', '/staff/leave-requests')).body.data.find((x: any) => x.id === lv.id), 'a colleague does not');
+    const seen = (await call('owner', 'GET', '/staff/leave-requests?status=PENDING')).body.data.find((x: any) => x.id === lv.id);
+    assert.equal(seen.staff_name, sessions.get('kitchen').user.full_name);
+
+    assert.equal((await call('kitchen', 'POST', `/staff/leave-requests/${lv.id}/decision`, { decision: 'APPROVE' })).status, 403, 'nobody approves their own leave');
+    const ok = await call('owner', 'POST', `/staff/leave-requests/${lv.id}/decision`, { decision: 'APPROVE' });
+    assert.equal(ok.body.data.status, 'APPROVED');
+    const after = (await query('SELECT decided_by_user_id, decided_at IS NOT NULL AS stamped FROM leave_requests WHERE id = $1', [lv.id])).rows[0];
+    assert.equal(after.decided_by_user_id, ownerUserId(), 'the reviewer is stored');
+    assert.equal(after.stamped, true, 'and the decision time');
+    const mine = (await call('kitchen', 'GET', '/staff/leave-requests')).body.data.find((x: any) => x.id === lv.id);
+    assert.equal(mine.status, 'APPROVED', 'the employee sees APPROVED after a refresh');
+    assert.ok(mine.decided_at);
+    assert.equal((await call('owner', 'POST', `/staff/leave-requests/${lv.id}/decision`, { decision: 'REJECT', note: 'too late' })).body.error.code, 'INVALID_STATUS_TRANSITION');
+
+    const clash = await call('owner', 'POST', '/staff/shifts', { staff_id: id, shift_date: '2031-08-11', start_time: '09:00:00', end_time: '13:00:00', area: 'BAR' });
+    assert.equal(clash.body.error.code, 'SHIFT_OVERLAP', 'no shift inside approved leave');
+    assert.equal((await call('kitchen', 'POST', '/staff/leave-requests', { start_date: '2031-08-11', end_date: '2031-08-14' })).body.error.code, 'LEAVE_OVERLAP');
+
+    const second = (await call('kitchen', 'POST', '/staff/leave-requests', { start_date: '2031-09-01', end_date: '2031-09-02', reason: 'Trip' })).body.data;
+    assert.equal((await call('owner', 'POST', `/staff/leave-requests/${second.id}/decision`, { decision: 'REJECT' })).body.error.code, 'VALIDATION_ERROR', 'a rejection needs a note');
+    const rej = (await call('owner', 'POST', `/staff/leave-requests/${second.id}/decision`, { decision: 'REJECT', note: 'Tournament week' })).body.data;
+    assert.equal(rej.status, 'REJECTED');
+    const seenRej = (await call('kitchen', 'GET', '/staff/leave-requests')).body.data.find((x: any) => x.id === second.id);
+    assert.deepEqual([seenRej.status, seenRej.decision_note], ['REJECTED', 'Tournament week'], 'the employee sees REJECTED and why');
+  });
+
+  const todayIst = () => new Date(Date.now() + 5.5 * 3_600_000).toISOString().slice(0, 10);
+  const monthWithPayments = async () => (await query("SELECT to_char(paid_at AT TIME ZONE 'Asia/Kolkata', 'YYYY-MM') AS m FROM payments GROUP BY 1 ORDER BY count(*) DESC LIMIT 1")).rows[0].m as string;
+  const bounds = (m: string) => ({ from: `${m}-01`, to: `${m}-${String(new Date(Date.UTC(+m.slice(0, 4), +m.slice(5, 7), 0)).getUTCDate()).padStart(2, '0')}` });
+  const paise = (v: string) => Math.round(Number(v) * 100);
+
+  it('tax overview reconciles with the existing reports and never invents input tax credit', async () => {
+    const m = await monthWithPayments();
+    const { from, to } = bounds(m);
+    const ov = (await call('owner', 'GET', `/reports/tax-overview?period=${m}`)).body.data;
+    const tax = (await call('owner', 'GET', `/reports/tax?from=${from}&to=${to}`)).body.data;
+    const fin = (await call('owner', 'GET', `/reports/finance?from=${from}&to=${to}`)).body.data;
+    const rev = (await call('owner', 'GET', `/reports/revenue?from=${from}&to=${to}`)).body.data;
+    assert.ok(paise(ov.tax_collected) > 0, 'the month has real tax');
+    assert.equal(ov.tax_collected, tax.total_tax, 'tax collected = Reports > tax');
+    assert.equal(ov.tax_collected, fin.tax_collected, 'tax collected = Reports > finance');
+    assert.equal(paise(ov.taxable_revenue) + paise(ov.tax_collected), paise(rev.total), 'taxable revenue + tax = Reports > revenue total');
+    assert.deepEqual(ov.by_category, tax.rows);
+    const credit = ov.inputs.filter((i: any) => i.is_eligible).reduce((n: number, i: any) => n + paise(i.tax_amount), 0);
+    assert.equal(paise(ov.input_tax_credit), credit, 'credit = eligible recorded inputs only');
+    assert.equal(paise(ov.estimated_payable), Math.max(0, paise(ov.tax_collected) - credit));
+    assert.equal(paise(ov.credit_balance), Math.max(0, credit - paise(ov.tax_collected)));
+
+    const empty = (await call('owner', 'GET', '/reports/tax-overview?period=2031-04')).body.data;
+    assert.deepEqual([empty.taxable_revenue, empty.tax_collected, empty.input_tax_credit, empty.estimated_payable], ['0.00', '0.00', '0.00', '0.00'], 'a month with no activity shows zeros, not demo numbers');
+    assert.notEqual(empty.tax_collected, ov.tax_collected, 'the period filter changes the figures');
+  });
+
+  it('input tax records drive credit; credit above the tax collected is shown as a balance, never a negative payable', async () => {
+    const mk = (b: object) => call('owner', 'POST', '/reports/tax-inputs', { input_date: '2031-04-10', supplier: 'Test Supplier', taxable_amount: '1000.00', tax_amount: '180.00', ...b });
+    assert.equal((await mk({ tax_amount: '-1.00' })).body.error.code, 'VALIDATION_ERROR');
+    assert.equal((await mk({ supplier: '' })).body.error.code, 'VALIDATION_ERROR');
+    const a = (await mk({ reference: 'INV-1' })).body.data;
+    const b = (await mk({ is_eligible: false, tax_amount: '50.00' })).body.data;
+    assert.equal((await query('SELECT count(*)::int AS n FROM tax_inputs WHERE id = ANY($1)', [[a.id, b.id]])).rows[0].n, 2, 'persisted');
+    const ov = (await call('owner', 'GET', '/reports/tax-overview?period=2031-04')).body.data;
+    assert.equal(ov.input_tax_credit, '180.00', 'only the eligible record counts');
+    assert.equal(ov.estimated_payable, '0.00');
+    assert.equal(ov.credit_balance, '180.00', 'leftover credit, not a negative payable');
+    assert.equal(ov.inputs.length, 2);
+    assert.equal((await call('owner', 'DELETE', `/reports/tax-inputs/${b.id}`)).status, 200);
+    assert.equal((await call('owner', 'DELETE', `/reports/tax-inputs/${b.id}`)).body.error.code, 'NOT_FOUND');
+    assert.equal((await call('owner', 'GET', '/reports/tax-overview?period=2031-04')).body.data.inputs.length, 1);
+    await call('owner', 'DELETE', `/reports/tax-inputs/${a.id}`);
+  });
+
+  it('reporting status is an internal flag: open months cannot be marked, finished ones can, and it persists', async () => {
+    const thisMonth = todayIst().slice(0, 7);
+    assert.equal((await call('owner', 'GET', `/reports/tax-overview?period=${thisMonth}`)).body.data.status, 'NOT_READY');
+    assert.equal((await call('owner', 'POST', `/reports/tax-periods/${thisMonth}/report`, {})).body.error.code, 'VALIDATION_ERROR', 'a running month cannot be marked');
+    assert.equal((await call('owner', 'GET', '/reports/tax-overview?period=2031-13')).body.error.code, 'VALIDATION_ERROR');
+
+    const p = '2025-02';
+    assert.equal((await call('owner', 'GET', `/reports/tax-overview?period=${p}`)).body.data.status, 'READY_TO_REPORT');
+    const done = (await call('owner', 'POST', `/reports/tax-periods/${p}/report`, {})).body.data;
+    assert.equal(done.status, 'REPORTED');
+    assert.ok(done.reported_at);
+    const row = (await query("SELECT reported_by_user_id FROM tax_periods WHERE period = '2025-02-01'")).rows;
+    assert.equal(row.length, 1, 'persisted');
+    assert.equal(row[0].reported_by_user_id, ownerUserId());
+    assert.equal((await call('owner', 'POST', `/reports/tax-periods/${p}/report`, {})).body.data.status, 'REPORTED', 'marking twice is harmless');
+    assert.equal((await query("SELECT count(*)::int AS n FROM tax_periods WHERE period = '2025-02-01'")).rows[0].n, 1);
+    assert.equal((await call('owner', 'GET', `/reports/tax-overview?period=${p}`)).body.data.status, 'REPORTED', 'still reported on the next read');
+    assert.equal((await call('owner', 'DELETE', `/reports/tax-periods/${p}`)).body.data.status, 'READY_TO_REPORT');
+  });
+
+  it('the tax overview and its records are owner-only', async () => {
+    for (const who of ['desk', 'kitchen', 'store', 'member'] as const) {
+      assert.equal((await call(who, 'GET', '/reports/tax-overview?period=2026-09')).status, 403, who);
+      assert.equal((await call(who, 'POST', '/reports/tax-inputs', { input_date: '2031-04-10', supplier: 'X', taxable_amount: '1.00', tax_amount: '0.18' })).status, 403, who);
+      assert.equal((await call(who, 'POST', '/reports/tax-periods/2025-02/report', {})).status, 403, who);
+    }
+    assert.equal((await call(null, 'GET', '/reports/tax-overview?period=2026-09')).body.error.code, 'AUTH_UNAUTHORIZED');
+  });
+});

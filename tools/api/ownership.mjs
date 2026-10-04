@@ -23,7 +23,7 @@ export const TABLE_OWNER = {
   users: 'D1', enquiries: 'D1',
   members: 'D2', membership_plans: 'D2', memberships: 'D2', courts: 'D2', court_bookings: 'D2',
   products: 'D3', shop_orders: 'D3', shop_order_items: 'D3', bar_menu_items: 'D3', bar_orders: 'D3', bar_order_items: 'D3',
-  events: 'D4', event_registrations: 'D4', payments: 'D4', invoices: 'D4', invoice_items: 'D4', business_clients: 'D4', staff: 'D4', employee_applications: 'D4', staff_shifts: 'D4', leave_requests: 'D4', payroll_payments: 'D4', club_settings: 'D4',
+  events: 'D4', event_registrations: 'D4', payments: 'D4', invoices: 'D4', invoice_items: 'D4', business_clients: 'D4', staff: 'D4', employee_applications: 'D4', staff_shifts: 'D4', leave_requests: 'D4', payroll_payments: 'D4', tax_inputs: 'D4', tax_periods: 'D4', club_settings: 'D4',
 };
 
 // One sentence per table: the real-world thing it represents (ADR-016). Shown in docs/database/DATABASE_SCHEMA.md.
@@ -50,7 +50,9 @@ export const TABLE_PURPOSE = {
   events: 'Club events (tournament, clinic, camp, mixer, social) the owner creates; every role reads the same rows.',
   event_registrations: 'Which member registered for which event (one row per member and event; capacity is enforced from the count).',
   staff_shifts: 'Shift roster (same-day shifts).',
-  leave_requests: 'Staff leave with approval workflow.',
+  leave_requests: 'Staff leave with approval workflow (who decided and when is stored on the row).',
+  tax_inputs: 'Input tax the club paid on its own purchases (supplier, taxable amount, tax, eligibility): the only source of Input Tax Credit in the owner tax overview.',
+  tax_periods: 'Calendar months the owner has marked as reported in the internal tax overview (a tracking flag, not a government filing).',
   payroll_payments: 'Monthly salary payments to employees (paid_on NULL = pending).',
   club_settings: 'Owner-editable policy values (hours, tax rates, delivery fee, cut-offs).',
 };

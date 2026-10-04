@@ -179,7 +179,10 @@ export const applications: DApplication[] = (applicationsJson as unknown as { id
   .map((a) => ({ id: a.id, name: a.full_name, email: a.email, phone: a.phone ?? '', status: a.status, role: a.approved_role, applied_at: a.applied_at, reviewed_at: a.reviewed_at, reviewed_by: a.reviewed_at ? 'Owner' : null, note: a.decision_note }))
   .sort((a, b) => b.applied_at.localeCompare(a.applied_at));
 
-export const leaveRequests = leaveRaw.map((l) => ({ id: l.id, staff: staff.find((s) => s.id === l.staff_id)?.name ?? 'Staff', type: 'LEAVE', from: l.start_date, to: l.end_date, status: l.status, reason: l.reason }));
+export const leaveRequests = leaveRaw.map((l) => ({ id: l.id, staff: staff.find((s) => s.id === l.staff_id)?.name ?? 'Staff', type: 'LEAVE', from: l.start_date, to: l.end_date, status: l.status, reason: l.reason, staff_id: l.staff_id, note: l.decision_note, submitted: l.created_at, decided_at: l.decided_at }));
+
+/** The signed-in employee's own pay: salary now and the payments actually made (live mode only; filled by store/live.ts). */
+export const myPay = { salary: 0, payroll: [] as { id: string; period: string; amount: number; method: string; paid_on: string | null }[] };
 
 /* ---------------------------------------------------------------- analytics (deterministic, last 186 days) */
 export const DAYS = 186;

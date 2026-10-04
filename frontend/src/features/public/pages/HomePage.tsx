@@ -21,6 +21,7 @@ const wrap = 'mx-auto w-full max-w-[1440px] px-5 md:px-10';
 interface SportStory {
   sport: SportType;
   art: ArtVariant;
+  src: string;
   caption: string;
   line: string;
   tilt: number;
@@ -33,6 +34,7 @@ const SPORT_STORIES: SportStory[] = [
   {
     sport: 'TENNIS',
     art: 'tennis-clay',
+    src: '/media/clay.png',
     caption: 'Clay court, late afternoon',
     line: 'One clay court and one acrylic hard court, both floodlit for evening play.',
     tilt: -12,
@@ -43,6 +45,7 @@ const SPORT_STORIES: SportStory[] = [
   {
     sport: 'PADEL',
     art: 'padel',
+    src: '/media/Padel_Court.jpg',
     caption: 'Glass-walled padel court',
     line: 'A glass-walled court on artificial turf — quick rallies, doubles by default.',
     tilt: 8,
@@ -53,6 +56,7 @@ const SPORT_STORIES: SportStory[] = [
   {
     sport: 'CRICKET',
     art: 'cricket',
+    src: '/media/practice_net.jpg',
     caption: 'Practice net on turf',
     line: 'A turf practice net with a bowling machine for focused batting sessions.',
     tilt: -72,
@@ -63,6 +67,7 @@ const SPORT_STORIES: SportStory[] = [
   {
     sport: 'BADMINTON',
     art: 'badminton',
+    src: '/media/wooden_court.png',
     caption: 'Indoor wooden court',
     line: 'Two indoor courts on wood, out of the weather.',
     tilt: 4,
@@ -161,9 +166,9 @@ function ClubStory({ courts, club }: { courts: Court[]; club: PublicClubInfo | n
         </dl>
 
         <div className="mt-20 grid grid-cols-12 gap-4 md:mt-32 md:gap-6">
-          <PlaceholderArt variant="padel" caption="Padel glass, late light" tilt={58} zoom={2.6} className="col-span-7 aspect-[3/4] md:col-span-5" />
+          <PlaceholderArt variant="padel" src="/media/padalglass.jpg" caption="Padel glass, late light" tilt={58} zoom={2.6} className="col-span-7 aspect-[3/4] md:col-span-5" />
           <div className="col-span-5 flex flex-col justify-end md:col-span-7">
-            <PlaceholderArt variant="tennis-hard" caption="Hard court, early morning" tilt={22} zoom={1.9} className="aspect-[4/5] md:aspect-[16/10]" />
+            <PlaceholderArt variant="tennis-hard" src="/media/hard.png" caption="Hard court, early morning" tilt={22} zoom={1.9} className="aspect-[4/5] md:aspect-[16/10]" />
             <p className="mt-6 hidden max-w-sm text-muted md:block" data-reveal>
               Members are recognised at the desk, plan benefits apply on their own, and a game at six can easily become dinner at the bar.
             </p>
@@ -199,7 +204,7 @@ function CourtsSection({ courts }: { courts: Court[] }) {
             const from = Math.min(...list.map((c) => parseFloat(c.walk_in_rate_per_hour)));
             return (
               <article key={s.sport} className={cn(s.cell)} data-reveal aria-labelledby={`sport-${s.sport}`}>
-                <PlaceholderArt variant={s.art} caption={s.caption} tilt={s.tilt} zoom={s.zoom} className={s.frame} />
+                <PlaceholderArt variant={s.art} src={s.src} caption={s.caption} tilt={s.tilt} zoom={s.zoom} className={s.frame} />
                 <div className="mt-6 grid gap-4 sm:grid-cols-[1fr_auto] sm:items-baseline">
                   <h3 id={`sport-${s.sport}`} className="display text-4xl md:text-5xl">
                     {SPORT_LABEL[s.sport]}
@@ -269,7 +274,7 @@ function ShopAndBar() {
     <section aria-label="Shop and bar & café" className="bg-chalk py-24 md:py-32">
       <div className={cn(wrap, 'grid gap-16 md:grid-cols-2 md:gap-10')}>
         <article aria-labelledby="shop-title" data-reveal>
-          <PlaceholderArt variant="shop" caption="Fresh balls at the gear shop" className="aspect-[16/10]" />
+          <PlaceholderArt variant="shop" src="/media/balls.png" caption="Fresh balls at the gear shop" className="aspect-[16/10]" />
           <p className="eyebrow mt-8 text-olive-mid">The gear shop</p>
           <h2 id="shop-title" className="display mt-3 text-[clamp(2rem,3.6vw,3.2rem)] leading-[1]">
             Everything for the next match.
@@ -281,7 +286,7 @@ function ShopAndBar() {
         </article>
 
         <article aria-labelledby="bar-title" className="md:mt-24" data-reveal>
-          <PlaceholderArt variant="bar" caption="Coffee at the bar & café" className="aspect-[16/10]" />
+          <PlaceholderArt variant="bar" src="/media/food_1.png" caption="Coffee at the bar & café" className="aspect-[16/10]" />
           <p className="eyebrow mt-8 text-olive-mid">Bar &amp; café</p>
           <h2 id="bar-title" className="display mt-3 text-[clamp(2rem,3.6vw,3.2rem)] leading-[1]">
             Stay a little longer.

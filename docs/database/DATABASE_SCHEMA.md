@@ -76,10 +76,13 @@ erDiagram
   invoices ||--o{ invoice_items : "invoice_id"
   staff ||--o{ staff_shifts : "staff_id"
   staff ||--o{ leave_requests : "staff_id"
+  users ||--o{ leave_requests : "decided_by_user_id"
   staff ||--o{ payroll_payments : "staff_id"
   users ||--o{ employee_applications : "reviewed_by_user_id"
   events ||--o{ event_registrations : "event_id"
   members ||--o{ event_registrations : "member_id"
+  users ||--o{ tax_inputs : "created_by_user_id"
+  users ||--o{ tax_periods : "reported_by_user_id"
   users {
     uuid id PK
     text email
@@ -187,6 +190,7 @@ erDiagram
     uuid id PK
     uuid staff_id FK
     leave_status status
+    uuid decided_by_user_id FK
   }
   payroll_payments {
     uuid id PK
@@ -212,6 +216,14 @@ erDiagram
     uuid id PK
     uuid event_id FK
     uuid member_id FK
+  }
+  tax_inputs {
+    uuid id PK
+    uuid created_by_user_id FK
+  }
+  tax_periods {
+    uuid id PK
+    uuid reported_by_user_id FK
   }
 ```
 
@@ -244,7 +256,7 @@ erDiagram
 | `application_status` | `PENDING`, `APPROVED`, `REJECTED` | `APPLICATION_STATUS` |
 | `event_kind` | `TOURNAMENT`, `CLINIC`, `CAMP`, `MIXER`, `SOCIAL` | `EVENT_KIND` |
 
-## Tables (25)
+## Tables (27)
 
 | Table | Owner | Purpose |
 |---|---|---|
@@ -267,12 +279,14 @@ erDiagram
 | [`invoices`](#invoices) | Dev 4 | Tax-exclusive invoices for business clients (and membership invoices to a member): lifecycle DRAFT / SENT / VOID. Totals and the paid / overdue state are derived (view invoice_totals). |
 | [`invoice_items`](#invoice_items) | Dev 4 | Invoice lines. |
 | [`staff_shifts`](#staff_shifts) | Dev 4 | Shift roster (same-day shifts). |
-| [`leave_requests`](#leave_requests) | Dev 4 | Staff leave with approval workflow. |
+| [`leave_requests`](#leave_requests) | Dev 4 | Staff leave with approval workflow (who decided and when is stored on the row). |
 | [`payroll_payments`](#payroll_payments) | Dev 4 | Monthly salary payments to employees (paid_on NULL = pending). |
 | [`club_settings`](#club_settings) | Dev 4 | Owner-editable policy values (hours, tax rates, delivery fee, cut-offs). |
 | [`employee_applications`](#employee_applications) | Dev 4 | Job applications: PENDING until the owner approves (creating users + staff) or rejects. Not an employee. The applicant bcrypt hash exists only while PENDING. |
 | [`events`](#events) | Dev 4 | Club events (tournament, clinic, camp, mixer, social) the owner creates; every role reads the same rows. |
 | [`event_registrations`](#event_registrations) | Dev 4 | Which member registered for which event (one row per member and event; capacity is enforced from the count). |
+| [`tax_inputs`](#tax_inputs) | Dev 4 | Input tax the club paid on its own purchases (supplier, taxable amount, tax, eligibility): the only source of Input Tax Credit in the owner tax overview. |
+| [`tax_periods`](#tax_periods) | Dev 4 | Calendar months the owner has marked as reported in the internal tax overview (a tracking flag, not a government filing). |
 
 ### users
 
@@ -711,7 +725,7 @@ Shift roster (same-day shifts).
 
 ### leave_requests
 
-Staff leave with approval workflow.  
+Staff leave with approval workflow (who decided and when is stored on the row).  
 *Owner: Dev 4*
 
 | Column | Type | Null | Default | References | Notes |
@@ -725,6 +739,8 @@ Staff leave with approval workflow.
 | `decision_note` | text | yes |  |  |  |
 | `created_at` | timestamptz |  | yes |  |  |
 | `updated_at` | timestamptz |  | yes |  |  |
+| `decided_by_user_id` | uuid | yes |  | `users.id` |  |
+| `decided_at` | timestamptz | yes |  |  |  |
 
 **Constraints & indexes**
 
@@ -835,3 +851,39 @@ Which member registered for which event (one row per member and event; capacity 
 
 - `UNIQUE (event_id, member_id)`
 - INDEX `event_registrations_member_idx` (member_id)
+
+### tax_inputs
+
+Input tax the club paid on its own purchases (supplier, taxable amount, tax, eligibility): the only source of Input Tax Credit in the owner tax overview.  
+*Owner: Dev 4*
+
+| Column | Type | Null | Default | References | Notes |
+|---|---|---|---|---|---|
+| `id` | uuid |  | yes |  | PK |
+| `input_date` | date |  |  |  | the supplier invoice date (IST business date) |
+| `supplier` | text |  |  |  |  |
+| `reference` | text | yes |  |  | supplier invoice number |
+| `taxable_amount` | numeric(12,2) |  |  |  | purchase value before tax |
+| `tax_amount` | numeric(12,2) |  |  |  | tax paid on it |
+| `is_eligible` | boolean |  | yes |  | only eligible input tax counts as credit |
+| `notes` | text | yes |  |  |  |
+| `created_by_user_id` | uuid | yes |  | `users.id` |  |
+| `created_at` | timestamptz |  | yes |  |  |
+| `updated_at` | timestamptz |  | yes |  |  |
+
+**Constraints & indexes**
+
+- INDEX `tax_inputs_date_idx` (input_date)
+
+### tax_periods
+
+Calendar months the owner has marked as reported in the internal tax overview (a tracking flag, not a government filing).  
+*Owner: Dev 4*
+
+| Column | Type | Null | Default | References | Notes |
+|---|---|---|---|---|---|
+| `id` | uuid |  | yes |  | PK |
+| `period` | date |  |  |  | unique; first day of the month that was reported |
+| `reported_at` | timestamptz |  | yes |  |  |
+| `reported_by_user_id` | uuid | yes |  | `users.id` |  |
+| `notes` | text | yes |  |  |  |

@@ -9,7 +9,7 @@ Source of truth: [shared/constants/errors.ts](../../shared/constants/errors.ts).
 | Code | HTTP | Default message | Used by |
 |---|---|---|---|
 | `VALIDATION_ERROR` | 400 | Request validation failed. | many (automatic) |
-| `NOT_FOUND` | 404 | Resource not found. | staff.payrollPay |
+| `NOT_FOUND` | 404 | Resource not found. | staff.payrollPay, reports.taxInputDelete, reports.taxPeriodReport, reports.taxPeriodReopen |
 | `INVALID_STATUS_TRANSITION` | 409 | This status change is not allowed. | memberships.changePlan, memberships.cancel, bookings.cancel, shop.orderStatus, shop.orderCancel, bar.orderCancel, kitchen.status, invoices.send, invoices.void, staff.applicationApprove, staff.applicationReject, staff.leaveDecide, staff.leaveCancel, staff.payrollPay |
 | `INTERNAL_ERROR` | 500 | Unexpected server error. | many (automatic) |
 

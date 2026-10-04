@@ -19,7 +19,7 @@ const monFmt = new Intl.DateTimeFormat('en-IN', { month: 'short', timeZone: 'UTC
 const longFmt = new Intl.DateTimeFormat('en-IN', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
 const utcNoon = (d: string) => new Date(`${d}T12:00:00Z`);
 
-const LABEL_W = '9.25rem';
+const LABEL_W = '10.5rem';
 
 function istMinutes(iso: string) {
   const [h, m] = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Kolkata' }).format(new Date(iso)).split(':').map(Number);
@@ -240,8 +240,8 @@ function CourtRow({
   return (
     <>
       <div className="sticky left-0 z-20 flex flex-col justify-center border-b border-line bg-chalk px-3 py-2">
-        <span className="text-sm font-semibold">{court.name}</span>
-        <span className="text-[0.68rem] text-muted">₹{court.rate}/hr · {SPORT_LABEL[court.sport]}</span>
+        <span className="truncate text-sm font-semibold" title={court.name}>{court.name}</span>
+        <span className="truncate text-[0.68rem] text-muted">₹{court.rate}/hr · {SPORT_LABEL[court.sport]}</span>
       </div>
       {cols.map((t, i) => {
         const col = i + 2;

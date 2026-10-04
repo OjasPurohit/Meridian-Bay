@@ -1179,6 +1179,14 @@ components:
         decision_note:
           type: string
           nullable: true
+        decided_by_user_id:
+          type: string
+          format: uuid
+          nullable: true
+        decided_at:
+          type: string
+          format: date-time
+          nullable: true
         created_at:
           type: string
           format: date-time
@@ -1193,6 +1201,8 @@ components:
         - reason
         - status
         - decision_note
+        - decided_by_user_id
+        - decided_at
         - created_at
         - updated_at
     PayrollPayment:
@@ -1237,6 +1247,80 @@ components:
         - paid_on
         - created_at
         - updated_at
+    TaxInput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        input_date:
+          type: string
+          format: date
+        supplier:
+          type: string
+        reference:
+          type: string
+          nullable: true
+        taxable_amount:
+          type: string
+          pattern: ^\d+\.\d{2}$
+          example: "1250.00"
+        tax_amount:
+          type: string
+          pattern: ^\d+\.\d{2}$
+          example: "1250.00"
+        is_eligible:
+          type: boolean
+        notes:
+          type: string
+          nullable: true
+        created_by_user_id:
+          type: string
+          format: uuid
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - input_date
+        - supplier
+        - reference
+        - taxable_amount
+        - tax_amount
+        - is_eligible
+        - notes
+        - created_by_user_id
+        - created_at
+        - updated_at
+    TaxPeriod:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        period:
+          type: string
+          format: date
+        reported_at:
+          type: string
+          format: date-time
+        reported_by_user_id:
+          type: string
+          format: uuid
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+      required:
+        - id
+        - period
+        - reported_at
+        - reported_by_user_id
+        - notes
     ClubSetting:
       type: object
       properties:
@@ -2813,6 +2897,65 @@ components:
         - invoices
         - payroll
         - tax_collected
+    TaxOverview:
+      type: object
+      properties:
+        period:
+          type: string
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        taxable_revenue:
+          type: string
+          pattern: ^\d+\.\d{2}$
+          example: "1250.00"
+        tax_collected:
+          type: string
+          pattern: ^\d+\.\d{2}$
+          example: "1250.00"
+        input_tax_credit:
+          type: string
+          pattern: ^\d+\.\d{2}$
+          example: "1250.00"
+        estimated_payable:
+          type: string
+          pattern: ^\d+\.\d{2}$
+          example: "1250.00"
+        credit_balance:
+          type: string
+          pattern: ^\d+\.\d{2}$
+          example: "1250.00"
+        status:
+          description: "TS: 'NOT_READY' | 'READY_TO_REPORT' | 'REPORTED'"
+        period_ended:
+          type: boolean
+        reported_at:
+          type: string
+          format: date-time
+          nullable: true
+        by_category:
+          description: "TS: TaxReport['rows']"
+        inputs:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaxInput"
+      required:
+        - period
+        - from
+        - to
+        - taxable_revenue
+        - tax_collected
+        - input_tax_credit
+        - estimated_payable
+        - credit_balance
+        - status
+        - period_ended
+        - reported_at
+        - by_category
+        - inputs
     TaxReport:
       type: object
       properties:
@@ -12196,6 +12339,362 @@ paths:
                 $ref: "#/components/schemas/ApiError"
         "403":
           description: FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /reports/tax-overview:
+    get:
+      operationId: reports.taxOverview
+      tags:
+        - Reports
+      summary: 'Internal "Taxes to report" overview of one calendar month: taxable revenue, tax collected, input tax credit, estimated payable and the internal reporting status. Not a government filing.'
+      description: |-
+        Taxable revenue and tax collected are the reports.tax figures for the month (payments net of refunds, tax pro-rated); input tax credit = eligible tax_inputs dated in the month; estimated payable = max(0, collected - credit) and the leftover credit is shown as credit_balance. Status: REPORTED once the owner marked the month, else READY_TO_REPORT after the month ended, else NOT_READY.
+
+        Requirements: FR-REP-007, FR-FIN-007
+      x-roles:
+        - OWNER_ADMIN
+      x-owner: Dev 4
+      x-requirements:
+        - FR-REP-007
+        - FR-FIN-007
+      x-tables:
+        - payments
+        - tax_inputs
+        - tax_periods
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          required: true
+          description: YYYY-MM (IST calendar month)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - data
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    $ref: "#/components/schemas/TaxOverview"
+                  message:
+                    type: string
+        "400":
+          description: VALIDATION_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: AUTH_UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /reports/tax-inputs:
+    post:
+      operationId: reports.taxInputCreate
+      tags:
+        - Reports
+      summary: Record input tax the club paid on one of its own purchases (the only source of Input Tax Credit).
+      description: "Requirements: FR-REP-007, FR-FIN-007"
+      x-roles:
+        - OWNER_ADMIN
+      x-owner: Dev 4
+      x-requirements:
+        - FR-REP-007
+        - FR-FIN-007
+      x-tables:
+        - tax_inputs
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                input_date:
+                  type: string
+                  format: date
+                  description: supplier invoice date
+                supplier:
+                  type: string
+                reference:
+                  type: string
+                  description: supplier invoice number
+                taxable_amount:
+                  type: string
+                  pattern: ^\d+\.\d{2}$
+                tax_amount:
+                  type: string
+                  pattern: ^\d+\.\d{2}$
+                is_eligible:
+                  type: boolean
+                  description: default true; only eligible input tax counts as credit
+                notes:
+                  type: string
+              required:
+                - input_date
+                - supplier
+                - taxable_amount
+                - tax_amount
+      responses:
+        "201":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - data
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    $ref: "#/components/schemas/TaxInput"
+                  message:
+                    type: string
+        "400":
+          description: VALIDATION_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: AUTH_UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /reports/tax-inputs/{id}:
+    delete:
+      operationId: reports.taxInputDelete
+      tags:
+        - Reports
+      summary: Remove a mistaken input-tax record.
+      description: "Requirements: FR-REP-007, FR-FIN-007"
+      x-roles:
+        - OWNER_ADMIN
+      x-owner: Dev 4
+      x-requirements:
+        - FR-REP-007
+        - FR-FIN-007
+      x-tables:
+        - tax_inputs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - data
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    nullable: true
+                  message:
+                    type: string
+        "400":
+          description: VALIDATION_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: AUTH_UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /reports/tax-periods/{period}/report:
+    post:
+      operationId: reports.taxPeriodReport
+      tags:
+        - Reports
+      summary: "Mark a finished month as reported. Internal tracking only: nothing is sent to any government system."
+      description: |-
+        Only a month that has ended can be marked; marking twice is harmless.
+
+        Requirements: FR-REP-007, FR-FIN-007
+      x-roles:
+        - OWNER_ADMIN
+      x-owner: Dev 4
+      x-requirements:
+        - FR-REP-007
+        - FR-FIN-007
+      x-tables:
+        - tax_periods
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - data
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    $ref: "#/components/schemas/TaxOverview"
+                  message:
+                    type: string
+        "400":
+          description: VALIDATION_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: AUTH_UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /reports/tax-periods/{period}:
+    delete:
+      operationId: reports.taxPeriodReopen
+      tags:
+        - Reports
+      summary: Take the reported mark off a month (it goes back to READY_TO_REPORT).
+      description: "Requirements: FR-REP-007, FR-FIN-007"
+      x-roles:
+        - OWNER_ADMIN
+      x-owner: Dev 4
+      x-requirements:
+        - FR-REP-007
+        - FR-FIN-007
+      x-tables:
+        - tax_periods
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - data
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    $ref: "#/components/schemas/TaxOverview"
+                  message:
+                    type: string
+        "400":
+          description: VALIDATION_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: AUTH_UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: NOT_FOUND
           content:
             application/json:
               schema:

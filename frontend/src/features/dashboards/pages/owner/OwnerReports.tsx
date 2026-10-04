@@ -6,6 +6,7 @@ import { formatClockIst, formatRupees } from '@/lib/format';
 import { courtById, useDemo } from '../../store/demoStore';
 import { downloadCsv, PERIOD_LABEL, PERIOD_DAYS, periodTotals, rowsBetween, type Period } from '../../store/selectors';
 import { ALL_MEMBERS } from '../../store/staticData';
+import { TaxesToReport } from '../../components/TaxesToReport';
 import { btn, Card, PageHeader, PageSkeleton, Segmented, usePageReady, useToast } from '../../ui/kit';
 import { DEMO_TODAY } from '../../store/types';
 import { addDays } from '@shared/lib/time';
@@ -38,6 +39,7 @@ export default function OwnerReports() {
         <Segmented value={period} onChange={setPeriod} options={[{ value: 'TODAY', label: 'Today' }, { value: 'WEEK', label: '7 days' }, { value: 'MONTH', label: '30 days' }]} />
       </PageHeader>
       <p className="-mt-3 mb-6 text-muted">Revenue report covers <span className="font-semibold text-ink">{PERIOD_LABEL[period].toLowerCase()}</span>. CSV files open in Excel or Google Sheets — ready to share with partners or your accountant.</p>
+      <TaxesToReport />
       <ul className="grid gap-5 md:grid-cols-2 2xl:grid-cols-3">
         {REPORTS.map((r, i) => (
           <li key={r.title} style={{ ['--d' as string]: `${i * 55}ms` }} className="anim-rise">

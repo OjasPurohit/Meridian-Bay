@@ -64,7 +64,7 @@ router.get('/leave-requests', ...staffRoles, validateQuery(z.object({ status: en
 router.post('/leave-requests', requireAuth, requireRole(R.FRONT_DESK, R.KITCHEN_MANAGER, R.STORE_MANAGER), validateBody(strictObject({ start_date: isoDate, end_date: isoDate, reason: z.string().trim().min(1).max(500).optional() }).refine((b) => b.end_date >= b.start_date, { path: ['end_date'], message: 'Must be on or after start_date.' })),
   asyncHandler(async (req, res) => created(res, await StaffService.leaveCreate(caller(req), req.body as StaffLeaveCreateRequest))));
 router.post('/leave-requests/:id/decision', ...owner, validateParams(idParams), validateBody(strictObject({ decision: enumOf(LEAVE_DECISION), note: z.string().trim().min(1).max(500).optional() })),
-  asyncHandler(async (req, res) => ok(res, await StaffService.leaveDecide(req.params.id!, req.body as StaffLeaveDecideRequest))));
+  asyncHandler(async (req, res) => ok(res, await StaffService.leaveDecide(caller(req).id, req.params.id!, req.body as StaffLeaveDecideRequest))));
 router.post('/leave-requests/:id/cancel', ...staffRoles, validateParams(idParams),
   asyncHandler(async (req, res) => ok(res, await StaffService.leaveCancel(caller(req), req.params.id!))));
 

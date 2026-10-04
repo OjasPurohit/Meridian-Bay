@@ -352,6 +352,8 @@ export interface LeaveRequest {
   reason: string | null;
   status: E.LeaveStatus;
   decision_note: string | null;
+  decided_by_user_id: Uuid | null;
+  decided_at: IsoDateTime | null;
   created_at: IsoDateTime;
   updated_at: IsoDateTime;
 }
@@ -365,6 +367,28 @@ export interface PayrollPayment {
   paid_on: IsoDate | null;
   created_at: IsoDateTime;
   updated_at: IsoDateTime;
+}
+
+export interface TaxInput {
+  id: Uuid;
+  input_date: IsoDate;
+  supplier: string;
+  reference: string | null;
+  taxable_amount: Money;
+  tax_amount: Money;
+  is_eligible: boolean;
+  notes: string | null;
+  created_by_user_id: Uuid | null;
+  created_at: IsoDateTime;
+  updated_at: IsoDateTime;
+}
+
+export interface TaxPeriod {
+  id: Uuid;
+  period: IsoDate;
+  reported_at: IsoDateTime;
+  reported_by_user_id: Uuid | null;
+  notes: string | null;
 }
 
 // ------------------------------------------------------------------ platform

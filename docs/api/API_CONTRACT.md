@@ -149,11 +149,16 @@ interface PageMeta { page: number; page_size: number; total: number; total_pages
 | reports | `GET` | `/reports/bar` | OWNER_ADMIN | [reports.bar](#reportsbar) |
 | reports | `GET` | `/reports/finance` | OWNER_ADMIN | [reports.finance](#reportsfinance) |
 | reports | `GET` | `/reports/tax` | OWNER_ADMIN | [reports.tax](#reportstax) |
+| reports | `GET` | `/reports/tax-overview` | OWNER_ADMIN | [reports.taxOverview](#reportstaxOverview) |
+| reports | `POST` | `/reports/tax-inputs` | OWNER_ADMIN | [reports.taxInputCreate](#reportstaxInputCreate) |
+| reports | `DELETE` | `/reports/tax-inputs/:id` | OWNER_ADMIN | [reports.taxInputDelete](#reportstaxInputDelete) |
+| reports | `POST` | `/reports/tax-periods/:period/report` | OWNER_ADMIN | [reports.taxPeriodReport](#reportstaxPeriodReport) |
+| reports | `DELETE` | `/reports/tax-periods/:period` | OWNER_ADMIN | [reports.taxPeriodReopen](#reportstaxPeriodReopen) |
 | reports | `GET` | `/reports/export` | OWNER_ADMIN | [reports.export](#reportsexport) |
 | settings | `GET` | `/settings` | OWNER_ADMIN | [settings.list](#settingslist) |
 | settings | `PATCH` | `/settings/:key` | OWNER_ADMIN | [settings.update](#settingsupdate) |
 
-**112 endpoints** across 18 modules.
+**117 endpoints** across 18 modules.
 
 ## 3. Module ownership
 
@@ -8247,6 +8252,8 @@ GET /api/v1/staff/leave-requests
       "decision_note": null,
       "created_at": "2026-09-29T03:30:00.000Z",
       "updated_at": "2026-10-02T04:30:00.000Z",
+      "decided_by_user_id": null,
+      "decided_at": null,
       "staff_name": "Aarav Kapoor"
     }
   ],
@@ -8328,6 +8335,8 @@ POST /api/v1/staff/leave-requests
     "decision_note": null,
     "created_at": "2026-09-29T03:30:00.000Z",
     "updated_at": "2026-10-02T04:30:00.000Z",
+    "decided_by_user_id": null,
+    "decided_at": null,
     "staff_name": "Aarav Kapoor"
   }
 }
@@ -8402,6 +8411,8 @@ POST /api/v1/staff/leave-requests/14000000-0000-4000-8000-000000000001/decision
     "decision_note": null,
     "created_at": "2026-09-29T03:30:00.000Z",
     "updated_at": "2026-10-02T04:30:00.000Z",
+    "decided_by_user_id": null,
+    "decided_at": null,
     "staff_name": "Aarav Kapoor"
   }
 }
@@ -8463,6 +8474,8 @@ POST /api/v1/staff/leave-requests/14000000-0000-4000-8000-000000000001/cancel
     "decision_note": null,
     "created_at": "2026-09-29T03:30:00.000Z",
     "updated_at": "2026-10-02T04:30:00.000Z",
+    "decided_by_user_id": null,
+    "decided_at": null,
     "staff_name": "Aarav Kapoor"
   }
 }
@@ -9375,6 +9388,374 @@ GET /api/v1/reports/tax?from=2026-10-10&to=2026-10-10
   "error": {
     "code": "VALIDATION_ERROR",
     "message": "Request validation failed."
+  }
+}
+```
+
+<a id="reportstaxOverview"></a>
+#### `GET /api/v1/reports/tax-overview` — reports.taxOverview
+
+Internal "Taxes to report" overview of one calendar month: taxable revenue, tax collected, input tax credit, estimated payable and the internal reporting status. Not a government filing.
+
+| | |
+|---|---|
+| **Auth** | Bearer JWT |
+| **Roles** | OWNER_ADMIN |
+| **Success** | 200 · `data: TaxOverview` |
+| **Requirements** | FR-REP-007, FR-FIN-007 |
+| **Governing rules** | [R-FIN-07](../business-rules/BUSINESS_RULES.md) |
+| **Tables touched** | `payments`, `tax_inputs`, `tax_periods` |
+
+**Query parameters**
+
+| Field | Type | Required | Rules |
+|---|---|---|---|
+| `period` | string | **yes** | YYYY-MM (IST calendar month) |
+
+**Rules / behaviour:** Taxable revenue and tax collected are the reports.tax figures for the month (payments net of refunds, tax pro-rated); input tax credit = eligible tax_inputs dated in the month; estimated payable = max(0, collected - credit) and the leftover credit is shown as credit_balance. Status: REPORTED once the owner marked the month, else READY_TO_REPORT after the month ended, else NOT_READY.
+
+**Errors**
+
+| Code | HTTP | Meaning here |
+|---|---|---|
+| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
+| `VALIDATION_ERROR` | 400 | Request validation failed. |
+| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
+
+**Example (generated from the types and seed data — shape is exact, values illustrative)**
+
+```http
+GET /api/v1/reports/tax-overview?period=string
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "period": "string",
+    "from": "2026-10-03",
+    "to": "2026-10-03",
+    "taxable_revenue": "1250.00",
+    "tax_collected": "1250.00",
+    "input_tax_credit": "1250.00",
+    "estimated_payable": "1250.00",
+    "credit_balance": "1250.00",
+    "status": "unknown",
+    "period_ended": true,
+    "reported_at": "2026-10-03T12:30:00.000Z",
+    "by_category": "unknown",
+    "inputs": [
+      {
+        "id": "1a000000-0000-4000-8000-000000000001",
+        "input_date": "2026-10-01",
+        "supplier": "Apex Sports Wholesale",
+        "reference": "ASW/2610/118",
+        "taxable_amount": "84000.00",
+        "tax_amount": "15120.00",
+        "is_eligible": true,
+        "notes": "Racquets and shuttle restock for the shop",
+        "created_by_user_id": "01000000-0000-4000-8000-000000000001",
+        "created_at": "2026-10-01T06:30:00.000Z",
+        "updated_at": "2026-10-01T06:30:00.000Z"
+      }
+    ]
+  }
+}
+```
+
+**Example error (HTTP 400)**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Request validation failed."
+  }
+}
+```
+
+<a id="reportstaxInputCreate"></a>
+#### `POST /api/v1/reports/tax-inputs` — reports.taxInputCreate
+
+Record input tax the club paid on one of its own purchases (the only source of Input Tax Credit).
+
+| | |
+|---|---|
+| **Auth** | Bearer JWT |
+| **Roles** | OWNER_ADMIN |
+| **Success** | 201 · `data: TaxInput` |
+| **Requirements** | FR-REP-007, FR-FIN-007 |
+| **Governing rules** | [R-FIN-07](../business-rules/BUSINESS_RULES.md) |
+| **Tables touched** | `tax_inputs` |
+
+**Request body** — type `ReportsTaxInputCreateRequest`
+
+| Field | Type | Required | Rules |
+|---|---|---|---|
+| `input_date` | date | **yes** | supplier invoice date |
+| `supplier` | string | **yes** |  |
+| `reference` | string | no | supplier invoice number |
+| `taxable_amount` | money | **yes** |  |
+| `tax_amount` | money | **yes** |  |
+| `is_eligible` | bool | no | default true; only eligible input tax counts as credit |
+| `notes` | text | no |  |
+
+**Errors**
+
+| Code | HTTP | Meaning here |
+|---|---|---|
+| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
+| `VALIDATION_ERROR` | 400 | Request validation failed. |
+| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
+
+**Example (generated from the types and seed data — shape is exact, values illustrative)**
+
+```http
+POST /api/v1/reports/tax-inputs
+```
+
+```json
+{
+  "input_date": "2026-10-10",
+  "supplier": "string",
+  "taxable_amount": "100.00",
+  "tax_amount": "100.00"
+}
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "1a000000-0000-4000-8000-000000000001",
+    "input_date": "2026-10-01",
+    "supplier": "Apex Sports Wholesale",
+    "reference": "ASW/2610/118",
+    "taxable_amount": "84000.00",
+    "tax_amount": "15120.00",
+    "is_eligible": true,
+    "notes": "Racquets and shuttle restock for the shop",
+    "created_by_user_id": "01000000-0000-4000-8000-000000000001",
+    "created_at": "2026-10-01T06:30:00.000Z",
+    "updated_at": "2026-10-01T06:30:00.000Z"
+  }
+}
+```
+
+**Example error (HTTP 400)**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Request validation failed."
+  }
+}
+```
+
+<a id="reportstaxInputDelete"></a>
+#### `DELETE /api/v1/reports/tax-inputs/:id` — reports.taxInputDelete
+
+Remove a mistaken input-tax record.
+
+| | |
+|---|---|
+| **Auth** | Bearer JWT |
+| **Roles** | OWNER_ADMIN |
+| **Success** | 200 · `data: null` |
+| **Requirements** | FR-REP-007, FR-FIN-007 |
+| **Governing rules** | [R-FIN-07](../business-rules/BUSINESS_RULES.md) |
+| **Tables touched** | `tax_inputs` |
+| **Path params** | `id` (uuid) |
+
+**Errors**
+
+| Code | HTTP | Meaning here |
+|---|---|---|
+| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
+| `VALIDATION_ERROR` | 400 | Request validation failed. |
+| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
+| `NOT_FOUND` | 404 | Resource not found. |
+
+**Example (generated from the types and seed data — shape is exact, values illustrative)**
+
+```http
+DELETE /api/v1/reports/tax-inputs/1a000000-0000-4000-8000-000000000001
+```
+
+```json
+{
+  "success": true,
+  "data": null
+}
+```
+
+**Example error (HTTP 404)**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Resource not found."
+  }
+}
+```
+
+<a id="reportstaxPeriodReport"></a>
+#### `POST /api/v1/reports/tax-periods/:period/report` — reports.taxPeriodReport
+
+Mark a finished month as reported. Internal tracking only: nothing is sent to any government system.
+
+| | |
+|---|---|
+| **Auth** | Bearer JWT |
+| **Roles** | OWNER_ADMIN |
+| **Success** | 200 · `data: TaxOverview` |
+| **Requirements** | FR-REP-007, FR-FIN-007 |
+| **Governing rules** | [R-FIN-07](../business-rules/BUSINESS_RULES.md) |
+| **Tables touched** | `tax_periods` |
+| **Path params** | `period` (uuid) |
+
+**Rules / behaviour:** Only a month that has ended can be marked; marking twice is harmless.
+
+**Errors**
+
+| Code | HTTP | Meaning here |
+|---|---|---|
+| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
+| `VALIDATION_ERROR` | 400 | Request validation failed. |
+| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
+| `NOT_FOUND` | 404 | Resource not found. |
+
+**Example (generated from the types and seed data — shape is exact, values illustrative)**
+
+```http
+POST /api/v1/reports/tax-periods/1b000000-0000-4000-8000-000000000001/report
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "period": "string",
+    "from": "2026-10-03",
+    "to": "2026-10-03",
+    "taxable_revenue": "1250.00",
+    "tax_collected": "1250.00",
+    "input_tax_credit": "1250.00",
+    "estimated_payable": "1250.00",
+    "credit_balance": "1250.00",
+    "status": "unknown",
+    "period_ended": true,
+    "reported_at": "2026-10-03T12:30:00.000Z",
+    "by_category": "unknown",
+    "inputs": [
+      {
+        "id": "1a000000-0000-4000-8000-000000000001",
+        "input_date": "2026-10-01",
+        "supplier": "Apex Sports Wholesale",
+        "reference": "ASW/2610/118",
+        "taxable_amount": "84000.00",
+        "tax_amount": "15120.00",
+        "is_eligible": true,
+        "notes": "Racquets and shuttle restock for the shop",
+        "created_by_user_id": "01000000-0000-4000-8000-000000000001",
+        "created_at": "2026-10-01T06:30:00.000Z",
+        "updated_at": "2026-10-01T06:30:00.000Z"
+      }
+    ]
+  }
+}
+```
+
+**Example error (HTTP 401)**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "AUTH_UNAUTHORIZED",
+    "message": "Authentication required or token expired."
+  }
+}
+```
+
+<a id="reportstaxPeriodReopen"></a>
+#### `DELETE /api/v1/reports/tax-periods/:period` — reports.taxPeriodReopen
+
+Take the reported mark off a month (it goes back to READY_TO_REPORT).
+
+| | |
+|---|---|
+| **Auth** | Bearer JWT |
+| **Roles** | OWNER_ADMIN |
+| **Success** | 200 · `data: TaxOverview` |
+| **Requirements** | FR-REP-007, FR-FIN-007 |
+| **Governing rules** | [R-FIN-07](../business-rules/BUSINESS_RULES.md) |
+| **Tables touched** | `tax_periods` |
+| **Path params** | `period` (uuid) |
+
+**Errors**
+
+| Code | HTTP | Meaning here |
+|---|---|---|
+| `AUTH_UNAUTHORIZED` | 401 | Authentication required or token expired. |
+| `VALIDATION_ERROR` | 400 | Request validation failed. |
+| `FORBIDDEN` | 403 | You do not have permission to perform this action. |
+| `NOT_FOUND` | 404 | Resource not found. |
+
+**Example (generated from the types and seed data — shape is exact, values illustrative)**
+
+```http
+DELETE /api/v1/reports/tax-periods/1b000000-0000-4000-8000-000000000001
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "period": "string",
+    "from": "2026-10-03",
+    "to": "2026-10-03",
+    "taxable_revenue": "1250.00",
+    "tax_collected": "1250.00",
+    "input_tax_credit": "1250.00",
+    "estimated_payable": "1250.00",
+    "credit_balance": "1250.00",
+    "status": "unknown",
+    "period_ended": true,
+    "reported_at": "2026-10-03T12:30:00.000Z",
+    "by_category": "unknown",
+    "inputs": [
+      {
+        "id": "1a000000-0000-4000-8000-000000000001",
+        "input_date": "2026-10-01",
+        "supplier": "Apex Sports Wholesale",
+        "reference": "ASW/2610/118",
+        "taxable_amount": "84000.00",
+        "tax_amount": "15120.00",
+        "is_eligible": true,
+        "notes": "Racquets and shuttle restock for the shop",
+        "created_by_user_id": "01000000-0000-4000-8000-000000000001",
+        "created_at": "2026-10-01T06:30:00.000Z",
+        "updated_at": "2026-10-01T06:30:00.000Z"
+      }
+    ]
+  }
+}
+```
+
+**Example error (HTTP 401)**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "AUTH_UNAUTHORIZED",
+    "message": "Authentication required or token expired."
   }
 }
 ```

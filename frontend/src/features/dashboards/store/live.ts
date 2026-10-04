@@ -14,7 +14,7 @@ import { unavailableMessage } from './admin';
 import { clientRegistry } from './source';
 import type { BarOrderRow, BookingRow, InvoiceRow, PaymentRow, ShopOrderRow } from './derive';
 import { buildState } from './seed';
-import { DAILY, ALL_MEMBERS, REAL_MEMBERS, applications as applicationsRef, courts as courtsRef, inactiveCourts as inactiveCourtsRef, enquiries as enquiriesRef, leaveRequests, plans as plansRef, planCards, staff as staffRef, DAYS } from './staticData';
+import { DAILY, ALL_MEMBERS, REAL_MEMBERS, applications as applicationsRef, courts as courtsRef, inactiveCourts as inactiveCourtsRef, enquiries as enquiriesRef, leaveRequests, myPay, plans as plansRef, planCards, staff as staffRef, DAYS } from './staticData';
 import { hooks, replaceState, type BookInput, type KitchenInput, type ShopInput } from './demoStore';
 import { DEMO_TODAY, syncClock, type DemoState, type DEvent, type DMember, type DStaff } from './types';
 import type { PaymentMethod } from '@shared/constants/enums';
@@ -94,14 +94,35 @@ const replaceAll = <T,>(target: T[], next: T[]) => {
   target.push(...next);
 };
 
-/** One anonymous "occupied" booking per BOOKED / BLOCKED slot, so members see taken slots but never who holds them. */
+/**
+ * Anonymous "occupied" bookings for members, so taken slots show without saying who holds them.
+ * Availability lists every 30-minute START; one 1-hour booking at T makes starts T-30, T and T+30 unavailable. Emitting a
+ * block per unavailable start drew three overlapping blocks per booking (the calendar grid wrapped them into extra rows).
+ * So the real one-hour blocks are rebuilt: the member's own bookings (known exactly) use up their three starts, and each
+ * remaining run of unavailable starts is read left to right, a booking centred on the start after the first one when the
+ * slot before it is free (a booking blocks one start on each side) and on the first one at the start of the day or right
+ * after a start that is already accounted for.
+ */
 function occupiedFromAvailability(av: CourtAvailability[], ownKeys: Set<string>): BookingRow[] {
   const out: BookingRow[] = [];
   for (const c of av) {
-    for (const s of c.slots) {
-      if ((s.status !== 'BOOKED' && s.status !== 'BLOCKED') || ownKeys.has(`${c.court_id}|${s.start_at}`)) continue;
+    const slots = [...c.slots].sort((x, y) => x.start_at.localeCompare(y.start_at));
+    const taken = (i: number) => slots[i]?.status === 'BOOKED' || slots[i]?.status === 'BLOCKED';
+    const covered = new Set<number>();
+    slots.forEach((s, i) => {
+      if (ownKeys.has(`${c.court_id}|${s.start_at}`)) [i - 1, i, i + 1].forEach((j) => covered.add(j));
+    });
+    for (let i = 0; i < slots.length; i++) {
+      if (!taken(i) || covered.has(i)) continue;
+      let run = 0;
+      while (taken(i + run) && !covered.has(i + run)) run++;
+      // after a free start: the booking is centred one start later. At the opening slot there is no start before it, so the run's parity decides (odd = starts one slot late).
+      const centre = i + 1 < slots.length && (i > 0 ? !taken(i - 1) : run % 2 === 1) ? i + 1 : i;
+      [centre - 1, centre, centre + 1].forEach((j) => covered.add(j));
+      const s = slots[centre]!;
+      const blocked = slots[centre]!.status === 'BLOCKED' || slots[i]!.status === 'BLOCKED';
       out.push({
-        id: `slot-${c.court_id}-${s.start_at}`, booking_number: 'TAKEN', court_id: c.court_id, booking_type: s.status === 'BLOCKED' ? 'MAINTENANCE' : 'REGULAR', member_id: null, guest_name: s.status === 'BLOCKED' ? 'Maintenance' : 'Booked',
+        id: `slot-${c.court_id}-${s.start_at}`, booking_number: 'TAKEN', court_id: c.court_id, booking_type: blocked ? 'MAINTENANCE' : 'REGULAR', member_id: null, guest_name: blocked ? 'Maintenance' : 'Booked',
         guest_phone: null, start_at: s.start_at, end_at: s.end_at, list_price: '0.00', discount_amount: '0.00', cancelled_at: null, created_at: s.start_at, updated_at: s.start_at, status: 'CONFIRMED', amount_due: '0.00', amount_paid: '0.00', payment_status: 'NOT_REQUIRED',
       } as BookingRow);
     }
@@ -135,6 +156,8 @@ function fillAnalytics(payments: PaymentView[], bookings: BookingDetail[], membe
     if (d) d.payroll += num(p.amount);
   }
 }
+
+const toLeaveRow = (l: LeaveView) => ({ id: l.id, staff_id: l.staff_id, staff: l.staff_name, type: 'LEAVE', from: l.start_date, to: l.end_date, status: l.status, reason: l.reason, note: l.decision_note, submitted: l.created_at, decided_at: l.decided_at });
 
 async function load(s: AuthSession): Promise<void> {
   syncClock(); // live mode: today / now are the real ones, refreshed on every load
@@ -219,8 +242,19 @@ async function load(s: AuthSession): Promise<void> {
         const last = pay.filter((p) => p.staff_id === m.id)[0];
         return { id: m.id, user_id: m.user_id, name: m.full_name, email: m.email, designation: m.designation, role: m.role, area: m.role === 'KITCHEN_MANAGER' ? 'BAR' : m.role === 'FRONT_DESK' ? 'COURTS' : m.role === 'STORE_MANAGER' ? 'SHOP' : 'MANAGEMENT', salary: num(m.monthly_salary), phone: m.phone ?? '', shift: sh ? `${sh.start_time.slice(0, 5)}–${sh.end_time.slice(0, 5)}` : 'Off today', payroll: last ? (last.is_paid ? 'PAID' : 'PENDING') : 'PENDING', on_duty: !!sh, active: m.is_active };
       }));
-      replaceAll(leaveRequests as unknown[], leave.map((l) => ({ id: l.id, staff: l.staff_name, type: 'LEAVE', from: l.start_date, to: l.end_date, status: l.status, reason: l.reason })));
+      replaceAll(leaveRequests as unknown[], leave.map(toLeaveRow));
     }
+  }
+  if (role === 'FRONT_DESK' || role === 'KITCHEN_MANAGER' || role === 'STORE_MANAGER') {
+    // an employee's own leave requests (with the owner's decision) and pay; the API scopes both to the caller
+    const [leave, pay, me] = await Promise.all([
+      safe(all<LeaveView>('/staff/leave-requests'), []),
+      safe(all<PayrollView>('/staff/payroll'), []),
+      s.staff ? safe(get<StaffView>(`/staff/${s.staff.id}`), null) : Promise.resolve(null),
+    ]);
+    replaceAll(leaveRequests as unknown[], leave.map(toLeaveRow));
+    replaceAll(myPay.payroll as unknown[], pay.map((p) => ({ id: p.id, period: p.pay_period, amount: num(p.amount), method: p.method, paid_on: p.paid_on })));
+    myPay.salary = num(me?.monthly_salary ?? s.staff?.monthly_salary ?? '0');
   }
   src.payments = paymentsRaw as unknown as PaymentRow[];
   const toDCourt = (c: Court) => ({ id: c.id, name: c.name, sport: c.sport_type, rate: num(c.walk_in_rate_per_hour), surface: c.surface, description: c.description });

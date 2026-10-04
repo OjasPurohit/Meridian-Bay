@@ -35,7 +35,7 @@ Server-side authorisation rules (R-SEC-01) — enforced by middleware/service ch
 | Shifts | — | — | — | V | v | v | V C U D |
 | Leave | — | — | — | v C u | v C u | v C u | V U A |
 | Payroll | — | — | — | v | v | v | V C U |
-| Reports | — | — | — | — | — | — | V |
+| Reports | — | — | — | — | — | — | V C U D |
 | Club settings | — | — | — | — | — | — | V U |
 
 ## 2. Endpoint × role
@@ -153,6 +153,11 @@ Server-side authorisation rules (R-SEC-01) — enforced by middleware/service ch
 | `GET /reports/bar` | reports.bar |  |  |  |  | ● |
 | `GET /reports/finance` | reports.finance |  |  |  |  | ● |
 | `GET /reports/tax` | reports.tax |  |  |  |  | ● |
+| `GET /reports/tax-overview` | reports.taxOverview |  |  |  |  | ● |
+| `POST /reports/tax-inputs` | reports.taxInputCreate |  |  |  |  | ● |
+| `DELETE /reports/tax-inputs/:id` | reports.taxInputDelete |  |  |  |  | ● |
+| `POST /reports/tax-periods/:period/report` | reports.taxPeriodReport |  |  |  |  | ● |
+| `DELETE /reports/tax-periods/:period` | reports.taxPeriodReopen |  |  |  |  | ● |
 | `GET /reports/export` | reports.export |  |  |  |  | ● |
 | `GET /settings` | settings.list |  |  |  |  | ● |
 | `PATCH /settings/:key` | settings.update |  |  |  |  | ● |

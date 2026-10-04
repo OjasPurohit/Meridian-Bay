@@ -12,7 +12,7 @@ import type { ErrorCode } from '../constants/errors';
 import type {
   Uuid, Money, Percent, IsoDate, IsoDateTime, TimeOfDay, User, Member, Staff, BusinessClient, MembershipPlan, Membership,
   Enquiry, Court, CourtBooking, Product, ShopOrder, ShopOrderItem, BarMenuItem, BarOrder, BarOrderItem, Payment, Invoice, InvoiceItem,
-  StaffShift, LeaveRequest, PayrollPayment,
+  StaffShift, LeaveRequest, PayrollPayment, TaxInput,
 } from './rows';
 
 // ------------------------------------------------------------------ envelopes
@@ -443,6 +443,23 @@ export interface FinanceReport {
   tax_collected: Money;
 }
 
+/** Internal reporting status of a month (not a government filing): the month is still running / finished and not yet marked / marked reported. */
+export type TaxReportStatus = 'NOT_READY' | 'READY_TO_REPORT' | 'REPORTED';
+export interface TaxOverview {
+  period: string; // YYYY-MM, an IST calendar month
+  from: IsoDate;
+  to: IsoDate;
+  taxable_revenue: Money; // net of refunds, tax excluded: the same figures as TaxReport
+  tax_collected: Money; // TaxReport.total_tax for the same month
+  input_tax_credit: Money; // eligible tax_inputs dated in the month
+  estimated_payable: Money; // max(0, tax_collected - input_tax_credit)
+  credit_balance: Money; // max(0, input_tax_credit - tax_collected): credit left over instead of a negative payable
+  status: TaxReportStatus;
+  period_ended: boolean;
+  reported_at: IsoDateTime | null;
+  by_category: TaxReport['rows'];
+  inputs: TaxInput[];
+}
 export interface TaxReport {
   range: DateRange;
   rows: { revenue_category: E.RevenueCategory; gross_amount: Money; taxable_amount: Money; tax_rate: Percent; tax_amount: Money }[];
